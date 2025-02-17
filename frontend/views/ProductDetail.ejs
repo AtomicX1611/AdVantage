@@ -1,11 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Detail Screen</title>
-</head>
-<body>
-    <h1>Prodct Detail <%= name %></h1>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Detail <%= name %></title>
+    <link rel="stylesheet" href="/productDetail.css" />
+  </head>
+  <body>
+       <%- include("../header.html") %>
+       <div class="main_container">
+        <div class="card_list">
+            <div class="card_container">
+              <h3 class="card_title">Card 1</h1>
+            </div>
+            <div class="card_container">
+             <h3 class="card_title">Card 2</h1>
+            </div>
+            <div class="card_container">
+             <h3 class="card_title">Card 3</h1>
+            </div>
+            <div class="card_container">
+             <h3 class="card_title">Card 4</h1>
+            </div>
+        </div>
+        <div class="big_card">
+           
+        </div>
+       </div>
+  </body>
 </html>
+
