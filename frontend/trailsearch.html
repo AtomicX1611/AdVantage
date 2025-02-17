@@ -13,17 +13,22 @@
         }
 
         body {
-            height: 100vh;
+            height: 100%;
             width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            overflow-y: auto;
             background-color: #090909;
         }
 
         header {
-            height: max(9.765625vh, 40px);
-            /*75px*/
+            height: 75px;
             width: 100vw;
             background-color: rgb(217, 217, 217);
+
         }
 
         nav {
@@ -75,25 +80,29 @@
         }
 
         #search-products {
-            height: 40px;
+            height: 48px;
             width: 25vw;
             background-color: rgb(72, 215, 125);
             border: none;
             border-radius: 8px;
+            padding-top: 3px;
+            font-size: medium;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
         }
 
         #search-products::placeholder {
             color: rgb(53, 53, 53);
             font-weight: 500;
-            font-size: medium;
+            font-size: large;
             font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+
         }
 
         .magnifier {
-            font-size: large;
+            font-size: x-large;
             position: absolute;
             left: 1vh;
-            bottom: 30%;
+            bottom: 25%;
         }
 
         .sellbtn {
@@ -102,8 +111,8 @@
             align-items: center;
             gap: 0.5vw;
             background-color: rgb(57, 136, 96);
-            height: 40px;
-            width: fit-content;
+            height: 47px;
+            width: 5vw;
             margin-left: 2vw;
             padding: 0px 15px;
             border-radius: 8px;
@@ -117,27 +126,27 @@
         .box2 {
             width: 15vw;
             display: flex;
-            justify-content: flex-start;
-            gap: 3vw;
+            justify-content: flex-end;
+            gap: 2vw;
             align-items: center;
         }
 
         .box2-icons {
-            font-size: max(3.6458333333333333333333333333333vh, 20px);
-            /*28px*/
+            font-size: 32px;
         }
 
         .box3 {
             width: 15vw;
             border-bottom-left-radius: 100px;
             background-color: rgb(34, 87, 122);
-            height: max(9.765625vh, 40px);
+            height: 75px;
             display: flex;
-            justify-self: center;
+            justify-content: center;
             align-items: center;
-            gap: 3vw;
+            gap: 2.5vw;
             padding-left: 2vw;
         }
+
 
         .products {
             height: 50vh;
@@ -239,7 +248,7 @@
             width: 96.339677891654465592972181551977vw;
             display: flex;
             flex-wrap: wrap;
-            /* justify-content: center; */
+            justify-content: center;
             border-left: 1px solid #c3c4c5;
         }
         #minAndMax {
@@ -311,6 +320,7 @@
                 <div class="products"></div>
                 <div class="products"></div>
                 <div class="products"></div>    
+                <div class="products"></div>
                 <div class="products"></div>
                 <div class="products"></div>
                 <div class="products"></div>
