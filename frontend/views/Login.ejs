@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/Login.css">
+</head>
+
+<body>
+    <div class="card">
+        <div class="signUP ff">
+            <div class="head" style="font-size: larger; margin-top: 7vh;">
+                <h1>Create an Account</h1>
+            </div>
+            <div class="form">
+                <form action="/signup" method="post" id="signup-form">
+                    <div class="email">
+                        <input type="email" name="email" id="email" placeholder="Email ID">
+                        <div class="error">
+                            *This Email ID already Exist
+                        </div>
+                    </div>
+                    <input type="password" name="password" id="create-password" placeholder="Password">
+                    <div class="confirm-password">
+                        <input type="password" name="password" id="confirm-password" placeholder="Confirm Password">
+                        <div class="error">
+                            *Passwords do not Match
+                        </div>
+                    </div>
+                    <div class="signup-btn">
+                        <button type="submit">Sign Up</button>
+                    </div>
+                </form>
+                <div class="switch-page">
+                    
+                </div>
+            </div>
+        </div>
+        <div class="login bf">
+
+        </div>
+    </div>
+</body>
+
+</html>
