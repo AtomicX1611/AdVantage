@@ -6,86 +6,94 @@
     <title>Document</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
-        * {
-    margin: 0;
-    padding: 0;
-}
-.navBody {
-    height: 100%;
-    width: 100vw;
-    display: flex;
-    flex-direction: column;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow-x: hidden;
-    overflow-y: auto;
-   
-}
-header {
-    height: 75px;
-    width: 100vw;
-    background-color: rgb(217, 217, 217);
-     
-}
-nav {
-    height: inherit;
-    display: flex;
-    justify-content: flex-start;
-    gap: 1vw;
-    align-items: center;
-    margin-left: 2%;
-    overflow: hidden;
-}
-.box1 {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    width: 70vw;
-    gap: 2vw;
-    /* background-color: red; */
-}
-.logo {
-    font-size: x-large;
-    font-weight: bolder;
-}
-a{
-    text-decoration: none;
-    color: black;
-}
-.logo a{
-    text-decoration: none;
-    color: black;
-    background-color: inherit;
-    border: none;
-    font-size: x-large;
-    font-weight: bolder;
-    cursor: pointer;
-    
-}
-.search {
-    position: relative;
-}
-.search input {
-    padding-left: 10%;
-}
-#search-products {
-    height: 40px;
-    width: 25vw;
-    background-color: rgb(72, 215, 125);
-    border: none;
-    border-radius: 8px;
-}
-#search-products::placeholder {
-    color: rgb(53, 53, 53);
-    font-weight: 500;
-    font-size: medium;
-    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-}
-.magnifier {
-    font-size: large;
-    position: absolute;
-    left: 1vh;
-    bottom: 30%;
-}
+    * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            width: 100vw;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #090909;
+        }
+
+        header {
+            height: max(9.765625vh, 40px);
+            /*75px*/
+            width: 100vw;
+            background-color: rgb(217, 217, 217);
+        }
+
+        nav {
+            height: inherit;
+            display: flex;
+            justify-content: flex-start;
+            gap: 1vw;
+            align-items: center;
+            margin-left: 2%;
+            overflow: hidden;
+        }
+
+        .box1 {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: 70vw;
+            gap: 2vw;
+            /* background-color: red; */
+        }
+
+        .logo {
+            font-size: x-large;
+            font-weight: bolder;
+        }
+
+        a {
+            text-decoration: none;
+            color: black;
+        }
+
+        .logo a {
+            text-decoration: none;
+            color: black;
+            background-color: inherit;
+            border: none;
+            font-size: x-large;
+            font-weight: bolder;
+            cursor: pointer;
+
+        }
+
+        .search {
+            position: relative;
+        }
+
+        .search input {
+            padding-left: 10%;
+        }
+
+        #search-products {
+            height: 40px;
+            width: 25vw;
+            background-color: rgb(72, 215, 125);
+            border: none;
+            border-radius: 8px;
+        }
+
+        #search-products::placeholder {
+            color: rgb(53, 53, 53);
+            font-weight: 500;
+            font-size: medium;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+
+        .magnifier {
+            font-size: large;
+            position: absolute;
+            left: 1vh;
+            bottom: 30%;
+        }
 
         .sellbtn {
             font-size: larger;
@@ -131,7 +139,7 @@ a{
         }
     </style>
 </head>
-<body class="navBody">
+<body>
     <header>
         <nav>
             <div class="box1">
