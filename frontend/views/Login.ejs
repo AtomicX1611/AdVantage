@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/Login.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    <div class="card">
+        <div class="signUP ff">
+            <div class="head" style="font-size: larger; margin-top: 7vh;">
+                <h1>Create an Account</h1>
+            </div>
+            <div class="form">
+                <form action="/signup" method="post" id="signup-form">
+                    <div class="email">
+                        <input type="email" name="email" id="email" placeholder="Email ID">
+                        <div class="error">
+                            *This Email ID already Exist
+                        </div>
+                    </div>
+                    <input type="password" name="password" id="create-password" placeholder="Password">
+                    <div class="confirm-password">
+                        <input type="password" name="password" id="confirm-password" placeholder="Confirm Password">
+                        <div class="error">
+                            *Passwords do not Match
+                        </div>
+                    </div>
+                    <div class="signup-btn">
+                        <button type="submit">Sign Up</button>
+                    </div>
+                </form>
+                <div class="switch-page">
+                    Have an Account?<span id="switch-login">Login here*</span>
+                </div>
+            </div>
+        </div>
+        <div class="login bf">
+            <div class="head" style="font-size: larger; margin-top: 20px;">
+                <h1>Login</h1>
+            </div>
+            <div class="form">
+                <form action="/login" method="post" id="login-form">
+                    <div class="email">
+                        <input type="email" name="email" id="email" placeholder="Email ID">
+                    </div>
+                    <div class="confirm-password">
+                        <input type="password" name="password" id="confirm-password" placeholder="Password">
+                        <div class="error">
+                            *Incorrect Password Entered
+                        </div>
+                    </div>
+                    <div class="signup-btn">
+                        <button type="submit">Login</button>
+                    </div>
+                </form>
+                <div class="bar">
+                    <span class="line"></span>
+                    <span>or</span>
+                    <span class="line"></span>
+                </div>
+                
+            </div>
+            <div class="OAuth-options">
+                <div class="google-OAuth option-box">
+                    <div class="platform-logo">
+                        <i class='bx bxl-google'></i>
+                    </div>
+                    <div class="option">
+                        Continue With Google
+                    </div>
+                </div>
+            </div>
+            <div class="switch-page">
+                Create new Account?<span id="switch-signup">SignUp here*</span>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    let flipLogin = document.getElementById("switch-login");
+    let card=document.getElementsByClassName("card")[0];
+    flipLogin.addEventListener("click", () => {
+        card.style.transform="rotateY(180deg)";
+    });
+
+    let flipSignUp=document.getElementById("switch-signup");
+    flipSignUp.addEventListener("click",()=>{
+       card.style.transform="rotateY(0deg)";
+    })
+</script>
+
+</html>
