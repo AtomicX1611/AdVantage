@@ -1,7 +1,7 @@
 import express from "express";
 
 const app = express();
-const port = 3002;
+const port = 3000;
 app.set("view engine","ejs");
 app.use(express.static("public"));
 
@@ -14,12 +14,9 @@ app.get("/login",(req,res)=>{
 })
 
 app.get("/products", (req, res) => {
-  res.render("productDetail.ejs", {
-    name: "Page",
-    description: "This is a very big desc",
-    price: "40",
-  });
+  res.render("productDetail.ejs");
 });
+
 
 app.listen(port, () => {
   console.log("Listening on port 3000");
