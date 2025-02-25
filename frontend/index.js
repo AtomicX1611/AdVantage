@@ -14,11 +14,7 @@ app.get("/login",(req,res)=>{
 })
 
 app.get("/products", (req, res) => {
-  res.render("productDetail.ejs", {
-    name: "Page",
-    description: "This is a very big desc",
-    price: "40",
-  });
+  res.render("productDetail.ejs");
 });
 
 
