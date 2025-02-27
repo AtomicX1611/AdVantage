@@ -78,6 +78,10 @@ app.post("/signup",(req,res)=>{
     });
 })
 
+app.get("/profile",(req,res)=>{
+    res.render("Profile.ejs");
+});
+
 app.get("/products", (req, res) => {
     res.render("productDetail.ejs", {
         name: "Page",
