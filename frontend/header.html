@@ -1,33 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
-        * {
+    * {
             margin: 0;
             padding: 0;
         }
 
-        .navBody {
-            height: 100%;
+        body {
+            min-height: 100vh;
             width: 100vw;
-            display: flex;
-            flex-direction: column;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden;
-            overflow-y: auto;
-
+            background-color: #090909;
         }
 
         header {
-            height: 75px;
+            height: max(9.765625vh, 40px);
+            /*75px*/
             width: 100vw;
             background-color: rgb(217, 217, 217);
-
         }
 
         nav {
@@ -144,8 +139,7 @@
         }
     </style>
 </head>
-
-<body class="navBody">
+<body>
     <header>
         <nav>
             <div class="box1">
@@ -185,5 +179,4 @@
         </nav>
     </header>
 </body>
-
 </html>

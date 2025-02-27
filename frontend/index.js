@@ -6,9 +6,13 @@ import cors from 'cors'
 
 const app = express();
 const port = 3000;
+<<<<<<< HEAD
 app.use(cors({ origin: "http://localhost:3000" }));
 app.set("view engine", "ejs");
 app.use(express.json());
+=======
+app.set("view engine","ejs");
+>>>>>>> b7d59fc90f4e66f1ce328c0a35f4d03f533fd9a7
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
@@ -79,6 +83,7 @@ app.post("/signup",(req,res)=>{
 })
 
 app.get("/products", (req, res) => {
+<<<<<<< HEAD
     res.render("productDetail.ejs", {
         name: "Page",
         description: "This is a very big desc",
@@ -121,7 +126,11 @@ passport.serializeUser((user,cb)=>{
 
 passport.deserializeUser((user,cb)=>{
     cb(null,user);
+=======
+  res.render("productDetail.ejs");
+>>>>>>> b7d59fc90f4e66f1ce328c0a35f4d03f533fd9a7
 });
+
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
