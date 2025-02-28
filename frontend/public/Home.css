@@ -96,3 +96,9 @@ section {
         align-items: center;
     }
 }
+@media screen and (max-width:420px) {
+    .product {
+        height: 300px;
+        width: 300px;
+    }
+}
