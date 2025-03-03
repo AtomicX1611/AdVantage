@@ -6,11 +6,12 @@ main {
     /* width: 1500px; */
     width: 100vw;
     height: fit-content;
-    background-color: #242424;
+    /* background-color: #242424; */
     display: flex;
     justify-content: flex-start;
     flex-direction: column;
     align-items: center;
+    /* overflow-x: hidden; */
 }
 .poster {
     width: 95%;
@@ -22,7 +23,7 @@ main {
     display: flex;
     justify-content:center;
     align-items: center;
-    overflow-x: scroll;
+    /* overflow-x: scroll; */
 }
 /* .slide { */
     /* flex: 0 0 100%;
