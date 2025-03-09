@@ -28,7 +28,7 @@ Follow these steps to install AdVantage:
 
 To start the application, run:
 ```sh
-npm start
+npm run dev
 ```
 
 ## Usage

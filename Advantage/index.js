@@ -1,7 +1,8 @@
 import express from "express";
 import authRouter from "./routes/authRoutes.js";
 import searchRouter from "./routes/searchRoutes.js";
-
+import session from "express-session"
+import passport from "passport";
 
 const app = express();
 const port = 3000;
@@ -59,3 +60,14 @@ app.get("/header", (req, res) => {
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
+
+app.use(
+  session({
+    secret: "user-login-session",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
