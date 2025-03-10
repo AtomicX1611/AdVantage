@@ -79,7 +79,13 @@ app.post("/signup",(req,res)=>{
 })
 
 app.get("/profile",(req,res)=>{
-    res.render("Profile.ejs");
+    if(req.isAuthenticated()) {
+        console.log("authenticted for proile")
+        res.render("Profile.ejs");
+    }
+    else {
+        res.send("Login..");
+    }
 });
 
 app.get("/products", (req, res) => {
@@ -124,6 +130,7 @@ passport.serializeUser((user,cb)=>{
 });
 
 passport.deserializeUser((user,cb)=>{
+    console.log("deserialized...");
     cb(null,user);
 });
 
