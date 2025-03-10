@@ -18,15 +18,15 @@
                 <div class="logo">
                     <a href="#" draggable="false">LOGO</a>
                 </div>
-                <div class="search-box">
+                <form class="search-box" action="/searchPage" method="get">
                     <div class="search-input">
                         <i class='bx bx-search-alt magnifier'></i>
-                        <input type="text" name="search" id="search-products" placeholder="Search">
+                        <input type="search" name="search" id="search-products" placeholder="Search" name="searchValue">
                     </div>
-                    <div id="search-btn">
+                    <button id="search-btn" type="submit">
                         Search
-                    </div>
-                </div>
+                    </button>
+                </form>
                 <div class="sellbtn">
                     <i class='bx bx-plus'></i>Sell
                 </div>

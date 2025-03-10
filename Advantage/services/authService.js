@@ -1,4 +1,4 @@
-import { createUser, findUserByEmail } from "../user/userModel.js";
+import { createUser, findUserByEmail } from "../models/User.js";
 
 export const loginUser = (email, password) => {
   const user = findUserByEmail(email);
@@ -26,6 +26,6 @@ export const signUpUser = (email, password, cPassword) => {
     email,
     password,
   };
-  console.log("Creating user")
+  console.log("Creating user");
   return createUser(newUser);
 };
