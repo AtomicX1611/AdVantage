@@ -1,7 +1,7 @@
 import express from "express";
 import authRouter from "./routes/authRoutes.js";
 import searchRouter from "./routes/searchRoutes.js";
-import session from "express-session"
+import session from "express-session";
 import passport from "passport";
 
 const app = express();
@@ -19,6 +19,9 @@ app.get("/", (req, res) => {
   res.render("Home.ejs");
 });
 
+app.get("/seller", (req, res) => {
+  res.render("SellerDashBoard.ejs");
+});
 
 app.get("/login", (req, res) => {
   res.render("Login.ejs");
@@ -34,7 +37,7 @@ app.get("/products", (req, res) => {
 
 app.get("/searchPage", (req, res) => {
   let condition = req.query.search;
-  
+
   //Dont use this anymore
   // fetch("http://localhost:5000/api/search/", {
   //   method: "POST",
