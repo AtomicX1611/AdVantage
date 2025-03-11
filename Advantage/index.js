@@ -1,19 +1,51 @@
 import express from "express";
-import authRouter from "./routes/authRoutes.js";
+import {buyerRoutes} from "./routes/buyerRoutes.js";
 import searchRouter from "./routes/searchRoutes.js";
 import session from "express-session"
 import passport from "passport";
+import { sellerRoutes } from "./routes/sellerRoutes.js";
+
 const app = express();
 const port = 3000;
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
+// app.use(
+//   session({
+//     secret: "user-login-session",
+//     resave: false,
+//     saveUninitialized: true,
+//   })
+// );
 
-app.use("/auth", authRouter);
+// app.use(passport.initialize());
+// app.use(passport.session());
+app.use("/buyer",
+  session({
+    secret: "user-login-session",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+app.use("/buyer",passport.initialize());
+app.use("/buyer",passport.session());
+
+app.use("/seller",
+  session({
+    secret: "seller-login-session",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+app.use("/seller",passport.initialize());
+app.use("/seller",passport.session());
+
+app.use("/buyer", buyerRoutes);
+app.use("/seller",sellerRoutes);
 
 app.get("/", (req, res) => {
-  res.render("Home.ejs");
+  res.redirect("/buyer/home")
 });
 
 
@@ -28,23 +60,12 @@ app.get("/products", (req, res) => {
     price: "40",
   });
 });
-app.use("/searchPage",searchRouter);
+app.use("/buyer/searchPage",searchRouter);
 
-app.get("/header", (req, res) => {
-  res.render("Header.ejs");
-});
-
+app.get("/sellerHeader",(req,res)=>{
+  res.render("sellerHeader.ejs");
+})
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
 
-app.use(
-  session({
-    secret: "user-login-session",
-    resave: false,
-    saveUninitialized: true,
-  })
-);
-
-app.use(passport.initialize());
-app.use(passport.session());

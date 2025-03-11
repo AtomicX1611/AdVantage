@@ -160,3 +160,12 @@ export const createUser = (user) => {
     users.push(user);
     return user;
 };
+
+export const findSellerByEmail = (email) => {
+    return sellers.find((seller) => seller.email === email);
+}
+
+export const createSeller = (seller) => {
+    sellers.push(seller);
+    return seller;
+};
