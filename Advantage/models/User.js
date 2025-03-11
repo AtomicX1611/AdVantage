@@ -5,6 +5,14 @@ let users = [
         password: "123"
     }
 ]
+
+let sellers= [
+    {
+        username: "dummySeller1",
+        email: "abc@gmail.com",
+        password: "123"
+    }
+]
 let products = [
     {
         Name: "ADIDAS BOUNCING SHOES FOR MEN",
@@ -85,6 +93,15 @@ export const findUserByEmail = (email) => {
 export const createUser = (user) => {
     users.push(user);
     return user;
+};
+
+export const findSellerByEmail = (email) => {
+    return sellers.find((seller) => seller.email === email);
+}
+
+export const createSeller = (seller) => {
+    sellers.push(seller);
+    return seller;
 };
 
 /*
