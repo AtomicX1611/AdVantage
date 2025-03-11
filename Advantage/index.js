@@ -11,16 +11,7 @@ const port = 3000;
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
-// app.use(
-//   session({
-//     secret: "user-login-session",
-//     resave: false,
-//     saveUninitialized: true,
-//   })
-// );
 
-// app.use(passport.initialize());
-// app.use(passport.session());
 app.use("/buyer",
   session({
     secret: "user-login-session",
@@ -51,10 +42,6 @@ app.get("/", (req, res) => {
 });
 
 
-app.get("/login", (req, res) => {
-  res.render("Login.ejs");
-});
-
 app.get("/products", (req, res) => {
   res.render("productDetail.ejs", {
     name: "Page",
@@ -84,9 +71,7 @@ app.get("/searchPage", (req, res) => {
   res.render("searchPage.ejs", { le: 9 });
 });
 
-app.get("/sellerHeader",(req,res)=>{
-  res.render("sellerHeader.ejs");
-})
+
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });

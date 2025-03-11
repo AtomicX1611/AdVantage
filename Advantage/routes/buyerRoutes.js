@@ -14,6 +14,9 @@ buyerRoutes.get("/home",(req,res)=>{
     }
 });
 
+buyerRoutes.get("/login",(req,res)=>{
+    res.render("Login.ejs");
+})
 buyerRoutes.get("/profile",(req,res)=>{
     if(req.isAuthenticated()) {
         res.render("Profile.ejs",{isLogged:true});
