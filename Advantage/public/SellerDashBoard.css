@@ -4,6 +4,13 @@
   margin-left: 30px;
 }
 
+body{
+  min-height: 100vh;
+  min-width: 100vw;
+  background-color: #090909;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 h2 {
   color: white;
   margin-left: 30px;
@@ -25,7 +32,7 @@ h3 {
 
 .card {
   border-radius: 12px;
-  height: 160px;
-  width: 150px;
+  height: 200px;
+  width: 200px;
   background-color: white;
 }
