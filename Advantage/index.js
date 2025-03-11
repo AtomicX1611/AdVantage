@@ -3,6 +3,7 @@ import authRouter from "./routes/authRoutes.js";
 import searchRouter from "./routes/searchRoutes.js";
 import session from "express-session";
 import passport from "passport";
+import productRouter from "./routes/productRoutes.js";
 
 const app = express();
 const port = 3000;
@@ -12,27 +13,16 @@ app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/auth", authRouter);
-
 app.use("/search", searchRouter);
+app.use("/product", productRouter);
 
 app.get("/", (req, res) => {
   res.render("Home.ejs");
 });
 
-app.get("/seller", (req, res) => {
-  res.render("SellerDashBoard.ejs");
-});
 
 app.get("/login", (req, res) => {
   res.render("Login.ejs");
-});
-
-app.get("/products", (req, res) => {
-  res.render("productDetail.ejs", {
-    name: "Page",
-    description: "This is a very big desc",
-    price: "40",
-  });
 });
 
 app.get("/searchPage", (req, res) => {
@@ -56,14 +46,6 @@ app.get("/searchPage", (req, res) => {
   res.render("searchPage.ejs", { le: 9 });
 });
 
-app.get("/header", (req, res) => {
-  res.render("Header.ejs");
-});
-
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`);
-});
-
 app.use(
   session({
     secret: "user-login-session",
@@ -74,3 +56,5 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.listen(port, () => console.log("Running on Port 3000"));
