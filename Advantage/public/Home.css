@@ -143,3 +143,7 @@ section {
         transform: translateY(0px);
     }
 }
+
+.productIcons{
+    margin-top: 5vh;
+}

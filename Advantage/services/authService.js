@@ -20,7 +20,6 @@ export const signUpUser = (email, password, cPassword) => {
   if (findUserByEmail(email)) {
     throw new Error("Email already in use");
   }
-
   const newUser = {
     username: "newUser",
     email,

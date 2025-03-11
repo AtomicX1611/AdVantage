@@ -1,6 +1,8 @@
 import express from "express";
 import {buyerRoutes} from "./routes/buyerRoutes.js";
 import searchRouter from "./routes/searchRoutes.js";
+import {sellerRoutes} from "./routes/sellerRoutes.js"
+import authRouter from "./routes/authRoutes.js"
 import session from "express-session";
 import passport from "passport";
 import productRouter from "./routes/productRoutes.js";
@@ -75,7 +77,7 @@ app.get("/searchPage", (req, res) => {
   //   .then(function (res) {
   //     console.log(res);
   //   });
-  res.render("searchPage.ejs", { le: 9 });
+  res.render("searchPage.ejs", { le: 9,isLogged : true });
 });
 
 app.use(
