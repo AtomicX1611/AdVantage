@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/Header.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="box1">
+                <div class="logo">
+                    <a href="#" draggable="false">LOGO</a>
+                </div>
+                <form class="search-box" action="/searchPage" method="get">
+                    <div class="search-input">
+                        <i class='bx bx-search-alt magnifier'></i>
+                        <input type="search" name="search" id="search-products" placeholder="Search" name="searchValue">
+                    </div>
+                    <button id="search-btn" type="submit">
+                        Search
+                    </button>
+                </form>
+                <div class="sellbtn">
+                    <i class='bx bx-plus'></i>Sell
+                </div>
+            </div>
+            <div class="user-actions">
+                <% if(isLogged) { %>
+                    <div class="login-btn" style="display: none;">
+                        <a href="/login">Login</a>
+                    </div>
+                <%} else {%>
+                    <div class="login-btn">
+                        <a href="/login">Login</a>
+                    </div>
+                <%}%>
+                <div class="box2">
+                    <div class="chaticon box2-icons">
+                        <a href=""><i class='bx bx-message-rounded'></i></a>
+                    </div>
+                    <div class="alert box2-icons">
+                        <a href=""><i class='bx bx-alarm-exclamation'></i></a>
+                    </div>
+                    <div class="mode box2-icons">
+                        <a href=""><i class='bx bxs-moon'></i></a>
+                    </div>
+                </div>
+                <div class="box3">
+                    <div class="box2-icons heart">
+                        <a href=""><i class='bx bx-heart'></i></a>
+                    </div>
+                    <div class="box2-icons notifications">
+                        <a href=""><i class='bx bxs-bell-ring'></i></a>
+                    </div>
+                    <div class="box2-icons profile">
+                        <a href="/buyer/profile"><i class='bx bxs-user-circle'></i></a>
+                    </div>
+                </div>
+            </div>
+            <div id="burger">
+                <i class='bx bx-menu'></i>
+            </div>
+        </nav>
+    </header>
+</body>
+
+</html>
