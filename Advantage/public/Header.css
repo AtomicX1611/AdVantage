@@ -16,6 +16,7 @@ header {
     /*75px*/
     width: 100vw;
     background-color: rgb(217, 217, 217);
+    /* color: black; */
 }
 
 nav {
@@ -42,7 +43,7 @@ nav {
     font-weight: bolder;
 }
 
-a {
+header a {
     text-decoration: none;
     color: black;
 }

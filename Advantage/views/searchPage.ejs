@@ -7,16 +7,32 @@
     <title>Advantage</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
-        *{
-           margin: 0px;
-           padding: 0px; 
+        * {
+            margin: 0px;
+            padding: 0px;
         }
+
         .products {
+            border: 1px solid #c3c4c5;
+            flex-basis: 384px;
+            /* height: 50vh;
+            width: 25vw; */
+            /*background-color: #D9D9D9;*/
+            margin: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .products:hover {
+            cursor: pointer;
+            box-shadow: 1px 1px 5px rgb(225, 243, 255);
+        }
+
+        .images {
             flex-basis: 384px;
             height: 50vh;
             width: 25vw;
-            background-color: #D9D9D9;
-            margin: 20px;
+            /*background-color: #D9D9D9;*/
             border-radius: 10px;
         }
 
@@ -57,7 +73,7 @@
             /* background-color: blue; */
         }
 
-        #bottom{
+        #bottom {
             display: flex;
         }
 
@@ -106,7 +122,7 @@
             background-color: #38a560;
         }
 
-        #mainSection{
+        #mainSection {
             /* background-color: aqua; */
             width: 96.339677891654465592972181551977vw;
             min-height: 80.1vh;
@@ -115,6 +131,7 @@
             /* justify-content: center; */
             border-left: 1px solid #c3c4c5;
         }
+
         #minAndMax {
             display: flex;
             margin-top: 2vh;
@@ -122,48 +139,45 @@
             /* background-color: yellow; */
             align-items: flex-start;
         }
+        #mainSection a{
+            color: white;
+            text-decoration: none;
+        }
     </style>
 </head>
 
 <body>
     <%- include("Header.ejs") %>
-    <main>
-        <div id="up">
-            <b id="filters">FILTERS</b>
-        </div>
-        <div class="fog" id="fog1"></div>
-        <div class="fog" id="fog2"></div>
-        <div id="bottom">
-            <div id="filterContainer">
-                <b id="priceRange">Price Range</b>
-                <div id="minAndMax">
-                    <input type="text" placeholder="min">
-                    <input type="text" placeholder="max">
-                    <button id="filterApply"><b>Apply</b></button>
+        <main>
+            <div id="up">
+                <b id="filters">FILTERS</b>
+            </div>
+            <div class="fog" id="fog1"></div>
+            <div class="fog" id="fog2"></div>
+            <div id="bottom">
+                <div id="filterContainer">
+                    <b id="priceRange">Price Range</b>
+                    <div id="minAndMax">
+                        <input type="text" placeholder="min">
+                        <input type="text" placeholder="max">
+                        <button id="filterApply"><b>Apply</b></button>
+                    </div>
+                </div>
+                <div id="mainSection">
+                    <% for(let i=0;i < products.length; i++) { %>
+                        <a href="http://localhost:3000/searchPage/product/<%= products[i].ProductId %>">
+                            <div class="products">
+                                <img src=<%=products[i].Image1Src %> alt="image" class="images">
+                                <h4 style="margin-left: 20px;">
+                                    <%= products[i].Name %>
+                                </h4>
+                                <h3 style="margin-left: 20px;"> Rs. <%= products[i].Price %>/- </h3>
+                            </div>
+                        </a>
+                        <% }%>
                 </div>
             </div>
-            <div id="mainSection">
-                <!-- <div class="products"></div>
-                <div class="products"></div>
-                <div class="products"></div>
-                <div class="products"></div>    
-                <div class="products"></div>
-                <div class="products"></div>
-                <div class="products"></div>
-                <div class="products"></div>
-                <div class="products"></div>
-                <div class="products"></div>
-                <div class="products"></div>
-                <div class="products"></div>
-                <div class="products"></div>
-                <div class="products"></div>
-                <div class="products"></div> -->
-                <% for(let i=0;i < le; i++) { %>
-                    <div class="products"></div>
-                <% }%>
-            </div>
-        </div>
-    </main>
+        </main>
 </body>
 
 </html>
