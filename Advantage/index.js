@@ -11,16 +11,7 @@ const port = 3000;
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
-// app.use(
-//   session({
-//     secret: "user-login-session",
-//     resave: false,
-//     saveUninitialized: true,
-//   })
-// );
 
-// app.use(passport.initialize());
-// app.use(passport.session());
 app.use("/buyer",
   session({
     secret: "user-login-session",
@@ -48,11 +39,6 @@ app.use("/search", searchRouter);
 
 app.get("/", (req, res) => {
   res.redirect("/buyer/home")
-});
-
-
-app.get("/login", (req, res) => {
-  res.render("Login.ejs");
 });
 
 app.get("/products", (req, res) => {
