@@ -26,6 +26,6 @@ passport.serializeUser((seller, done) => {
 });
 
 passport.deserializeUser((email, done) => {
-    const seller = findsellerByEmail(email);
+    const seller = findSellerByEmail(email);
     done(null, seller);
 });

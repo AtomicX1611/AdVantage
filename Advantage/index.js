@@ -41,7 +41,6 @@ app.get("/", (req, res) => {
   res.redirect("/buyer/home")
 });
 
-
 app.get("/products", (req, res) => {
   res.render("productDetail.ejs", {
     name: "Page",

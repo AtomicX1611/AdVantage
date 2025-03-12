@@ -1,0 +1,28 @@
+import { createUser, findUserByEmail } from "../models/User.js";
+
+export const buyerSignup=(req,res)=>{
+    let {email,password,cnfpwd}=req.body;
+    console.log("email: ",email);
+    console.log("password: ",password);
+
+    if(password!=cnfpwd) {
+        return res.status(401).json({error:"password misMatch"});
+    }
+
+    let user=findUserByEmail(email);
+    if(user) {
+        console.log("user: ",user);
+        return res.status(400).json({error:"email already exists"});
+    }
+    
+    let newUser={
+        username:"newUser",
+        email:email,
+        password:password
+    };
+    createUser(newUser);
+    req.login(newUser,(err)=>{
+        res.status(200).json({success:"sign up success"});
+    });
+ 
+}
