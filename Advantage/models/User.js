@@ -23,6 +23,7 @@ let sellers=[
         Contact: "9876543210"
     }
 ]
+
 let products = [
     {
         Name: "BOUNCING SHOES FOR MEN",
@@ -203,6 +204,7 @@ export const findUserByEmail = (email) => {
 
 export const createUser = (user) => {
     users.push(user);
+    console.log("updated users list: ",users);
     return user;
 };
 
@@ -212,5 +214,6 @@ export const findSellerByEmail = (email) => {
 
 export const createSeller = (seller) => {
     sellers.push(seller);
+    console.log("updated sellers list: ",sellers);
     return seller;
 };
