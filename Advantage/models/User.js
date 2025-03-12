@@ -5,16 +5,58 @@ let users = [
         password: "123"
     }
 ]
-
-let sellers= [
+let sellers=[
     {
         username: "dummySeller1",
         email: "abc@gmail.com",
-        password: "123"
+        password: "123",
+        SellerId: "1",
+        Name: "Ali the Hero",
+        Contact: "0123456789",
+    },
+    {
+        username: "dummySeller2",
+        email: "abcd@gmail.com",
+        password: "123",
+        SellerId: "2",
+        Name: "PK (Nak koncham tikkundhi)",
+        Contact: "9876543210"
     }
 ]
 
 let products = [
+    {
+        Name: "ADIDAS BOUNCING SHOES FOR MEN",
+        Price: "3000",
+        Address: "Guntur andhra pradesh,india",
+        Description: "Size 8\nBrand new, untouched, Canteen purchased ,\nNo package box,\nNo bill,\nStill Never used",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        CountryCode: "IN",
+        SellerId: "1",
+        ProductId:"1",
+        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
+        count: 0,
+        distance: 0
+    },
+    {
+        Name: "shoes man",
+        Price: "3000",
+        Address: "guntur andhra pradesh,india",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        CountryCode: "IN",
+        SellerId: "2",
+        ProductId:"2",
+        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
+        count: 0,
+        distance: 0
+    },
     {
         Name: "ADIDAS BOUNCING SHOES FOR MEN",
         Price: "3000",
@@ -23,10 +65,27 @@ let products = [
         PostingDate: "4-march-2025",
         zipCode: 522003,
         CountryCode: "IN",
-        Seller: "Ali the Hero",
-        Image1Src: "./shoes1",
-        Image2Src: "./shoes2",
-        Image3Src: "./shoes3",
+        SellerId: "1",
+        ProductId:"3",
+        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
+        count: 0,
+        distance: 0
+    },
+    {
+        Name: "ADIDAS BOUNCING SHOES FOR MEN",
+        Price: "3000",
+        Address: "guntur andhra pradesh,india",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        CountryCode: "IN",
+        SellerId: "2",
+        ProductId:"4",
+        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
         count: 0,
         distance: 0
     }
@@ -48,10 +107,10 @@ function distance(lat1, lat2, lon1, lon2) {
 export const findProducts = async function (Name, location) {
     let returningProducts = new Array();
     let locationCords = { lat: 0, lon: 0 }, productCords = { lat: 0, lon: 0 };
-    console.log(location);
+    // console.log(location);
     let resjson = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=3c9477059b3e588e048325fb86c4fbea`);
     let resp = await resjson.json();
-    console.log(resp);
+    // console.log("hello "+resp);
     let count, productWords, index1, index2, dist;
     if (resp.length == 0) {
         return returningProducts;
@@ -87,6 +146,13 @@ export const findProducts = async function (Name, location) {
     }
     return returningProducts;
 }
+export const findProduct= function(prodId) {
+    for(let product of products){
+        if(product.ProductId==prodId){
+            return product;
+        }
+    }
+}
 export const findUserByEmail = (email) => {
     return users.find((user) => user.email === email);
 }
@@ -106,67 +172,3 @@ export const createSeller = (seller) => {
     console.log("updated sellers list: ",sellers);
     return seller;
 };
-
-/*
-let returningProducts=new Array();
-    let toBesearched=Name.split(" "),p1,matchCount;
-    let locationcords=fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=3c9477059b3e588e048325fb86c4fbea`);//need to hide api key
-    for(let i=0;i<toBesearched.length;i++){
-        for(let j=0;j<products.length;j++){
-            matchCount=0;
-            pj=products[j].Name.split(" ");
-            for(let k=0;k<pj.length;k++){
-                if(toBesearched[i]==pj[k]){
-                    matchCount++;
-                }
-            }
-            if(matchCount>0){
-               let productCords=fetch(`http://api.openweathermap.org/geo/1.0/zip?zip=${},IN&appid=3c9477059b3e588e048325fb86c4fbea`);
-                
-           }
-        }
-    }
-*/
-/*//searching with names
-    let returningProducts = new Array(), count, prodWords;
-    let locationcords={lat:0,lon:0}, productCords={lat:0,lon:0}, distanc;
-    fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=3c9477059b3e588e048325fb86c4fbea`).then((res) => res.json()).then(function (res) {
-        if (res.length == 0) {
-            throw Error("invalid City");
-        } else {
-            locationcords.lat = res[0].lat;
-            locationcords.lon = res[0].lon;
-            products.forEach((product) => {
-                count = 0;
-                prodWords = product.Name.split(" ");
-                prodWords.forEach((prodWord) => {
-                    count += Name.includes(prodWord);
-                });
-                if (count > 0) {
-                    fetch(`http://api.openweathermap.org/geo/1.0/zip?zip=${product.zipCode},${product.CountryCode}&appid=3c9477059b3e588e048325fb86c4fbea`).then((res) => res.json()).then(function (res) {
-                        productCords.lat = res.lat;
-                        productCords.lon = res.lon;
-                        distanc = distance(locationcords.lat, productCords.lat, locationcords.lon, productCords.lan);
-                        if (distanc < 150){
-                            product.count = count;
-                            product.distance = distanc;
-                            let index1 = returningProducts.findIndex((element) => (element.count == product.count) && (element.distance > product.distance));
-                            let index2 = returningProducts.findIndex((element) => (element.count < product.count));
-                            if (index1 == -1) {
-                                if (index2 == -1) {
-                                    returningProducts.push(product);
-                                } else {
-                                    returningProducts.splice(index2, 0, product);
-                                }
-                            } else {
-                                returningProducts.splice(index1, 0, product);
-                            }
-                        }
-                    });
-                }
-            });
-        }
-    }).catch((err) => {
-        console.log(err);
-        return returningProducts;
-    }); */

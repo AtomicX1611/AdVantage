@@ -35,8 +35,6 @@ app.use("/seller",passport.session());
 app.use("/buyer", buyerRoutes);
 app.use("/seller",sellerRoutes);
 
-app.use("/search", searchRouter);
-
 app.get("/", (req, res) => {
   res.redirect("/buyer/home")
 });
@@ -48,27 +46,7 @@ app.get("/products", (req, res) => {
     price: "40",
   });
 });
-
-app.get("/searchPage", (req, res) => {
-  let condition = req.query.search;
-  
-  //Dont use this anymore
-  // fetch("http://localhost:5000/api/search/", {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  //   body: JSON.stringify({
-  //     name: "shoes",
-  //     location: "sricity",
-  //   }),
-  // })
-  //   .then((res) => res.json())
-  //   .then(function (res) {
-  //     console.log(res);
-  //   });
-  res.render("searchPage.ejs", { le: 9 });
-});
+app.use("/buyer/searchPage",searchRouter);
 
 
 app.listen(port, () => {
