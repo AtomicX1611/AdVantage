@@ -40,6 +40,18 @@ main {
 .contacts {
     display: flex;
     flex-direction: column;
+    animation: appearContacts 1s ease;
+}
+
+@keyframes appearContacts {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0px);
+    }
 }
 .person {
     height: 75px;
@@ -66,6 +78,8 @@ main {
     width: 64vw;
     border-top-right-radius: 20px;
     height: inherit;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 .currentChat {
     height: 50px;
@@ -112,6 +126,18 @@ main {
     align-items: center;
     margin-left: 10px;
     justify-content: flex-start;
+    animation: msgLeft 1s ease;
+}
+
+@keyframes msgLeft {
+    from {
+        opacity: 0;
+        transform: translate(-100px,20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0px,0px);
+    }
 }
 .message-right {
     width: 64vw;
@@ -119,6 +145,17 @@ main {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    animation: msgRight 1s ease;
+}
+@keyframes msgRight {
+    from {
+        opacity: 0;
+        transform: translate(100px,20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(0px 0px);
+    }
 }
 .message-right>.dp-circle-small {
     margin-right: 10px;
