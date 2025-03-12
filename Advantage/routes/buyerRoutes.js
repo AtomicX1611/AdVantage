@@ -18,24 +18,4 @@ buyerRoutes.get("/profile", (req, res) => {
 
 buyerRoutes.post("/login", buyerLogin);
 
-// buyerRoutes.get("/cookie",(req,res)=>{
-//     console.log("req.user in buyer/cookie",req.user);
-//     if(req.isAuthenticated()) {
-//         console.log("true")
-//         res.status(200).json({success:"authenticated"});
-//     }
-//     else {
-//         res.json({error:"not authenticated"});
-//     }
-// })
 
-// buyerRoutes.get("/second",(req,res)=>{
-//     console.log("req.user in buyer/cookie",req.user);
-//     if(req.isAuthenticated()) {
-//         console.log("true")
-//         res.status(200).json({success:"authenticated"});
-//     }
-//     else {
-//         res.json({error:"not authenticated"});
-//     }
-// })

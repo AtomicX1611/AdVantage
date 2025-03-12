@@ -1,8 +1,25 @@
-import { findProducts } from "../models/User.js";
+import { findProducts,findProduct } from "../models/User.js";
 
-export const findProductsCont = async function (req, res) {
-  console.log(req.body);
-  let returningProducts = await findProducts(req.body.name, req.body.location);
-  console.log(returningProducts);
-  res.json(returningProducts);
+const searchProducts = async (req, res) => {
+  let name = req.query.search;
+  let location = req.query.location;
+  
+  //just for now
+
+  location = "guntur";
+  let products = await findProducts(name, location);
+  res.render("searchPage.ejs", {
+    products: products,
+    isLogged: req.isAuthenticated(),
+  });
 };
+
+const getProductDetails = async (req, res) => {
+  const productId = req.params.productId;
+  res.render("ProductDetail.ejs", {
+    product: findProduct(productId),
+    isLogged: req.isAuthenticated(),
+  });
+};
+
+export { searchProducts,getProductDetails };

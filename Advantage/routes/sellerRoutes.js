@@ -1,30 +1,41 @@
-import express, { json } from "express";
+import express from "express";
 import { sellerLogin } from "../controllers/sellerLogin.js";
 
-export const sellerRoutes=express.Router();
-sellerRoutes.use(express.json());
-sellerRoutes.use(express.urlencoded({extended:true}))
+const sellerRouter = express.Router();
 
-sellerRoutes.post("/login",sellerLogin)
+sellerRouter.use(express.json());
+sellerRouter.use(express.urlencoded({ extended: true }));
 
-sellerRoutes.get("/cookie",(req,res)=>{
-    console.log("req.user in seller/cookie",req.user);
-    if(req.isAuthenticated()) {
-        console.log("true")
-        res.status(200).json({success:"authenticated"});
-    }
-    else {
-        res.json({error:"not authenticated"});
-    }
-})
+sellerRouter.post("/login", sellerLogin);
 
-sellerRoutes.get("/second",(req,res)=>{
-    console.log("req.user in seller/second",req.user);
-    if(req.isAuthenticated()) {
-        console.log("true")
-        res.status(200).json({success:"authenticated"});
-    }
-    else {
-        res.json({error:"not authenticated"});
-    }
-})
+sellerRouter.get("/", (req, res) => {
+  let a;
+  if(req.isAuthenticated){
+      console.log("user Auth as seller done")
+      res.render("SellerDashBoard.ejs");
+  }else{
+    console.log("user auth as seller not done")
+  }
+});
+
+sellerRouter.get("/cookie", (req, res) => {
+  console.log("req.user in seller/cookie", req.user);
+  if (req.isAuthenticated()) {
+    console.log("true");
+    res.status(200).json({ success: "authenticated" });
+  } else {
+    res.json({ error: "not authenticated" });
+  }
+});
+
+sellerRouter.get("/second", (req, res) => {
+  console.log("req.user in seller/second", req.user);
+  if (req.isAuthenticated()) {
+    console.log("true");
+    res.status(200).json({ success: "authenticated" });
+  } else {
+    res.json({ error: "not authenticated" });
+  }
+});
+
+export default sellerRouter

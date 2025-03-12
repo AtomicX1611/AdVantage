@@ -1,8 +1,8 @@
 import express from "express";
-import {buyerRoutes} from "./routes/buyerRoutes.js";
+import { buyerRoutes } from "./routes/buyerRoutes.js";
 import searchRouter from "./routes/searchRoutes.js";
-import {sellerRoutes} from "./routes/sellerRoutes.js"
-import authRouter from "./routes/authRoutes.js"
+import sellerRouter from "./routes/sellerRoutes.js";
+import authRouter from "./routes/authRoutes.js";
 import session from "express-session";
 import passport from "passport";
 import productRouter from "./routes/productRoutes.js";
@@ -13,82 +13,38 @@ const port = 3000;
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
-// app.use(
-//   session({
-//     secret: "user-login-session",
-//     resave: false,
-//     saveUninitialized: true,
-//   })
-// );
 
-app.use("/auth", authRouter);
-// app.use(passport.initialize());
-// app.use(passport.session());
-app.use("/buyer",
+app.use(
+  "/buyer",
   session({
     secret: "user-login-session",
     resave: false,
     saveUninitialized: true,
   })
 );
-app.use("/buyer",passport.initialize());
-app.use("/buyer",passport.session());
 
-app.use("/seller",
+app.get("/", (req, res) => {
+  res.redirect("/buyer/home");
+});
+
+app.use("/buyer", passport.initialize());
+app.use("/buyer", passport.session());
+
+app.use(
+  "/seller",
   session({
     secret: "seller-login-session",
     resave: false,
     saveUninitialized: true,
   })
 );
-app.use("/seller",passport.initialize());
-app.use("/seller",passport.session());
+app.use("/seller", passport.initialize());
+app.use("/seller", passport.session());
 
+app.use("/auth", authRouter);
 app.use("/buyer", buyerRoutes);
-app.use("/seller",sellerRoutes);
-
+app.use("/seller", sellerRouter);
 app.use("/search", searchRouter);
 app.use("/product", productRouter);
-
-app.get("/", (req, res) => {
-  res.redirect("/buyer/home")
-});
-
-
-app.get("/login", (req, res) => {
-  res.render("Login.ejs");
-});
-
-app.get("/searchPage", (req, res) => {
-  let condition = req.query.search;
-
-  //Dont use this anymore
-  // fetch("http://localhost:5000/api/search/", {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  //   body: JSON.stringify({
-  //     name: "shoes",
-  //     location: "sricity",
-  //   }),
-  // })
-  //   .then((res) => res.json())
-  //   .then(function (res) {
-  //     console.log(res);
-  //   });
-  res.render("searchPage.ejs", { le: 9,isLogged : true });
-});
-
-app.use(
-  session({
-    secret: "user-login-session",
-    resave: false,
-    saveUninitialized: true,
-  })
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.listen(port, () => console.log("Running on Port 3000"));

@@ -7,4 +7,8 @@ authRouter.post("/signup",signup);
 
 authRouter.post("/login",login);
 
+authRouter.get("/login", (req, res) => {
+    res.render("Login.ejs");
+  });
+
 export default authRouter;
