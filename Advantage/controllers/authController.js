@@ -12,12 +12,11 @@ export const login = async (req, res) => {
     res.status(401).json({ error: error.message });
   }
 };
-
+                                                    
 export const signup = async (req, res) => {
     const { email, password, cPass} = req.body;
     try {
       console.log("Signing Up")
-
         const newUser = signUpUser(email, password, cPass);
         req.login(newUser, (err) => {
           if (err) throw err;

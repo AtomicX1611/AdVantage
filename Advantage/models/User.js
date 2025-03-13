@@ -23,9 +23,10 @@ let sellers=[
         Contact: "9876543210"
     }
 ]
+
 let products = [
     {
-        Name: "ADIDAS BOUNCING SHOES FOR MEN",
+        Name: "BOUNCING SHOES FOR MEN",
         Price: "3000",
         Address: "Guntur andhra pradesh,india",
         Description: "Size 8\nBrand new, untouched, Canteen purchased ,\nNo package box,\nNo bill,\nStill Never used",
@@ -57,7 +58,7 @@ let products = [
         distance: 0
     },
     {
-        Name: "ADIDAS BOUNCING SHOES FOR MEN",
+        Name: "BOUNCING SHOES FOR MEN",
         Price: "3000",
         Address: "guntur andhra pradesh,india",
         Description: "Size 8 \n Brandnew untouched",
@@ -73,7 +74,52 @@ let products = [
         distance: 0
     },
     {
-        Name: "ADIDAS BOUNCING SHOES FOR MEN",
+        Name: "BOUNCING SHOES FOR MEN",
+        Price: "3000",
+        Address: "guntur andhra pradesh,india",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        CountryCode: "IN",
+        SellerId: "2",
+        ProductId:"4",
+        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
+        count: 0,
+        distance: 0
+    }, {
+        Name: "BOUNCING SHOES FOR MEN",
+        Price: "3000",
+        Address: "guntur andhra pradesh,india",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        CountryCode: "IN",
+        SellerId: "2",
+        ProductId:"4",
+        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
+        count: 0,
+        distance: 0
+    }, {
+        Name: "BOUNCING SHOES FOR MEN",
+        Price: "3000",
+        Address: "guntur andhra pradesh,india",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        CountryCode: "IN",
+        SellerId: "2",
+        ProductId:"4",
+        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
+        count: 0,
+        distance: 0
+    }, {
+        Name: "BOUNCING SHOES FOR MEN",
         Price: "3000",
         Address: "guntur andhra pradesh,india",
         Description: "Size 8 \n Brandnew untouched",
@@ -158,6 +204,7 @@ export const findUserByEmail = (email) => {
 
 export const createUser = (user) => {
     users.push(user);
+    console.log("updated users list: ",users);
     return user;
 };
 
@@ -167,5 +214,6 @@ export const findSellerByEmail = (email) => {
 
 export const createSeller = (seller) => {
     sellers.push(seller);
+    console.log("updated sellers list: ",sellers);
     return seller;
 };

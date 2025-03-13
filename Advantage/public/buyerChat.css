@@ -1,0 +1,162 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+main {
+    height: 84vh;
+    width:94vw;
+    margin-top: 5vh;
+    margin-left: 3vw;
+    margin-right: 3vw;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    background-color: rgb(217, 217, 217);
+    display: flex;
+}
+.left {
+    width: 30vw;
+    height: inherit;
+    background-color: rgb(217, 217, 217);
+    border-top-left-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-right: 2px solid black;
+}
+.chatHead {
+    width: inherit;
+    height: 50px;
+    display: flex;
+    justify-content: flex-start;
+    padding-left: 5vw;
+    margin-top: 3vh;
+    align-items: center;
+    border-bottom: 2px solid black;
+}
+.contacts {
+    display: flex;
+    flex-direction: column;
+    animation: appearContacts 1s ease;
+}
+
+@keyframes appearContacts {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+.person {
+    height: 75px;
+    width: 30vw;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid black;
+    cursor: pointer;
+}
+.dp {
+    height: 50px;
+    width: 50px;
+    border-radius: 100%;
+    background-color: rgb(100, 97, 97);    
+    margin-left: 2vw;
+    cursor: pointer;
+}
+.name {
+    font-weight: 500;
+    font-size: 18px;
+    margin-left: 1vw;
+}
+.chatbox {
+    width: 64vw;
+    border-top-right-radius: 20px;
+    height: inherit;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.currentChat {
+    height: 50px;
+    margin-top: 3vh;
+    width: inherit;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    align-items: center;
+    border-bottom: 2px solid black;
+    font-size: 24px;
+    font-weight: 500;
+}
+.messages {
+    width: 64vw;
+    height: 67vh;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 5px;
+}
+.msg-style {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.dp-circle-small {
+    height: 30px;
+    width: 30px;
+    background-color: rgb(100, 97, 97);     
+    border-radius: 100%;
+}
+.message-content {
+    height: 40px;
+    width: 150px;
+    border-radius: 10px;
+    background-color: black;
+}
+
+.message-left {
+    width: 64vw;
+    height: fit-content;
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+    justify-content: flex-start;
+    animation: msgLeft 1s ease;
+}
+
+@keyframes msgLeft {
+    from {
+        opacity: 0;
+        transform: translate(-100px,20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0px,0px);
+    }
+}
+.message-right {
+    width: 64vw;
+    height: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    animation: msgRight 1s ease;
+}
+@keyframes msgRight {
+    from {
+        opacity: 0;
+        transform: translate(100px,20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(0px 0px);
+    }
+}
+.message-right>.dp-circle-small {
+    margin-right: 10px;
+}

@@ -13,7 +13,7 @@
     <div class="card">
         <div class="signUP ff">
             <div class="head" style="font-size: larger; margin-top: 7vh;">
-                <h1>Create an Account</h1>
+                <h1 style="font-size: 30px;">Create a Seller Account</h1>
             </div>
             <div class="form">
                 <form action="/signup" method="post" id="signup-form">
@@ -42,7 +42,7 @@
         </div>
         <div class="login bf">
             <div class="head" style="font-size: larger; margin-top: 20px;">
-                <h1>Login</h1>
+                <h1>Login to Sell</h1>
             </div>
             <div class="form">
                 <form action="/login" method="post" id="login-form">
@@ -104,7 +104,7 @@
         let cnfpwd = document.getElementById("confirm-password").value;
         let email=document.getElementById("sgn-email").value;
 
-        let response=await fetch("/buyer/signup", {
+        let response=await fetch("/seller/signup", {
             method:'POST',
             headers: {
                 "Content-Type":"application/json"
@@ -120,7 +120,7 @@
             misMatchErr.style.display="flex";
         }
         else if(response.status === 200) {
-            window.location.href="/";
+            window.location.href="/seller/dashboard";
         }
         
     })
@@ -136,7 +136,7 @@
         let password = document.getElementById("login-password").value;
 
         try {
-            let response = await fetch("/buyer/login", {
+            let response = await fetch("/seller/login", {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json"
@@ -148,7 +148,7 @@
 
             if (response.ok) {
                 console.log("Login Successful");
-                window.location.href = "/"; 
+                window.location.href = "/seller/dashboard"; 
                 incErr.style.display="none";
             } else {
                 console.log("Login Failed:", result.error);
