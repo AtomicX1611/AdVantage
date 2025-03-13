@@ -136,7 +136,7 @@
         let password = document.getElementById("login-password").value;
 
         try {
-            let response = await fetch("/seller/login", {
+            let response = await fetch("/auth/sellerLogin", {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json"

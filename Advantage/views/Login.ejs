@@ -16,7 +16,7 @@
                 <h1>Create an Account</h1>
             </div>
             <div class="form">
-                <form action="/signup" method="post" id="signup-form">
+                <form action="/auth/buyer/signup" method="post" id="signup-form">
                     <div class="email">
                         <input type="email" name="email" id="sgn-email" placeholder="Email ID" required>
                         <div class="error" id="id-exist">
@@ -45,7 +45,7 @@
                 <h1>Login</h1>
             </div>
             <div class="form">
-                <form action="/login" method="post" id="login-form">
+                <form action="/auth/buyer/login" method="post" id="login-form">
                     <div class="email">
                         <input type="email" name="email" id="email" placeholder="Email ID" required>
                     </div>
@@ -104,7 +104,7 @@
         let cnfpwd = document.getElementById("confirm-password").value;
         let email=document.getElementById("sgn-email").value;
 
-        let response=await fetch("/buyer/signup", {
+        let response=await fetch("/auth/buyer/signup", {
             method:'POST',
             headers: {
                 "Content-Type":"application/json"
@@ -136,7 +136,8 @@
         let password = document.getElementById("login-password").value;
 
         try {
-            let response = await fetch("/buyer/login", {
+            console.log("Logging : ",email,password)
+            let response = await fetch("/auth/buyer/login", {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json"

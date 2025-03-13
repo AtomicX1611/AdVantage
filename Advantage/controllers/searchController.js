@@ -18,7 +18,7 @@ const getProductDetails = async (req, res) => {
   const productId = req.params.productId;
   res.render("ProductDetail.ejs", {
     product: findProduct(productId),
-    isLogged: true,
+    isLogged: req.isAuthenticated(),
   });
 };
 
