@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="/productDetail.css" />
+</head>
+
+<body>
+  <%- include("Header.ejs") %>
+    <div class="main_container">
+      <div class="card_list">
+        <% for(let i=1; product[`Image${i}Src`] !==undefined; i++) { %>
+          <img src="<%= product[`Image${i}Src`] %>" alt="image" class="card_container">
+          <% } %>
+      </div>
+      <img class="big_card" src="<%= product[`Image1Src`] %>" alt="bigImage">
+      <div class="product_details">
+        <div class="item_header">
+          <h1 class="item_title">
+            <%= product.Name %>
+          </h1>
+          <h2 class="item_price">₹<%= product.Price %>/-</h2>
+        </div>
+        <div>
+          <h2 class="item_address">
+            <%= product.Address %>
+          </h2>
+        </div>
+        <div class="description">
+          <h2 class="item_desc">Description</h2>
+          <h3 class="item_title">
+            <%= product.Description %>
+          </h3>
+        </div>
+      </div>
+    </div>
+    <script>
+      const card_container = document.querySelector('.card_list');
+      const big_card= document.querySelector('.big_card');
+      card_container.addEventListener("mouseover", (e) => {
+        if (e.target.tagName === 'IMG') {
+          big_card.src=e.target.src;
+        }
+      });
+    </script>
+</body>
+
+</html>
