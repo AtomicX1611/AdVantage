@@ -1,7 +1,6 @@
 import express from "express";
 import {
-  getProductDetails,
-  searchProducts,
+  getProductDetails
 } from "../controllers/searchController.js";
 import { findProducts } from "../models/User.js";
 
@@ -17,7 +16,7 @@ searchRouter.get("/noFilter",async (req,res) => {
     let products = await findProducts(name, location);
     res.render("searchPage.ejs", {
       products: products,
-      isLogged: req.isAuthenticated(),
+      isLogged: true,
     });
 });
 
