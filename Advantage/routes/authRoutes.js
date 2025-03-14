@@ -1,15 +1,14 @@
 import express from "express";
-import { login, signup } from "../controllers/authController.js";
+import { buyerLogin, buyerSignup,sellerLogin,sellerSignup } from "../controllers/authController.js";
 
 const authRouter = express.Router();
 
-authRouter.post("/buyer/signup", signup);
+authRouter.post("/buyer/signup", buyerSignup);
+authRouter.post("/buyer/login", buyerLogin);
 
-authRouter.post("/buyer/login", login);
+authRouter.post("/sellerLogin",sellerLogin);
 
-authRouter.post("/sellerLogin");
-
-authRouter.post("/sellerSignUp");
+authRouter.post("/sellerSignUp",sellerSignup);
 
 // TO DO :
 // authRouter.post("/seller/signup");
