@@ -16,7 +16,7 @@ searchRouter.get("/noFilter",async (req,res) => {
     let products = await findProducts(name, location);
     res.render("searchPage.ejs", {
       products: products,
-      isLogged: true,
+      isLogged: req.isAuthenticated,
     });
 });
 

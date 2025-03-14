@@ -30,13 +30,13 @@
                 %>
                 <div class="sellbtn">
 
-                    <a href="/seller">
+                    <a href="/seller/">
                         <i class='bx bx-plus'></i>Sell
                     </a>                   
                 </div>  <% 
                }else{
                 %>  <div class="sellbtn">
-                    <a href="/auth/login">
+                    <a href="/seller/">
                         <i class='bx bx-plus'></i>Sell
                     </a>                   
                 </div> <%
@@ -45,11 +45,11 @@
             <div class="user-actions">
                 <% if(isLogged) { %>
                     <div class="login-btn" style="display: none;">
-                        <a href="/auth/login">Login</a>
+                        <a href="/auth/buyer">Login</a>
                     </div>
                 <%} else {%>
                     <div class="login-btn">
-                        <a href="/auth/login">Login</a>
+                        <a href="/auth/buyer">Login</a>
                     </div>
                 <%}%>
                 <div class="box2">

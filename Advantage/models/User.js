@@ -1,10 +1,12 @@
-let users = [
+export let users = [
     {
         username: "dummyUser1",
         email: "abc@gmail.com",
-        password: "123"
+        password: "123",
+        role : "buyer"
     }
 ]
+
 let sellers=[
     {
         username: "dummySeller1",
