@@ -22,14 +22,14 @@ buyerRoutes.get("/profile",requireRole("buyer") ,(req, res) => {
 
 // buyerRoutes.post("/login", buyerLogin);
 
-// buyerRoutes.get("/chats",(req,res)=>{
-//     if(req.isAuthenticated()) {
-//         res.render("buyerChat.ejs",{isLogged:true});
-//     }
-//     else{
-//         res.send("No data!! please login")
-//     }
-// })
+buyerRoutes.get("/chats", (req,res)=>{
+    if(req.isAuthenticated() && req.user.role=="buyer") {
+        res.render("buyerChat.ejs",{isLogged:true});
+    }
+    else{
+        res.send("No data!! please login")
+    }
+})
 // buyerRoutes.post("/login",buyerLogin);
 // buyerRoutes.post("/signup",buyerSignup);
 

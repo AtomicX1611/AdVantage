@@ -1,53 +1,118 @@
 import passport from "passport";
-import { users } from "../models/User.js";
+import { findUserByEmail, createUser,findSellerByEmail,createSeller } from "../models/User.js";
 
-export const login = async (req, res, next) => {
-  console.log("request recived : ",req.body);
-  passport.authenticate("local", (err, user, info) => {
-    if (err) {
-      console.error("Error during authentication:", err);
-      return res.status(500).json({ error: "Internal server error" });
-    }
-    if (!user) {
-      console.log("Authentication failed:", info.message);
-      return res.status(401).json({ error: info.message });
-    }
-    user.role = "buyer"
-    req.login(user, (err) => {
-      if (err) {
-        console.error("Error during req.login:", err);
-        return res.status(500).json({ error: "Internal server error" });
-      }
-      console.log("User logged in:", user);
-      return res.status(200).json({ success: "User logged in", user });
-    });
-  })(req, res, next);
+export const buyerLogin = async (req, res, next) => {
+    console.log("request recived : ", req.body);
+    passport.authenticate("local", (err, user, info) => {
+        if (err) {
+            console.error("Error during authentication:", err);
+            return res.status(500).json({ error: "Internal server error" });
+        }
+        if (!user) {
+            console.log("Authentication failed:", info.message);
+            return res.status(401).json({ error: info.message });
+        }
+        user.role = "buyer"
+        req.login(user, (err) => {
+            if (err) {
+                console.error("Error during req.login:", err);
+                return res.status(500).json({ error: "Internal server error" });
+            }
+            console.log("User logged in:", user);
+            return res.status(200).json({ success: "User logged in", user });
+        });
+    })(req, res, next);
 };
 
-export const signup = async (req, res) => {
-  const { email, password, cPass } = req.body;
-  console.log(req.body)
-  if (password !== cPass) throw new Error("Passwords not matching");
+export const buyerSignup = async (req, res) => {
+    const { email, password, cnfpwd } = req.body;
+    console.log("req.body: ",req.body);
+    if (password != cnfpwd) return res.status(401).json({ err: "password mismatch" });
 
-  // check if user already exists
-  //create user in array
-  const user = {
-    email: email,
-    password: password,
-  };
+    // check if user already exists
+    //create user in array
+    let fetchedUser = findUserByEmail(email);
+    console.log("fetched user: ", fetchedUser);
+    if (!fetchedUser) {
+        const user = {
+            email: email,
+            password: password,
+            role:"buyer"
+        };
 
-  users.push(user);
+        createUser(user);
 
-  req.login(user, (err) => {
-    if (err) {
-      console.error("Error during req.login:", err);
-      return res.status(500).json({ error: "Internal server error" });
+        req.login(user, (err) => {
+            if (err) {
+                console.error("Error during req.login:", err);
+                return res.status(500).json({ error: "Internal server error" });
+            }
+
+            return res
+                .status(200)
+                .json({ success: "User signed up and logged in", user });
+        });
     }
-
-    return res
-      .status(200)
-      .json({ success: "User signed up and logged in", user });
-  });
+    else {
+        return res.status(400).json({err:"user already exists"});
+    }
 };
 
+
+export const sellerLogin = async (req, res, next) => {
+    console.log("request recived : ", req.body);
+    passport.authenticate("local", (err, user, info) => {
+        if (err) {
+            console.error("Error during authentication:", err);
+            return res.status(500).json({ error: "Internal server error" });
+        }
+        if (!user) {
+            console.log("Authentication failed:", info.message);
+            return res.status(401).json({ error: info.message });
+        }
+        user.role = "seller"
+        req.login(user, (err) => {
+            if (err) {
+                console.error("Error during req.login:", err);
+                return res.status(500).json({ error: "Internal server error" });
+            }
+            console.log("User logged in:", user);
+            return res.status(200).json({ success: "User logged in", user });
+        });
+    })(req, res, next);
+};
+
+export const sellerSignup = async (req, res) => {
+    const { email, password, cnfpwd } = req.body;
+    console.log("req.body: ",req.body);
+    if (password != cnfpwd) return res.status(401).json({ err: "password mismatch" });
+
+    // check if user already exists
+    //create user in array
+    let fetchedSeller = findSellerByEmail(email);
+    console.log("fetched seller: ", fetchedSeller);
+    if (!fetchedSeller) {
+        const user= {
+            email: email,
+            password: password,
+            role:"seller"
+        };
+
+        createSeller(user);
+
+        req.login(user, (err) => {
+            if (err) {
+                console.error("Error during req.login:", err);
+                return res.status(500).json({ error: "Internal server error" });
+            }
+
+            return res
+                .status(200)
+                .json({ success: "User signed up and logged in", user });
+        });
+    }
+    else {
+        return res.status(400).json({err:"user already exists"});
+    }
+};
 
