@@ -59,3 +59,7 @@ sellerRoutes.get("/dashboard",(req,res)=>{
     }
 })
 
+sellerRouter.get('/addProductForm',(req,res)=>{
+  //if not authenticated need to redirect to login page
+    res.render('AddproductForm');
+});
