@@ -15,7 +15,7 @@ header {
     height: max(9.765625vh, 40px);
     /*75px*/
     width: 100vw;
-    background-color: rgb(0, 0, 0);
+    background-color: transparent
 }
 
 nav {
@@ -42,7 +42,7 @@ nav {
     font-weight: bolder;
 }
 
-header a {
+a {
     text-decoration: none;
     color: black;
 }
@@ -82,9 +82,8 @@ header a {
     color: rgb(203, 203, 203);
     font-weight: 500;
     font-size: medium;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-family: 
 }
-
 button{
     border: 0px;
 }
@@ -157,7 +156,7 @@ button{
 .box3 {
     width: 15vw;
     border-bottom-left-radius: 100px;
-    background-color: rgb(0, 0, 0);
+    background-color: transparent;
     height: max(9.765625vh, 40px);
     display: flex;
     justify-self: center;
