@@ -30,7 +30,7 @@
                     <% for(let i=0;i < products.length; i++) { %>
                         <a href="http://localhost:3000/search/product/<%= products[i].ProductId %>">
                             <div class="products">
-                                <img src=<%=products[i].Image1Src %> alt="image" class="images">
+                                <img src="<%= products[i].Image1Src %>" alt="image" class="images">
                                 <h4 style="margin-left: 20px; font-size: 15px;">
                                     <%= products[i].Name %>   
                                 </h4>

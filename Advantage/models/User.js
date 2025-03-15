@@ -99,7 +99,7 @@ let products = [
         zipCode: 522003,
         // CountryCode: "IN",
         SellerId: "2",
-        ProductId:"4",
+        ProductId:"5",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
         Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
@@ -114,7 +114,7 @@ let products = [
         zipCode: 522003,
         // CountryCode: "IN",
         SellerId: "2",
-        ProductId:"4",
+        ProductId:"6",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
         Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
@@ -128,7 +128,7 @@ let products = [
         zipCode: 522003,
         // CountryCode: "IN",
         SellerId: "2",
-        ProductId:"4",
+        ProductId:"7",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
         Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
@@ -136,6 +136,7 @@ let products = [
         distance: 0
     }
 ]
+export let prodid={value:7};
 
 //distance between 2 points on earth
 function distance(lat1, lat2, lon1, lon2) {
@@ -198,6 +199,24 @@ export const findProduct= function(prodId) {
             return product;
         }
     }
+}
+export const addProduct=function(Name,Price,Address,Description,zipCode,currProdId,sellerEmail,imageNames){
+    const seller=sellers.find((seller)=> seller.email === sellerEmail);
+    let product={
+        Name:Name,
+        Price:Price,
+        Address:Address,
+        Description:Description,
+        zipCode:zipCode,
+        SellerId: `${seller.SellerId}`,
+        ProductId:`${currProdId}`
+    }
+    for(let i=0;i<imageNames.length;i++){
+        product[`Image${i+1}Src`] = `/Assets/products/${currProdId}/${imageNames[i]}`;
+
+    }
+    products.push(product);
+    console.log(product);
 }
 export const findUserByEmail = (email) => {
     return users.find((user) => user.email === email);

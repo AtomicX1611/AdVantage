@@ -14,54 +14,70 @@
     <br>
     <img src="/Assets/Add New Product.svg" alt="add new product" draggable="false" height="50px" id="addNewProd">
 
-    <form action="/seller/addProduct">
-    <div class="parent">
-        <div class="div1 griditem">
-            <h3 class="flexitem">General Information</h3>
-            <label for="Name" class="flexitem">Name Product</label>
-            <input type="text" name="Name" id="Name" class="flexitem" placeholder="Name">
-            <label for="Description" class="flexitem">Description Product</label>
-            <textarea type="text" name="Description" id="Description" class="flexitem" placeholder="Description"></textarea>
-            <label for="zipcode" class="flexitem">Zipcode</label>
-            <input type="number" id="zipcode" placeholder="Zipcode" class="flexitem">
-        </div>
-        <div class="div2 griditem">
-            <label for="spec1" class="flexitem">Spec1</label>
-            <input type="text" name="spec1" id="spec1" class="flexitem" placeholder="spec 1">
-            <label for="spec2" class="flexitem">Spec 2</label>
-            <input type="text" name="spec2" id="spec2" class="flexitem" placeholder="spec 2">
-            <label for="spec3" class="flexitem">Spec 3</label>
-            <input type="text" name="spec3" id="spec3" class="flexitem" placeholder="spec 3">
-            <label for="spec4" class="flexitem">Spec 4</label>
-            <input type="text" name="spec4" id="spec4" class="flexitem" placeholder="spec 4">
-        </div>
-        <div class="div3 griditem">
-            <div class="parent1">
-                <div class="div11">
-                    <h3 class="flexitem" style="display: inline-block;">Upload Images</h3>
-                </div>
-                <div class="div22">
-                </div>
-                <div class="div33">
-                    <label for="image" id="plus">+</label>
-                    <input type="file" id="image" name="image" style="display: none;" multiple>
+    <form action="/seller/addProduct" method="post" enctype="multipart/form-data">
+        <div class="parent">
+            <div class="div1 griditem">
+                <h3 class="flexitem">General Information</h3>
+                <label for="Name" class="flexitem">Name Product</label>
+                <input type="text" name="Name" id="Name" class="flexitem" placeholder="Name">
+                <label for="Description" class="flexitem">Description Product</label>
+                <textarea type="text" name="Description" id="Description" class="flexitem"
+                    placeholder="Description"></textarea>
+                <div class="parentd flexitem">
+                    <div class="div1d">
+                        <label for="zipcode" class="flexitem">Zipcode</label>
+                    </div>
+                    <div class="div2d">
+                        <label for="Address" class="flexitem">Address</label>
+                    </div>
+                    <div class="div3d">
+                        <input type="number" id="zipcode" name="zipcode" placeholder="Zipcode" class="flexitem">
+                    </div>
+                    <div class="div4d">
+                        <input type="text" class="flexitem" name="Address" id="Address" placeholder="Address">
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="div4 griditem">
-            <h3 class="flexitem">Price and Submit</h3>
+            <div class="div2 griditem">
+                <label for="spec1" class="flexitem">Spec1</label>
+                <input type="text" name="spec1" id="spec1" class="flexitem" placeholder="spec 1">
+                <label for="spec2" class="flexitem">Spec 2</label>
+                <input type="text" name="spec2" id="spec2" class="flexitem" placeholder="spec 2">
+                <label for="spec3" class="flexitem">Spec 3</label>
+                <input type="text" name="spec3" id="spec3" class="flexitem" placeholder="spec 3">
+                <label for="spec4" class="flexitem">Spec 4</label>
+                <input type="text" name="spec4" id="spec4" class="flexitem" placeholder="spec 4">
+            </div>
+            <div class="div3 griditem">
+                <div class="parent1">
+                    <div class="div11">
+                        <h3 class="flexitem" style="display: inline-block;">Upload Images</h3>
+                    </div>
+                    <div class="div22">
+                    </div>
+                    <div class="div33">
+                        <label for="image" id="plus">+</label>
+                        <input type="file" id="image" name="image" style="display: none;" multiple>
+                    </div>
+                </div>
+            </div>
+            <div class="div4 griditem">
+                <h3 class="flexitem">Price and Submit</h3>
+                <br>
                 <input type="number" name="price" class="flexitem" placeholder="Price"> Rs
                 <button type="submit">Submit</button>
+            </div>
         </div>
-    </div>
     </form>
     <script>
         const fileUploader = document.getElementById('image');
         const div22 = document.querySelector('.div22');
         fileUploader.addEventListener('change', (event) => {
             div22.innerHTML = ''; // Clear previous images
+            console.log(event.target.files);
             for (let file of event.target.files) {
                 const reader = new FileReader();
+                
                 reader.readAsDataURL(file);
                 reader.onload = (e) => {
                     let img = document.createElement('img');
@@ -73,7 +89,6 @@
                 };
             }
         });
-
     </script>
 </body>
 
