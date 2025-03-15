@@ -82,7 +82,7 @@ a {
 }
 
 #search-products::placeholder {
-    color: rgb(0, 0, 0);
+    color: rgba(0, 0, 0, 0.37);
     font-weight: 500;
     font-size: bold;
     /* font-family: ; */
