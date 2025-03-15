@@ -11,37 +11,20 @@ main {
     flex-direction: column;
     align-items: center;
     margin-bottom: 50px;
-    animation: main 0.7s ease-in;
-}
-.logo {
-    position: absolute;
-    top: 10%;
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: 80%;
-    height: auto;
-}
-@keyframes main {
-    from {
-        /* opacity: 0.2; */
-        transform: translateY(50px);
-    }
-    to {
-        /* opacity: 1; */
-        transform: translateY(0px);
-    }
 }
 
+
 .poster {
-    width: 100%;
+    width: 100vw;
     height: 60vh;
     background: transparent;
     margin-top: 2vh;
-    border-radius: 10px;
+
     display: flex;
+    flex-direction: column;
     justify-content: flex-start;
-    align-items: center;
-    padding-left: 5vw;
+    padding-left: 6vw;
+    animation: animate 1.2s ease-out;
 }
 
 .dial-container {
@@ -49,7 +32,7 @@ main {
     align-items: center;
     color: white;
     gap: 10px;
-    padding-left: 10vh;
+    height: 10px;
 }
 
 .dial-container h1 {
@@ -116,13 +99,14 @@ section {
 .featuredHeader {
     font-size: x-large;
     color: white;
+    margin-left: 2vh;
 }
 
 .iconsBox {
     width: 100%;
     height: fit-content;
     display: flex;
-    gap: 2vw;
+    gap: 3vw;
     flex-wrap: wrap;
     margin-top: 1vh;
 }
@@ -133,10 +117,22 @@ section {
     border-radius: 8px;
     background-color: #f7f7f7;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     animation: icon ease;
     animation-timeline: view();
 }
 
+.icon>img{
+    height: 100px;
+    width: 100px;
+    animation: png 5s  ease;
+    animation-timeline: view();
+}
+.icon>img:hover{
+    scale: 1.1;
+}
 .product {
     height: 40vh;
     width: 430px;
@@ -150,13 +146,28 @@ section {
     animation-timeline: view();
     animation-range: entry 0% cover 40%;
 }
-
-@keyframes icon {
+.product:hover {
+    scale: 1.05;
+}
+ @keyframes icon {
     from {
         opacity: 0;
         scale: 0.5;
     }
     to {
+        opacity: 1;
+    }
+} 
+
+@keyframes png {
+    0% {
+        height: 0px;
+        width: 0px;
+        scale: 0.005;
+    }
+    100%{
+        height: 100px;
+        width: 100px;
         opacity: 1;
     }
 }
@@ -192,14 +203,118 @@ section {
         width: 300px;
     }
 }
-
+.img-wrapper {
+    margin-top: 15vh;
+    
+}
 .logo{
-    padding-top: 15vh;
-    padding-right: 100vh;
+    /* padding-top: 15vh;
+    padding-right: 100vh; */
     margin-left: 0;
-    padding-left: 0%;
+    padding-left: 2%;
+    width: 30vw;
+    scale: 1.3;
+    
+}
+@keyframes animate{
+    0%{
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    100%{
+        opacity: 1;
+        transform: translateY(0px);
+    }
+    
 }
 
 .productIcons{
     margin-top: 5vh;
+}
+
+#mobile>img{
+    width: 100%;
+    height: 3vh;
+    margin-top: 2vh;
+}
+
+#clothes>img{
+    width: 100%;
+    height: 70%;
+    margin-top: 2vh;
+}
+
+#laptops>img{
+    width: 100%;
+    height: 70%;
+    margin-top: 2vh;
+}
+
+#electronics>img{
+    width: 100%;
+    height: 70%;
+    margin-top: 2vh;
+    scale: 1.3;
+    
+}
+
+#electronics>img:hover{
+    scale: 1.4;
+}
+
+#books>img{
+    width: 100%;
+    height: 70%;
+    margin-top: 2.5vh;
+}
+
+#furniture>img{
+    width: 100%;
+    height: 70%;
+    scale: 1.3;
+    margin-top: 2.5vh;
+}
+
+#furniture>img:hover{
+    scale: 1.4;
+}
+
+#vehicles>img{
+    width: 100%;
+    height: 100%;
+    scale: 1.3;
+}
+
+#vehicles>img:hover{
+    scale: 1.4;
+}
+
+#sports>img{
+    width: 100%;
+    height: 70%;
+    margin-top: 2vh;
+}
+
+
+#accessories>img{
+    width: 100%;
+    height: 70%;
+    margin-bottom: 3vh;
+    scale: 1.3;
+
+}
+
+#accessories>img:hover{
+    scale: 1.4;
+}
+
+#music>img{
+    width: 100%;
+    height: 70%;
+    margin-top: 3vh;
+    scale: 1.2;
+}
+
+#music>img:hover{
+    scale: 1.3;
 }

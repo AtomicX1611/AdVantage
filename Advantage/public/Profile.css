@@ -27,7 +27,7 @@
     flex-wrap: wrap;
     gap: 3vw;
     align-items: center;
-    margin-left: 30px;
+    margin-left: 30px;  
 }
 @keyframes animate {
     from {

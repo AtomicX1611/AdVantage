@@ -37,9 +37,10 @@ nav {
     /* background-color: red; */
 }
 
-.logo {
+.logo-img-wrapper {
     font-size: x-large;
     font-weight: bolder;
+    /* padding-left: 0%; */
 }
 
 a {
@@ -64,26 +65,29 @@ a {
     justify-content: center;
     align-items: center;
     gap: 5px;
+    
 }
 
 .search-box input {
-    padding-left: 2vw;
+    padding-left: 2.3vw;
+    
 }
 
 #search-products {
     height: 40px;
     width: 25vw;
-    background-color: rgb(203, 203, 203);
+    background-color: rgb(255, 252, 252);
     border: none;
     border-radius: 8px;
 }
 
 #search-products::placeholder {
-    color: rgb(203, 203, 203);
+    color: rgb(0, 0, 0);
     font-weight: 500;
-    font-size: medium;
-    font-family: "";
+    font-size: bold;
+    /* font-family: ; */
 }
+
 button{
     border: 0px;
 }
@@ -146,6 +150,7 @@ button{
     justify-content: center;
     gap: 3vw;
     align-items: center;
+    margin-right: 15px;
 }
 
 .box2-icons {
@@ -168,12 +173,39 @@ button{
     font-size: max(3.6458333333333333333333333333333vh, 20px);
     display: none;
 }
+.bx-heart{
+    color: white;
+    font-size: 40px;
+}
+.bxs-user-circle{
+    color: white;
+    font-size: 40px;
+}
 
+.hover:hover {
+    scale: 1.15;
+}
+
+.hover-btn:hover {
+    background-color: black;
+    color: white;
+    border: 2px solid white;
+}
+.hover-btn:hover a {
+    color: white;
+}
+
+#search-btn:hover {
+    background-color: #242424;
+    color: white;
+    border: 2px solid white;
+}
 @media screen and (max-width:980px) {
     #burger {
         display: flex;
         margin-right: 2vw;
         cursor: pointer;
+        color: white;
         box-shadow: 0px 0px 5px #242424;
     }
     .user-actions {
