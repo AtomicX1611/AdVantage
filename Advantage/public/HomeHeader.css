@@ -15,7 +15,8 @@ header {
     height: max(9.765625vh, 40px);
     /*75px*/
     width: 100vw;
-    background-color: transparent
+    background-color: transparent;
+    /* position: sticky; */
 }
 
 nav {

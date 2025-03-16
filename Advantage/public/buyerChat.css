@@ -75,15 +75,19 @@ main {
     margin-left: 1vw;
 }
 .chatbox {
+    height: 80vh;
     width: 64vw;
     border-top-right-radius: 20px;
     height: inherit;
     overflow-x: hidden;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
+
 .currentChat {
     height: 50px;
-    margin-top: 3vh;
+    padding: 1.5vh 0px;
     width: inherit;
     display: flex;
     gap: 10px;
@@ -113,8 +117,10 @@ main {
     border-radius: 100%;
 }
 .message-content {
-    height: 40px;
-    width: 150px;
+    height: fit-content;
+    padding: 5px;
+    max-width: 20vw;
+    word-break: break-all;
     border-radius: 10px;
     background-color: black;
 }
@@ -124,39 +130,75 @@ main {
     height: fit-content;
     display: flex;
     align-items: center;
+    color: white;
     margin-left: 10px;
     justify-content: flex-start;
-    animation: msgLeft 1s ease;
+    animation: msgLeft 0.7s ease-out;
 }
 
 @keyframes msgLeft {
     from {
         opacity: 0;
-        transform: translate(-100px,20px);
+        transform: translateY(50px);
     }
     to {
         opacity: 1;
-        transform: translateX(0px,0px);
+        transform: translateY(0px);
     }
 }
 .message-right {
     width: 64vw;
     height: fit-content;
     display: flex;
+    color: white;
     align-items: center;
     justify-content: flex-end;
-    animation: msgRight 1s ease;
+    animation: msgRight 0.7s ease-out;
 }
 @keyframes msgRight {
     from {
         opacity: 0;
-        transform: translate(100px,20px);
+        transform: translateY(50px);
     }
     to {
         opacity: 1;
-        transform: translate(0px 0px);
+        transform: translateY(0px);
     }
 }
 .message-right>.dp-circle-small {
     margin-right: 10px;
+}
+.type {
+    height: 6vh;
+    width: 64vw;
+    border-top: 2px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#text-box {
+    resize:none;
+    width: 30vw;
+    height: 4vh;
+    display: flex;
+    padding: 3px 5px;
+    align-items: center;
+    font-size: 16px;
+}
+.send-btn {
+    height: fit-content;
+    width: fit-content;
+    padding: 5px;
+    border: 1px solid black;
+    cursor: pointer;
+    border-radius: 5px;
+    color: black;
+    display: flex;
+    align-items: center;
+}
+.send-btn:hover {
+    background-color: black;
+    color: white;
 }

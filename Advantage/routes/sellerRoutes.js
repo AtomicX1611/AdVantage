@@ -1,5 +1,6 @@
 import express from "express";
 import { requireRole } from "../middleware/roleMiddleware.js";
+import { chatRoutes } from "./charRoutes.js";
 import { prodid } from "../models/User.js";
 // import { sellerLogin } from "../controllers/sellerLogin.js";
 // import { sellerSignup } from "../controllers/sellerSignUp.js";
@@ -22,7 +23,7 @@ const sellerRouter = express.Router();
 
 sellerRouter.use(express.json());
 sellerRouter.use(express.urlencoded({ extended: true }));
-
+sellerRouter.use("/chats",chatRoutes);
 // sellerRouter.post("/login", sellerLogin);
 
 sellerRouter.get("/",requireRole("seller"),(req, res) => {

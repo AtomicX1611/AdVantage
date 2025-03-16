@@ -8,6 +8,8 @@ import passport from "passport";
 import productRouter from "./routes/productRoutes.js";
 import pkg from "passport-local";
 import { findUserByEmail } from "./models/User.js";
+import { Server } from "socket.io";
+import { sock } from "./controllers/Socket.js";
 
 const app = express();
 const port = 3000;
@@ -20,22 +22,22 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(
-  "/",
-  session({
-    secret: "user-login-session",
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      maxAge: 1000 * 60 * 60,
-    },
-  })
+    "/",
+    session({
+        secret: "user-login-session",
+        resave: false,
+        saveUninitialized: true,
+        cookie: {
+            maxAge: 1000 * 60 * 60,
+        },
+    })
 );
 
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.get("/", (req, res) => {
-  res.redirect("/buyer/home");
+    res.redirect("/buyer/home");
 })
 
 app.use("/auth", authRouter);
@@ -45,32 +47,37 @@ app.use("/search", searchRouter);
 app.use("/product", productRouter);
 
 passport.use(
-  new LocalStrategy(
-    {
-      usernameField: "email",
-      passwordField: "password",
-    },
-    function verify(email, password, cb) {
-      const result = findUserByEmail(email);
-      if (result) {
-        if (result.password !== password) {
-          return cb(null, false, { message: "Incorrect password" });
+    new LocalStrategy(
+        {
+            usernameField: "email",
+            passwordField: "password",
+        },
+        function verify(email, password, cb) {
+            const result = findUserByEmail(email);
+            if (result) {
+                if (result.password !== password) {
+                    return cb(null, false, { message: "Incorrect password" });
+                }
+                return cb(null, result);
+            } else {
+                return cb(null, false, { message: "User not found" });
+            }
         }
-        return cb(null, result);
-      } else {
-        return cb(null, false, { message: "User not found" });
-      }
-    }
-  )
+    )
 );
 
 passport.serializeUser((user, cb) => {
-  console.log("serialiszing : ");
-  cb(null, { email: user.email, role: user.role });
+    console.log("serialiszing : ");
+    cb(null, { email: user.email, role: user.role });
 });
 
 passport.deserializeUser(async (user, cb) => {
-  cb(null, user);
+    cb(null, user);
 });
 
-app.listen(port, () => console.log("Running on Port 3000"));
+const server = app.listen(port, () => console.log("Running on Port 3000"));
+export const io = new Server(server);
+
+let activeUsers = new Map();
+
+io.on("connection", sock);

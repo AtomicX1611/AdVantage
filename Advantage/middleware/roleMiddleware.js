@@ -2,7 +2,6 @@ export const requireRole = (role) => {
     return (req, res, next) => {
       if (!req.isAuthenticated() ) {
         if(role=="buyer") {
-          console.log("adsfh");
           return res.redirect("/auth/buyer");
         }
         else if(role=="seller") {

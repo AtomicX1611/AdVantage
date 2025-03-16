@@ -23,11 +23,18 @@ db.run(
 );
 export let users = [
     {
-        username: "dummyUser1",
+        username: "abc",
         email: "abc@gmail.com",
         password: "123",
-        role: "buyer",
+        role : "buyer",
         userId: "1"
+    },
+    {
+        username: "SK",
+        email: "sk@gmail.com",
+        password: "123",
+        role : "buyer",
+        userId:"2"
     }
 ]
 

@@ -1,5 +1,6 @@
 import express from "express";
 import { requireRole } from "../middleware/roleMiddleware.js";
+import { chatRoutes } from "./charRoutes.js";
 import { addToWishlist,findProduct,getWishlistProducts, removeWishlistProduct } from "../models/User.js";
 // import { buyerLogin } from "../controllers/buyerLogin.js";
 // import { buyerSignup } from "../controllers/buyerSignUp.js";
@@ -8,10 +9,11 @@ export const buyerRoutes = express.Router();
 
 buyerRoutes.use(express.json());
 buyerRoutes.use(express.urlencoded({ extended: true }));
+buyerRoutes.use("/chats",chatRoutes);
 
 buyerRoutes.get("/home", (req, res) => {
    
-res.render("Home.ejs", { isLogged: req.isAuthenticated()});
+res.render("Home.ejs", { isLogged: req.isAuthenticated()&&(req.user.role=="buyer")});
 });
 
 
@@ -20,36 +22,32 @@ buyerRoutes.get("/profile",requireRole("buyer") ,(req, res) => {
   else res.send("No data");
 });
 
-// buyerRoutes.post("/login", buyerLogin);
-
-buyerRoutes.get("/chats", (req,res)=>{
-    if(req.isAuthenticated() && req.user.role=="buyer") {
-        res.render("buyerChat.ejs",{isLogged:true});
-    }
-    else{
-        res.send("No data!! please login");
-    }
-})
-// buyerRoutes.post("/login",buyerLogin);
-// buyerRoutes.post("/signup",buyerSignup);
-
-
-
+// buyerRoutes.get("/chats", (req,res)=>{
+//     if(req.isAuthenticated() && req.user.role=="buyer") {
+//         res.render("buyerChat.ejs",{isLogged:true});
+//     }
+//     else{
+//         res.send("No data!! please login");
+//     }
+// })
 
 buyerRoutes.post('/wishlist/add',requireRole("buyer"),async (req,res)=>{
   try{
     const message=await addToWishlist(req.user.email,req.body.productId);
     res.status(200).json({message:message});
-  }catch(err){
+  }catch(err) {
+    console.log("catch block");
     res.status(200).json({message:err});
   }
 });
+
 buyerRoutes.get('/wishlist',requireRole("buyer"),async (req,res)=>{
   const productIds=await getWishlistProducts(req.user.email);
   const products=productIds.map((obj)=> findProduct(obj.productId));
   console.log(productIds);
-  res.render('wishlist',{products: products});
+  res.render('wishlist',{products: products,isLogged:req.isAuthenticated()&&(req.user.role=="buyer")});
 });
+
 buyerRoutes.get('/wishlist/remove/:productId',requireRole("buyer"),async (req,res)=>{
   const productId=req.params.productId;
   const userEmail=req.user.email;

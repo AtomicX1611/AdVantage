@@ -6,11 +6,11 @@
 </head>
 
 <body>
-  <%- include("Header.ejs") %>
-    <div id="notification">
-      <span id="notif-message"></span>
-      <button id="close-btn" onclick="hideNotification()">X</button>
-    </div>
+  <%- include("HomeHeader.ejs") %>
+  <div id="notification">
+    <span id="notif-message"></span>
+    <button id="close-btn" onclick="hideNotification()">X</button>
+    </div>      
     <div class="main_container">
       <div class="card_list">
         <% for(let i=1; product[`Image${i}Src`] !==undefined; i++) { %>
@@ -83,6 +83,7 @@
         });
         try {
           const data = await response.json();
+          console.log("data: ",data);
           showNotification(data.message);
           // alert(data.message);
         } catch (err) {

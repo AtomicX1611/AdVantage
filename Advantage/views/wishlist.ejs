@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/wishlist.css">
 </head>
 <body>
+    <%- include("HomeHeader.ejs") %>
     <div class="container">
         <div class="sidebar">
             <h2>Wishlist</h2>
@@ -25,6 +26,7 @@
                 for(let i=1;product[`Image${i}Src`] !== undefined;i++){
                     product[`Images`].push(product[`Image${i}Src`]);
                 }
+                console.log(product[`Images`].length);
             }
             
             /*
@@ -364,7 +366,7 @@
                         <button class="next" onclick="changeImage(${index}, 1)">❯</button>
                     </div>
                     <h3>${product.Name}</h3>
-                    <p>${product.Price}</p>
+                    <p><b>Price :</b>${product.Price} Rs</p>
                     <p><strong>Description:</strong>${product.Description}</p>
                     <p><strong>Seller:</strong> ${product.SellerId}</p>
                     <p><strong>Address:</strong> ${product.Address}</p>
@@ -393,7 +395,7 @@
             let currentSrc = imgElement.src.split("/").pop();
             let currentIndex = images.findIndex(img => img.includes(currentSrc));
             let newIndex = (currentIndex + direction + images.length) % images.length;
-            imgElement.src = images[newIndex];
+            imgElement.src = `${images[newIndex]}`;
         }
 
         loadProducts();

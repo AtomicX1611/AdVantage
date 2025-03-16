@@ -28,9 +28,7 @@ export const buyerSignup = async (req, res) => {
     const { email, password, cnfpwd } = req.body;
     console.log("req.body: ",req.body);
     if (password != cnfpwd) return res.status(401).json({ err: "password mismatch" });
-
-    // check if user already exists
-    //create user in array
+    
     let fetchedUser = findUserByEmail(email);
     console.log("fetched user: ", fetchedUser);
     if (!fetchedUser) {

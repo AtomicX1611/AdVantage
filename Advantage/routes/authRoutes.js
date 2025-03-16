@@ -2,6 +2,7 @@ import express from "express";
 import { buyerLogin, buyerSignup,sellerLogin,sellerSignup } from "../controllers/authController.js";
 
 const authRouter = express.Router();
+export let activeUsers=new Map();
 
 authRouter.post("/buyer/signup", buyerSignup);
 authRouter.post("/buyer/login", buyerLogin);
