@@ -1,13 +1,37 @@
+import sqlite3 from "sqlite3";
+
+const db = new sqlite3.Database(":memory:", (err) => {
+    if (err) {
+        console.error("Error connecting to in-memory SQLite:", err.message);
+    } else {
+        console.log("Connected to in-memory SQLite database.");
+    }
+});
+db.run(
+    `CREATE TABLE IF NOT EXISTS wishlist (
+        userId INTEGER NOT NULL,
+        productId INTEGER NOT NULL,
+        UNIQUE(productId, userId)
+    )`,
+    (err) => {
+        if (err) {
+            console.error("Error creating table:", err.message);
+        } else {
+            console.log("Wishlist table created in memory.");
+        }
+    }
+);
 export let users = [
     {
         username: "dummyUser1",
         email: "abc@gmail.com",
         password: "123",
-        role : "buyer"
+        role: "buyer",
+        userId: "1"
     }
 ]
 
-let sellers=[
+let sellers = [
     {
         username: "dummySeller1",
         email: "abc@gmail.com",
@@ -36,7 +60,7 @@ let products = [
         zipCode: 522003,
         // CountryCode: "IN",
         SellerId: "1",
-        ProductId:"1",
+        ProductId: "1",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
         Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
@@ -52,7 +76,7 @@ let products = [
         zipCode: 522003,
         // CountryCode: "IN",
         SellerId: "2",
-        ProductId:"2",
+        ProductId: "2",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
         Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
@@ -68,7 +92,7 @@ let products = [
         zipCode: 522003,
         // CountryCode: "IN",
         SellerId: "1",
-        ProductId:"3",
+        ProductId: "3",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
         Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
@@ -84,7 +108,7 @@ let products = [
         zipCode: 522003,
         // CountryCode: "IN",
         SellerId: "2",
-        ProductId:"4",
+        ProductId: "4",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
         Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
@@ -99,7 +123,7 @@ let products = [
         zipCode: 522003,
         // CountryCode: "IN",
         SellerId: "2",
-        ProductId:"5",
+        ProductId: "5",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
         Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
@@ -114,7 +138,7 @@ let products = [
         zipCode: 522003,
         // CountryCode: "IN",
         SellerId: "2",
-        ProductId:"6",
+        ProductId: "6",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
         Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
@@ -128,7 +152,7 @@ let products = [
         zipCode: 522003,
         // CountryCode: "IN",
         SellerId: "2",
-        ProductId:"7",
+        ProductId: "7",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
         Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
@@ -136,7 +160,7 @@ let products = [
         distance: 0
     }
 ]
-export let prodid={value:7};
+export let prodid = { value: 7 };
 
 //distance between 2 points on earth
 function distance(lat1, lat2, lon1, lon2) {
@@ -193,38 +217,90 @@ export const findProducts = async function (Name, location) {
     }
     return returningProducts;
 }
-export const findProduct= function(prodId) {
-    for(let product of products){
-        if(product.ProductId==prodId){
+export const findProduct = function (prodId) {
+    for (let product of products) {
+        if (product.ProductId == prodId) {
             return product;
         }
     }
 }
-export const addProduct=function(Name,Price,Address,Description,zipCode,currProdId,sellerEmail,imageNames){
-    const seller=sellers.find((seller)=> seller.email === sellerEmail);
-    let product={
-        Name:Name,
-        Price:Price,
-        Address:Address,
-        Description:Description,
-        zipCode:zipCode,
+export const addProduct = function (Name, Price, Address, Description, zipCode, currProdId, sellerEmail, imageNames) {
+    const seller = findSellerByEmail(sellerEmail);
+    let product = {
+        Name: Name,
+        Price: Price,
+        Address: Address,
+        Description: Description,
+        zipCode: zipCode,
         SellerId: `${seller.SellerId}`,
-        ProductId:`${currProdId}`
+        ProductId: `${currProdId}`
     }
-    for(let i=0;i<imageNames.length;i++){
-        product[`Image${i+1}Src`] = `/Assets/products/${currProdId}/${imageNames[i]}`;
+    for (let i = 0; i < imageNames.length; i++) {
+        product[`Image${i + 1}Src`] = `/Assets/products/${currProdId}/${imageNames[i]}`;
 
     }
     products.push(product);
     console.log(product);
+}
+
+export const addToWishlist = function (userEmail, productId) {
+    return new Promise((resolve, reject) => {
+        let userId = findUserByEmail(userEmail).userId;
+        const query = `INSERT INTO wishlist (userId, productId) VALUES (?, ?)`;
+        db.run(query, [userId, productId], function (err) {
+            if (err) {
+                if (err.message.includes("UNIQUE constraint failed")) {
+                    return reject("Product is already in the wishlist");
+                }
+                return reject(err.message);
+            }
+                resolve("Added SuccessFully");
+        });
+    });
+}
+
+export const getWishlistProducts = function (userEmail) {
+    return new Promise((resolve, reject) => {
+        let user = findUserByEmail(userEmail);
+        if (!user) {
+            return reject(new Error("User not found"));
+        }
+
+        const userId = user.userId;
+        const query = `SELECT productId FROM wishlist WHERE userId = ?`;
+
+        db.all(query, [userId], (err, rows) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(rows);
+        });
+    });
+}
+
+export const removeWishlistProduct = function (userEmail, productId) {
+    return new Promise((resolve, reject) => {
+        let user = findUserByEmail(userEmail);
+        const userId = user.userId;
+        const query = `DELETE FROM wishlist WHERE userId = ? AND productId = ?`;
+        db.run(query, [userId, productId], (err) => {
+            if (err) {
+                console.log(err.message);
+                reject(err.message);
+            } else {
+                resolve("Done");
+            }
+        });
+    })
 }
 export const findUserByEmail = (email) => {
     return users.find((user) => user.email === email);
 }
 
 export const createUser = (user) => {
+    //add id here before pushing
     users.push(user);
-    console.log("updated users list: ",users);
+    console.log("updated users list: ", users);
     return user;
 };
 
@@ -233,7 +309,8 @@ export const findSellerByEmail = (email) => {
 }
 
 export const createSeller = (seller) => {
+    //add id here before pushing
     sellers.push(seller);
-    console.log("updated sellers list: ",sellers);
+    console.log("updated sellers list: ", sellers);
     return seller;
 };

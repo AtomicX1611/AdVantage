@@ -14,12 +14,12 @@
     <br>
     <img src="/Assets/Add New Product.svg" alt="add new product" draggable="false" height="50px" id="addNewProd">
 
-    <form action="/seller/addProduct" method="post" enctype="multipart/form-data">
+    <form action="/seller/addProduct" method="post" enctype="multipart/form-data" id="formElement">
         <div class="parent">
             <div class="div1 griditem">
                 <h3 class="flexitem">General Information</h3>
                 <label for="Name" class="flexitem">Name Product</label>
-                <input type="text" name="Name" id="Name" class="flexitem" placeholder="Name">
+                <input type="text" name="Name" id="Name" class="flexitem" placeholder="Name" required>
                 <label for="Description" class="flexitem">Description Product</label>
                 <textarea type="text" name="Description" id="Description" class="flexitem"
                     placeholder="Description"></textarea>
@@ -31,10 +31,10 @@
                         <label for="Address" class="flexitem">Address</label>
                     </div>
                     <div class="div3d">
-                        <input type="number" id="zipcode" name="zipcode" placeholder="Zipcode" class="flexitem">
+                        <input type="number" id="zipcode" name="zipcode" placeholder="Zipcode" class="flexitem" required>
                     </div>
                     <div class="div4d">
-                        <input type="text" class="flexitem" name="Address" id="Address" placeholder="Address">
+                        <input type="text" class="flexitem" name="Address" id="Address" placeholder="Address" required>
                     </div>
                 </div>
             </div>
@@ -64,12 +64,26 @@
             <div class="div4 griditem">
                 <h3 class="flexitem">Price and Submit</h3>
                 <br>
-                <input type="number" name="price" class="flexitem" placeholder="Price"> Rs
+                <input type="number" name="price" class="flexitem" placeholder="Price" required> Rs
                 <button type="submit">Submit</button>
             </div>
         </div>
     </form>
     <script>
+        function hasSixDigits(num){
+            return num >= 100000 && num < 1000000;
+        }
+        const formElement=document.getElementById('formElement');
+        const zipcodeInput=document.getElementById('zipcode');
+        formElement.addEventListener('submit',(event)=>{
+            event.preventDefault();
+            const zipcode = parseInt(zipcodeInput.value, 10);
+            if(!hasSixDigits(zipcode)){
+                alert("Invalid Zipcode");
+            }else{
+                formElement.submit();
+            }
+        });
         const fileUploader = document.getElementById('image');
         const div22 = document.querySelector('.div22');
         fileUploader.addEventListener('change', (event) => {
@@ -77,7 +91,6 @@
             console.log(event.target.files);
             for (let file of event.target.files) {
                 const reader = new FileReader();
-                
                 reader.readAsDataURL(file);
                 reader.onload = (e) => {
                     let img = document.createElement('img');

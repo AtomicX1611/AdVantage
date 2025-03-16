@@ -95,68 +95,80 @@
     let signup = document.querySelector(".signup-btn button");
     signup.addEventListener("click", async (event) => {
         let misMatchErr = document.getElementById("password-misMatch");
-        let idExist=document.getElementById("id-exist");
-        idExist.style.display="none";
+        let idExist = document.getElementById("id-exist");
+        idExist.style.display = "none";
         misMatchErr.style.display = "none";
         event.preventDefault();
 
         let pwd = document.getElementById("create-password").value;
         let cnfpwd = document.getElementById("confirm-password").value;
-        let email=document.getElementById("sgn-email").value;
+        let email = document.getElementById("sgn-email").value;
+        if (!email.includes('@')) {
+            alert("Invalid Email");
+        } else if (pwd == "" || cnfpwd == "") {
+            alert("password Required");
+        } else if (pwd !== cnfpwd) {
+            alert("password mismatch");
+        } else {
+            let response = await fetch("/auth/sellerSignUp", {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email: email, password: pwd, cnfpwd: cnfpwd })
+            })
+            let result = await response.json();
 
-        let response=await fetch("/auth/sellerSignUp", {
-            method:'POST',
-            headers: {
-                "Content-Type":"application/json"
-            },
-            body: JSON.stringify({email:email,password:pwd,cnfpwd:cnfpwd})
-        })
-        let result=await response.json();
-
-        if(response.status === 400) {
-            idExist.style.display="flex";
+            if (response.status === 400) {
+                idExist.style.display = "flex";
+            }
+            else if (response.status === 401) {
+                misMatchErr.style.display = "flex";
+            }
+            else if (response.status === 200) {
+                window.location.href = "/seller/";
+            }
         }
-        else if(response.status === 401) {
-            misMatchErr.style.display="flex";
-        }
-        else if(response.status === 200) {
-            window.location.href="/seller/";
-        }
-        
-    })
+    });
 
     let login = document.getElementById("login-btn");
     login.addEventListener("click", async () => {
         event.preventDefault();
 
         let incErr = document.getElementById("incorrect-password");
-        incErr.style.display="none";
+        incErr.style.display = "none";
 
         let email = document.getElementById("email").value;
         let password = document.getElementById("login-password").value;
+        //validation
+        if (!email.includes('@')) {
+            alert("Invalid email");
+        } else if (document.getElementById("login-password").value === "") {
+            alert("password required");
+        } else {
+            try {
+                let response = await fetch("/auth/sellerLogin", {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email: email, password: password })
+                })
+                let result = await response.json();
+                console.log("Response Data:", result);
 
-        try {
-            let response = await fetch("/auth/sellerLogin", {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ email: email, password: password })
-            })
-            let result = await response.json();
-            console.log("Response Data:", result);
+                if (response.ok) {
+                    console.log("Login Successful");
+                    window.location.href = "/seller/";
+                    incErr.style.display = "none";
+                } else {
+                    console.log("Login Failed:", result.error);
+                    incErr.style.display = "flex";
+                }
 
-            if (response.ok) {
-                console.log("Login Successful");
-                window.location.href = "/seller/"; 
-                incErr.style.display="none";
-            } else {
-                console.log("Login Failed:", result.error);
-                incErr.style.display = "flex";
+            } catch (error) {
+                console.error("Error:", error);
             }
-
-        } catch (error) {
-            console.error("Error:", error);
         }
     });
 
