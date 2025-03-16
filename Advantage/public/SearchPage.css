@@ -11,6 +11,7 @@
 }
 
 .products:hover {
+    scale: 1.02;
     cursor: pointer;
     box-shadow: 1px 1px 5px rgb(225, 243, 255);
 }
