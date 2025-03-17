@@ -38,6 +38,8 @@ export let users = [
     }
 ]
 
+let userCount = 2;
+
 let sellers = [
     {
         username: "dummySeller1",
@@ -56,6 +58,8 @@ let sellers = [
         Contact: "9876543210"
     }
 ]
+
+let sellerCount = 2;
 
 let products = [
     {
@@ -373,6 +377,7 @@ export const findUserByEmail = (email) => {
 
 export const createUser = (user) => {
     //add id here before pushing
+    user.userId = `${++userCount}`;
     users.push(user);
     console.log("updated users list: ", users);
     return user;
@@ -384,6 +389,7 @@ export const findSellerByEmail = (email) => {
 
 export const createSeller = (seller) => {
     //add id here before pushing
+    seller.userId = `${++sellerCount}`;
     sellers.push(seller);
     console.log("updated sellers list: ", sellers);
     return seller;

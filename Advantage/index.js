@@ -7,7 +7,7 @@ import session from "express-session";
 import passport from "passport";
 import productRouter from "./routes/productRoutes.js";
 import pkg from "passport-local";
-import { findUserByEmail } from "./models/User.js";
+import { findSellerByEmail, findUserByEmail } from "./models/User.js";
 import { Server } from "socket.io";
 import { sock } from "./controllers/Socket.js";
 
@@ -22,57 +22,69 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(
-    "/",
-    session({
-        secret: "user-login-session",
-        resave: false,
-        saveUninitialized: true,
-        cookie: {
-            maxAge: 1000 * 60 * 60,
-        },
-    })
+  "/",
+  session({
+    secret: "user-login-session",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 1000 * 60 * 60,
+    },
+  })
 );
 
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.get("/", (req, res) => {
-    res.redirect("/buyer/home");
-})
+  res.redirect("/buyer/home");
+});
 
-app.use("/auth", authRouter);
+app.use("/auth", authRouter); 
 app.use("/buyer", buyerRoutes);
 app.use("/seller", sellerRouter);
 app.use("/search", searchRouter);
 app.use("/product", productRouter);
+app.use("/admin", (req, res) => {
+  res.render("Admin.ejs");
+});
 
 passport.use(
-    new LocalStrategy(
-        {
-            usernameField: "email",
-            passwordField: "password",
-        },
-        function verify(email, password, cb) {
-            const result = findUserByEmail(email);
-            if (result) {
-                if (result.password !== password) {
-                    return cb(null, false, { message: "Incorrect password" });
-                }
-                return cb(null, result);
-            } else {
-                return cb(null, false, { message: "User not found" });
-            }
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    function verify(email, password, cb) {
+      let result;
+
+      if (email.slice(email.length-1,email.length) == 's') {
+        email = email.slice(0,email.length-1);
+        result = findSellerByEmail(email);
+      } else {
+        email = email.slice(0,email.length-1);
+        result = findUserByEmail(email);
+      }
+      
+      if (result) {
+        if (result.password !== password) {
+          return cb(null, false, { message: "Incorrect password" });
         }
-    )
+        return cb(null, result);
+      } else {
+        return cb(null, false, { message: "User not found" });
+      }
+    }
+  )
 );
 
 passport.serializeUser((user, cb) => {
-    console.log("serialiszing : ");
-    cb(null, { email: user.email, role: user.role });
+  console.log("serialiszing : ");
+  cb(null, { email: user.email, role: user.role });
 });
 
 passport.deserializeUser(async (user, cb) => {
-    cb(null, user);
+  cb(null, user);
 });
 
 const server = app.listen(port, () => console.log("Running on Port 3000"));
@@ -80,4 +92,4 @@ export const io = new Server(server);
 
 let activeUsers = new Map();
 
-io.on("connection", sock);
+io.on("connection", sock);``
