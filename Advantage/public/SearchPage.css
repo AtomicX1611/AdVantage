@@ -4,10 +4,12 @@
 }
 
 .products {
+    overflow: hidden;
     border: 1px solid #c3c4c5;
     margin: 20px;
     border-radius: 10px;
-    text-align: center; 
+    text-align: center;
+    width: 18.229166666666667vw;
 }
 
 .products:hover {
@@ -35,6 +37,10 @@ main {
     /* letter-spacing: 0.1vw; */
 }
 
+.searchpage_window{
+    background-image: url("/Assets/Backgrounds/Search_page.png");
+    background-repeat: no-repeat;
+}
 .fog {
     height: 41.958333vh;
     width: 21.40409vw;
@@ -61,12 +67,15 @@ main {
 
 #bottom {
     display: flex;
+    /* gap: 30px; */
 }
 
 #filterContainer {
-    position: relative;
+    /* position: relative; 
+    */
+    /* margin: 1px; */
     /* background-color: purple; */
-    width: 26.35vw;
+    width: 18.35vw;
     /* height: 100vh; */
 }
 
@@ -97,24 +106,25 @@ main {
 #filterApply {
     padding: 6px 15px;
     font-size: small;
-    background-color: #48D77D;
+    background-color: #22577A;
     border: 0px;
-    border-radius: 2px;
+    border-radius: 12px;
     align-self: flex-end;
     transform: translateY(6%);
 }
 
 #filterApply:hover {
-    background-color: #38a560;
+    background-color: #03297b;
 }
 
 #mainSection {
     /* background-color: aqua; */
-   
+    overflow: hidden;
+    width: 100vw;
     display: flex;
     flex-wrap: wrap;
     /* justify-content: center; */
-    border-left: 1px solid #c3c4c5;
+    border-left: 1px solid #ffffff;
 }
 
 #minAndMax {
@@ -123,6 +133,7 @@ main {
     justify-content: space-around;
     /* background-color: yellow; */
     align-items: flex-start;
+    border-radius: 12px;
 }
 #mainSection a{
     color: white;
