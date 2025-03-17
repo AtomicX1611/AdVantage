@@ -1,9 +1,10 @@
 import express from "express";
 import { requireRole } from "../middleware/roleMiddleware.js";
 import { chatRoutes } from "./charRoutes.js";
-import { addToWishlist,findProduct,getWishlistProducts, removeWishlistProduct } from "../models/User.js";
+import { addToWishlist,featuredProducts,findProduct,getWishlistProducts, removeWishlistProduct} from "../models/User.js";
 // import { buyerLogin } from "../controllers/buyerLogin.js";
 // import { buyerSignup } from "../controllers/buyerSignUp.js";
+import {freshProducts} from "../models/User.js";
 
 export const buyerRoutes = express.Router();
 
@@ -13,7 +14,7 @@ buyerRoutes.use("/chats",chatRoutes);
 
 buyerRoutes.get("/home", (req, res) => {
    
-res.render("Home.ejs", { isLogged: req.isAuthenticated()&&(req.user.role=="buyer")});
+res.render("Home.ejs", { isLogged: req.isAuthenticated()&&(req.user.role=="buyer"), freshProducts : freshProducts,featuredProducts : featuredProducts});
 });
 
 

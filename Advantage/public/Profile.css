@@ -1,19 +1,17 @@
 .window{
     background-image: url("/Assets/Backgrounds/Bluemoon.jpg");
     background-size: cover;
-    background-repeat: no-repeat;
-    
+    background-repeat: no-repeat;    
 }
-
 
 .main-container {
     min-height: 90vh;
     width: 100vw;
     background-color: #24242400;
     display: flex;
-    flex-direction: column;
-    
+    flex-direction: column;   
 }
+
 .header {
     height: 90px;
     width: 100vw;
@@ -57,7 +55,7 @@
         transform: translateY(0px);
     }
 }
-.data-box {
+.data-box{
     height: 220px;
     width: 400px;
     background-color: rgba(217, 217, 217, 0);
@@ -66,9 +64,11 @@
     cursor: pointer;
     transition: all 0.2s ease;
 }
+
 .data-box:hover {
     scale: 1.05;
 }
+
 .section-text {
     color: white;
     margin-left: 20px;
@@ -92,3 +92,8 @@
         justify-content: center;
     }
 }
+
+
+
+
+

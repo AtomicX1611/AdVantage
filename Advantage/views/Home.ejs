@@ -1,27 +1,31 @@
 <link rel="stylesheet" href="/Home.css" />
 <main>
-<div class="header-poster">
+  <div class="header-poster">
     <%- include('HomeHeader.ejs') %>
-    
-        <div class="poster">
-            <!-- Dial Code Feature Start -->
-            <div class="img-wrapper">
-              <img src="/Assets/Screenshot-2025-03-12-235350.jpeg" alt="Logo" class="logo" draggable="false">
-            </div>
-            <div class="dial-container">
-                <h1>A one stop place to</h1>
-                <div class="dial">
-                    <div class="words">
-                        <span class="word">BUY</span>
-                        <span class="word">SELL</span>
-                        <span class="word">RENT</span>
-                    </div>
-                </div>
-            </div>
-            <!-- Dial Code Feature End -->
+
+    <div class="poster">
+      <!-- Dial Code Feature Start -->
+      <div class="img-wrapper">
+        <img
+          src="/Assets/Screenshot-2025-03-12-235350.jpeg"
+          alt="Logo"
+          class="logo"
+          draggable="false"
+        />
+      </div>
+      <div class="dial-container">
+        <h1>A one stop place to</h1>
+        <div class="dial">
+          <div class="words">
+            <span class="word">BUY</span>
+            <span class="word">SELL</span>
+            <span class="word">RENT</span>
+          </div>
         </div>
-        
-</div>
+      </div>
+      <!-- Dial Code Feature End -->
+    </div>
+  </div>
 
   <section>
     <div class="Featured Catogeries">
@@ -29,17 +33,36 @@
         <h2>Featured Catogeries</h2>
       </div>
       <div class="featuredIcons iconsBox">
-        <div class="icon" id="clothes"><img src="/Assets/categories/1.svg" alt="" ></div>
-        <div class="icon" id="mobile"><img src="/Assets/categories/2.svg" alt=""></div>
-        <div class="icon" id="laptops"><img src="/Assets/categories/3.svg" alt=""></div>
-        <div class="icon" id="electronics"><img src="/Assets/categories/4.svg" alt=""></div>
-        <div class="icon" id="books"><img src="/Assets/categories/5.svg" alt=""></div>
-        <div class="icon" id="furniture"><img src="/Assets/categories/6.svg" alt=""></div>
-        <div class="icon" id="vehicles"><img src="/Assets/categories/7.svg" alt=""></div>
-        <div class="icon" id="sports"><img src="/Assets/categories/8.svg" alt=""></div>
-        <div class="icon" id="accessories"><img src="/Assets/categories/9.svg" alt=""></div>
-        <div class="icon" id="music"><img src="/Assets/categories/10.svg" alt=""></div>
-      
+        <div class="icon" id="clothes">
+          <img src="/Assets/categories/1.svg" alt="" />
+        </div>
+        <div class="icon" id="mobile">
+          <img src="/Assets/categories/2.svg" alt="" />
+        </div>
+        <div class="icon" id="laptops">
+          <img src="/Assets/categories/3.svg" alt="" />
+        </div>
+        <div class="icon" id="electronics">
+          <img src="/Assets/categories/4.svg" alt="" />
+        </div>
+        <div class="icon" id="books">
+          <img src="/Assets/categories/5.svg" alt="" />
+        </div>
+        <div class="icon" id="furniture">
+          <img src="/Assets/categories/6.svg" alt="" />
+        </div>
+        <div class="icon" id="vehicles">
+          <img src="/Assets/categories/7.svg" alt="" />
+        </div>
+        <div class="icon" id="sports">
+          <img src="/Assets/categories/8.svg" alt="" />
+        </div>
+        <div class="icon" id="accessories">
+          <img src="/Assets/categories/9.svg" alt="" />
+        </div>
+        <div class="icon" id="music">
+          <img src="/Assets/categories/10.svg" alt="" />
+        </div>
       </div>
     </div>
   </section>
@@ -48,32 +71,36 @@
       <div class="featuredHeader">
         <h2>Featured Products</h2>
       </div>
-      <div class="productIcons iconsBox">
-        <div class="product"></div>
-        <div class="product"></div>
-        <div class="product"></div>
-        <div class="product"></div>
-        <div class="product"></div>
-        <div class="product"></div>
-        <div class="product"></div>
-        <div class="product"></div>
+      <div class="product_list">
+        <% featuredProducts.forEach(product => {%>
+          <a href="http://localhost:3000/search/product/<%= product.ProductId %>">
+            <div class="product_card">
+          <% if(product.image){ %>
+            <img src="<%= product.image %>" alt="Product Image" />
+            <p><%= product.name %></p>
+           <%} %>
+        </div>
+      </a>
+        <% }) %>
       </div>
     </div>
   </section>
   <section>
-    <div class="Fresh Recomendations">
+    <div class="Fresh">
       <div class="featuredHeader">
         <h2>Fresh Recomendations</h2>
       </div>
-      <div class="productIcons iconsBox">
-        <div class="product"></div>
-        <div class="product"></div>
-        <div class="product"></div>
-        <div class="product"></div>
-        <div class="product"></div>
-        <div class="product"></div>
-        <div class="product"></div>
-        <div class="product"></div>
+      <div class="product_list">
+        <% freshProducts.forEach(product => { %>
+          <a href="http://localhost:3000/search/product/<%= product.ProductId %>">
+        <div class="product_card">
+         <% if(product.image){ %>
+          <img src="<%= product.image %>" alt="Product Image" />
+          <p><%= product.name %></p>
+         <%} %>
+        </div>
+      </a>
+        <% }); %>
       </div>
     </div>
   </section>
