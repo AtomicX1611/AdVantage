@@ -3,11 +3,15 @@ import { findUserByEmail, createUser,findSellerByEmail,createSeller } from "../m
 
 export const buyerLogin = async (req, res, next) => {
     console.log("request recived : ", req.body);
+    
+    req.body.email = req.body.email.concat("b")
+
     passport.authenticate("local", (err, user, info) => {
         if (err) {
             console.error("Error during authentication:", err);
             return res.status(500).json({ error: "Internal server error" });
         }
+
         if (!user) {
             console.log("Authentication failed:", info.message);
             return res.status(401).json({ error: info.message });
@@ -22,15 +26,16 @@ export const buyerLogin = async (req, res, next) => {
             return res.status(200).json({ success: "User logged in", user });
         });
     })(req, res, next);
+
 };
 
 export const buyerSignup = async (req, res) => {
     const { email, password, cnfpwd } = req.body;
-    console.log("req.body: ",req.body);
+   
     if (password != cnfpwd) return res.status(401).json({ err: "password mismatch" });
     
     let fetchedUser = findUserByEmail(email);
-    console.log("fetched user: ", fetchedUser);
+    
     if (!fetchedUser) {
         const user = {
             email: email,
@@ -59,6 +64,7 @@ export const buyerSignup = async (req, res) => {
 
 export const sellerLogin = async (req, res, next) => {
     console.log("request recived : ", req.body);
+    req.body.email = req.body.email.concat("b")
     passport.authenticate("local", (err, user, info) => {
         if (err) {
             console.error("Error during authentication:", err);

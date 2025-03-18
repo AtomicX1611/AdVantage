@@ -8,7 +8,6 @@ authRouter.post("/buyer/signup", buyerSignup);
 authRouter.post("/buyer/login", buyerLogin);
 
 authRouter.post("/sellerLogin",sellerLogin);
-
 authRouter.post("/sellerSignUp",sellerSignup);
 
 // TO DO :

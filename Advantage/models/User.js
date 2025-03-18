@@ -38,6 +38,8 @@ export let users = [
     }
 ]
 
+let userCount = 2;
+
 let sellers = [
     {
         username: "dummySeller1",
@@ -56,6 +58,8 @@ let sellers = [
         Contact: "9876543210"
     }
 ]
+
+let sellerCount = 2;
 
 let products = [
     {
@@ -165,9 +169,75 @@ let products = [
         Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
         count: 0,
         distance: 0
-    }
+    },{
+        Name: "T-Shirt",
+        Price: "3000",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        // CountryCode: "IN",
+        SellerId: "2",
+        ProductId: "8",
+        Image1Src: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206",
+        Image2Src: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206",
+        Image3Src: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206",
+        count: 0,
+        distance: 0
+    },
+    {
+        Name: "Laptop",
+        Price: "3000",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        // CountryCode: "IN",
+        SellerId: "2",
+        ProductId: "9",
+        Image1Src: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg",
+        count: 0,
+        distance: 0
+    }, {
+        Name: "Headphones",
+        Price: "3000",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        // CountryCode: "IN",
+        SellerId: "2",
+        ProductId: "10",
+        Image1Src: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg",
+        count: 0,
+        distance: 0
+    },
 ]
 export let prodid = { value: 7 };
+
+export const freshProducts = [
+    { name: "Product 1", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",ProductId : "2" },
+    { name: "Product 2", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg" ,ProductId : "2"},
+    { name: "Product 3", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",ProductId : "2" },
+    { name: "Product 4", image: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg",ProductId : "9" },
+    { name: "Product 5", image: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg",ProductId : "10" },
+    { name: "Product 6", image: "",ProductId : "2" },
+    { name: "Product 7", image: "",ProductId : "2" },
+    { name: "Product 8", image: "",ProductId : "2" },
+  ];
+
+
+  export const featuredProducts = [
+    { name: "Product 1", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",ProductId : "2" },
+    { name: "Product 2", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",ProductId : "2" },
+    { name: "Product 3", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",ProductId : "2" },
+    { name: "Product 4", image: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206",ProductId : "8"},
+    { name: "Product 5", image: "",ProductId : "2" },
+    { name: "Product 6", image: "",ProductId : "2" },
+    { name: "Product 7", image: "",ProductId : "2" },
+    { name: "Product 8", image: "",ProductId : "2" },
+  ];
 
 //distance between 2 points on earth
 function distance(lat1, lat2, lon1, lon2) {
@@ -300,12 +370,14 @@ export const removeWishlistProduct = function (userEmail, productId) {
         });
     })
 }
+
 export const findUserByEmail = (email) => {
     return users.find((user) => user.email === email);
 }
 
 export const createUser = (user) => {
     //add id here before pushing
+    user.userId = `${++userCount}`;
     users.push(user);
     console.log("updated users list: ", users);
     return user;
@@ -317,6 +389,7 @@ export const findSellerByEmail = (email) => {
 
 export const createSeller = (seller) => {
     //add id here before pushing
+    seller.userId = `${++sellerCount}`;
     sellers.push(seller);
     console.log("updated sellers list: ", sellers);
     return seller;
