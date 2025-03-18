@@ -1,5 +1,5 @@
 import express from "express";
-import { buyerLogin, buyerSignup,sellerLogin,sellerSignup } from "../controllers/authController.js";
+import { buyerLogin, buyerSignup,sellerLogin,sellerSignup,adminLogin } from "../controllers/authController.js";
 
 const authRouter = express.Router();
 export let activeUsers=new Map();
@@ -9,6 +9,8 @@ authRouter.post("/buyer/login", buyerLogin);
 
 authRouter.post("/sellerLogin",sellerLogin);
 authRouter.post("/sellerSignUp",sellerSignup);
+
+authRouter.post("/admin/login",adminLogin);
 
 // TO DO :
 // authRouter.post("/seller/signup");
