@@ -7,6 +7,12 @@
   flex-direction: row;
 }
 
+.BG{
+  background-image: url("Assets/Backgrounds/Proudcts_Bg.png");
+  background-repeat: no-repeat;
+  background-position: right bottom;
+}
+
 .title {
   color: rgb(233, 219, 236);
   margin: 0;
@@ -29,12 +35,12 @@ body {
   width: 128px;
   height: 128px;
   margin-left: 100px;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0);
   overflow: hidden;
 }
 
 .card_list {
-  margin-top: 80px;
+  margin-top: 110px;
   margin-bottom: 20px;
   width: 10vw;
 }
@@ -54,16 +60,22 @@ img.card_container:hover{
   background-color: white;
   width: 500px;
   height: 570px;
-  margin-top: 75px;
+  margin-top: 50px;
   margin-left: 100px;
 }
 
 .product_details{
-  margin-top: 105px;
+  margin-top: 50px;
+
+  background-color: rgba(240, 248, 255, 0.08);
   margin-left: 140px;
   display: flex;
   flex-direction: column;
+  border: 1px solid #ffffff;
+  border-radius: 5%;
+  padding: 20px;
 }
+
 .item_header{
   padding-bottom: 10px;
 }
@@ -81,7 +93,7 @@ img.card_container:hover{
 }
 
 .item_price{
-  color: #48916D;
+  color: #999999;
 }
 
 .item_title{
@@ -111,13 +123,13 @@ img.card_container:hover{
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #333;
+  background-color: #000000;
   color: white;
   padding: 10px 20px;
   border-radius: 5px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  display: none; /* Initially hidden */
+  display: none; 
   animation: fadeIn 0.3s ease-in-out;
 }
 

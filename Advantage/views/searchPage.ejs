@@ -10,14 +10,14 @@
 </head>
 
 <body>
-    <div>
+    <div class="searchpage_window">
     <%- include("HomeHeader.ejs") %>
         <main>
             <div id="up">
                 <b id="filters">FILTERS</b>
             </div>
-            <div class="fog" id="fog1"></div>
-            <div class="fog" id="fog2"></div>
+            <!-- <div class="fog" id="fog1"></div>
+            <div class="fog" id="fog2"></div> -->
             <div id="bottom">
                 <div id="filterContainer">
                     <b id="priceRange">Price Range</b>
@@ -35,7 +35,7 @@
                                 <h4 style="margin-left: 20px; font-size: 15px;">
                                     <%= products[i].Name %>
                                 </h4>
-                                <h3 style="margin-left: 20px;"> Rs. <%= products[i].Price %>/- </h3>
+                                <h3 style="margin-left: 0px"> Rs. <%= products[i].Price %>/- </h3>
                             </div>
                         </a>
                         <% }%>
