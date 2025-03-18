@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/wishlist.css">
 </head>
 <body>
+    <div class="Window">
     <%- include("HomeHeader.ejs") %>
     <div class="container">
         <div class="sidebar">
@@ -19,6 +20,7 @@
             <div id="comparison-container"></div>
         </div>
     </div>
+</div>
     <script>
             const products = <%- JSON.stringify(products) %>;
             for(let product of products){
@@ -373,7 +375,8 @@
                     <p><strong>Posting Date:</strong> ${product.PostingDate}</p>
                     <p><strong>Zip Code:</strong> ${product.zipCode}</p>
                     <button class="remove-btn" onclick="removeFromCompare(${index})">X</button>
-                    <a href=/buyer/wishlist/remove/${product.ProductId}>Delete from WishList</a>
+                    <br><br>
+                    <a href=/buyer/wishlist/remove/${product.ProductId} id = "DeletefromWishlist">Delete from WishList</a>
                 `;
 
                 comparisonContainer.appendChild(comparisonDiv);

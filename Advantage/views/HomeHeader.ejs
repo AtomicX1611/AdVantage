@@ -38,7 +38,7 @@
                     <% }else{ %>
                         <div class="sellbtn hover-btn">
                             <a href="/auth/seller">
-                                <i class='bx bx-plus'></i>Sell
+                                Seller Account
                             </a>
                         </div>
                         <% } %>
@@ -70,8 +70,8 @@
                                 <div class="hover box2-icons heart">
                                     <a href="/buyer/wishlist"><i class='bx bx-heart'></i></a>
                                 </div>
-                                <div class="hover box2-icons notifications">
-                                    <a href=""><img src="/Assets/notification.png" alt="" height="35px"></i></a>
+                                <div class="hover box2-icons notifications alert" id="notification-icon">
+                                    <a href="#"><img src="/Assets/notification.png" alt="" height="35px"></i></a>
                                 </div>
                                 <div class="hover box2-icons profile">
                                     <a href="/buyer/profile"><i class='bx bxs-user-circle'></i></a>
@@ -83,7 +83,70 @@
             </div>
         </nav>
     </header>
-    <br>
+    <div id="sidebar">
+        <div class="header">
+          <h2>Notifications</h2>
+          <button id="mark-all-read">Mark All as Read</button>
+          <button id="close-sidebar">x</button>
+        </div>
+        <div class="notification-list">
+          <div class="notification-card unread">
+            <span class="icon">💬</span>
+            <div class="content">
+              <h3>New Message from John</h3>
+              <p class="message-preview">
+                "Hi, I can offer $500 for the iPhone 14."
+              </p>
+              <span class="timestamp">2 hours ago</span>
+            </div>
+            <!-- <button class="view-btn">View</button> -->
+            <button class="delete-btn">Delete</button>
+          </div>
+          <div class="notification-card unread">
+            <span class="icon">⚡</span>
+            <div class="content">
+              <h3>Price Drop Alert</h3>
+              <p class="message-preview">
+                "The iPhone 14 price dropped by $100."
+              </p>
+              <span class="timestamp">5 hours ago</span>
+            </div>
+            <!-- <button class="view-btn">View</button> -->
+            <button class="delete-btn">Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="overlay"></div>
+        <script>
+      document
+        .getElementById("notification-icon")
+        .addEventListener("click", function () {
+          document.getElementById("sidebar").classList.toggle("open");
+        });
+
+      document
+        .getElementById("close-sidebar")
+        .addEventListener("click", function () {
+          document.getElementById("sidebar").classList.remove("open");
+        });
+
+      document.querySelector("#mark-all-read").addEventListener("click", () => {
+        document.querySelectorAll(".notification-card").forEach((card) => {
+          card.classList.remove("unread");
+        });
+      });
+      document.addEventListener("DOMContentLoaded", function () {
+        const deleteButtons = document.querySelectorAll(".delete-btn");
+
+        deleteButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            console.log("delete clicked");
+            const notificationCard = this.closest(".notification-card");
+            notificationCard.remove();
+          });
+        });
+      });
+    </script>
 </body>
 
 </html>

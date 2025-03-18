@@ -6,6 +6,7 @@
 </head>
 
 <body>
+  <div class="BG">
   <%- include("HomeHeader.ejs") %>
   <div id="notification">
     <span id="notif-message"></span>
@@ -20,9 +21,9 @@
       <img class="big_card" src="<%= product[`Image1Src`] %>" alt="bigImage">
       <div class="product_details">
         <div class="item_header">
-          <h1 class="item_title">
+          <h2 class="item_title">
             <%= product.Name %>
-          </h1>
+          </h2>
           <h2 class="item_price">₹<%= product.Price %>/-</h2>
         </div>
         <div>
@@ -39,6 +40,7 @@
         </div>
       </div>
     </div>
+  </div>
     <script>
 
 

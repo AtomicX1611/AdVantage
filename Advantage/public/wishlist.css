@@ -6,7 +6,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: #131212;
+            background: #010101;
         }
 
         .container {
@@ -16,6 +16,7 @@
         }
 
         .sidebar {
+            
             width: 15%;
             background: rgb(0, 0, 0);
             padding: 20px;
@@ -29,9 +30,11 @@
         .product-item {
             display: flex;
             align-items: center;
+            justify-content: center;
             margin-bottom: 15px;
             padding: 10px;
-            background: #9e9898;
+            background: #000000;
+            border: 1px solid #f8f4f4 ;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             cursor: pointer;
@@ -40,8 +43,10 @@
         .product-item img {
             width: 50px;
             height: 50px;
+            scale: 1.2;
             margin-right: 10px;
             border-radius: 5px;
+            margin-top: 5px;
         }
 
         .main {
@@ -53,16 +58,17 @@
         #comparison-container {
              display: flex;
             gap: 15px;
-            color:black;
+            color:rgb(255, 255, 255);
         }
 
         .comparison-card {
             width: 30%;
-            background: rgb(184, 180, 180);
+            background: rgb(0, 0, 0);
             padding: 15px;
             text-align: center;
             border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f8f4f4;
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
             position: relative;
         }
 
@@ -107,4 +113,20 @@
         }
         .comparison-card p{
             margin: 5vh 0px;
+        }
+
+
+        #DeletefromWishlist{
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .Window{
+            background-image: url("/Assets/WIshlist.png") no-repeat;
+            background-size: cover;
         }
