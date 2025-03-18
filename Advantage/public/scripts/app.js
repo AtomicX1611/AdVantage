@@ -133,4 +133,4 @@ document.addEventListener("DOMContentLoaded", function () {
   //   .on("mouseout", () => {
   //     dots.dispatch("mouseout");
     });
-});
+

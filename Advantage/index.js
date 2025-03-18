@@ -45,9 +45,17 @@ app.use("/buyer", buyerRoutes);
 app.use("/seller", sellerRouter);
 app.use("/search", searchRouter);
 app.use("/product", productRouter);
-app.use("/admin", (req, res) => {
-  res.render("Admin.ejs");
+
+app.use("/admin/dashboard", (req, res) => {
+  if(req.isAuthenticated){
+    res.render("Admin.ejs");
+   }else{
+    res.render({message : "Cannot access Admin features"})
+   }
 });
+app.use("/admin",(req,res) => {
+  res.render("AdminLogin.ejs");
+})
 
 passport.use(
   new LocalStrategy(

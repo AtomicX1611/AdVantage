@@ -105,7 +105,7 @@ section {
     width: 100%;
     height: fit-content;
     display: flex;
-    gap: 3.2vw;
+    gap: 2.5vw;
     flex-wrap: wrap;
     margin-top: 1vh;
 }
