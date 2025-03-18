@@ -60,6 +60,7 @@ export const buyerSignup = async (req, res) => {
         .status(200)
         .json({ success: "User signed up and logged in", user });
     });
+    
   } else {
     return res.status(400).json({ err: "user already exists" });
   }

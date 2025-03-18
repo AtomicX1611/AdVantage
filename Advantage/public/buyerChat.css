@@ -202,3 +202,10 @@ main {
     background-color: black;
     color: white;
 }
+
+
+#myName {
+    color: white;
+    margin-left: 3vw;
+    font-style: italic;
+}

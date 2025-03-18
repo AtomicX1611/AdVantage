@@ -92,6 +92,7 @@ passport.serializeUser((user, cb) => {
 });
 
 passport.deserializeUser(async (user, cb) => {
+  console.log("Deserializing");
   cb(null, user);
 });
 

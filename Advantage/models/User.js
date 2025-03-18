@@ -214,7 +214,7 @@ let products = [
         distance: 0
     },
 ]
-export let prodid = { value: 7 };
+export let prodid = { value: 10 };
 
 export const freshProducts = [
     { name: "Product 1", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",ProductId : "2" },
