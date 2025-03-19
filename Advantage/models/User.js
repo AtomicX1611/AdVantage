@@ -388,7 +388,9 @@ export const createUser = (user) => {
         if(err){
             console.error(err.message);
         }
-        console.log("insert done");
+        else {
+            console.log("insert done");
+        }
     }));
 };
 
