@@ -16,8 +16,10 @@ import { findProducts,findProduct } from "../models/User.js";
 
 const getProductDetails = async (req, res) => {
   const productId = req.params.productId;
+  let pro=await findProduct(productId);
+  console.log(pro);
   res.render("ProductDetail.ejs", {
-    product: findProduct(productId),
+    product: pro,
     isLogged: req.isAuthenticated(),
   });
 };

@@ -7,93 +7,112 @@ const db = new sqlite3.Database(":memory:", (err) => {
         console.log("Connected to in-memory SQLite database.");
     }
 });
+
 db.run(
-    `CREATE TABLE IF NOT EXISTS wishlist (
-        userId INTEGER NOT NULL,
-        productId INTEGER NOT NULL,
-        UNIQUE(productId, userId)
-    )`,
-    (err) => {
-        if (err) {
-            console.error("Error creating table:", err.message);
-        } else {
-            console.log("Wishlist table created in memory.");
+    `CREATE TABLE IF NOT EXISTS products (
+        Name TEXT NOT NULL,
+        Price INTEGER NOT NULL,
+        Address TEXT NOT NULL,
+        Description TEXT NOT NULL,
+        PostingDate DATE DEFAULT CURRENT_DATE,
+        zipCode INTEGER NOT NULL,
+        SellerEmail TEXT NOT NULL,
+        ProductId TEXT PRIMARY KEY
+    )`,(err)=>{
+        if(err){
+            console.error(err.message);
+        }else{
+            console.log("products table created successfully");
+            //as the below tables are referencing the above table
+            db.run(
+                `CREATE TABLE IF NOT EXISTS images(
+                    ProductId TEXT,
+                    Image TEXT,
+                    FOREIGN KEY (ProductId) REFERENCES products (ProductId) ON DELETE CASCADE
+                )`,(err)=>{
+                    if(err){
+                        console.error(err.message);
+                    }else{
+                        console.log("images table created successfully");
+                    }
+                }
+            );
+            db.run(
+                `CREATE TABLE IF NOT EXISTS wishlist (
+                    userEmail INTEGER NOT NULL,
+                    productId INTEGER NOT NULL,
+                    UNIQUE(productId, userEmail),
+                    FOREIGN KEY (productId) REFERENCES products (ProductId) ON DELETE CASCADE
+                )`,
+                (err) => {
+                    if (err) {
+                        console.error("Error creating table:", err.message);
+                    } else {
+                        console.log("wishlist table created in memory.");
+                    }
+                }
+            );
         }
     }
 );
-export let users = [
+db.run(
+    `CREATE TABLE IF NOT EXISTS users(
+        email TEXT,
+        password TEXT
+    )`,(err)=>{
+        if(err){
+            console.log(err.message);
+        }else{
+            console.log("users table created in memory.");
+        }
+    }
+);
+db.run(
+    `CREATE TABLE IF NOT EXISTS sellers(
+        email TEXT,
+        password TEXT
+    )`,(err)=>{
+        if(err){
+            console.log(err.message);
+        }else{
+            console.log("users table created in memory.");
+        }
+    }
+);
+/*let users = [
     {
         username: "abc",
         email: "abc@gmail.com",
         password: "123",
         role : "buyer",
-        userId: "1"
     },
     {
         username: "SK",
         email: "sk@gmail.com",
         password: "123",
         role : "buyer",
-        userId:"2"
     }
-]
+]*/
 
-let userCount = 2;
 
-let sellers = [
+/*let sellers = [
     {
         username: "dummySeller1",
         email: "abc@gmail.com",
         password: "123",
-        SellerId: "1",
-        Name: "Ali the Hero",
+        Name: "Ali",
         Contact: "0123456789",
     },
     {
         username: "dummySeller2",
         email: "abcd@gmail.com",
         password: "123",
-        SellerId: "2",
-        Name: "PK (Nak koncham tikkundhi)",
+        Name: "PK",
         Contact: "9876543210"
     }
-]
+]*/
 
-let sellerCount = 2;
-
-let products = [
-    {
-        Name: "BOUNCING SHOES FOR MEN",
-        Price: "3000",
-        Address: "Guntur andhra pradesh,india",
-        Description: "Size 8\nBrand new, untouched, Canteen purchased ,\nNo package box,\nNo bill,\nStill Never used",
-        PostingDate: "4-march-2025",
-        zipCode: 522003,
-        // CountryCode: "IN",
-        SellerId: "1",
-        ProductId: "1",
-        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
-        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
-        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
-        count: 0,
-        distance: 0
-    },
-    {
-        Name: "shoes man",
-        Price: "3000",
-        Address: "guntur andhra pradesh,india",
-        Description: "Size 8 \n Brandnew untouched",
-        PostingDate: "4-march-2025",
-        zipCode: 522003,
-        // CountryCode: "IN",
-        SellerId: "2",
-        ProductId: "2",
-        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
-        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
-        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
-        count: 0,
-        distance: 0
-    },
+/*let products = [
     {
         Name: "BOUNCING SHOES FOR MEN",
         Price: "3000",
@@ -102,7 +121,7 @@ let products = [
         PostingDate: "4-march-2025",
         zipCode: 522003,
         // CountryCode: "IN",
-        SellerId: "1",
+        SellerEmail: "abc@gmail.com",
         ProductId: "3",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
@@ -118,7 +137,7 @@ let products = [
         PostingDate: "4-march-2025",
         zipCode: 522003,
         // CountryCode: "IN",
-        SellerId: "2",
+        SellerEmail: "abcd@gmail.com",
         ProductId: "4",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
@@ -133,7 +152,7 @@ let products = [
         PostingDate: "4-march-2025",
         zipCode: 522003,
         // CountryCode: "IN",
-        SellerId: "2",
+        SellerEmail: "abcd@gmail.com",
         ProductId: "5",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
@@ -148,7 +167,7 @@ let products = [
         PostingDate: "4-march-2025",
         zipCode: 522003,
         // CountryCode: "IN",
-        SellerId: "2",
+        SellerEmail: "abcd@gmail.com",
         ProductId: "6",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
@@ -162,7 +181,7 @@ let products = [
         PostingDate: "4-march-2025",
         zipCode: 522003,
         // CountryCode: "IN",
-        SellerId: "2",
+        SellerEmail: "abcd@gmail.com",
         ProductId: "7",
         Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
@@ -176,7 +195,7 @@ let products = [
         PostingDate: "4-march-2025",
         zipCode: 522003,
         // CountryCode: "IN",
-        SellerId: "2",
+        SellerEmail: "abcd@gmail.com",
         ProductId: "8",
         Image1Src: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206",
         Image2Src: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206",
@@ -191,7 +210,7 @@ let products = [
         PostingDate: "4-march-2025",
         zipCode: 522003,
         // CountryCode: "IN",
-        SellerId: "2",
+        SellerEmail: "abcd@gmail.com",
         ProductId: "9",
         Image1Src: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg",
@@ -205,7 +224,7 @@ let products = [
         PostingDate: "4-march-2025",
         zipCode: 522003,
         // CountryCode: "IN",
-        SellerId: "2",
+        SellerEmail: "abcd@gmail.com",
         ProductId: "10",
         Image1Src: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg",
         Image2Src: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg",
@@ -213,8 +232,8 @@ let products = [
         count: 0,
         distance: 0
     },
-]
-export let prodid = { value: 10 };
+]*/
+export let prodid = { value: 0 };
 
 export const freshProducts = [
     { name: "Product 1", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",ProductId : "2" },
@@ -239,114 +258,96 @@ export const freshProducts = [
     { name: "Product 8", image: "",ProductId : "2" },
   ];
 
-//distance between 2 points on earth
-function distance(lat1, lat2, lon1, lon2) {
-    lon1 = lon1 * Math.PI / 180;
-    lon2 = lon2 * Math.PI / 180;
-    lat1 = lat1 * Math.PI / 180;
-    lat2 = lat2 * Math.PI / 180;
-    let dlon = lon2 - lon1;
-    let dlat = lat2 - lat1;
-    let a = Math.pow(Math.sin(dlat / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
-    let c = 2 * Math.asin(Math.sqrt(a));
-    let r = 6378;
-    return (c * r);
-}
-export const findProducts = async function (Name, location) {
-    let returningProducts = new Array();
-    let locationCords = { lat: 0, lon: 0 }, productCords = { lat: 0, lon: 0 };
-    // console.log(location);
-    let resjson = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=3c9477059b3e588e048325fb86c4fbea`);
-    let resp = await resjson.json();
-    // console.log("hello "+resp);
-    let count, productWords, index1, index2, dist;
-    if (resp.length == 0) {
-        return returningProducts;
-    }
-    locationCords.lat = resp[0].lat; locationCords.lon = resp[0].lon;
-    for (let product of products) {
-        count = 0;
-        productWords = product.Name.split(" ");
-        productWords.forEach((productWord) => {
-            count += Name.toLowerCase().includes(productWord.toLowerCase());
-        });
-        if (count > 0) {
-            resjson = await fetch(`http://api.openweathermap.org/geo/1.0/zip?zip=${product.zipCode},IN&appid=3c9477059b3e588e048325fb86c4fbea`);
-            resp = await resjson.json();
-            productCords.lat = resp.lat; productCords.lon = resp.lon;
-            dist = distance(locationCords.lat, productCords.lat, locationCords.lon, productCords.lon);
-            if (dist < 150) {
-                product.count = count;
-                product.distance = dist;
-                index1 = returningProducts.findIndex((element) => (element.count == product.count) && (element.distance > product.distance));
-                index2 = returningProducts.findIndex((element) => (element.count < product.count));
-                if (index1 == -1) {
-                    if (index2 == -1) {
-                        returningProducts.push(product);
-                    } else {
-                        returningProducts.splice(index2, 0, product);
-                    }
-                } else {
-                    returningProducts.splice(index1, 0, product);
-                }
+const findImages =async function(prodId){
+    return new Promise((resolve,reject) =>{
+        let query=`SELECT Image FROM images WHERE ProductId=?`;
+        db.all(query,[prodId],(err,rows)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve(rows);
             }
-        }
-    }
-    return returningProducts;
+        });
+    });
+}
+export const findProducts = async function (Name) {
+    return new Promise((resolve, reject) => {
+        let names=Name.split(" ");
+        let bestMatchCondition = names.map(() => "(Name LIKE ?)").join("+");
+        let query = `SELECT *, (${bestMatchCondition}) AS best_match FROM products WHERE best_match != 0 ORDER BY best_match DESC`;
+        let params = names.map(nam => `%${nam}%`);
+        db.all(query,params,async (err,rows)=>{
+            if(err){
+                console.log(err.message);
+                reject("error");
+            }else{
+                let Images;
+                for(let i=0;i<rows.length;i++){
+                    Images=await findImages(rows[i].ProductId);
+                    for(let j=0;j<Images.length;j++){
+                        rows[i][`Image${j+1}Src`]=Images[j].Image;
+                    }
+                }
+                resolve(rows);
+            }
+        }); 
+    });
 }
 export const findProduct = function (prodId) {
-    for (let product of products) {
-        if (product.ProductId == prodId) {
-            return product;
-        }
-    }
+    return new Promise((resolve,reject)=>{
+        let query=`SELECT * FROM products WHERE ProductId = ?`
+        db.get(query,[prodId],async (err,row)=>{
+            if(err){
+                reject(err);
+            }else{
+                let Images=await findImages(row.ProductId);
+                    for(let j=0;j<Images.length;j++){
+                        row[`Image${j+1}Src`]=Images[j].Image;
+                    }
+                resolve(row);
+                console.log(row);
+            }
+        })
+    });
 }
-export const addProduct = function (Name, Price, Address, Description, zipCode, currProdId, sellerEmail, imageNames) {
-    const seller = findSellerByEmail(sellerEmail);
-    let product = {
-        Name: Name,
-        Price: Price,
-        Address: Address,
-        Description: Description,
-        zipCode: zipCode,
-        SellerId: `${seller.SellerId}`,
-        ProductId: `${currProdId}`
-    }
-    for (let i = 0; i < imageNames.length; i++) {
-        product[`Image${i + 1}Src`] = `/Assets/products/${currProdId}/${imageNames[i]}`;
-
-    }
-    products.push(product);
-    console.log(product);
+export const addProduct = function (Name, Price, Address, Description, zipCode, currProdId, sellerEmail, images) {
+    let query=`INSERT INTO products (Name, Price, Address, Description, zipCode, sellerEmail, ProductId) VALUES (?,?,?,?,?,?,?)`;
+    db.run(query,[Name, Price, Address, Description, zipCode, sellerEmail, currProdId],(err)=>{
+        if(err){
+            console.log(err.message);
+        }else{
+            for(let image of images){
+                db.run(`INSERT INTO images (Image,ProductId) VALUES (?,?)`,[image,currProdId],(err)=>{
+                    if(err){
+                        console.error(err.message);
+                    }
+                });
+            }
+            // console.log("hi broo");
+            // findProduct(currProdId);
+        }
+    });
 }
 
 export const addToWishlist = function (userEmail, productId) {
     return new Promise((resolve, reject) => {
-        let userId = findUserByEmail(userEmail).userId;
-        const query = `INSERT INTO wishlist (userId, productId) VALUES (?, ?)`;
-        db.run(query, [userId, productId], function (err) {
+        const query = `INSERT INTO wishlist (userEmail, productId) VALUES (?, ?)`;
+        db.run(query, [userEmail, productId], function (err) {
             if (err) {
                 if (err.message.includes("UNIQUE constraint failed")) {
                     return reject("Product is already in the wishlist");
                 }
                 return reject(err.message);
             }
-                resolve("Added SuccessFully");
+            resolve("Added SuccessFully");
         });
     });
 }
 
 export const getWishlistProducts = function (userEmail) {
     return new Promise((resolve, reject) => {
-        let user = findUserByEmail(userEmail);
-        if (!user) {
-            return reject(new Error("User not found"));
-        }
-
-        const userId = user.userId;
-        const query = `SELECT productId FROM wishlist WHERE userId = ?`;
-
-        db.all(query, [userId], (err, rows) => {
+        const query = `SELECT productId FROM wishlist WHERE userEmail = ?`;
+        db.all(query, [userEmail], (err, rows) => {
             if (err) {
                 return reject(err);
             }
@@ -357,10 +358,8 @@ export const getWishlistProducts = function (userEmail) {
 
 export const removeWishlistProduct = function (userEmail, productId) {
     return new Promise((resolve, reject) => {
-        let user = findUserByEmail(userEmail);
-        const userId = user.userId;
-        const query = `DELETE FROM wishlist WHERE userId = ? AND productId = ?`;
-        db.run(query, [userId, productId], (err) => {
+        const query = `DELETE FROM wishlist WHERE userEmail = ? AND productId = ?`;
+        db.run(query, [userEmail, productId], (err) => {
             if (err) {
                 console.log(err.message);
                 reject(err.message);
@@ -371,26 +370,45 @@ export const removeWishlistProduct = function (userEmail, productId) {
     })
 }
 
-export const findUserByEmail = (email) => {
-    return users.find((user) => user.email === email);
+export const findUserByEmail = async (email) => {
+    return new Promise((resolve,reject)=>{
+        let query=`SELECT * FROM users WHERE email=?`;
+        db.get(query,[email],(err,row)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve(row);
+            }
+        });
+    });
 }
 
 export const createUser = (user) => {
-    //add id here before pushing
-    user.userId = `${++userCount}`;
-    users.push(user);
-    console.log("updated users list: ", users);
-    return user;
+    db.run(`INSERT INTO users VALUES (?,?)`,[user.email,user.password],(err=>{
+        if(err){
+            console.error(err.message);
+        }
+        console.log("insert done");
+    }));
 };
 
 export const findSellerByEmail = (email) => {
-    return sellers.find((seller) => seller.email === email);
+    return new Promise((resolve,reject)=>{
+        let query=`SELECT * FROM sellers WHERE email=?`;
+        db.get(query,[email],(err,row)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve(row);
+            }
+        });
+    });
 }
 
 export const createSeller = (seller) => {
-    //add id here before pushing
-    seller.userId = `${++sellerCount}`;
-    sellers.push(seller);
-    console.log("updated sellers list: ", sellers);
-    return seller;
+    db.run(`INSERT INTO sellers VALUES (?,?)`,[seller.email,seller.password],(err=>{
+        if(err){
+            console.error(err.message);
+        }
+    }));
 };

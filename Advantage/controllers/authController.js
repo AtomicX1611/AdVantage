@@ -34,12 +34,16 @@ export const buyerLogin = async (req, res, next) => {
 };
 
 export const buyerSignup = async (req, res) => {
+  
   const { email, password, cnfpwd } = req.body;
 
   if (password != cnfpwd)
     return res.status(401).json({ err: "password mismatch" });
 
-  let fetchedUser = findUserByEmail(email);
+  let fetchedUser = await findUserByEmail(email);
+
+  console.log(fetchedUser);
+  
 
   if (!fetchedUser) {
     const user = {
@@ -68,7 +72,7 @@ export const buyerSignup = async (req, res) => {
 
 export const sellerLogin = async (req, res, next) => {
   console.log("request recived : ", req.body);
-  req.body.email = req.body.email.concat("b");
+  req.body.email = req.body.email.concat("s");
   passport.authenticate("local", (err, user, info) => {
     if (err) {
       console.error("Error during authentication:", err);
@@ -98,7 +102,7 @@ export const sellerSignup = async (req, res) => {
 
   // check if user already exists
   //create user in array
-  let fetchedSeller = findSellerByEmail(email);
+  let fetchedSeller = await findSellerByEmail(email);
   console.log("fetched seller: ", fetchedSeller);
   if (!fetchedSeller) {
     const user = {

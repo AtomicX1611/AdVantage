@@ -110,6 +110,7 @@
         }else if (pwd !== cnfpwd) {
             alert("password mismatch");
         }else {
+            console.log("Calling sign up toute")
             let response = await fetch("/auth/buyer/signup", {
                 method: 'POST',
                 headers: {
@@ -118,6 +119,7 @@
                 body: JSON.stringify({ email: email, password: pwd, cnfpwd: cnfpwd, role : "buyer" })
             })
             let result = await response.json();
+            console.log(result);
             if (response.status === 400) {
                 idExist.style.display = "flex";
             }

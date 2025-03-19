@@ -6,12 +6,12 @@ import { findUserByEmail } from "../models/User.js";
 
 export const chatRoutes = express();
 
-chatRoutes.get("/buyerInbox", (req, res) => {
+chatRoutes.get("/buyerInbox",async (req, res) => {
     console.log("in buyerInbox");
     if (req.isAuthenticated() && req.user.role == "buyer") {
         let senders = senderList(req.user.email, req.user.role);
         console.log("senders: ",senders);
-        res.render("buyerChat.ejs", { isLogged: true, senders: senders ,myAccount:req.user.email,myUsername:findUserByEmail(req.user.email).username});
+        res.render("buyerChat.ejs", { isLogged: true, senders: senders ,myAccount:req.user.email,myUsername:await findUserByEmail(req.user.email).username});
     }
     else {
         res.send("No data!! please login")

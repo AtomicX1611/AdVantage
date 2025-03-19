@@ -44,8 +44,15 @@ buyerRoutes.post('/wishlist/add',requireRole("buyer"),async (req,res)=>{
 
 buyerRoutes.get('/wishlist',requireRole("buyer"),async (req,res)=>{
   const productIds=await getWishlistProducts(req.user.email);
-  const products=productIds.map((obj)=> findProduct(obj.productId));
-  console.log(productIds);
+  console.log("product ids"+productIds);
+  // const products=productIds.map(async (obj)=> await findProduct(obj.productId));
+  let products=new Array(),product;
+  for(let productIdobj of productIds){
+    product=await findProduct(productIdobj.productId);
+    products.push(product);
+  }
+  console.log(products);
+  console.log(products);
   res.render('wishlist',{products: products,isLogged:req.isAuthenticated()&&(req.user.role=="buyer")});
 });
 

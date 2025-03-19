@@ -23,12 +23,13 @@
 </div>
     <script>
             const products = <%- JSON.stringify(products) %>;
+            // console.log(products);
             for(let product of products){
                 product[`Images`]=new Array();
                 for(let i=1;product[`Image${i}Src`] !== undefined;i++){
                     product[`Images`].push(product[`Image${i}Src`]);
                 }
-                console.log(product[`Images`].length);
+                // console.log(product[`Images`].length);
             }
             
             /*
@@ -370,7 +371,7 @@
                     <h3>${product.Name}</h3>
                     <p><b>Price :</b>${product.Price} Rs</p>
                     <p><strong>Description:</strong>${product.Description}</p>
-                    <p><strong>Seller:</strong> ${product.SellerId}</p>
+                    <p><strong>Seller:</strong> ${product.SellerEmail}</p>
                     <p><strong>Address:</strong> ${product.Address}</p>
                     <p><strong>Posting Date:</strong> ${product.PostingDate}</p>
                     <p><strong>Zip Code:</strong> ${product.zipCode}</p>

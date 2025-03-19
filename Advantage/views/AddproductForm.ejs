@@ -14,7 +14,7 @@
     <br>
     <img src="/Assets/Add New Product.svg" alt="add new product" draggable="false" height="50px" id="addNewProd">
 
-    <form action="/seller/addProduct" method="post" enctype="multipart/form-data" id="formElement">
+    <form action="/seller/addProduct" method="post" id="formElement">
         <div class="parent">
             <div class="div1 griditem">
                 <h3 class="flexitem">General Information</h3>
@@ -70,25 +70,32 @@
         </div>
     </form>
     <script>
+        let completed=true;
+        const formElement=document.getElementById('formElement');
+        const zipcodeInput=document.getElementById('zipcode');
+        const fileUploader = document.getElementById('image');
+        const div22 = document.querySelector('.div22');
+        const div2 = document.querySelector('.div2');
         function hasSixDigits(num){
             return num >= 100000 && num < 1000000;
         }
-        const formElement=document.getElementById('formElement');
-        const zipcodeInput=document.getElementById('zipcode');
         formElement.addEventListener('submit',(event)=>{
             event.preventDefault();
             const zipcode = parseInt(zipcodeInput.value, 10);
             if(!hasSixDigits(zipcode)){
                 alert("Invalid Zipcode");
             }else{
+                while(!completed);
+                fileUploader.remove();
                 formElement.submit();
             }
         });
-        const fileUploader = document.getElementById('image');
-        const div22 = document.querySelector('.div22');
         fileUploader.addEventListener('change', (event) => {
+            completed=false;
+            let count=0;
             div22.innerHTML = ''; // Clear previous images
             console.log(event.target.files);
+            let i=0,tempinput;
             for (let file of event.target.files) {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -99,7 +106,19 @@
                     img.style.borderRadius = "10px";
                     img.style.margin = "5px";
                     div22.appendChild(img);
+                    tempinput=document.createElement('input');
+                    tempinput.type='text';
+                    tempinput.value=e.target.result;
+                    count++;
+                    tempinput.id="image"+count;
+                    tempinput.name="image"+count;
+                    tempinput.style.display="none";
+                    div2.insertAdjacentElement("beforeend",tempinput);
+                    if(event.target.files.length === count){
+                        completed=true;
+                    }
                 };
+                i++;
             }
         });
     </script>

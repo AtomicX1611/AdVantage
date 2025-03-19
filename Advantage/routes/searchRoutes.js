@@ -8,15 +8,11 @@ const searchRouter = express.Router();
 
 searchRouter.get("/noFilter",async (req,res) => {
    let name = req.query.search;
-    let location = req.query.location;
-    
-    //just for now    
-  
-    location = "guntur";
-    let products = await findProducts(name, location);
-    res.render("searchPage.ejs", {
+  let products = await findProducts(name);
+      console.log(products);
+      res.render("searchPage.ejs", {
       products: products,
-      isLogged: req.isAuthenticated,
+      isLogged: req.isAuthenticated && (req.user.role == "buyer")
     });
 });
 

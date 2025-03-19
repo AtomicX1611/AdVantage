@@ -1,6 +1,6 @@
 import { createUser, findUserByEmail } from "../models/User.js";
 
-export const buyerSignup=(req,res)=>{
+export const buyerSignup=async (req,res)=>{
     let {email,password,cnfpwd}=req.body;
     console.log("email: ",email);
     console.log("password: ",password);
@@ -9,7 +9,7 @@ export const buyerSignup=(req,res)=>{
         return res.status(401).json({error:"password misMatch"});
     }
 
-    let user=findUserByEmail(email);
+    let user=await findUserByEmail(email);
     if(user) {
         console.log("user: ",user);
         return res.status(400).json({error:"email already exists"});
