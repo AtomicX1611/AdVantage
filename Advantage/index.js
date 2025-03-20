@@ -43,6 +43,9 @@ app.get("/", (req, res) => {
   res.redirect("/buyer/home");
 });
 
+app.get("/req",(req,res)=>{
+  res.render("RequestForm.ejs",{isLogged:true});
+})
 app.use("/auth", authRouter); 
 app.use("/buyer", buyerRoutes);
 app.use("/seller", sellerRouter);

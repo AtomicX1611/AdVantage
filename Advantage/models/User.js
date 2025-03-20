@@ -18,66 +18,66 @@ db.run(
         zipCode INTEGER NOT NULL,
         SellerEmail TEXT NOT NULL,
         ProductId TEXT PRIMARY KEY
-    )`,(err)=>{
-        if(err){
-            console.error(err.message);
-        }else{
-            console.log("products table created successfully");
-            //as the below tables are referencing the above table
-            db.run(
-                `CREATE TABLE IF NOT EXISTS images(
+    )`, (err) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log("products table created successfully");
+        //as the below tables are referencing the above table
+        db.run(
+            `CREATE TABLE IF NOT EXISTS images(
                     ProductId TEXT,
                     Image TEXT,
                     FOREIGN KEY (ProductId) REFERENCES products (ProductId) ON DELETE CASCADE
-                )`,(err)=>{
-                    if(err){
-                        console.error(err.message);
-                    }else{
-                        console.log("images table created successfully");
-                    }
-                }
-            );
-            db.run(
-                `CREATE TABLE IF NOT EXISTS wishlist (
+                )`, (err) => {
+            if (err) {
+                console.error(err.message);
+            } else {
+                console.log("images table created successfully");
+            }
+        }
+        );
+        db.run(
+            `CREATE TABLE IF NOT EXISTS wishlist (
                     userEmail INTEGER NOT NULL,
                     productId INTEGER NOT NULL,
                     UNIQUE(productId, userEmail),
                     FOREIGN KEY (productId) REFERENCES products (ProductId) ON DELETE CASCADE
                 )`,
-                (err) => {
-                    if (err) {
-                        console.error("Error creating table:", err.message);
-                    } else {
-                        console.log("wishlist table created in memory.");
-                    }
+            (err) => {
+                if (err) {
+                    console.error("Error creating table:", err.message);
+                } else {
+                    console.log("wishlist table created in memory.");
                 }
-            );
-        }
+            }
+        );
     }
+}
 );
 db.run(
     `CREATE TABLE IF NOT EXISTS users(
         email TEXT,
         password TEXT
-    )`,(err)=>{
-        if(err){
-            console.log(err.message);
-        }else{
-            console.log("users table created in memory.");
-        }
+    )`, (err) => {
+    if (err) {
+        console.log(err.message);
+    } else {
+        console.log("users table created in memory.");
     }
+}
 );
 db.run(
     `CREATE TABLE IF NOT EXISTS sellers(
         email TEXT,
-        password TEXT,
-    )`,(err)=>{
-        if(err){
-            console.log(err.message);
-        }else{
-            console.log("users table created in memory.");
-        }
+        password TEXT
+    )`, (err) => {
+    if (err) {
+        console.log(err.message);
+    } else {
+        console.log("sellers table created in memory.");
     }
+}
 );
 /*let users = [
     {
@@ -236,35 +236,35 @@ db.run(
 export let prodid = { value: 0 };
 
 export const freshProducts = [
-    { name: "Product 1", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",ProductId : "2" },
-    { name: "Product 2", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg" ,ProductId : "2"},
-    { name: "Product 3", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",ProductId : "2" },
-    { name: "Product 4", image: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg",ProductId : "9" },
-    { name: "Product 5", image: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg",ProductId : "10" },
-    { name: "Product 6", image: "",ProductId : "2" },
-    { name: "Product 7", image: "",ProductId : "2" },
-    { name: "Product 8", image: "",ProductId : "2" },
-  ];
+    { name: "Product 1", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
+    { name: "Product 2", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
+    { name: "Product 3", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
+    { name: "Product 4", image: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg", ProductId: "9" },
+    { name: "Product 5", image: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg", ProductId: "10" },
+    { name: "Product 6", image: "", ProductId: "2" },
+    { name: "Product 7", image: "", ProductId: "2" },
+    { name: "Product 8", image: "", ProductId: "2" },
+];
 
 
-  export const featuredProducts = [
-    { name: "Product 1", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",ProductId : "2" },
-    { name: "Product 2", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",ProductId : "2" },
-    { name: "Product 3", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",ProductId : "2" },
-    { name: "Product 4", image: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206",ProductId : "8"},
-    { name: "Product 5", image: "",ProductId : "2" },
-    { name: "Product 6", image: "",ProductId : "2" },
-    { name: "Product 7", image: "",ProductId : "2" },
-    { name: "Product 8", image: "",ProductId : "2" },
-  ];
+export const featuredProducts = [
+    { name: "Product 1", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
+    { name: "Product 2", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
+    { name: "Product 3", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
+    { name: "Product 4", image: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206", ProductId: "8" },
+    { name: "Product 5", image: "", ProductId: "2" },
+    { name: "Product 6", image: "", ProductId: "2" },
+    { name: "Product 7", image: "", ProductId: "2" },
+    { name: "Product 8", image: "", ProductId: "2" },
+];
 
-const findImages =async function(prodId){
-    return new Promise((resolve,reject) =>{
-        let query=`SELECT Image FROM images WHERE ProductId=?`;
-        db.all(query,[prodId],(err,rows)=>{
-            if(err){
+const findImages = async function (prodId) {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT Image FROM images WHERE ProductId=?`;
+        db.all(query, [prodId], (err, rows) => {
+            if (err) {
                 reject(err);
-            }else{
+            } else {
                 resolve(rows);
             }
         });
@@ -272,38 +272,38 @@ const findImages =async function(prodId){
 }
 export const findProducts = async function (Name) {
     return new Promise((resolve, reject) => {
-        let names=Name.split(" ");
+        let names = Name.split(" ");
         let bestMatchCondition = names.map(() => "(Name LIKE ?)").join("+");
         let query = `SELECT *, (${bestMatchCondition}) AS best_match FROM products WHERE best_match != 0 ORDER BY best_match DESC`;
         let params = names.map(nam => `%${nam}%`);
-        db.all(query,params,async (err,rows)=>{
-            if(err){
+        db.all(query, params, async (err, rows) => {
+            if (err) {
                 console.log(err.message);
                 reject("error");
-            }else{
+            } else {
                 let Images;
-                for(let i=0;i<rows.length;i++){
-                    Images=await findImages(rows[i].ProductId);
-                    for(let j=0;j<Images.length;j++){
-                        rows[i][`Image${j+1}Src`]=Images[j].Image;
+                for (let i = 0; i < rows.length; i++) {
+                    Images = await findImages(rows[i].ProductId);
+                    for (let j = 0; j < Images.length; j++) {
+                        rows[i][`Image${j + 1}Src`] = Images[j].Image;
                     }
                 }
                 resolve(rows);
             }
-        }); 
+        });
     });
 }
 export const findProduct = function (prodId) {
-    return new Promise((resolve,reject)=>{
-        let query=`SELECT * FROM products WHERE ProductId = ?`
-        db.get(query,[prodId],async (err,row)=>{
-            if(err){
+    return new Promise((resolve, reject) => {
+        let query = `SELECT * FROM products WHERE ProductId = ?`
+        db.get(query, [prodId], async (err, row) => {
+            if (err) {
                 reject(err);
-            }else{
-                let Images=await findImages(row.ProductId);
-                    for(let j=0;j<Images.length;j++){
-                        row[`Image${j+1}Src`]=Images[j].Image;
-                    }
+            } else {
+                let Images = await findImages(row.ProductId);
+                for (let j = 0; j < Images.length; j++) {
+                    row[`Image${j + 1}Src`] = Images[j].Image;
+                }
                 resolve(row);
                 console.log(row);
             }
@@ -311,14 +311,14 @@ export const findProduct = function (prodId) {
     });
 }
 export const addProduct = function (Name, Price, Address, Description, zipCode, currProdId, sellerEmail, images) {
-    let query=`INSERT INTO products (Name, Price, Address, Description, zipCode, sellerEmail, ProductId) VALUES (?,?,?,?,?,?,?)`;
-    db.run(query,[Name, Price, Address, Description, zipCode, sellerEmail, currProdId],(err)=>{
-        if(err){
+    let query = `INSERT INTO products (Name, Price, Address, Description, zipCode, sellerEmail, ProductId) VALUES (?,?,?,?,?,?,?)`;
+    db.run(query, [Name, Price, Address, Description, zipCode, sellerEmail, currProdId], (err) => {
+        if (err) {
             console.log(err.message);
-        }else{
-            for(let image of images){
-                db.run(`INSERT INTO images (Image,ProductId) VALUES (?,?)`,[image,currProdId],(err)=>{
-                    if(err){
+        } else {
+            for (let image of images) {
+                db.run(`INSERT INTO images (Image,ProductId) VALUES (?,?)`, [image, currProdId], (err) => {
+                    if (err) {
                         console.error(err.message);
                     }
                 });
@@ -371,12 +371,12 @@ export const removeWishlistProduct = function (userEmail, productId) {
 }
 
 export const findUserByEmail = async (email) => {
-    return new Promise((resolve,reject)=>{
-        let query=`SELECT * FROM users WHERE email=?`;
-        db.get(query,[email],(err,row)=>{
-            if(err){
+    return new Promise((resolve, reject) => {
+        let query = `SELECT * FROM users WHERE email=?`;
+        db.get(query, [email], (err, row) => {
+            if (err) {
                 reject(err);
-            }else{
+            } else {
                 resolve(row);
             }
         });
@@ -384,8 +384,8 @@ export const findUserByEmail = async (email) => {
 }
 
 export const createUser = (user) => {
-    db.run(`INSERT INTO users VALUES (?,?)`,[user.email,user.password],(err=>{
-        if(err){
+    db.run(`INSERT INTO users VALUES (?,?)`, [user.email, user.password], (err => {
+        if (err) {
             console.error(err.message);
         }
         else {
@@ -395,12 +395,12 @@ export const createUser = (user) => {
 };
 
 export const findSellerByEmail = (email) => {
-    return new Promise((resolve,reject)=>{
-        let query=`SELECT * FROM sellers WHERE email=?`;
-        db.get(query,[email],(err,row)=>{
-            if(err){
+    return new Promise((resolve, reject) => {
+        let query = `SELECT * FROM sellers WHERE email=?`;
+        db.get(query, [email], (err, row) => {
+            if (err) {
                 reject(err);
-            }else{
+            } else {
                 resolve(row);
             }
         });
@@ -408,8 +408,8 @@ export const findSellerByEmail = (email) => {
 }
 
 export const createSeller = (seller) => {
-    db.run(`INSERT INTO sellers VALUES (?,?)`,[seller.email,seller.password],(err=>{
-        if(err){
+    db.run(`INSERT INTO sellers VALUES (?,?)`, [seller.email, seller.password], (err => {
+        if (err) {
             console.error(err.message);
         }
     }));
