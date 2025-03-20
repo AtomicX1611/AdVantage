@@ -70,7 +70,7 @@ db.run(
 db.run(
     `CREATE TABLE IF NOT EXISTS sellers(
         email TEXT,
-        password TEXT
+        password TEXT,
     )`,(err)=>{
         if(err){
             console.log(err.message);

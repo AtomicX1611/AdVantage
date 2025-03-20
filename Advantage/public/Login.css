@@ -10,20 +10,26 @@ body {
     align-items: center;
     height: 100vh;
     width: 100vw;
-    background: left 0% / 150% 150% no-repeat url("Login_bg.jpg");
+    background: url('login.jpeg.jpg');
     background-size: cover;
-    
     background-position: center;
+   
 }
 .card {
-    height: 500px;
+    height: 550px;
     width: 400px;
     background-color: rgba(219, 219, 219, 0.124);
-    color: #242424;
+    color: #ffff;
     border-radius: 15px;
     position: relative;
     transform-style: preserve-3d; 
     transition: transform 0.6s; 
+}
+.label {
+    width: 260px;
+    display: flex;
+    justify-content: flex-start;
+
 }
 .ff,.bf {
     height: inherit;
@@ -59,7 +65,6 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: 4vh;
 }
 input {
     height: 40px;
@@ -86,9 +91,16 @@ input::placeholder {
 .error {
     height: fit-content;
     width: fit-content;
-    color: red;
+    color: white;
     font-size: 14px;
     display: none;
+}
+.confirm-password {
+    width: inherit;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 button {
     height: 50px;
@@ -106,6 +118,9 @@ button {
     height: fit-content;
     width: fit-content;
     /* background-color: red; */
+}
+.signup-btn {
+    margin-top: 3vh;
 }
 #switch-login {
     text-decoration: underline;
@@ -129,7 +144,7 @@ button {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    /* gap: 20px; */
 
 }
 #switch-signup {
@@ -178,4 +193,14 @@ button {
 .bxl-google {
     font-size: larger;
     display: flex;
+}
+.user-details {
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+}
+#login-btn {
+    margin-top: 3vh;
 }

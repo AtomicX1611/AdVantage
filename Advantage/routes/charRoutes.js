@@ -11,6 +11,8 @@ chatRoutes.get("/buyerInbox",async (req, res) => {
     if (req.isAuthenticated() && req.user.role == "buyer") {
         let senders = senderList(req.user.email, req.user.role);
         console.log("senders: ",senders);
+        let user=await findUserByEmail(req.user.email);
+        console.log("fetched: ",user);
         res.render("buyerChat.ejs", { isLogged: true, senders: senders ,myAccount:req.user.email,myUsername:await findUserByEmail(req.user.email).username});
     }
     else {

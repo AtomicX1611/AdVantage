@@ -1,210 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <link rel="stylesheet" href="/Login.css" />
-    <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
-    />
-  </head>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+</head>
 
-  <body>
+<body>
     <div class="card">
-      <div class="signUP ff">
-        <div class="head" style="font-size: larger; margin-top: 7vh">
-          <h1 style="font-size: 30px">Create a Seller Account</h1>
-        </div>
-        <div class="form">
-          <form action="/signup" method="post" id="signup-form">
-            <div class="email">
-              <input
-                type="email"
-                name="email"
-                id="sgn-email"
-                placeholder="Email ID"
-                required
-              />
-              <div class="error" id="id-exist">
-                *This Email ID already Exist
-              </div>
+        <div class="signUP ff">
+            <div class="head" style="font-size: larger; margin-top: 3vh">
+                <h1 style="font-size: 30px">Create a Seller Account</h1>
             </div>
-            <input
-              type="password"
-              name="password"
-              id="create-password"
-              placeholder="Password"
-              required
-            />
-            <div class="confirm-password">
-              <input
-                type="password"
-                name="confirmPassword"
-                id="confirm-password"
-                placeholder="Confirm Password"
-                required
-              />
-              <div class="error" id="password-misMatch">
-                *Passwords do not Match
-              </div>
+            <div class="form">
+                <form action="/signup" method="post" id="signup-form">
+                    <div class="email">
+                        <div class="label">
+                            <label for="sgn-email">Email</label>
+                        </div>
+                        <input type="email" name="email" id="sgn-email" placeholder="Email ID" required />
+                        <div class="error" id="id-exist">
+                            *This Email ID already Exist
+                        </div>
+                    </div>
+                    <div class="user-details">
+                        <div class="label">
+                            <label for="username">Username</label>
+                        </div>
+                        <input type="text" name="username" id="username" placeholder="Enter Your Name" required>
+                        <div class="label">
+                            <label for="contact">Contact No</label>
+                        </div>
+                        <input type="number" name="contact" id="contact" placeholder="Contact No" required
+                            pattern="[0-9]{10}">
+                    </div>
+                    <div class="label">
+                        <label for="create-password">Password</label>
+                    </div>
+                    <input type="password" name="password" id="create-password" placeholder="Password" required />
+                    <div class="confirm-password">
+                       <div class="label">
+                        <label for="confirm-password">Confirm Password</label>
+                       </div>
+                        <input type="password" name="confirmPassword" id="confirm-password"
+                            placeholder="Confirm Password" required />
+                        <div class="error" id="password-misMatch">
+                            *Passwords do not Match
+                        </div>
+                    </div>
+                    <div class="signup-btn">
+                        <button type="submit">Sign Up</button>
+                    </div>
+                </form>
+                <div class="switch-page">
+                    Have an Account?<span id="switch-login">Login here*</span>
+                </div>
             </div>
-            <div class="signup-btn">
-              <button type="submit">Sign Up</button>
+        </div>
+        <div class="login bf">
+            <div class="head" style="font-size: larger; margin-top: 20px">
+                <h1>Login to Sell</h1>
             </div>
-          </form>
-          <div class="switch-page">
-            Have an Account?<span id="switch-login">Login here*</span>
-          </div>
-        </div>
-      </div>
-      <div class="login bf">
-        <div class="head" style="font-size: larger; margin-top: 20px">
-          <h1>Login to Sell</h1>
-        </div>
-        <div class="form">
-          <form action="/login" method="post" id="login-form">
-            <div class="email">
-              <input
-                type="email"
-                name="email"
-                id="email"
-                placeholder="Email ID"
-                required
-              />
+            <div class="form ">
+                <form action="/login" method="post" id="login-form">
+                    <div class="label">
+                        <label for="email">Email</label>
+                    </div>
+                    <div class="email">
+                        <input type="email" name="email" id="email" placeholder="Email ID" required />
+                    </div>
+                    <div class="confirm-password">
+                        <div class="label">
+                            <label for="login-password">Password</label>
+                        </div>
+                        <input type="password" name="password" id="login-password" placeholder="Password" required />
+                        <div class="error" id="incorrect-password">
+                            *Incorrect Password Entered
+                        </div>
+                    </div>
+                    <button type="submit" id="login-btn">Login</button>
+                </form>
+                <div class="bar">
+                    <span class="line"></span>
+                    <span>or</span>
+                    <span class="line"></span>
+                </div>
             </div>
-            <div class="confirm-password">
-              <input
-                type="password"
-                name="password"
-                id="login-password"
-                placeholder="Password"
-                required
-              />
-              <div class="error" id="incorrect-password">
-                *Incorrect Password Entered
-              </div>
+            <div class="OAuth-options">
+                <div class="google-OAuth option-box">
+                    <div class="platform-logo">
+                        <i class="bx bxl-google"></i>
+                    </div>
+                    <div class="option">Continue With Google</div>
+                </div>
             </div>
-            <button type="submit" id="login-btn">Login</button>
-          </form>
-          <div class="bar">
-            <span class="line"></span>
-            <span>or</span>
-            <span class="line"></span>
-          </div>
-        </div>
-        <div class="OAuth-options">
-          <div class="google-OAuth option-box">
-            <div class="platform-logo">
-              <i class="bx bxl-google"></i>
+            <div class="switch-page">
+                Create new Account?<span id="switch-signup">SignUp here*</span>
             </div>
-            <div class="option">Continue With Google</div>
-          </div>
         </div>
-        <div class="switch-page">
-          Create new Account?<span id="switch-signup">SignUp here*</span>
-        </div>
-      </div>
     </div>
-  </body>
-  <script>
+</body>
+<script>
     let flipLogin = document.getElementById("switch-login");
     let card = document.getElementsByClassName("card")[0];
     flipLogin.addEventListener("click", () => {
-      card.style.transform = "rotateY(180deg)";
+        card.style.transform = "rotateY(180deg)";
     });
 
     let flipSignUp = document.getElementById("switch-signup");
     flipSignUp.addEventListener("click", () => {
-      card.style.transform = "rotateY(0deg)";
+        card.style.transform = "rotateY(0deg)";
     });
 
     let signup = document.querySelector(".signup-btn button");
     signup.addEventListener("click", async (event) => {
-      let misMatchErr = document.getElementById("password-misMatch");
-      let idExist = document.getElementById("id-exist");
-      idExist.style.display = "none";
-      misMatchErr.style.display = "none";
-      event.preventDefault();
+        let misMatchErr = document.getElementById("password-misMatch");
+        let idExist = document.getElementById("id-exist");
+        idExist.style.display = "none";
+        misMatchErr.style.display = "none";
+        event.preventDefault();
 
-      let pwd = document.getElementById("create-password").value;
-      let cnfpwd = document.getElementById("confirm-password").value;
-      let email = document.getElementById("sgn-email").value;
-      if (!email.includes("@")) {
-        alert("Invalid Email");
-      } else if (pwd == "" || cnfpwd == "") {
-        alert("password Required");
-      } else if (pwd !== cnfpwd) {
-        alert("password mismatch");
-      } else {
-        let response = await fetch("/auth/sellerSignUp", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email,
-            password: pwd,
-            cnfpwd: cnfpwd,
-            role: "seller",
-          }),
+        let pwd = document.getElementById("create-password").value;
+        let cnfpwd = document.getElementById("confirm-password").value;
+        let email = document.getElementById("sgn-email").value;
+        let contact = document.getElementById("contact").value;
+        let username = document.getElementById("username").value;
+
+        if (!email.includes('@')) {
+            alert("Invalid email, Email ID  should contain '@'");
+            return;
+        }
+        if (email.includes('@')) {
+            let atIndex = email.indexOf('@');
+            let aferAtTheRate = email.slice(atIndex + 1);
+            let beforeAtTheRate = email.slice(0, atIndex);
+
+            if (atIndex === -1 || beforeAtTheRate.includes('.')) {
+                alert("Invalid email! There should not be a dot before '@'.");
+                return;
+            }
+            if (!isNaN(aferAtTheRate)) {
+                alert("Numbers not allowed in domain ");
+                return;
+            }
+            if (aferAtTheRate.length == 0) {
+                alert("Valid email should have Domain after @");
+                return;
+            }
+            if (!aferAtTheRate.includes('.')) {
+                alert("Invalid Domain! missing '.' ");
+                return;
+            }
+            else {
+                let dotIndx = aferAtTheRate.indexOf('.');
+                let afterDot = aferAtTheRate.slice(dotIndx + 1);
+
+                if (afterDot.length === 0) {
+                    alert("Invalid Email: Incomplete domain");
+                    return;
+                }
+            }
+        }
+
+        if(contact.charAt(0)!='0' &&contact.trim().length !=10) {
+            alert("Mobile number should contain 10 digits");
+            return;
+        }
+        if(contact.charAt(0)==0 && contact.trim().length!=11) {
+            alert("Invalid landline number");
+            return ;
+        }
+        if (username.trim() === "") {
+            alert("Username cannot be empty!");
+            return;
+        }
+        if(true) {
+                for(let i=0;i<username.length;i++) {
+                    let ch=username.charAt(i);
+                    if(!isNaN(ch)) {
+                        alert("Name cannot contain numbers");
+                        return;
+                    }
+                }
+            }
+        if (pwd === "" || cnfpwd === "") {
+            alert("Password is required.");
+            return;
+        }
+        if(pwd.trim().length<8) {
+            alert("password length should be atleast 8");
+            return ;
+        }
+        if (pwd !== cnfpwd) {
+            alert("Passwords do not match.");
+            return;
+        }
+        let response = await fetch("/auth/sellerSignup", {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username: username, contact: contact, email: email, password: pwd, cnfpwd: cnfpwd })
         });
+
         let result = await response.json();
+        console.log(result);
 
         if (response.status === 400) {
-          idExist.style.display = "flex";
-        } else if (response.status === 401) {
-          misMatchErr.style.display = "flex";
-        } else if (response.status === 200) {
-          window.location.href = "/seller/";
+            idExist.style.display = "flex";
+            return;
         }
-      }
+
+        if (response.status === 401) {
+            misMatchErr.style.display = "flex";
+            return;
+        }
+
+        if (response.status === 200) {
+            window.location.href = "/seller/";
+        }
+
     });
 
     let login = document.getElementById("login-btn");
     login.addEventListener("click", async () => {
-      event.preventDefault();
+        event.preventDefault();
 
-      let incErr = document.getElementById("incorrect-password");
-      incErr.style.display = "none";
+        let incErr = document.getElementById("incorrect-password");
+        incErr.style.display = "none";
 
-      let email = document.getElementById("email").value;
-      let password = document.getElementById("login-password").value;
-      //validation
-      if (!email.includes("@")) {
-        alert("Invalid email");
-      } else if (document.getElementById("login-password").value === "") {
-        alert("password required");
-      } else {
-        try {
-          let response = await fetch("/auth/sellerLogin", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: email,
-              password: password,
-              role: "seller",
-            }),
-          });
-
-          let result = await response.json();
-          console.log("Response Data:", result);
-
-          if (response.ok) {
-            console.log("Login Successful");
-            window.location.href = "/seller/";
-            incErr.style.display = "none";
-          } else {
-            console.log("Login Failed:", result.error);
-            incErr.style.display = "flex";
-          }
-        } catch (error) {
-          console.error("Error:", error);
+        let email = document.getElementById("email").value;
+        let password = document.getElementById("login-password").value;
+        
+        if (!email.includes('@')) {
+            alert("Invalid email, Email ID  should contain '@'");
+            return;
         }
-      }
+        if (email.includes('@')) {
+            let atIndex = email.indexOf('@');
+            let aferAtTheRate = email.slice(atIndex + 1);
+            let beforeAtTheRate = email.slice(0, atIndex);
+
+            if (atIndex === -1 || beforeAtTheRate.includes('.')) {
+                alert("Invalid email! There should not be a dot before '@'.");
+                return;
+            }
+            if (aferAtTheRate.length == 0) {
+                alert("Valid email should have Domain after @");
+                return;
+            }
+            if (!isNaN(aferAtTheRate)) {
+                alert("Numbers not allowed in domain ");
+                return;
+            }
+            if (!aferAtTheRate.includes('.')) {
+                alert("Invalid Domain! missing '.' ");
+                return;
+            }
+            else {
+                let dotIndx = aferAtTheRate.indexOf('.');
+                let afterDot = aferAtTheRate.slice(dotIndx + 1);
+
+                if (afterDot.length === 0) {
+                    alert("Invalid Email: Incomplete domain");
+                    return;
+                }
+            }
+        }
+        else if (document.getElementById("login-password").value === "") {
+            alert("password required");
+        } else {
+            try {
+                let response = await fetch("/auth/sellerLogin", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        role: "seller",
+                    }),
+                });
+
+                let result = await response.json();
+                console.log("Response Data:", result);
+
+                if (response.ok) {
+                    console.log("Login Successful");
+                    window.location.href = "/seller/";
+                    incErr.style.display = "none";
+                } else {
+                    console.log("Login Failed:", result.error);
+                    incErr.style.display = "flex";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
     });
-  </script>
+</script>
+
 </html>
