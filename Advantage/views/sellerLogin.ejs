@@ -270,10 +270,10 @@
                 }
             }
         }
-        else if (document.getElementById("login-password").value === "") {
+        if (document.getElementById("login-password").value === "") {
             alert("password required");
         } else {
-            try {
+            try {              
                 let response = await fetch("/auth/sellerLogin", {
                     method: "POST",
                     headers: {

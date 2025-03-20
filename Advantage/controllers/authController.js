@@ -35,7 +35,7 @@ export const buyerLogin = async (req, res, next) => {
 
 export const buyerSignup = async (req, res) => {
   
-  const { email, password, cnfpwd } = req.body;
+  const { username , contact , email, password , cnfpwd } = req.body;
 
   if (password != cnfpwd)
     return res.status(401).json({ err: "password mismatch" });
@@ -47,6 +47,8 @@ export const buyerSignup = async (req, res) => {
 
   if (!fetchedUser) {
     const user = {
+      username:username,
+      contact:contact,
       email: email,
       password: password,
       role: "buyer",
@@ -95,7 +97,7 @@ export const sellerLogin = async (req, res, next) => {
 };
 
 export const sellerSignup = async (req, res) => {
-  const { email, password, cnfpwd } = req.body;
+  const { username , contact ,email, password, cnfpwd } = req.body;
   console.log("req.body: ", req.body);
   if (password != cnfpwd)
     return res.status(401).json({ err: "password mismatch" });
@@ -106,6 +108,8 @@ export const sellerSignup = async (req, res) => {
   console.log("fetched seller: ", fetchedSeller);
   if (!fetchedSeller) {
     const user = {
+      username:username,
+      contact:contact,
       email: email,
       password: password,
       role: "seller",

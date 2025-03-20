@@ -48,7 +48,7 @@ buyerRoutes.get('/wishlist',requireRole("buyer"),async (req,res)=>{
   // const products=productIds.map(async (obj)=> await findProduct(obj.productId));
   let products=new Array(),product;
   for(let productIdobj of productIds){
-    product=await findProduct(productIdobj.productId);
+    product=await findProduct(productIdobj.ProductId);
     products.push(product);
   }
   console.log(products);

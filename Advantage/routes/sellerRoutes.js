@@ -1,14 +1,12 @@
 import express from "express";
 import { requireRole } from "../middleware/roleMiddleware.js";
 import { chatRoutes } from "./charRoutes.js";
-import { prodid } from "../models/User.js";
+import { insertProduct } from "../controllers/seller.js";
 // import { sellerLogin } from "../controllers/sellerLogin.js";
 // import { sellerSignup } from "../controllers/sellerSignUp.js";
 // import multer from "multer";
-import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { addProduct } from "../models/User.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -65,19 +63,9 @@ export default sellerRouter
 
 // const upload = multer({ storage });
 
-const productIdIncrementer=function(req,res,next){
-  prodid.value+=1;
-  next();
-}
+
 
 sellerRouter.get('/addProductForm',requireRole("seller"),(req,res)=>{
     res.render('AddproductForm');
 });
-sellerRouter.post('/addProduct',productIdIncrementer,(req,res)=>{
-    let images= new Array();
-    for(let i=1;req.body["image"+i] !== undefined;i++){
-        images.push(req.body["image"+i]);
-    }
-    addProduct(req.body.Name,req.body.price,req.body.Address,req.body.Description,req.body.zipcode,prodid.value,req.user.email,images);
-    res.redirect('/seller');
-});
+sellerRouter.post('/addProduct',insertProduct);
