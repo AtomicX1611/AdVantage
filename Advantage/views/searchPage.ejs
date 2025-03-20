@@ -59,7 +59,6 @@
         const min = document.getElementById('min');
         const max = document.getElementById('max');
         const apply = document.getElementById('filterApply');
-        console.log(mainSection.innerHTML);
         apply.addEventListener('click', (e) => {
             let maxValue = parseFloat(max.value);
             let minValue = parseFloat(min.value);
@@ -70,9 +69,11 @@
                 minValue = 0;
             }
             mainSection.innerHTML = '';
-            let html;
+            let html,price;
             for (let i = 0; i < products.length; i++) {
-                if ((products[i].price >= minValue) && (products[i].price <= maxValue)) {
+                price=parseFloat(products[i].Price);
+                console.log(price);
+                if ((price >= minValue) && (price <= maxValue)) {
                     html = `<a href="http://localhost:3000/search/product/${products[i].ProductId}">
                                 <div class="products">
                                     <img src="${products[i].Image1Src}" alt="image" class="images">
