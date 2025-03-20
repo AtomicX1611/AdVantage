@@ -40,6 +40,7 @@ main {
 .searchpage_window{
     background-image: url("/Assets/Backgrounds/Search_page.png");
     background-repeat: no-repeat;
+    min-height: 100vh;
 }
 .fog {
     height: 41.958333vh;
@@ -138,4 +139,15 @@ main {
 #mainSection a{
     color: white;
     text-decoration: none;
+}
+
+input[type="number"] {
+    padding-right: 3px;
+    width: 25%;
+    -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
 }

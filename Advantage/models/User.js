@@ -11,13 +11,14 @@ const db = new sqlite3.Database(":memory:", (err) => {
 db.run(
     `CREATE TABLE IF NOT EXISTS products (
         Name TEXT NOT NULL,
-        Price INTEGER NOT NULL,
+        Price REAL NOT NULL,
         Address TEXT NOT NULL,
         Description TEXT NOT NULL,
         PostingDate DATE DEFAULT CURRENT_DATE,
         zipCode INTEGER NOT NULL,
         SellerEmail TEXT NOT NULL,
-        ProductId TEXT PRIMARY KEY
+        ProductId TEXT PRIMARY KEY,
+        verified INTEGER DEFAULT 0
     )`,(err)=>{
         if(err){
             console.error(err.message);
@@ -39,7 +40,7 @@ db.run(
             );
             db.run(
                 `CREATE TABLE IF NOT EXISTS wishlist (
-                    userEmail INTEGER NOT NULL,
+                    userEmail TEXT NOT NULL,
                     productId INTEGER NOT NULL,
                     UNIQUE(productId, userEmail),
                     FOREIGN KEY (productId) REFERENCES products (ProductId) ON DELETE CASCADE
@@ -57,8 +58,10 @@ db.run(
 );
 db.run(
     `CREATE TABLE IF NOT EXISTS users(
-        email TEXT,
-        password TEXT
+        username TEXT NOT NULL,
+        contact TEXT NOT NULL,
+        email TEXT NOT NULL,
+        password TEXT NOT NULL
     )`,(err)=>{
         if(err){
             console.log(err.message);
@@ -69,13 +72,15 @@ db.run(
 );
 db.run(
     `CREATE TABLE IF NOT EXISTS sellers(
-        email TEXT,
-        password TEXT
+        username TEXT NOT NULL,
+        contact TEXT NOT NULL,
+        email TEXT NOT NULL,
+        password TEXT NOT NULL
     )`,(err)=>{
         if(err){
             console.log(err.message);
         }else{
-            console.log("users table created in memory.");
+            console.log("sellers table created in memory.");
         }
     }
 );
@@ -258,6 +263,8 @@ export const freshProducts = [
     { name: "Product 8", image: "",ProductId : "2" },
   ];
 
+
+// Anyone using this function must use await
 const findImages =async function(prodId){
     return new Promise((resolve,reject) =>{
         let query=`SELECT Image FROM images WHERE ProductId=?`;
@@ -270,6 +277,8 @@ const findImages =async function(prodId){
         });
     });
 }
+
+// Anyone using this function must use await
 export const findProducts = async function (Name) {
     return new Promise((resolve, reject) => {
         let names=Name.split(" ");
@@ -293,6 +302,8 @@ export const findProducts = async function (Name) {
         }); 
     });
 }
+
+// Anyone using this function must use await
 export const findProduct = function (prodId) {
     return new Promise((resolve,reject)=>{
         let query=`SELECT * FROM products WHERE ProductId = ?`
@@ -310,6 +321,8 @@ export const findProduct = function (prodId) {
         })
     });
 }
+
+// Anyone using this function must use await
 export const addProduct = function (Name, Price, Address, Description, zipCode, currProdId, sellerEmail, images) {
     let query=`INSERT INTO products (Name, Price, Address, Description, zipCode, sellerEmail, ProductId) VALUES (?,?,?,?,?,?,?)`;
     db.run(query,[Name, Price, Address, Description, zipCode, sellerEmail, currProdId],(err)=>{
@@ -317,7 +330,7 @@ export const addProduct = function (Name, Price, Address, Description, zipCode, 
             console.log(err.message);
         }else{
             for(let image of images){
-                db.run(`INSERT INTO images (Image,ProductId) VALUES (?,?)`,[image,currProdId],(err)=>{
+                db.run(`INSERT INTO images (Image,ProductId) VALUES (?,?)`,[image,currProdId],(err) => {
                     if(err){
                         console.error(err.message);
                     }
@@ -329,6 +342,7 @@ export const addProduct = function (Name, Price, Address, Description, zipCode, 
     });
 }
 
+// Anyone using this function must use await
 export const addToWishlist = function (userEmail, productId) {
     return new Promise((resolve, reject) => {
         const query = `INSERT INTO wishlist (userEmail, productId) VALUES (?, ?)`;
@@ -344,6 +358,7 @@ export const addToWishlist = function (userEmail, productId) {
     });
 }
 
+// Anyone using this function must use await
 export const getWishlistProducts = function (userEmail) {
     return new Promise((resolve, reject) => {
         const query = `SELECT productId FROM wishlist WHERE userEmail = ?`;
@@ -356,6 +371,7 @@ export const getWishlistProducts = function (userEmail) {
     });
 }
 
+// Anyone using this function must use await
 export const removeWishlistProduct = function (userEmail, productId) {
     return new Promise((resolve, reject) => {
         const query = `DELETE FROM wishlist WHERE userEmail = ? AND productId = ?`;
@@ -370,6 +386,7 @@ export const removeWishlistProduct = function (userEmail, productId) {
     })
 }
 
+// Anyone using this function must use await
 export const findUserByEmail = async (email) => {
     return new Promise((resolve,reject)=>{
         let query=`SELECT * FROM users WHERE email=?`;
@@ -383,8 +400,37 @@ export const findUserByEmail = async (email) => {
     });
 }
 
+//PK ee 2 functions nuv vaadu
+// Anyone using this function must use await
+export const verifyProduct = async (productId) => {
+    return new Promise((resolve,reject)=>{
+        const query=`UPDATE products SET verified = 1 where ProductId =?`;
+        db.run(query,[productId],(err)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve("verification Done");
+            }
+        });
+    });
+}
+
+// Anyone using this function must use await
+export const findProductsNotVerified = async ()=>{
+    return new Promise((resolve,reject)=>{
+        const query=`SELECT * FROM products WHERE verified = 0`;
+        db.all(query,(err,rows)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve(rows);
+            }
+        });
+    }); 
+}
+
 export const createUser = (user) => {
-    db.run(`INSERT INTO users VALUES (?,?)`,[user.email,user.password],(err=>{
+    db.run(`INSERT INTO users(username,contact,email,password) VALUES (?,?,?,?)`,[user.username,user.contact,user.email,user.password],(err=>{
         if(err){
             console.error(err.message);
         }
@@ -392,6 +438,7 @@ export const createUser = (user) => {
     }));
 };
 
+// Anyone using this function must use await
 export const findSellerByEmail = (email) => {
     return new Promise((resolve,reject)=>{
         let query=`SELECT * FROM sellers WHERE email=?`;
@@ -406,7 +453,7 @@ export const findSellerByEmail = (email) => {
 }
 
 export const createSeller = (seller) => {
-    db.run(`INSERT INTO sellers VALUES (?,?)`,[seller.email,seller.password],(err=>{
+    db.run(`INSERT INTO sellers VALUES (?,?,?,?)`,[seller.username,seller.contact,seller.email,seller.password],(err=>{
         if(err){
             console.error(err.message);
         }
