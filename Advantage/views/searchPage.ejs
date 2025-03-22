@@ -69,9 +69,9 @@
                 minValue = 0;
             }
             mainSection.innerHTML = '';
-            let html,price;
+            let html, price;
             for (let i = 0; i < products.length; i++) {
-                price=parseFloat(products[i].Price);
+                price = parseFloat(products[i].Price);
                 console.log(price);
                 if ((price >= minValue) && (price <= maxValue)) {
                     html = `<a href="http://localhost:3000/search/product/${products[i].ProductId}">
