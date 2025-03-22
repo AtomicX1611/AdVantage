@@ -11,12 +11,12 @@ export const requireRole = (role) => {
       }
     }
     if (req.user.role !== role) {
-      if (req.user.role == "buyer") {
-        return res.redirect("/");
-      } else if (req.user.role == "seller") {
-        return res.redirect("/seller/dashboard");
-      } else if (req.user.role === "manager") {
-        return res.redirect("/manger/dashboard");
+      console.log("Coming to not eqwual");
+      
+      if (role === "manager") {
+       return res.redirect("/manager/login");
+      }else{
+        return res.redirect("/auth/" + role);
       }
     }
     next();

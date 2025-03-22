@@ -10,8 +10,9 @@ managerRouter.get("/login", (req, res) => {
 });
 
 managerRouter.post("/login", (req, res, next) => {
+  console.log("Loggin in manageRouyter")
   req.body.email = req.body.email.concat("m");
-
+   
   passport.authenticate("local", (err, user, info) => {
     if (err) {
       console.error("Error during authentication:", err);
@@ -52,6 +53,7 @@ managerRouter.post("/verify", requireRole("manager"), async (req, res) => {
 });
 
 managerRouter.get("/dashboard",requireRole("manager") ,(req, res) => {
+
   res.render("ManagerDashboard.ejs");
 });
 

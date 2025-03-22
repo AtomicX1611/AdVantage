@@ -85,8 +85,6 @@ passport.use(
         email = email.slice(0, email.length - 1);
         result = managers.find((manager) => manager.email === email);
         console.log("resulkt L: ", result);
-      } else {
-        //Admin
       }
       console.log(result);
       if (result) {
