@@ -98,7 +98,6 @@ export const sellerLogin = async (req, res, next) => {
 
 export const sellerSignup = async (req, res) => {
   const { username , contact ,email, password, cnfpwd } = req.body;
-  console.log("req.body: ", req.body);
   if (password != cnfpwd)
     return res.status(401).json({ err: "password mismatch" });
 

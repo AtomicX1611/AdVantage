@@ -2,8 +2,7 @@ import express from "express";
 import { requireRole } from "../middleware/roleMiddleware.js";
 import { chatRoutes } from "./charRoutes.js";
 import { addToWishlist,featuredProducts,findProduct,getWishlistProducts, removeWishlistProduct} from "../models/User.js";
-// import { buyerLogin } from "../controllers/buyerLogin.js";
-// import { buyerSignup } from "../controllers/buyerSignUp.js";
+
 import {freshProducts} from "../models/User.js";
 
 export const buyerRoutes = express.Router();

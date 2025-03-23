@@ -90,7 +90,23 @@ body {
 .flexitem {
     margin: 10px 0px 0px 20px;
 }
-
+input {
+    color: white;
+}
+input::placeholder {
+    color: white;
+}
+textarea {
+    color: white;
+}
+textarea::placeholder {
+    color: white;
+}
+select {
+    padding: 6px;
+    border-radius: 8px;
+    margin-top: 5px;
+}
 input.flexitem {
     background-color: #9ea7b45b;
     padding-left: 10px;

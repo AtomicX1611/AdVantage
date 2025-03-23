@@ -82,6 +82,9 @@ input::placeholder {
     font-weight: bold;
     font-size: large;
 }
+#contact {
+    -moz-appearance: textfield;
+}
 .email {
     height: fit-content;
     display: flex;
