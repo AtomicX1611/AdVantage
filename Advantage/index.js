@@ -10,7 +10,8 @@ import pkg from "passport-local";
 import { findSellerByEmail, findUserByEmail } from "./models/User.js";
 import { Server } from "socket.io";
 import { sock } from "./controllers/Socket.js";
-import cors from 'cors';
+import cors from "cors";
+import managerRouter from "./routes/managerRoutes.js";
 
 const app = express();
 const port = 3000;
@@ -21,8 +22,8 @@ const LocalStrategy = pkg.Strategy;
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
-app.use(express.urlencoded({ extended: true, limit: '100mb' }));
-app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: "100mb" }));
+app.use(express.json({ limit: "100mb" }));
 
 app.use(
   "/",
@@ -43,26 +44,27 @@ app.get("/", (req, res) => {
   res.redirect("/buyer/home");
 });
 
-app.get("/req",(req,res)=>{
-  res.render("RequestForm.ejs",{isLogged:true});
-})
-app.use("/auth", authRouter); 
+app.get("/req", (req, res) => {
+  res.render("RequestForm.ejs", { isLogged: true });
+});
+
+app.use("/auth", authRouter);
 app.use("/buyer", buyerRoutes);
 app.use("/seller", sellerRouter);
 app.use("/search", searchRouter);
 app.use("/product", productRouter);
+app.use("/manager", managerRouter);
 
 app.use("/admin/dashboard", (req, res) => {
-  if(req.isAuthenticated){
+  if (req.isAuthenticated) {
     res.render("Admin.ejs");
-   }else{
-    res.render({message : "Cannot access Admin features"})
-   }
+  } else {
+    res.render({ message: "Cannot access Admin features" });
+  }
 });
-
-app.use("/admin",(req,res) => {
+app.use("/admin", (req, res) => {
   res.render("AdminLogin.ejs");
-})
+});
 
 passport.use(
   new LocalStrategy(
@@ -72,13 +74,17 @@ passport.use(
     },
     async function verify(email, password, cb) {
       let result;
-
-      if (email.slice(email.length-1,email.length) == 's') {
-        email = email.slice(0,email.length-1);
+      if (email.slice(email.length - 1, email.length) == "s") {
+        email = email.slice(0, email.length - 1);
         result = await findSellerByEmail(email);
-      } else {
-        email = email.slice(0,email.length-1);
+      } else if (email.slice(email.length - 1, email.length) == "b") {
+        email = email.slice(0, email.length - 1);
         result = await findUserByEmail(email);
+      } else if (email.slice(email.length - 1, email.length) == "m") {
+        console.log("callig find");
+        email = email.slice(0, email.length - 1);
+        result = managers.find((manager) => manager.email === email);
+        console.log("resulkt L: ", result);
       }
       console.log(result);
       if (result) {
@@ -94,6 +100,13 @@ passport.use(
     }
   )
 );
+
+let managers = [
+  {
+    email: "abc@gmail.com",
+    password: "123",
+  },
+];
 
 passport.serializeUser((user, cb) => {
   console.log("serialiszing : ");
