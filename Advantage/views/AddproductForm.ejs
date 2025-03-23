@@ -50,8 +50,37 @@
             <div class="div2 griditem">
                 <h3 style="margin-left: 1vw;">Your Address</h3>
                 <label for="State" class="flexitem">State</label>
-                <input type="text" class="flexitem" name="state" id="State" placeholder="Enter your State" required
-                    autocomplete>
+                <select name="state" id="State" class="flexitem" required>
+                    <option value="Andhra Pradesh">Andhra Pradesh</option>
+                    <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                    <option value="Assam">Assam</option>
+                    <option value="Bihar">Bihar</option>
+                    <option value="Chhattisgarh">Chhattisgarh</option>
+                    <option value="Goa">Goa</option>
+                    <option value="Gujarat">Gujarat</option>
+                    <option value="Haryana">Haryana</option>
+                    <option value="Himachal Pradesh">Himachal Pradesh</option>
+                    <option value="Jharkhand">Jharkhand</option>
+                    <option value="Karnataka">Karnataka</option>
+                    <option value="Kerala">Kerala</option>
+                    <option value="Madhya Pradesh">Madhya Pradesh</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                    <option value="Manipur">Manipur</option>
+                    <option value="Meghalaya">Meghalaya</option>
+                    <option value="Mizoram">Mizoram</option>
+                    <option value="Nagaland">Nagaland</option>
+                    <option value="Odisha">Odisha</option>
+                    <option value="Punjab">Punjab</option>
+                    <option value="Rajasthan">Rajasthan</option>
+                    <option value="Sikkim">Sikkim</option>
+                    <option value="Tamil Nadu">Tamil Nadu</option>
+                    <option value="Telangana">Telangana</option>
+                    <option value="Tripura">Tripura</option>
+                    <option value="Uttar Pradesh">Uttar Pradesh</option>
+                    <option value="Uttarakhand">Uttarakhand</option>
+                    <option value="West Bengal">West Bengal</option>
+                </select>
+
                 <label for="District" class="flexitem">District</label>
                 <input type="text" class="flexitem" name="district" id="District" placeholder="District" required
                     autocomplete>
@@ -86,7 +115,7 @@
         const formElement = document.getElementById('formElement');
 
         const fileUploader = document.getElementById('image');
-        
+
         const div22 = document.querySelector('.div22');
         const div2 = document.querySelector('.div2');
         let imgEvent;
@@ -158,30 +187,26 @@
                 alert("Description should be atleast 20 characters long");
                 return;
             }
-            
-            if(state.trim().length<5) {
-                alert("State should be atleast 5 character long");
-                return ;
+
+            if (state === "default") {
+                alert("Please select your state");
+                return;
             }
-            if(!isNaN(state.charAt(0))) {
-                alert("State name cannot start with number");
-                return ;
+            if (district.trim().length < 3) {
+                alert("District Name should be atleast 3 character long");
+                return;
             }
-            if(district.trim().length<3) {
-                alert("State should be atleast 3 character long");
-                return ;
+            if (!isNaN(district.charAt(0))) {
+                alert("District name cannot start with number");
+                return;
             }
-            if(!isNaN(district.charAt(0))) {
-                alert("State name cannot start with number");
-                return ;
+            if (city.trim().length < 3) {
+                alert("City name should be atleast 3 character long");
+                return;
             }
-            if(city.trim().length<3) {
-                alert("State should be atleast 3 character long");
-                return ;
-            }
-            if(!isNaN(city.charAt(0))) {
-                alert("State name cannot start with number");
-                return ;
+            if (!isNaN(city.charAt(0))) {
+                alert("City name cannot start with number");
+                return;
             }
             if (!(zipcodeInput >= 100000 && zipcodeInput < 10000000)) {
                 alert("Invalid Zipcode");
@@ -200,10 +225,10 @@
                 alert("Price cannot be negative");
                 return;
             }
-            console.log("imgaes: ",fileUploader.files);
-            if(fileUploader.files.length==0) {
+            console.log("imgaes: ", fileUploader.files);
+            if (fileUploader.files.length == 0) {
                 alert("Upload atleast one image of your product!");
-                return ;
+                return;
             }
             formElement.submit();
         })
