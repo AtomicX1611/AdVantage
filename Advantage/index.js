@@ -114,13 +114,10 @@ passport.serializeUser((user, cb) => {
 });
 
 passport.deserializeUser(async (user, cb) => {
-  // console.log("Deserializing");
   cb(null, user);
 });
 
 const server = app.listen(port, () => console.log("Running on Port 3000"));
 export const io = new Server(server);
-
-let activeUsers = new Map();
 
 io.on("connection", sock);

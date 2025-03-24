@@ -1,3 +1,4 @@
+import { zip } from "d3";
 import sqlite3 from "sqlite3";
 
 const db = new sqlite3.Database(":memory:", (err) => {
@@ -12,14 +13,24 @@ db.run(
     `CREATE TABLE IF NOT EXISTS products (
         Name TEXT NOT NULL,
         Price REAL NOT NULL,
-        Address TEXT NOT NULL,
         Description TEXT NOT NULL,
         PostingDate DATE DEFAULT CURRENT_DATE,
         zipCode INTEGER NOT NULL,
         SellerEmail TEXT NOT NULL,
         ProductId INTEGER PRIMARY KEY AUTOINCREMENT,
         verified INTEGER DEFAULT 0,
-        category TEXT NOT NULL
+        category TEXT NOT NULL,
+        District TEXT NOT NULL,
+        City TEXT NOT NULL,
+        State TEXT NOT NULL,
+        CHECK (state IN (
+        'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+        'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
+        'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur',
+        'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab',
+        'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
+        'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
+        ))
     )`, (err) => {
     if (err) {
         console.error(err.message);
@@ -118,127 +129,7 @@ db.run(
     }
 ]*/
 
-/*let products = [
-    {
-        Name: "BOUNCING SHOES FOR MEN",
-        Price: "3000",
-        Address: "guntur andhra pradesh,india",
-        Description: "Size 8 \n Brandnew untouched",
-        PostingDate: "4-march-2025",
-        zipCode: 522003,
-        // CountryCode: "IN",
-        SellerEmail: "abc@gmail.com",
-        ProductId: "3",
-        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
-        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
-        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
-        count: 0,
-        distance: 0
-    },
-    {
-        Name: "BOUNCING SHOES FOR MEN",
-        Price: "3000",
-        Address: "guntur andhra pradesh,india",
-        Description: "Size 8 \n Brandnew untouched",
-        PostingDate: "4-march-2025",
-        zipCode: 522003,
-        // CountryCode: "IN",
-        SellerEmail: "abcd@gmail.com",
-        ProductId: "4",
-        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
-        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
-        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
-        count: 0,
-        distance: 0
-    }, {
-        Name: "BOUNCING SHOES FOR MEN",
-        Price: "3000",
-        Address: "guntur andhra pradesh,india",
-        Description: "Size 8 \n Brandnew untouched",
-        PostingDate: "4-march-2025",
-        zipCode: 522003,
-        // CountryCode: "IN",
-        SellerEmail: "abcd@gmail.com",
-        ProductId: "5",
-        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
-        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
-        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
-        count: 0,
-        distance: 0
-    }, {
-        Name: "BOUNCING SHOES FOR MEN",
-        Price: "3000",
-        Address: "guntur andhra pradesh,india",
-        Description: "Size 8 \n Brandnew untouched",
-        PostingDate: "4-march-2025",
-        zipCode: 522003,
-        // CountryCode: "IN",
-        SellerEmail: "abcd@gmail.com",
-        ProductId: "6",
-        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
-        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
-        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
-        count: 0,
-        distance: 0
-    }, {
-        Name: "BOUNCING SHOES FOR MEN",
-        Price: "3000",
-        Description: "Size 8 \n Brandnew untouched",
-        PostingDate: "4-march-2025",
-        zipCode: 522003,
-        // CountryCode: "IN",
-        SellerEmail: "abcd@gmail.com",
-        ProductId: "7",
-        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
-        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
-        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
-        count: 0,
-        distance: 0
-    },{
-        Name: "T-Shirt",
-        Price: "3000",
-        Description: "Size 8 \n Brandnew untouched",
-        PostingDate: "4-march-2025",
-        zipCode: 522003,
-        // CountryCode: "IN",
-        SellerEmail: "abcd@gmail.com",
-        ProductId: "8",
-        Image1Src: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206",
-        Image2Src: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206",
-        Image3Src: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206",
-        count: 0,
-        distance: 0
-    },
-    {
-        Name: "Laptop",
-        Price: "3000",
-        Description: "Size 8 \n Brandnew untouched",
-        PostingDate: "4-march-2025",
-        zipCode: 522003,
-        // CountryCode: "IN",
-        SellerEmail: "abcd@gmail.com",
-        ProductId: "9",
-        Image1Src: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg",
-        Image2Src: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg",
-        Image3Src: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg",
-        count: 0,
-        distance: 0
-    }, {
-        Name: "Headphones",
-        Price: "3000",
-        Description: "Size 8 \n Brandnew untouched",
-        PostingDate: "4-march-2025",
-        zipCode: 522003,
-        // CountryCode: "IN",
-        SellerEmail: "abcd@gmail.com",
-        ProductId: "10",
-        Image1Src: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg",
-        Image2Src: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg",
-        Image3Src: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg",
-        count: 0,
-        distance: 0
-    },
-]*/
+
 export let prodid = { value: 0 };
 
 export const freshProducts = [
@@ -324,9 +215,9 @@ export const findProduct = function (prodId) {
 }
 
 
-export const addProduct = function (Name, Price, Address, Description, zipCode, sellerEmail, images,category) {
-    let query = `INSERT INTO products (Name, Price, Address, Description, zipCode, sellerEmail, category) VALUES (?,?,?,?,?,?,?)`;
-    db.run(query, [Name, Price, Address, Description, zipCode, sellerEmail,category], function(err){
+export const addProduct = function (Name, Price, Description, zipCode, sellerEmail, images,category,district,state,city) {
+    let query = `INSERT INTO products (Name, Price, Description, zipCode, sellerEmail, category, District, State, City) VALUES (?,?,?,?,?,?,?,?,?)`;
+    db.run(query, [Name, Price, Description, zipCode, sellerEmail,category,district,state,city], function(err){
         if (err) {
             console.log(err.message);
         }else{
@@ -463,3 +354,127 @@ export const createSeller = (seller) => {
         }
     }));
 };
+
+
+
+/*let products = [
+    {
+        Name: "BOUNCING SHOES FOR MEN",
+        Price: "3000",
+        Address: "guntur andhra pradesh,india",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        // CountryCode: "IN",
+        SellerEmail: "abc@gmail.com",
+        ProductId: "3",
+        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
+        count: 0,
+        distance: 0
+    },
+    {
+        Name: "BOUNCING SHOES FOR MEN",
+        Price: "3000",
+        Address: "guntur andhra pradesh,india",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        // CountryCode: "IN",
+        SellerEmail: "abcd@gmail.com",
+        ProductId: "4",
+        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
+        count: 0,
+        distance: 0
+    }, {
+        Name: "BOUNCING SHOES FOR MEN",
+        Price: "3000",
+        Address: "guntur andhra pradesh,india",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        // CountryCode: "IN",
+        SellerEmail: "abcd@gmail.com",
+        ProductId: "5",
+        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
+        count: 0,
+        distance: 0
+    }, {
+        Name: "BOUNCING SHOES FOR MEN",
+        Price: "3000",
+        Address: "guntur andhra pradesh,india",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        // CountryCode: "IN",
+        SellerEmail: "abcd@gmail.com",
+        ProductId: "6",
+        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
+        count: 0,
+        distance: 0
+    }, {
+        Name: "BOUNCING SHOES FOR MEN",
+        Price: "3000",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        // CountryCode: "IN",
+        SellerEmail: "abcd@gmail.com",
+        ProductId: "7",
+        Image1Src: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51k80PiSIcL._SY695_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/613Np812kJL._SY695_.jpg",
+        count: 0,
+        distance: 0
+    },{
+        Name: "T-Shirt",
+        Price: "3000",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        // CountryCode: "IN",
+        SellerEmail: "abcd@gmail.com",
+        ProductId: "8",
+        Image1Src: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206",
+        Image2Src: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206",
+        Image3Src: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206",
+        count: 0,
+        distance: 0
+    },
+    {
+        Name: "Laptop",
+        Price: "3000",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        // CountryCode: "IN",
+        SellerEmail: "abcd@gmail.com",
+        ProductId: "9",
+        Image1Src: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg",
+        count: 0,
+        distance: 0
+    }, {
+        Name: "Headphones",
+        Price: "3000",
+        Description: "Size 8 \n Brandnew untouched",
+        PostingDate: "4-march-2025",
+        zipCode: 522003,
+        // CountryCode: "IN",
+        SellerEmail: "abcd@gmail.com",
+        ProductId: "10",
+        Image1Src: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg",
+        Image2Src: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg",
+        Image3Src: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg",
+        count: 0,
+        distance: 0
+    },
+]*/
