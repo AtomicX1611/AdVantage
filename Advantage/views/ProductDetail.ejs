@@ -85,7 +85,6 @@
         });
         try {
           const data = await response.json();
-          console.log("data: ",data);
           showNotification(data.message);
           // alert(data.message);
         } catch (err) {
