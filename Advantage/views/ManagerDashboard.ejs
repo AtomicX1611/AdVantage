@@ -9,27 +9,16 @@
   <body>
     <div class="dashboard">
       <img class="sidebar" src="/Assets/AdminSidebar.png" />
+
       <div class="scroll_container">
-        <table>
-          <thead>
-            <tr>
-              <th>Seller Mail</th>
-              <th>Seller name</th>
-              <th>Product Name</th>
-              <th>Description</th>
-              <th>Proof</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
+        <% products.forEach((product) => { %>
+        <a href="http://localhost:3000/search/product/<%= product.ProductId %>">
+          <div class="product_card">
+            <h2><%= product.name %></h2>
+            <p><%= product.description %></p>
+          </div>
+        </a>
+        <% }); %>
       </div>
     </div>
   </body>

@@ -1,46 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <link rel="stylesheet" href="/productDetail.css" />
+  </head>
 
-<head>
-  <link rel="stylesheet" href="/productDetail.css" />
-</head>
-
-<body>
-  <div class="BG">
-  <%- include("HomeHeader.ejs") %>
-  <div id="notification">
-    <span id="notif-message"></span>
-    <button id="close-btn" onclick="hideNotification()">X</button>
-    </div>      
-    <div class="main_container">
-      <div class="card_list">
-        <% for(let i=1; product[`Image${i}Src`] !==undefined; i++) { %>
-          <img src="<%= product[`Image${i}Src`] %>" alt="image" class="card_container">
-          <% } %>
+  <body>
+    <div class="BG">
+      <%- include("HomeHeader.ejs") %>
+      <div id="notification">
+        <span id="notif-message"></span>
+        <button id="close-btn" onclick="hideNotification()">X</button>
       </div>
-      <img class="big_card" src="<%= product[`Image1Src`] %>" alt="bigImage">
-      <div class="product_details">
-        <div class="item_header">
-          <h2 class="item_title">
-            <%= product.Name %>
-          </h2>
-          <h2 class="item_price">₹<%= product.Price %>/-</h2>
+      <div class="main_container">
+        <div class="card_list">
+          <% for(let i=1; product[`Image${i}Src`] !==undefined; i++) { %>
+          <img
+            src="<%= product[`Image${i}Src`] %>"
+            alt="image"
+            class="card_container"
+          />
+          <% } %>
         </div>
-        <div>
-          <h2 class="item_address">
-            <%= product.Address %>
-          </h2>
-        </div>
-        <div class="description">
-          <h2 class="item_desc">Description</h2>
-          <h3 class="item_title">
-            <%= product.Description %>
-          </h3>
-          <button id="addToWishlist" data-id="<%= product.ProductId %>">Add to Wishlist</button>
+        <img
+          class="big_card"
+          src="<%= product[`Image1Src`] %>"
+          alt="bigImage"
+        />
+        <div class="product_details">
+          <div class="item_header">
+            <h2 class="item_title"><%= product.Name %></h2>
+            <h2 class="item_price">₹<%= product.Price %>/-</h2>
+          </div>
+          <div>
+            <h2 class="item_address"><%= product.Address %></h2>
+          </div>
+          <div class="description">
+            <h2 class="item_desc">Description</h2>
+            <h3 class="item_title"><%= product.Description %></h3>
+            <% if(manager){ %>
+            <button id="verifyButton" data-id="<%= product.ProductId %>">
+              Verify Product
+            </button>
+            <% } %>
+            <button id="addToWishlist" data-id="<%= product.ProductId %>">
+              Add to Wishlist
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
     <script>
       function showNotification(message) {
         const notification = document.getElementById("notification");
@@ -64,33 +72,53 @@
         }, 300);
       }
 
-      const card_container = document.querySelector('.card_list');
-      const big_card = document.querySelector('.big_card');
-      const addToWishlist = document.getElementById('addToWishlist');
+      const card_container = document.querySelector(".card_list");
+      const big_card = document.querySelector(".big_card");
+      const addToWishlist = document.getElementById("addToWishlist");
       card_container.addEventListener("mouseover", (e) => {
-        if (e.target.tagName === 'IMG') {
+        if (e.target.tagName === "IMG") {
           big_card.src = e.target.src;
         }
       });
-      addToWishlist.addEventListener('click', async (e) => {
+      addToWishlist.addEventListener("click", async (e) => {
         const productId = addToWishlist.getAttribute("data-id");
-        const response = await fetch('http://localhost:3000/buyer/wishlist/add', {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ productId: productId })
-        });
+        const response = await fetch(
+          "http://localhost:3000/buyer/wishlist/add",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ productId: productId }),
+          }
+        );
         try {
           const data = await response.json();
-          console.log("data: ",data);
+          console.log("data: ", data);
           showNotification(data.message);
           // alert(data.message);
         } catch (err) {
           window.location.href = response.url;
         }
       });
-    </script>
-</body>
 
+      const verifyProductButton = document.getElementById("verifyButton");
+      verifyProductButton.addEventListener("click", async (e) => {
+        const productId = verifyProductButton.getAttribute("data-id");
+        const response = await fetch("http://localhost:3000/manager/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ pid: productId }),
+        });
+        try {
+          const data = await response.json();
+          console.log("data: ", data);
+        } catch (err) {
+          window.location.href = response.url;
+        }
+      });
+    </script>
+  </body>
 </html>

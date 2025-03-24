@@ -1,96 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Advantage</title>
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="/SearchPage.css" />
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="searchpage_window">
-        <%- include("HomeHeader.ejs") %>
-            <main>
-                <div id="up">
-                    <b id="filters">FILTERS</b>
-                </div>
-                <!-- <div class="fog" id="fog1"></div>
+      <%- include("HomeHeader.ejs") %>
+      <main>
+        <div id="up">
+          <b id="filters">FILTERS</b>
+        </div>
+        <!-- <div class="fog" id="fog1"></div>
             <div class="fog" id="fog2"></div> -->
-                <div id="bottom">
-                    <div id="filterContainer">
-                        <b id="priceRange">Price Range</b>
-                        <div id="minAndMax">
-                            <input type="number" placeholder="min" id="min">
-                            <input type="number" placeholder="max" id="max">
-                            <button id="filterApply"><b>Apply</b></button>
-                        </div>
-                        <!-- <b id="priceRange">category</b>
+        <div id="bottom">
+          <div id="filterContainer">
+            <b id="priceRange">Price Range</b>
+            <div id="minAndMax">
+              <input type="number" placeholder="min" id="min" />
+              <input type="number" placeholder="max" id="max" />
+              <button id="filterApply"><b>Apply</b></button>
+            </div>
+            <!-- <b id="priceRange">category</b>
                         <div id="category">
                             <select id="selection">
                                 <option value=""></option>
                             </select>
                         </div> -->
-                    </div>
-                    <div id="mainSection">
-                        <% if(products.length==0) { %>
-                            <h3 style="margin-top: 30vh;margin-left:30vw;">No products found in Search
-                            </h3>
-                            <% } %>
-                                <% for(let i=0;i < products.length; i++) { %>
-                                    <a href="http://localhost:3000/search/product/<%= products[i].ProductId %>">
-                                        <div class="products">
-                                            <img src="<%= products[i].Image1Src %>" alt="image" class="images">
-                                            <h4 style="margin-left: 20px; font-size: 15px;">
-                                                <%= products[i].Name %>
-                                            </h4>
-                                            <h3 style="margin-left: 0px"> Rs. <%= products[i].Price %>/- </h3>
-                                        </div>
-                                    </a>
-                                    <% }%>
-                    </div>
-                </div>
-            </main>
+          </div>
+          <div id="mainSection">
+            <% if(products.length==0) { %>
+            <h3 style="margin-top: 30vh; margin-left: 30vw">
+              No products found in Search
+            </h3>
+            <% } %> <% for(let i=0;i < products.length; i++) { %>
+            <a
+              href="http://localhost:3000/search/product/<%= products[i].ProductId %>"
+            >
+              <div class="products">
+                <img
+                  src="<%= products[i].Image1Src %>"
+                  alt="image"
+                  class="images"
+                />
+                <h4 style="margin-left: 20px; font-size: 15px">
+                  <%= products[i].Name %>
+                </h4>
+                <h3 style="margin-left: 0px">Rs. <%= products[i].Price %>/-</h3>
+              </div>
+            </a>
+            <% }%>
+          </div>
+        </div>
+      </main>
     </div>
     <script>
-        const products = <%- JSON.stringify(products) %>;
-        const mainSection = document.getElementById('mainSection');
-        const min = document.getElementById('min');
-        const max = document.getElementById('max');
-        const apply = document.getElementById('filterApply');
-        apply.addEventListener('click', (e) => {
-            let maxValue = parseFloat(max.value);
-            let minValue = parseFloat(min.value);
-            if (isNaN(maxValue)) {
-                maxValue = Infinity;
-            }
-            if (isNaN(minValue)) {
-                minValue = 0;
-            }
-            mainSection.innerHTML = '';
-            let html, price;
-            for (let i = 0; i < products.length; i++) {
-                price = parseFloat(products[i].Price);
-                console.log(price);
-                if ((price >= minValue) && (price <= maxValue)) {
-                    html = `<a href="http://localhost:3000/search/product/${products[i].ProductId}">
-                                <div class="products">
-                                    <img src="${products[i].Image1Src}" alt="image" class="images">
-                                    <h4 style="margin-left: 20px; font-size: 15px;">
-                                        ${products[i].Name}
-                                    </h4>
-                                    <h3 style="margin-left: 0px"> Rs. ${products[i].Price}/- </h3>
-                                </div>
-                            </a>`;
-                    mainSection.insertAdjacentHTML("beforeend", html);
-                }
-            }
-            if (mainSection.innerHTML === '') {
-                mainSection.innerHTML = '<h3 style="margin-top: 30vh;margin-left:30vw;">No products found in the specified filter</h3>';
-            }
-        });
+      const products = <%- JSON.stringify(products) %>;
+      const mainSection = document.getElementById('mainSection');
+      const min = document.getElementById('min');
+      const max = document.getElementById('max');
+      const apply = document.getElementById('filterApply');
+      apply.addEventListener('click', (e) => {
+          let maxValue = parseFloat(max.value);
+          let minValue = parseFloat(min.value);
+          if (isNaN(maxValue)) {
+              maxValue = Infinity;
+          }
+          if (isNaN(minValue)) {
+              minValue = 0;
+          }
+          mainSection.innerHTML = '';
+          let html, price;
+          for (let i = 0; i < products.length; i++) {
+              price = parseFloat(products[i].Price);
+              console.log(price);
+              if ((price >= minValue) && (price <= maxValue)) {
+                  html = `<a href="http://localhost:3000/search/product/${products[i].ProductId}">
+                              <div class="products">
+                                  <img src="${products[i].Image1Src}" alt="image" class="images">
+                                  <h4 style="margin-left: 20px; font-size: 15px;">
+                                      ${products[i].Name}
+                                  </h4>
+                                  <h3 style="margin-left: 0px"> Rs. ${products[i].Price}/- </h3>
+                              </div>
+                          </a>`;
+                  mainSection.insertAdjacentHTML("beforeend", html);
+              }
+          }
+          if (mainSection.innerHTML === '') {
+              mainSection.innerHTML = '<h3 style="margin-top: 30vh;margin-left:30vw;">No products found in the specified filter</h3>';
+          }
+      });
     </script>
-</body>
-
+  </body>
 </html>

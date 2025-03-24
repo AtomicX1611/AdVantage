@@ -24,11 +24,16 @@ export const getProductsNoFilter = async (req,res) => {
 }
 
 export const getProductDetails = async (req, res) => {
+  let manager = false;
+  if(req.user.role === "manager"){
+    manager = true
+}
   const productId = req.params.productId;
   let pro=await findProduct(productId);
   res.render("ProductDetail.ejs", {
     product: pro,
     isLogged: req.isAuthenticated() && (req.user.role == "buyer"),
+    manager : manager
   });
 };
 

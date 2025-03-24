@@ -20,24 +20,28 @@ body {
   margin-top: 0%;
   height: 80%;
   width: 150px;
+  object-fit: cover;
 }
 
-table {
+.scroll_container{
+  height: 100vh;
+  width: 100vw;
   border-radius: 12px;
   margin: 15px;
   margin-top: 30px;
-  border-collapse: collapse;
   color: white;
   background: linear-gradient(to right, #999999, #00013D);
   font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  gap: 1rem;
 }
 
-th, td {
-  padding: 20px 60px;
-  border: 2px solid black;
-  text-align: center;
-}
-
-th {
-  font-size: 22px;
+.product_card {
+  margin: 5px;
+  padding: 1rem;
+  border-radius: 10px;
+  height: 100px;
+  width: 100%;
 }
