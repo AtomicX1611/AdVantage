@@ -1,4 +1,4 @@
-import { zip } from "d3";
+
 import sqlite3 from "sqlite3";
 
 const db = new sqlite3.Database(":memory:", (err) => {
@@ -96,6 +96,17 @@ db.run(
     }
 }
 );
+
+let admins = [
+    {
+        email : "admin@gmail.com",
+        password : "123"
+    }
+]
+
+export const findAdmins = (email) => {
+  return admins.find(admin => admin.email === email )
+}
 /*let users = [
     {
         username: "abc",

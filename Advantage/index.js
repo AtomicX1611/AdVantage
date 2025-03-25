@@ -7,11 +7,12 @@ import session from "express-session";
 import passport from "passport";
 import productRouter from "./routes/productRoutes.js";
 import pkg from "passport-local";
-import { findSellerByEmail, findUserByEmail } from "./models/User.js";
+import { findAdmins, findSellerByEmail, findUserByEmail } from "./models/User.js";
 import { Server } from "socket.io";
 import { sock } from "./controllers/Socket.js";
 import cors from "cors";
 import managerRouter from "./routes/managerRoutes.js";
+import adminRouter from "./routes/adminRouter.js";
 
 const app = express();
 const port = 3000;
@@ -54,17 +55,7 @@ app.use("/seller", sellerRouter);
 app.use("/search", searchRouter);
 app.use("/product", productRouter);
 app.use("/manager", managerRouter);
-
-app.use("/admin/dashboard", (req, res) => {
-  if (req.isAuthenticated) {
-    res.render("Admin.ejs");
-  } else {
-    res.render({ message: "Cannot access Admin features" });
-  }
-});
-app.use("/admin", (req, res) => {
-  res.render("AdminLogin.ejs");
-});
+app.use("/admin",adminRouter)
 
 passport.use(
   new LocalStrategy(
@@ -85,6 +76,10 @@ passport.use(
         email = email.slice(0, email.length - 1);
         result = managers.find((manager) => manager.email === email);
         console.log("resulkt L: ", result);
+      }else if(email.slice(email.length - 1, email.length) == "a"){
+        email = email.slice(0,email.length - 1)
+        result = findAdmins(email)
+        console.log("resulkt admin : ", result);
       }
       console.log(result);
       if (result) {
