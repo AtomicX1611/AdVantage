@@ -10,7 +10,9 @@ header {
     background-color: rgb(135, 135, 135);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
+body {
+    background-color: #000000;
+}
 nav {
     height: inherit;
     display: flex;

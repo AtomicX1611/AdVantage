@@ -101,7 +101,7 @@ img.card_container:hover{
 }
 
 .description{
-  margin-top: 130px;
+  margin-top: 20px;
 }
 
 .item_desc {
@@ -146,4 +146,21 @@ img.card_container:hover{
 @keyframes fadeOut {
   from { opacity: 1; }
   to { opacity: 0; }
+}
+
+.options {
+  margin-top: 2vh;
+  display: flex;
+  gap: 10px;
+}
+.btn {
+  padding: 15px;
+  border: 2px solid white;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+.btn:hover {
+  background-color: white;
+  color: black;
 }

@@ -65,3 +65,7 @@ buyerRoutes.get('/wishlist/remove/:productId',requireRole("buyer"),async (req,re
 buyerRoutes.get("/contact",requireRole("buyer"),(req,res)=>{
   res.render("ContactUs.ejs", { isLogged: req.isAuthenticated()&&(req.user.role=="buyer")});
 })
+
+buyerRoutes.get("/prod",(req,res)=>{
+  res.render("ProductDetail.ejs",{isLogged:true,product:""});
+})

@@ -7,92 +7,108 @@
 
 <body>
   <div class="BG">
-  <%- include("HomeHeader.ejs") %>
-  <div id="notification">
-    <span id="notif-message"></span>
-    <button id="close-btn" onclick="hideNotification()">X</button>
-    </div>      
-    <div class="main_container">
-      <div class="card_list">
-        <% for(let i=1; product[`Image${i}Src`] !==undefined; i++) { %>
-          <img src="<%= product[`Image${i}Src`] %>" alt="image" class="card_container">
-          <% } %>
+    <%- include("HomeHeader.ejs") %>
+      <div id="notification">
+        <span id="notif-message"></span>
+        <button id="close-btn" onclick="hideNotification()">X</button>
       </div>
-      <img class="big_card" src="<%= product[`Image1Src`] %>" alt="bigImage">
-      <div class="product_details">
-        <div class="item_header">
-          <h2 class="item_title">
-            <%= product.Name %>
-          </h2>
-          <h2 class="item_price">₹<%= product.Price %>/-</h2>
+      <div class="main_container">
+        <div class="card_list">
+          <% for(let i=1; product[`Image${i}Src`] !==undefined; i++) { %>
+            <img src="<%= product[`Image${i}Src`] %>" alt="image" class="card_container">
+            <% } %>
         </div>
-        <div>
-          <h2 class="item_address">
-            <%= product.State %>
-          </h2>
-          <h3 class="item_address"><%= product.District %></h3>
-          <h4 class="item_address"><%= product.City %></h4>
-        </div>
-        <div class="description">
-          <h2 class="item_desc">Description</h2>
-          <h3 class="item_title">
-            <%= product.Description %>
-          </h3>
-          <button id="addToWishlist" data-id="<%= product.ProductId %>">Add to Wishlist</button>
+        <img class="big_card" src="<%= product[`Image1Src`] %>" alt="bigImage">
+        <div class="product_details">
+          <div class="item_header">
+            <h2 class="item_title">
+              <%= product.Name %>
+            </h2>
+            <h2 class="item_price">₹<%= product.Price %>/-</h2>
+          </div>
+          <div>
+            <h2 class="item_address">
+              <%= product.State %>
+            </h2>
+            <h3 class="item_address">
+              <%= product.District %>
+            </h3>
+            <h4 class="item_address">
+              <%= product.City %>
+            </h4>
+          </div>
+          <div class="options">
+            <a href=/buyer/chats/contact/<%=sellerId%>>
+              <div class="chatWs btn" id="chat-btn">
+                Chat with seller
+                <input type="hidden" name="selleId" value="<%= sellerId%>">
+              </div>
+            </a>
+            <div class="purchase btn">
+              Buy now
+            </div>
+          </div>
+          <div class="description">
+            <h2 class="item_desc">Description</h2>
+            <h3 class="item_title">
+              <%= product.Description %>
+            </h3>
+            <button id="addToWishlist" data-id="<%= product.ProductId %>">Add to Wishlist</button>
+          </div>
         </div>
       </div>
-    </div>
   </div>
-    <script>
-      function showNotification(message) {
-        const notification = document.getElementById("notification");
-        const notifMessage = document.getElementById("notif-message");
+  <script>
+    function showNotification(message) {
+      const notification = document.getElementById("notification");
+      const notifMessage = document.getElementById("notif-message");
 
-        notifMessage.textContent = message;
-        notification.style.display = "block";
-        notification.style.opacity = "1";
+      notifMessage.textContent = message;
+      notification.style.display = "block";
+      notification.style.opacity = "1";
 
-        setTimeout(() => {
-          hideNotification();
-        }, 1000);
+      setTimeout(() => {
+        hideNotification();
+      }, 1000);
+    }
+
+    function hideNotification() {
+      const notification = document.getElementById("notification");
+      notification.style.animation = "fadeOut 0.3s ease-in-out";
+      setTimeout(() => {
+        notification.style.display = "none";
+        notification.style.animation = "";
+      }, 300);
+    }
+
+    const card_container = document.querySelector('.card_list');
+    const big_card = document.querySelector('.big_card');
+    const addToWishlist = document.getElementById('addToWishlist');
+    card_container.addEventListener("mouseover", (e) => {
+      if (e.target.tagName === 'IMG') {
+        big_card.src = e.target.src;
       }
-
-      function hideNotification() {
-        const notification = document.getElementById("notification");
-        notification.style.animation = "fadeOut 0.3s ease-in-out";
-        setTimeout(() => {
-          notification.style.display = "none";
-          notification.style.animation = "";
-        }, 300);
+    });
+    addToWishlist.addEventListener('click', async (e) => {
+      const productId = addToWishlist.getAttribute("data-id");
+      const response = await fetch('http://localhost:3000/buyer/wishlist/add', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ productId: productId })
+      });
+      try {
+        const data = await response.json();
+        console.log("data: ", data);
+        showNotification(data.message);
+        // alert(data.message);
+      } catch (err) {
+        window.location.href = response.url;
       }
+    });
 
-      const card_container = document.querySelector('.card_list');
-      const big_card = document.querySelector('.big_card');
-      const addToWishlist = document.getElementById('addToWishlist');
-      card_container.addEventListener("mouseover", (e) => {
-        if (e.target.tagName === 'IMG') {
-          big_card.src = e.target.src;
-        }
-      });
-      addToWishlist.addEventListener('click', async (e) => {
-        const productId = addToWishlist.getAttribute("data-id");
-        const response = await fetch('http://localhost:3000/buyer/wishlist/add', {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ productId: productId })
-        });
-        try {
-          const data = await response.json();
-          console.log("data: ",data);
-          showNotification(data.message);
-          // alert(data.message);
-        } catch (err) {
-          window.location.href = response.url;
-        }
-      });
-    </script>
+  </script>
 </body>
 
 </html>

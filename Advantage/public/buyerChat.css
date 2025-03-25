@@ -169,7 +169,7 @@ main {
     margin-right: 10px;
 }
 .type {
-    height: 6vh;
+    height: 40px;
     width: 64vw;
     border-top: 2px solid black;
     display: flex;
@@ -181,7 +181,7 @@ main {
 #text-box {
     resize:none;
     width: 30vw;
-    height: 4vh;
+    height: 40px;
     display: flex;
     padding: 3px 5px;
     align-items: center;
