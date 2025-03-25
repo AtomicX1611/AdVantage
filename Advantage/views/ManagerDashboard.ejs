@@ -1,36 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="/ManagerDashboard.css" />
-  </head>
-  <body>
-    <div class="dashboard">
-      <img class="sidebar" src="/Assets/AdminSidebar.png" />
-      <div class="scroll_container">
-        <table>
-          <thead>
-            <tr>
-              <th>Seller Mail</th>
-              <th>Seller name</th>
-              <th>Product Name</th>
-              <th>Description</th>
-              <th>Proof</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link rel="stylesheet" href="/ManagerDashboard.css" />
+</head>
+
+<body>
+  <div class="dashboard">
+    <img class="sidebar" src="/Assets/AdminSidebar.png" />
+
+    <div class="scroll_container">
+      <table>
+        <thead>
+          <tr>
+            <th>Seller Mail</th>
+            <th>Product Name</th>
+            <th>Posting Date</th>
+            <th>Description</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for(let i=0;i < products.length; i++) { %>
+          <tr>
+            <td><%= products[i].SellerEmail %></td>
+            <td><%= products[i].Name %></td>
+            <td><%= products[i].PostingDate %></td>
+            <td><%= products[i].Description %></td>
+            <td><a href="/search/product/<%= products[i].ProductId %>" class="productPageBtn">Product Page</a></td>
+          </tr>
+          <% }%>
+        </tbody>
+      </table>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>

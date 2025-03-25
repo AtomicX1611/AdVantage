@@ -9,7 +9,6 @@
   </head>
   <body>
     <div class="dashboard">
-        <img class="sideBar" src="/Assets/AdminSidebar.png"/>
       <div class="main_section">
         <div id="graphs">
           <div class="curve">
@@ -33,6 +32,28 @@
         </div>
       </div>
     </div>
+    <table>
+      <thead>
+        <tr>
+          <th>UserName</th>
+          <th>Email</th>
+          <th>Contact</th>
+          <th>Number of Products</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for(let i=0;i< sellers.length;i++) { %>
+        <tr>
+          <td> <%= sellers[i].username %></td>
+          <td> <%= sellers[i].email %></td>
+          <td> <%= sellers[i].contact %></td>
+          <td> <%= sellers[i].numberOfProducts %></td>
+          <td><a href="/seller/remove/<%= sellers[i].email %>" class="productPageBtn">Delete</a></td>
+        </tr>
+        <% } %>
+      </tbody>
+    </table>
     <script src="/scripts/app.js"></script>
   </body>
 </html>

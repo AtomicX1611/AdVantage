@@ -20,6 +20,7 @@ body {
   margin-top: 0%;
   height: 80%;
   width: 150px;
+  object-fit: cover;
 }
 
 table {
@@ -40,4 +41,8 @@ th, td {
 
 th {
   font-size: 22px;
+}
+.productPageBtn{
+  text-decoration: none;
+  color: white;
 }

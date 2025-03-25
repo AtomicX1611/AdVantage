@@ -1,7 +1,7 @@
 export const requireRole = (role) => {
   return (req, res, next) => {
     if (!req.isAuthenticated()) {
-      console.log("Rple is ;", role);
+      console.log("Role is ;", role);
       if (role == "buyer") {
         return res.redirect("/auth/buyer");
       } else if (role == "seller") {

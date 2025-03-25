@@ -133,14 +133,14 @@ export const sellerSignup = async (req, res) => {
 
 let admins = [
   {
-    email: "admin@gmail.com",
-    password: "123",
+    email: "abc@gmail.com",
+    password: "12345678",
   },
 ];
 
 export const adminLogin = async (req, res) => {
   const { email, password } = req.body;
-   
+  
   const admin = admins.find((a) => a.email === email);
 
   if (!admin) {

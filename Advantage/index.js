@@ -7,11 +7,12 @@ import session from "express-session";
 import passport from "passport";
 import productRouter from "./routes/productRoutes.js";
 import pkg from "passport-local";
-import { findSellerByEmail, findUserByEmail } from "./models/User.js";
+import { findSellerByEmail, findSellersForAdmin, findUserByEmail } from "./models/User.js";
 import { Server } from "socket.io";
 import { sock } from "./controllers/Socket.js";
 import cors from "cors";
 import managerRouter from "./routes/managerRoutes.js";
+import { requireRole } from "./middleware/roleMiddleware.js";
 
 const app = express();
 const port = 3000;
@@ -55,11 +56,15 @@ app.use("/search", searchRouter);
 app.use("/product", productRouter);
 app.use("/manager", managerRouter);
 
-app.use("/admin/dashboard", (req, res) => {
-  if (req.isAuthenticated) {
-    res.render("Admin.ejs");
+//auth need to be re written
+app.use("/admin/dashboard",async (req, res) => {
+  if (req.isAuthenticated()) {
+    const sellers= await findSellersForAdmin();
+    res.render("Admin.ejs",{
+      sellers: sellers
+    });
   } else {
-    res.render({ message: "Cannot access Admin features" });
+    res.redirect("/admin");
   }
 });
 app.use("/admin", (req, res) => {
@@ -104,7 +109,7 @@ passport.use(
 let managers = [
   {
     email: "abc@gmail.com",
-    password: "123",
+    password: "12345678",
   },
 ];
 
