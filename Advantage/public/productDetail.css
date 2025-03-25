@@ -85,6 +85,7 @@ img.card_container:hover{
   margin-bottom: 30px;
   width: 20vw;
   word-spacing: 5px;
+  word-break: break-word;
   letter-spacing: 1px;
 }
 

@@ -1,5 +1,6 @@
 import experss from "express";
 import passport from "passport";
+import { findSellersForAdmin, findUsersForAdmin } from "../models/User.js";
 
 const adminRouter = experss.Router();
 
@@ -32,9 +33,12 @@ adminRouter.post("/login", (req, res, next) => {
   })(req, res, next);
 });
 
-adminRouter.get("/", (req, res) => {
+adminRouter.get("/", async (req, res) => {
   if (req.isAuthenticated() && req.user.role === "admin") {
-    res.render("Admin.ejs");
+    //need to send sellers array
+    let sellers=await findSellersForAdmin();
+    let users=await findUsersForAdmin();
+    res.render("Admin.ejs",{sellers:sellers,users:users});
   } else {
     res.redirect("/admin/login");
   }

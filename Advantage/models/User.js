@@ -1,5 +1,5 @@
-
 import sqlite3 from "sqlite3";
+import { products } from "./Products.js";
 
 const db = new sqlite3.Database(":memory:", (err) => {
     if (err) {
@@ -9,103 +9,139 @@ const db = new sqlite3.Database(":memory:", (err) => {
     }
 });
 
-db.run(
-    `CREATE TABLE IF NOT EXISTS products (
-        Name TEXT NOT NULL,
-        Price REAL NOT NULL,
-        Description TEXT NOT NULL,
-        PostingDate DATE DEFAULT CURRENT_DATE,
-        zipCode INTEGER NOT NULL,
-        SellerEmail TEXT NOT NULL,
-        ProductId INTEGER PRIMARY KEY AUTOINCREMENT,
-        verified INTEGER DEFAULT 0,
-        category TEXT NOT NULL,
-        District TEXT NOT NULL,
-        City TEXT NOT NULL,
-        State TEXT NOT NULL,
-        CHECK (state IN (
-        'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
-        'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
-        'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur',
-        'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab',
-        'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
-        'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
-        ))
-    )`, (err) => {
-    if (err) {
-        console.error(err.message);
-    } else {
-        console.log("products table created successfully");
-        //as the below tables are referencing the above table
-        db.run(
-            `CREATE TABLE IF NOT EXISTS images(
-                    ProductId INTEGER,
-                    Image TEXT,
-                    FOREIGN KEY (ProductId) REFERENCES products (ProductId) ON DELETE CASCADE
+async function initializeDatabase() {
+    return new Promise((resolve, reject) => {
+        db.serialize(() => {
+            db.run("PRAGMA foreign_keys = ON;");
+            db.run(
+                `CREATE TABLE IF NOT EXISTS users(
+                    username TEXT NOT NULL,
+                    contact TEXT NOT NULL,
+                    email TEXT PRIMARY KEY,
+                    password TEXT NOT NULL
                 )`, (err) => {
-            if (err) {
-                console.error(err.message);
-            } else {
-                console.log("images table created successfully");
-            }
-        }
-        );
-        db.run(
-            `CREATE TABLE IF NOT EXISTS wishlist (
-                    userEmail TEXT NOT NULL,
-                    ProductId INTEGER NOT NULL,
-                    UNIQUE(ProductId, userEmail),
-                    FOREIGN KEY (ProductId) REFERENCES products (ProductId) ON DELETE CASCADE
-                )`,
-            (err) => {
                 if (err) {
-                    console.error("Error creating table:", err.message);
+                    console.log(err.message);
                 } else {
-                    console.log("wishlist table created in memory.");
+                    console.log("users table created in memory.");
                 }
             }
-        );
-    }
+            );
+            db.run(
+                `CREATE TABLE IF NOT EXISTS sellers(
+                    username TEXT NOT NULL,
+                    contact TEXT NOT NULL,
+                    email TEXT PRIMARY KEY,
+                    password TEXT NOT NULL
+                )`, (err) => {
+                if (err) {
+                    console.log(err.message);
+                } else {
+                    console.log("sellers table created in memory.");
+                }
+            }
+            );
+            db.run(
+                `CREATE TABLE IF NOT EXISTS products (
+                    Name TEXT NOT NULL,
+                    Price REAL NOT NULL,
+                    Description TEXT NOT NULL,
+                    PostingDate DATE DEFAULT CURRENT_DATE,
+                    zipCode INTEGER NOT NULL,
+                    SellerEmail TEXT NOT NULL,
+                    ProductId INTEGER PRIMARY KEY AUTOINCREMENT,
+                    verified INTEGER DEFAULT 0,
+                    category TEXT NOT NULL,
+                    District TEXT NOT NULL,
+                    City TEXT NOT NULL,
+                    State TEXT NOT NULL,
+                    FOREIGN KEY (SellerEmail) REFERENCES sellers (email) ON DELETE CASCADE,
+                    CHECK (state IN (
+                    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+                    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
+                    'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur',
+                    'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab',
+                    'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
+                    'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
+                    ))
+                )`, (err) => {
+                if (err) {
+                    console.error(err.message);
+                } else {
+                    console.log("products table created successfully");
+                }
+            }
+            );
+            db.run(
+                `CREATE TABLE IF NOT EXISTS images(
+                        ProductId INTEGER,
+                        Image TEXT,
+                        FOREIGN KEY (ProductId) REFERENCES products (ProductId) ON DELETE CASCADE
+                    )`, (err) => {
+                if (err) {
+                    console.error(err.message);
+                } else {
+                    console.log("images table created successfully");
+                }
+            }
+            );
+            db.run(
+                `CREATE TABLE IF NOT EXISTS wishlist (
+                        userEmail TEXT NOT NULL,
+                        ProductId INTEGER NOT NULL,
+                        UNIQUE(ProductId, userEmail),
+                        FOREIGN KEY (ProductId) REFERENCES products (ProductId) ON DELETE CASCADE
+                    )`,
+                (err) => {
+                    if (err) {
+                        console.error("Error creating table:", err.message);
+                    } else {
+                        console.log("wishlist table created in memory.");
+                        resolve();
+                    }
+                }
+            );
+        });
+    });
 }
-);
-db.run(
-    `CREATE TABLE IF NOT EXISTS users(
-        username TEXT NOT NULL,
-        contact TEXT NOT NULL,
-        email TEXT NOT NULL,
-        password TEXT NOT NULL
-    )`, (err) => {
-    if (err) {
-        console.log(err.message);
-    } else {
-        console.log("users table created in memory.");
+
+
+(async function () {
+    await initializeDatabase();
+    await createSeller({
+        username: "sk",
+        contact: '1234567890',
+        email: "sk@gmail.com",
+        password: "12345678"
+    });
+    await createSeller({
+        username: "abc",
+        contact: '1234567890',
+        email: "abc@gmail.com",
+        password: "12345678"
+    });
+
+    for (let product of products) {
+        addProduct(product.name, product.price, product.description, product.zipcode, product.sellerEmail, product.images, product.category, product.district, product.state, product.city);
     }
-}
-);
-db.run(
-    `CREATE TABLE IF NOT EXISTS sellers(
-        username TEXT NOT NULL,
-        contact TEXT NOT NULL,
-        email TEXT NOT NULL,
-        password TEXT NOT NULL
-    )`, (err) => {
-    if (err) {
-        console.log(err.message);
-    } else {
-        console.log("sellers table created in memory.");
-    }
-}
-);
+    addProduct("test product 1", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+    addProduct("test product 2", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+    addProduct("test product 3", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+    addProduct("test product 4", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+    addProduct("test product 5", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+    addProduct("test product 6", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+    addProduct("test product 7", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+})();
 
 let admins = [
     {
-        email : "admin@gmail.com",
-        password : "123"
+        email: "abc@gmail.com",
+        password: "12345678"
     }
 ]
 
 export const findAdmins = (email) => {
-  return admins.find(admin => admin.email === email )
+    return admins.find(admin => admin.email === email)
 }
 /*let users = [
     {
@@ -383,7 +419,6 @@ export const findProducts = async function (Name) {
 
 // Anyone using this function must use await
 export const findProduct = function (prodId) {
-    console.log(prodId);
     return new Promise((resolve, reject) => {
         let query = `SELECT * FROM products WHERE ProductId = ?`
         db.get(query, [prodId], async (err, row) => {
@@ -414,8 +449,6 @@ export const addProduct = function (Name, Price, Description, zipCode, sellerEma
                     }
                 });
             }
-            // console.log("hi broo");
-            // findProduct(currProdId);
         }
     });
 }
@@ -496,7 +529,7 @@ export const verifyProduct = async (productId) => {
 // Anyone using this function must use await
 export const findProductsNotVerified = async () => {
     return new Promise((resolve, reject) => {
-        const query = `SELECT * FROM products WHERE verified = 0`;
+        const query = `SELECT * FROM products WHERE verified = 0 ORDER BY PostingDate`;
         db.all(query, (err, rows) => {
             if (err) {
                 reject(err);
@@ -510,11 +543,10 @@ export const findProductsNotVerified = async () => {
 export const createUser = (user) => {
     db.run(`INSERT INTO users(username,contact,email,password) VALUES (?,?,?,?)`, [user.username, user.contact, user.email, user.password], (err => {
         if (err) {
-            console.log(user);
             console.error(err.message);
         }
         else {
-            console.log("insert done");
+            console.log("user insert done");
         }
     }));
 };
@@ -534,15 +566,80 @@ export const findSellerByEmail = (email) => {
 }
 
 export const createSeller = (seller) => {
-    db.run(`INSERT INTO sellers VALUES (?,?,?,?)`, [seller.username, seller.contact, seller.email, seller.password], (err => {
-        if (err) {
-            console.error(err.message);
-        }
-    }));
+    return new Promise((resolve, reject) => {
+        db.run(`INSERT INTO sellers VALUES (?,?,?,?)`, [seller.username, seller.contact, seller.email, seller.password], (err => {
+            if (err) {
+                console.error(err.message);
+                reject(err);
+            } else {
+                resolve();
+            }
+        }));
+    });
 };
 
 
+// Anyone using this function must use await
+export const findProductsByCategory = async (category) => {
+    return new Promise((resolve, reject) => {
+        const query = `SELECT ProductId FROM products where category = ?`;
+        db.all(query, [category], async (err, rows) => {
+            if (err) {
+                console.log(err.message);
+                reject(err);
+            } else {
+                let products = new Array();
+                let product;
+                for (let row of rows) {
+                    product = await findProduct(row.ProductId);
+                    products.push(product);
+                }
+                resolve(products);
+            }
+        });
+    });
+}
+export const findSellersForAdmin = async () => {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT username,contact,email,password,count(ProductId) AS numberOfProducts FROM sellers
+        JOIN products ON sellers.email=products.SellerEmail
+        GROUP BY email`;
+        db.all(query, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                // console.log(rows);
+                resolve(rows);
+            }
+        });
+    });
+}
 
+export const findUsersForAdmin = async () => {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT * FROM users`;
+        db.all(query, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+export const removeSeller = async (email) => {
+    return new Promise((resolve, reject) => {
+        db.run(`DELETE FROM sellers WHERE email=?`, [email], (err) => {
+            if (err) {
+                // console.log(err.message);
+                reject(err);
+            } else {
+                resolve("Deletion of Seller Done");
+            }
+        });
+    });
+}
 /*let products = [
     {
         Name: "BOUNCING SHOES FOR MEN",
@@ -664,3 +761,14 @@ export const createSeller = (seller) => {
         distance: 0
     },
 ]*/
+
+
+
+
+/*  
+                */
+
+
+
+
+/* */

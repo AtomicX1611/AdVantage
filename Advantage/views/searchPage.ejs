@@ -63,6 +63,7 @@
     </div>
     <script>
       const products = <%- JSON.stringify(products) %>;
+      // console.log(products);
       const mainSection = document.getElementById('mainSection');
       const min = document.getElementById('min');
       const max = document.getElementById('max');
@@ -80,7 +81,7 @@
           let html, price;
           for (let i = 0; i < products.length; i++) {
               price = parseFloat(products[i].Price);
-              console.log(price);
+              // console.log(price);
               if ((price >= minValue) && (price <= maxValue)) {
                   html = `<a href="http://localhost:3000/search/product/${products[i].ProductId}">
                               <div class="products">

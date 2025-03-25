@@ -11,19 +11,20 @@ body {
 }
 
 
-.dashboard{
+.dashboard {
     display: flex;
     flex-direction: row;
     gap: 25px;
     height: 100%;
+    background: no-repeat url("/Assets/AdminSidebar.png");
 }
 
-.title{
-    width: 200px; 
+.title {
+    width: 200px;
     min-height: 100vh;
 }
 
-.title h1{
+.title h1 {
     writing-mode: vertical-lr;
     transform: rotate(180deg);
     color: #8888aa;
@@ -31,32 +32,35 @@ body {
     padding: 15px;
 }
 
-.main_section{
+.main_section {
+    margin-left: 20vw;
     display: flex;
     flex-direction: row;
     gap: 15px;
 }
 
-#graphs{
+#graphs {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     margin-top: 200px;
+    margin-right: 150px;
+    margin-left: 150px;
     gap: 20px;
 }
 
-.curve{
+.curve {
     border-radius: 10px;
     width: 600px;
     height: 280px;
     background-color: white;
 }
 
-.curve_graph{
+.curve_graph {
     width: 100%;
     overflow: hidden;
 }
 
-.pie_chart{
+.pie_chart {
     border-radius: 10px;
     width: 300px;
     height: 280px;
@@ -109,7 +113,7 @@ body {
     transition: opacity 0.2s;
 }
 
-.user_data{
+.user_data {
     margin-top: 70px;
     margin-left: 20px;
     gap: 20px;
@@ -117,7 +121,7 @@ body {
     flex-direction: column;
 }
 
-.stat_card{
+.stat_card {
     border-radius: 12px;
     width: 210px;
     height: 200px;
@@ -126,24 +130,55 @@ body {
     flex-direction: column;
 }
 
-.stat_card h1{
-   margin-top: 15px;
-   margin-left: 15px;
-   font-size: 80px;
+.stat_card h1 {
+    margin-top: 15px;
+    margin-left: 15px;
+    font-size: 80px;
 }
 
-#stat_color{
+#stat_color {
     color: #000;
 }
 
-h2{
+h2 {
     margin: 15px;
     margin-top: 15px;
     font-size: 30px;
 }
 
 
-.sideBar{
+.sideBar {
     margin-top: 0%;
     height: 80%;
+}
+
+table {
+    border-radius: 12px;
+    margin: 15px;
+    margin-top: 30px;
+    border-collapse: collapse;
+    color: white;
+    background: linear-gradient(to right, #999999, #00013D);
+    font-family: Arial, sans-serif;
+}
+
+th,
+td {
+    padding: 20px 60px;
+    border: 2px solid black;
+    text-align: center;
+}
+
+th {
+    font-size: 22px;
+}
+
+.productPageBtn {
+    text-decoration: none;
+    color: white;
+}
+
+
+.g{
+    background-color: #8193a3;
 }

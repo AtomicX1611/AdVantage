@@ -61,7 +61,7 @@ passport.use(
   new LocalStrategy(
     {
       usernameField: "email",
-      passwordField: "password",
+      passwordField: "password"
     },
     async function verify(email, password, cb) {
       let result;
@@ -99,7 +99,7 @@ passport.use(
 let managers = [
   {
     email: "abc@gmail.com",
-    password: "123",
+    password: "12345678",
   },
 ];
 

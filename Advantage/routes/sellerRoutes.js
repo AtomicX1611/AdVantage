@@ -7,6 +7,7 @@ import { insertProduct } from "../controllers/seller.js";
 // import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
+import { removeSeller } from "../models/User.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -66,6 +67,11 @@ export default sellerRouter
 
 
 sellerRouter.get('/addProductForm',requireRole("seller"),(req,res)=>{
-    res.render('AddproductForm');
+  res.render('AddproductForm');
 });
 sellerRouter.post('/addProduct',insertProduct);
+
+sellerRouter.get('/remove/:sellerEmail',requireRole("admin"),async (req,res) =>{
+  await removeSeller(req.params.sellerEmail);
+  res.redirect('/admin');
+});
