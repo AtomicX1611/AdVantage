@@ -32,6 +32,7 @@ export const getProductDetails = async (req, res) => {
   let pro=await findProduct(productId);
   res.render("ProductDetail.ejs", {
     product: pro,
+    sellerId:pro.SellerEmail,
     isLogged: req.isAuthenticated() && (req.user.role == "buyer"),
     manager : manager
   });

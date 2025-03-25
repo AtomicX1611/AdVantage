@@ -119,26 +119,201 @@ export const findAdmins = (email) => {
         email: "sk@gmail.com",
         password: "123",
         role : "buyer",
+//*********CONVERSATIONS QUERIES STARTS HERE************* */
+db.run(
+    `create table if not exists conversation (
+        sellerMail TEXT not null,
+        sender TEXT,
+        buyerMail TEXT not null,
+        message TEXT NOT NULL,
+        date DATETIME not null
+    )`, (err) => {
+    if (err) {
+        console.log(err);
     }
-]*/
+    else {
+        console.log("Conversations table created successfully");
+    }
+}
+);
 
 
-/*let sellers = [
-    {
-        username: "dummySeller1",
-        email: "abc@gmail.com",
-        password: "123",
-        Name: "Ali",
-        Contact: "0123456789",
-    },
-    {
-        username: "dummySeller2",
-        email: "abcd@gmail.com",
-        password: "123",
-        Name: "PK",
-        Contact: "9876543210"
-    }
-]*/
+export const findMessages = async (seller, buyer) => {
+    return new Promise((resolve, reject) => {
+        let query = `select sellerMail from conversation where buyerMail=? and sellerMail=?`;
+        db.all(query, [buyer, seller], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+};
+
+export const findSendersForEmail = async (buyer) => {
+    return new Promise((resolve, reject) => {
+        let query = `select distinct sellerMail from conversation where buyerMail=?`;
+        db.all(query, [buyer], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+};
+
+export const findSendersForSeller=async(seller)=>{
+    return new Promise((resolve, reject) => {
+        let query = `select distinct buyerMail from conversation where sellerMail=?`;
+        //fetching all buyerMails for this seller********
+        db.all(query, [seller], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+export const createContact = (seller, buyer) => {
+    // ENSURE BIDIRECTIONNAL CONTACT
+    return new Promise((resolve, reject) => {
+        const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        const message = '__init';
+        const query = `
+            INSERT INTO conversation (sellerMail, buyerMail, message, date)
+            VALUES (?, ?, ?, ?)
+        `;
+        db.run(query, [seller, buyer, message, date], (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve({
+                    message: 'Contact created successfully!',
+                    sellerMail: seller,
+                    buyerMail: buyer,
+                    date: date
+                });
+            }
+        });
+    });
+};
+
+export const senderList = async (result) => {
+    return new Promise((resolve, reject) => {
+        if (result.length === 0) {
+            resolve([]);
+            return;
+        }
+
+        const sellerEmails = [];
+        for (let i = 0; i < result.length; i++) {
+            sellerEmails.push(result[i].sellerMail);
+        }
+
+        const placeholders = sellerEmails.map(() => '?').join(',');
+        //here placholders is an array of emails
+        const query = `
+        SELECT 
+        username AS senderUsername, 
+        email AS sender
+        FROM sellers
+        WHERE email IN (${placeholders})
+`;
+        db.all(query, sellerEmails, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+};
+
+export const buyerList=async (result)=>{
+    return new Promise((resolve, reject) => {
+        if (result.length === 0) {
+            resolve([]);
+            return;
+        }
+        const buyerEmails = [];
+        for (let i = 0; i < result.length; i++) {
+            buyerEmails.push(result[i].buyerMail);
+        }
+        console.log("buyerEmails: ",buyerEmails);
+        const placeholders = buyerEmails.map(() => '?').join(',');
+        //here placholders is an array of emails
+        const query = `
+        SELECT 
+        username AS senderUsername, 
+        email AS sender
+        FROM users
+        WHERE email IN (${placeholders})
+`;
+        db.all(query, buyerEmails, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+export const fetchConversations = (sellerMail, buyerMail) => {
+    console.log("entered fetchConversations in user.js",sellerMail,buyerMail);
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT * 
+            FROM conversation
+            WHERE (sellerMail = ? AND buyerMail = ?)
+               OR (sellerMail = ? AND buyerMail = ?)
+            ORDER BY date ASC
+        `;
+        // 1 change done here in select statement
+        db.all(
+            query,
+            [sellerMail, buyerMail, buyerMail, sellerMail],
+            (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            }
+        );
+    });
+};
+
+//sender field added extra in this..................
+export const saveMessage = async (sellerMail, buyerMail, message,sender) => {
+    return new Promise((resolve, reject) => {
+        const currentDateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        const query = `
+            INSERT INTO conversation (sellerMail, sender,buyerMail, message, date)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+        db.run(
+            query,
+            [sellerMail, sender, buyerMail, message, currentDateTime],
+            function (err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({
+                        sellerMail,
+                        sender,
+                        buyerMail,
+                        message,
+                        date: currentDateTime,
+                    });
+                }
+            }
+        );
+    });
+};
 
 
 export let prodid = { value: 0 };
@@ -168,11 +343,11 @@ export const featuredProducts = [
 
 
 // Anyone using this function must use await
-const findImages =async function(prodId){
-    return new Promise((resolve,reject) =>{
-        let query=`SELECT Image FROM images WHERE ProductId=?`;
-        db.all(query,[prodId],(err,rows)=>{
-            if(err){
+const findImages = async function (prodId) {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT Image FROM images WHERE ProductId=?`;
+        db.all(query, [prodId], (err, rows) => {
+            if (err) {
                 reject(err);
             } else {
                 resolve(rows);
@@ -226,15 +401,15 @@ export const findProduct = function (prodId) {
 }
 
 
-export const addProduct = function (Name, Price, Description, zipCode, sellerEmail, images,category,district,state,city) {
+export const addProduct = function (Name, Price, Description, zipCode, sellerEmail, images, category, district, state, city) {
     let query = `INSERT INTO products (Name, Price, Description, zipCode, sellerEmail, category, District, State, City) VALUES (?,?,?,?,?,?,?,?,?)`;
-    db.run(query, [Name, Price, Description, zipCode, sellerEmail,category,district,state,city], function(err){
+    db.run(query, [Name, Price, Description, zipCode, sellerEmail, category, district, state, city], function (err) {
         if (err) {
             console.log(err.message);
-        }else{
-            for(let image of images){
-                db.run(`INSERT INTO images (Image,ProductId) VALUES (?,?)`,[image,this.lastID],(err) => {
-                    if(err){
+        } else {
+            for (let image of images) {
+                db.run(`INSERT INTO images (Image,ProductId) VALUES (?,?)`, [image, this.lastID], (err) => {
+                    if (err) {
                         console.error(err.message);
                     }
                 });
@@ -333,8 +508,8 @@ export const findProductsNotVerified = async () => {
 }
 
 export const createUser = (user) => {
-    db.run(`INSERT INTO users(username,contact,email,password) VALUES (?,?,?,?)`,[user.username,user.contact,user.email,user.password],(err=>{
-        if(err){
+    db.run(`INSERT INTO users(username,contact,email,password) VALUES (?,?,?,?)`, [user.username, user.contact, user.email, user.password], (err => {
+        if (err) {
             console.log(user);
             console.error(err.message);
         }
@@ -359,8 +534,8 @@ export const findSellerByEmail = (email) => {
 }
 
 export const createSeller = (seller) => {
-    db.run(`INSERT INTO sellers VALUES (?,?,?,?)`,[seller.username,seller.contact,seller.email,seller.password],(err=>{
-        if(err){
+    db.run(`INSERT INTO sellers VALUES (?,?,?,?)`, [seller.username, seller.contact, seller.email, seller.password], (err => {
+        if (err) {
             console.error(err.message);
         }
     }));

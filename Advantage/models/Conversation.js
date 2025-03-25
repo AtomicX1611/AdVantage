@@ -38,6 +38,7 @@ export let conversation = [
 ]
 
 export const fetchConversations = (receiverMail,senderMail) => {
+    console.log("fetching for ",receiverMail,senderMail);
     let fetchedConvo = [];
     for (let i = 0; i < conversation.length; i++) {
         if((conversation[i].receiver==receiverMail && conversation[i].sender==senderMail) ||

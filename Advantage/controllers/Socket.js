@@ -6,17 +6,25 @@ export const sock=(socket) => {
     console.log("socket id: ", socket.id);
     
     socket.on("buyer-register",(email)=>{
-        console.log("buyer-register mail",email);
         let user={
             email:email,
             role:"buyer",
             socketId:socket.id
         }
         activeUsers.push(user);
-        console.log(activeUsers);
+        console.log("updated active users: ",activeUsers);
     });
-    // similar for seller 
 
+    socket.on("seller-register",(email)=>{
+        let seller={
+            email:email,
+            role:"seller",
+            socketId:socket.id
+        };
+        activeUsers.push(seller);
+        console.log("updated active users: ",activeUsers);
+    });
+    
     socket.on("send",(data)=>{
         let sender=data.sender;
         let receiver=data.receiver;
@@ -30,9 +38,9 @@ export const sock=(socket) => {
     })
 
     socket.on("disconnect", () => {
-        let disconnected=findUserBySocket(socket.id);
-        console.log("disconnected: ", disconnected);
-    })
+        activeUsers = activeUsers.filter((user) => user.socketId !== socket.id);
+        console.log("Updated activeUsers : ", activeUsers);
+    });
 }
 
 function findUserBySocket(socketId) {

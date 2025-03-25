@@ -50,15 +50,20 @@
         let sender="";
 
         socket.emit("buyer-register", myAccount);
+        // MAKE SURE THAT NO DUPLICATES IN ACTIVE USERS 
 
-        async function fetchConversation(email) {
-            let data = await fetch(`/buyer/chats/conversation/?sender=${email}`, {
+        async function fetchConvo(email) {
+            alert("fetching convo");
+            console.log("email: ",email);
+            let data = await fetch(`http://localhost:3000/buyer/chats/conversation/?sender=${email}`, {
                 method: 'GET',
                 headers: {
                     "Content-type": "application/json"
                 }
             })
+            
             let response = await data.json();
+            console.log("response: ",response);
             return response;
         }
 
@@ -118,7 +123,8 @@
                 let senderUsername = persons[i].querySelector(".name").innerText;
                 sender = persons[i].querySelector("#sender").value;
                 document.querySelector(".currentSender").innerText = senderUsername;
-                let data = await fetchConversation(sender);
+                console.log("sender: ",sender);
+                let data = await fetchConvo(sender);
                 console.log("data: ", data);
                 console.log("sender: ", sender);
                 loadConversation(data, sender);
@@ -141,6 +147,19 @@
             createRight(messageData);
             socket.emit("send", messageData);
             document.getElementById("text-box").value = "";
+
+            let save=fetch("/buyer/chats/save",{
+                method:'POST',
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body:JSON.stringify({
+                    buyerMail:myAccount,
+                    sellerMail:receiver,
+                    message:message,
+                    sender:myAccount
+                })
+            })
         }
 
         let send = document.getElementsByClassName("send-btn")[0];
