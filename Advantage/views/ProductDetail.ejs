@@ -36,6 +36,9 @@
               <%= product.City %>
             </h4>
           </div>
+          <% if(product.verified != 0) { %>
+          <h4 id="verified">✅ Verified Product</h4>
+          <% } %>
           <div class="options">
             <a href=/buyer/chats/contact/<%=sellerId%>>
               <div class="chatWs btn" id="chat-btn">
@@ -52,7 +55,9 @@
             <h3 class="item_title">
               <%= product.Description %>
             </h3>
+            <% if(manager) { %>
             <button id="verifyButton">Verify</button>
+            <% } %>
             <button id="addToWishlist" data-id="<%= product.ProductId %>">Add to Wishlist</button>
           </div>
         </div>
