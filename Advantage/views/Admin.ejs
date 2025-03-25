@@ -1,59 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/Admin.css" />
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <title>Document</title>
-  </head>
-  <body>
-    <div class="dashboard">
-      <div class="main_section">
-        <div id="graphs">
-          <div class="curve">
-            <div class="curve_graph"></div>
-          </div>
-          <div class="pie_chart"></div>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/Admin.css" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+  <title>Admin Dashboard</title>
+</head>
+
+<body>
+  <div class="dashboard">
+    <div class="main_section">
+      <div id="graphs">
+        <div class="curve">
+          <div class="curve_graph"></div>
         </div>
-        <div class="user_data">
-          <div class="stat_card">
-            <h1>578</h1>
-            <h2 id="stat_color">Total Sellers</h2>
-          </div>
-          <div class="stat_card">
-            <h1>1043</h1>
-            <h2 id="stat_color">Total Buyers</h2>
-          </div>
-          <div class="stat_card">
-            <h1>700</h1>
+        <!-- <div class="pie_chart"></div> -->
+        <canvas id="myChart" style="max-height:300px;max-width:600px;"></canvas>
+      </div>
+      <div class="user_data">
+        <div class="stat_card">
+          <h1>
+            <%= sellers.length %>
+          </h1>
+          <h2 id="stat_color">Total Sellers</h2>
+        </div>
+        <div class="stat_card">
+          <h1>
+            <%= users.length %>
+          </h1>
+          <h2 id="stat_color">Total Buyers</h2>
+        </div>
+        <div class="stat_card">
+          <% let count=0; for(let i=0;i < sellers.length;i++) { count+=sellers[i].numberOfProducts; } %>
+            <h1>
+              <%= count %>
+            </h1>
             <h2 id="stat_color">Active ADs</h2>
-          </div>
         </div>
       </div>
     </div>
-    <table>
-      <thead>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>UserName</th>
+        <th>Email</th>
+        <th>Contact</th>
+        <th>Number of Products</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for(let i=0;i< sellers.length;i++) { %>
         <tr>
-          <th>UserName</th>
-          <th>Email</th>
-          <th>Contact</th>
-          <th>Number of Products</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% for(let i=0;i< sellers.length;i++) { %>
-        <tr>
-          <td> <%= sellers[i].username %></td>
-          <td> <%= sellers[i].email %></td>
-          <td> <%= sellers[i].contact %></td>
-          <td> <%= sellers[i].numberOfProducts %></td>
+          <td>
+            <%= sellers[i].username %>
+          </td>
+          <td>
+            <%= sellers[i].email %>
+          </td>
+          <td>
+            <%= sellers[i].contact %>
+          </td>
+          <td>
+            <%= sellers[i].numberOfProducts %>
+          </td>
           <td><a href="/seller/remove/<%= sellers[i].email %>" class="productPageBtn">Delete</a></td>
         </tr>
         <% } %>
-      </tbody>
-    </table>
-    <script src="/scripts/app.js"></script>
-  </body>
+    </tbody>
+  </table>
+  <script src="/scripts/app.js"></script>
+  <script>
+    const xValues = ["Buyers", "Sellers",];
+    const yValues = [<%= users.length %>, <%= sellers.length %>];
+    console.log(yValues);
+    const barColors = [
+      "#08027c",
+      "#8193a3"
+    ];
+
+    new Chart("myChart", {
+      type: "pie",
+      data: {
+        labels: xValues,
+        datasets: [{
+          backgroundColor: barColors,
+          data: yValues
+        }]
+      },
+      options: {
+        title: {
+          display: true,
+          text: "Buyers Sellers ratio"
+        }
+      }
+    });
+  </script>
+</body>
+
 </html>

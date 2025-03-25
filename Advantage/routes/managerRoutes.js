@@ -26,7 +26,7 @@ managerRouter.post("/login", (req, res, next) => {
     }
 
     user.role = "manager";
-
+    
     req.login(user, (err) => {
       if (err) {
         console.error("Error during req.login:", err);

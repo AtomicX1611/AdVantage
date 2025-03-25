@@ -41,8 +41,10 @@ body {
 
 #graphs {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     margin-top: 200px;
+    margin-right: 150px;
+    margin-left: 150px;
     gap: 20px;
 }
 
@@ -174,4 +176,9 @@ th {
 .productPageBtn {
     text-decoration: none;
     color: white;
+}
+
+
+.g{
+    background-color: #8193a3;
 }

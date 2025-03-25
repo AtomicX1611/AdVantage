@@ -37,11 +37,6 @@
           <div class="description">
             <h2 class="item_desc">Description</h2>
             <h3 class="item_title"><%= product.Description %></h3>
-            <% if(manager){ %>
-            <button id="verifyButton" data-id="<%= product.ProductId %>">
-              Verify Product
-            </button>
-            <% } %>
             <button id="addToWishlist" data-id="<%= product.ProductId %>">
               Add to Wishlist
             </button>

@@ -73,5 +73,5 @@ sellerRouter.post('/addProduct',insertProduct);
 
 sellerRouter.get('/remove/:sellerEmail',requireRole("admin"),async (req,res) =>{
   await removeSeller(req.params.sellerEmail);
-  res.redirect('/admin/dashboard');
+  res.redirect('/admin');
 });
