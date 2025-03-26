@@ -3,15 +3,14 @@ import { requireRole } from "../middleware/roleMiddleware.js";
 import { chatRoutes } from "./charRoutes.js";
 import {
   addToWishlist,
-  featuredProducts,
   findProduct,
+  freshProducts,
   getWishlistProducts,
   removeWishlistProduct,
 } from "../models/User.js";
-
-// import { buyerLogin } from "../controllers/buyerLogin.js";
-// import { buyerSignup } from "../controllers/buyerSignUp.js";
-import { freshProducts } from "../models/User.js";
+import { featuredProducts } from "../models/User.js";
+// import { freshProducts } from "../models/User.js";
+import { lch } from "d3";
 
 export const buyerRoutes = express.Router();
 
@@ -19,11 +18,13 @@ buyerRoutes.use(express.json());
 buyerRoutes.use(express.urlencoded({ extended: true }));
 buyerRoutes.use("/chats", chatRoutes);
 
-buyerRoutes.get("/home", (req, res) => {
+buyerRoutes.get("/home", async (req, res) => {
+  let freshProductsFetched=await freshProducts();
+  let featuredProductsFetched=await featuredProducts();
   res.render("Home.ejs", {
     isLogged: req.isAuthenticated() && req.user.role == "buyer",
-    freshProducts: freshProducts,
-    featuredProducts: featuredProducts,
+    freshProducts: freshProductsFetched,
+    featuredProducts: featuredProductsFetched,
   });
 });
 
@@ -79,6 +80,18 @@ buyerRoutes.get(
     res.redirect("/buyer/wishlist");
   }
 );
+
+buyerRoutes.get("/featuredProd",async (req,res)=>{
+  let data=await featuredProducts();
+  console.log(data.length);
+  res.status(200).json(data);
+})
+
+buyerRoutes.get("/freshProd",async (req,res)=>{
+  let data=await freshProducts();
+  console.log(data.length);
+  res.status(200).json(data);
+});
 
 buyerRoutes.get("/contact", requireRole("buyer"), (req, res) => {
   res.render("ContactUs.ejs", {

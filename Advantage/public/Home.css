@@ -110,6 +110,11 @@ section {
     margin-top: 1vh;
 }
 
+.productName>p {
+    color: white;
+    width: 250px;
+
+}
 .icon {
     height: 100px;
     width: 100px;

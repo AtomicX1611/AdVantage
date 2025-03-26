@@ -136,12 +136,7 @@
         if (email.includes('@')) {
             let atIndex = email.indexOf('@');
             let aferAtTheRate = email.slice(atIndex + 1);
-            let beforeAtTheRate = email.slice(0, atIndex);
-
-            if (atIndex === -1 || beforeAtTheRate.includes('.')) {
-                alert("Invalid email! There should not be a dot before '@'.");
-                return;
-            }
+            
             if (!isNaN(aferAtTheRate)) {
                 alert("Numbers not allowed in domain ");
                 return;
@@ -187,10 +182,7 @@
                     }
                 }
             }
-        // if (!(contact > 1000000000 && contact < 9999999999)) {
-        //     alert("Contact number must contain 10 digits");
-        //     return;
-        // }
+        
         if(contact.charAt(0)!='0' &&contact.trim().length !=10) {
             alert("Mobile number should contain 10 digits");
             return;

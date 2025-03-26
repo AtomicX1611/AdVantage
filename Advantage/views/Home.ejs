@@ -86,19 +86,21 @@
       <div class="featuredHeader">
         <h2>Featured Products</h2>
       </div>
+     
       <div class="product_list">
-        <% featuredProducts.forEach(product=> {%>
+        <% for(let i = 0; i < featuredProducts.length; i++) { %>
+          <% let product = featuredProducts[i]; %>
           <a href="http://localhost:3000/search/product/<%= product.ProductId %>">
             <div class="product_card">
-              <% if(product.image){ %>
-                <img src="<%= product.image %>" alt="Product Image" />
-                <p>
-                  <%= product.name %>
-                </p>
-                <%} %>
+              <% if(product.Image1Src) { %>
+                <img src="<%= product.Image1Src %>" alt="Product Image" />
+              <% } %>
+              <div class="productName">
+                
+              </div>
             </div>
           </a>
-          <% }) %>
+        <% } %>
       </div>
     </div>
   </section>
@@ -108,18 +110,17 @@
         <h2>Fresh Recomendations</h2>
       </div>
       <div class="product_list">
-        <% freshProducts.forEach(product=> { %>
+        <% for(let i = 0; i < freshProducts.length; i++) { %>
+          <% let product = freshProducts[i]; %>
           <a href="http://localhost:3000/search/product/<%= product.ProductId %>">
             <div class="product_card">
-              <% if(product.image){ %>
-                <img src="<%= product.image %>" alt="Product Image" />
-                <p>
-                  <%= product.name %>
-                </p>
-                <%} %>
+              <% if(product.Image1Src) { %>
+                <img src="<%= product.Image1Src %>" alt="Product Image" />
+              <% } %>
+              
             </div>
           </a>
-          <% }); %>
+        <% } %>
       </div>
     </div>
   </section>

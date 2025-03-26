@@ -63,10 +63,7 @@
                 let aferAtTheRate = email.slice(atIndex + 1);
                 let beforeAtTheRate = email.slice(0, atIndex);
 
-                if (atIndex === -1 || beforeAtTheRate.includes('.')) {
-                    alert("Invalid email! There should not be a dot before '@'.");
-                    return;
-                }
+                
                 if (!isNaN(aferAtTheRate)) {
                     alert("Numbers not allowed in domain ");
                     return;
@@ -90,14 +87,20 @@
                 }
             }
 
-            if (contact.charAt(0) != '0' && contact.trim().length != 10) {
+            const contactRegex = /^[6-9]\d{9}$/;
+            if(!contactRegex.test(contact)) {
                 alert("Mobile number should contain 10 digits");
-                return;
+                return ;
             }
-            if (contact.charAt(0) == 0 && contact.trim().length != 11) {
-                alert("Invalid landline number");
-                return;
-            }
+            
+            // if (contact.charAt(0) != '0' && contact.trim().length != 10) {
+            //     alert("Mobile number should contain 10 digits");
+            //     return;
+            // }
+            // if (contact.charAt(0) == 0 && contact.trim().length != 11) {
+            //     alert("Invalid landline number");
+            //     return;
+            // }
             if (query.trim().length === 0) {
                 alert("Please enter your query.");
                 return;

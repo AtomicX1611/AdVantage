@@ -62,12 +62,7 @@
             if (email.includes('@')) {
                 let atIndex = email.indexOf('@');
                 let aferAtTheRate = email.slice(atIndex + 1);
-                let beforeAtTheRate = email.slice(0, atIndex);
-
-                if (atIndex === -1 || beforeAtTheRate.includes('.')) {
-                    alert("Invalid email! There should not be a dot before '@'.");
-                    return;
-                }
+        
                 if (!isNaN(aferAtTheRate)) {
                     alert("Numbers not allowed in domain ");
                     return;

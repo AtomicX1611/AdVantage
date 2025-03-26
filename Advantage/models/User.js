@@ -200,7 +200,7 @@ export const findSendersForEmail = async (buyer) => {
     });
 };
 
-export const findSendersForSeller=async(seller)=>{
+export const findSendersForSeller = async (seller) => {
     return new Promise((resolve, reject) => {
         let query = `select distinct buyerMail from conversation where sellerMail=?`;
         //fetching all buyerMails for this seller********
@@ -269,7 +269,7 @@ export const senderList = async (result) => {
     });
 };
 
-export const buyerList=async (result)=>{
+export const buyerList = async (result) => {
     return new Promise((resolve, reject) => {
         if (result.length === 0) {
             resolve([]);
@@ -279,7 +279,7 @@ export const buyerList=async (result)=>{
         for (let i = 0; i < result.length; i++) {
             buyerEmails.push(result[i].buyerMail);
         }
-        console.log("buyerEmails: ",buyerEmails);
+        console.log("buyerEmails: ", buyerEmails);
         const placeholders = buyerEmails.map(() => '?').join(',');
         //here placholders is an array of emails
         const query = `
@@ -299,7 +299,7 @@ export const buyerList=async (result)=>{
     });
 }
 export const fetchConversations = (sellerMail, buyerMail) => {
-    console.log("entered fetchConversations in user.js",sellerMail,buyerMail);
+    console.log("entered fetchConversations in user.js", sellerMail, buyerMail);
     return new Promise((resolve, reject) => {
         const query = `
             SELECT * 
@@ -324,7 +324,7 @@ export const fetchConversations = (sellerMail, buyerMail) => {
 };
 
 //sender field added extra in this..................
-export const saveMessage = async (sellerMail, buyerMail, message,sender) => {
+export const saveMessage = async (sellerMail, buyerMail, message, sender) => {
     return new Promise((resolve, reject) => {
         const currentDateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
         const query = `
@@ -350,32 +350,79 @@ export const saveMessage = async (sellerMail, buyerMail, message,sender) => {
         );
     });
 };
-
+//conversation queries end here
 
 export let prodid = { value: 0 };
 
-export const freshProducts = [
-    { name: "Product 1", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
-    { name: "Product 2", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
-    { name: "Product 3", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
-    { name: "Product 4", image: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg", ProductId: "9" },
-    { name: "Product 5", image: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg", ProductId: "10" },
-    { name: "Product 6", image: "", ProductId: "2" },
-    { name: "Product 7", image: "", ProductId: "2" },
-    { name: "Product 8", image: "", ProductId: "2" },
-];
+// export const freshProducts = [
+//     { name: "Product 1", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
+//     { name: "Product 2", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
+//     { name: "Product 3", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
+//     { name: "Product 4", image: "https://m.media-amazon.com/images/I/51OTzdpNAiL._AC_UF1000,1000_QL80_.jpg", ProductId: "9" },
+//     { name: "Product 5", image: "https://m.media-amazon.com/images/I/61x3xPK2UUL.jpg", ProductId: "10" },
+//     { name: "Product 6", image: "", ProductId: "2" },
+//     { name: "Product 7", image: "", ProductId: "2" },
+//     { name: "Product 8", image: "", ProductId: "2" },
+// ];
 
 
-export const featuredProducts = [
-    { name: "Product 1", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
-    { name: "Product 2", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
-    { name: "Product 3", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
-    { name: "Product 4", image: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206", ProductId: "8" },
-    { name: "Product 5", image: "", ProductId: "2" },
-    { name: "Product 6", image: "", ProductId: "2" },
-    { name: "Product 7", image: "", ProductId: "2" },
-    { name: "Product 8", image: "", ProductId: "2" },
-];
+// export const featuredProducts = [
+//     { name: "Product 1", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
+//     { name: "Product 2", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
+//     { name: "Product 3", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
+//     { name: "Product 4", image: "https://fullyfilmy.in/cdn/shop/files/1_4_32af5fcd-7547-455c-ac64-4a0eb7bbc0a7.jpg?v=1710755206", ProductId: "8" },
+//     { name: "Product 5", image: "", ProductId: "2" },
+//     { name: "Product 6", image: "", ProductId: "2" },
+//     { name: "Product 7", image: "", ProductId: "2" },
+//     { name: "Product 8", image: "", ProductId: "2" },
+// ];
+
+export const featuredProducts = async () => {
+    return new Promise((resolve, reject) => {
+        let query = `
+            SELECT * FROM products
+            LIMIT 10`;
+
+        db.all(query, async (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                for (let row of rows) {
+                    let Images = await findImages(row.ProductId);
+                    for (let j = 0; j < Images.length; j++) {
+                        row[`Image${j + 1}Src`] = Images[j].Image;
+                    }
+                }
+                resolve(rows);
+            }
+        });
+    });
+};
+
+
+export const freshProducts = async () => {
+    return new Promise((resolve, reject) => {
+        let query = `
+            SELECT * FROM products
+            LIMIT 15 OFFSET 10
+        `;
+
+        db.all(query, async (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                for (let row of rows) {
+                    let Images = await findImages(row.ProductId);
+                    for (let j = 0; j < Images.length; j++) {
+                        row[`Image${j + 1}Src`] = Images[j].Image;
+                    }
+                }
+                resolve(rows);
+            }
+        });
+    });
+};
+
 
 
 // Anyone using this function must use await
