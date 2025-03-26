@@ -5,6 +5,7 @@ import {
   addToWishlist,
   featuredProducts,
   findProduct,
+  findUserByEmail,
   getWishlistProducts,
   removeWishlistProduct,
 } from "../models/User.js";
@@ -82,6 +83,21 @@ buyerRoutes.get(
 
 buyerRoutes.get("/contact", requireRole("buyer"), (req, res) => {
   res.render("ContactUs.ejs", {
-    isLogged: req.isAuthenticated() && req.user.role == "buyer",
+    isLogged: req.isAuthenticated() && req.user.role == "buyer"
   });
+});
+
+buyerRoutes.get('/updatePassword',(req,res) =>{
+  res.render('buyerUpdatePassword',{
+    isLogged: req.isAuthenticated() && req.user.role == "buyer"
+  });
+});
+
+buyerRoutes.post('/updatePassword',(req,res)=>{
+  let user=findUserByEmail(req.body.email);
+  if(user){
+      
+  }else{
+    res.send("email not found");
+  }
 });

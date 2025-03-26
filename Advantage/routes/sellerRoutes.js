@@ -7,7 +7,7 @@ import { insertProduct } from "../controllers/seller.js";
 // import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
-import { removeSeller } from "../models/User.js";
+import { findProduct, removeProduct, removeSeller } from "../models/User.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -74,4 +74,16 @@ sellerRouter.post('/addProduct',insertProduct);
 sellerRouter.get('/remove/:sellerEmail',requireRole("admin"),async (req,res) =>{
   await removeSeller(req.params.sellerEmail);
   res.redirect('/admin');
+});
+
+sellerRouter.post('/deleteProduct',requireRole("seller"),async (req,res)=>{
+  const product = await findProduct(req.body.pid);
+  // console.log(req.user);
+  if(product.SellerEmail === req.user.email){
+    // console.log("hii");
+      await removeProduct(req.body.pid);
+      res.redirect('/seller');
+  }else{
+    res.redirect('/');
+  }
 });

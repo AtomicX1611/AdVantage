@@ -1,5 +1,7 @@
 import sqlite3 from "sqlite3";
 import { products } from "./Products.js";
+import { resolve } from "path";
+import { rejects } from "assert";
 
 const db = new sqlite3.Database(":memory:", (err) => {
     if (err) {
@@ -640,6 +642,32 @@ export const removeSeller = async (email) => {
         });
     });
 }
+export const removeProduct = async (productId) =>{
+    return new Promise((resolve,reject) => {
+        let query = `DELETE FROM products WHERE ProductId=?`;
+        db.run(query,[productId],(err)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve("deletion done");
+            }
+        });
+    });
+}
+//PK with seller email ivvu ee function ki products kosam also use await dont use try catch and make it complex
+export const findProductsBySeller= async function(email) {
+    return new Promise((resolve,reject)=>{
+        let query=`SELECT * FROM products WHERE SellerEmail=?`;
+        db.all(query,[email],(err,rows)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve(rows);
+            }
+        });
+    });
+}
+
 /*let products = [
     {
         Name: "BOUNCING SHOES FOR MEN",
@@ -761,14 +789,3 @@ export const removeSeller = async (email) => {
         distance: 0
     },
 ]*/
-
-
-
-
-/*  
-                */
-
-
-
-
-/* */
