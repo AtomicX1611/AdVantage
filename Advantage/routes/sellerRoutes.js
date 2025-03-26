@@ -7,7 +7,7 @@ import { insertProduct } from "../controllers/seller.js";
 // import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
-import { findProduct, removeProduct, removeSeller } from "../models/User.js";
+import { findProduct, removeProduct, removeSeller, updateSellerPassword, findSellerByEmail } from "../models/User.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -22,10 +22,10 @@ const sellerRouter = express.Router();
 
 sellerRouter.use(express.json());
 sellerRouter.use(express.urlencoded({ extended: true }));
-sellerRouter.use("/chats",chatRoutes);
+sellerRouter.use("/chats", chatRoutes);
 // sellerRouter.post("/login", sellerLogin);
 
-sellerRouter.get("/",requireRole("seller"),(req, res) => {
+sellerRouter.get("/", requireRole("seller"), (req, res) => {
   res.render("SellerDashBoard.ejs");
 });
 
@@ -66,24 +66,53 @@ export default sellerRouter
 
 
 
-sellerRouter.get('/addProductForm',requireRole("seller"),(req,res)=>{
+sellerRouter.get('/addProductForm', requireRole("seller"), (req, res) => {
   res.render('AddproductForm');
 });
-sellerRouter.post('/addProduct',insertProduct);
+sellerRouter.post('/addProduct', insertProduct);
 
-sellerRouter.get('/remove/:sellerEmail',requireRole("admin"),async (req,res) =>{
+sellerRouter.get('/remove/:sellerEmail', requireRole("admin"), async (req, res) => {
   await removeSeller(req.params.sellerEmail);
   res.redirect('/admin');
 });
 
-sellerRouter.post('/deleteProduct',requireRole("seller"),async (req,res)=>{
+sellerRouter.post('/deleteProduct', requireRole("seller"), async (req, res) => {
   const product = await findProduct(req.body.pid);
   // console.log(req.user);
-  if(product.SellerEmail === req.user.email){
+  if (product.SellerEmail === req.user.email) {
     // console.log("hii");
-      await removeProduct(req.body.pid);
-      res.redirect('/seller');
-  }else{
+    await removeProduct(req.body.pid);
+    res.redirect('/seller');
+  } else {
     res.redirect('/');
+  }
+});
+
+sellerRouter.get('/updatePassword',(req,res)=>{
+  res.render('sellerUpdatePassword');
+});
+
+sellerRouter.post('/updatePassword', async (req, res) => {
+  if (req.body.newPassword !== req.body.confirmNewPassword) {
+    res.status(401).json("Password mismatch");
+  } else {
+    let seller = await findSellerByEmail(req.body.email);
+    if (seller) {
+      if (seller.password === req.body.oldPassword) {
+        await updateSellerPassword(req.body.email, req.body.newPassword);
+        req.session.destroy((err) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("session destroyed successfully");
+          }
+        });
+        res.redirect('/seller');
+      } else {
+        res.status(401).json("Incorrect Old Password");
+      }
+    } else {
+      res.status(401).json("email not found");
+    }
   }
 });

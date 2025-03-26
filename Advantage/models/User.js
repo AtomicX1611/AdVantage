@@ -734,6 +734,19 @@ export const updateBuyerPassword = async function (email, password) {
     });
 }
 
+export const updateSellerPassword = async function (email, password) {
+    return new Promise((resolve, reject) => {
+        let query = `UPDATE sellers SET password=? WHERE email=?`;
+        db.run(query, [password, email], (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve("password updated");
+            }
+        });
+    });
+}
+
 /*let products = [
     {
         Name: "BOUNCING SHOES FOR MEN",
