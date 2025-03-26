@@ -7,7 +7,7 @@ import { insertProduct } from "../controllers/seller.js";
 // import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
-import { findProduct, removeProduct, removeSeller } from "../models/User.js";
+import { findProduct, findProductsBySeller, removeProduct, removeSeller } from "../models/User.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -25,8 +25,11 @@ sellerRouter.use(express.urlencoded({ extended: true }));
 sellerRouter.use("/chats",chatRoutes);
 // sellerRouter.post("/login", sellerLogin);
 
-sellerRouter.get("/",requireRole("seller"),(req, res) => {
-  res.render("SellerDashBoard.ejs");
+sellerRouter.get("/",requireRole("seller"),async (req, res) => {
+  let products;
+  products = await findProductsBySeller(req.user.email)
+  console.log(products)
+  res.render("SellerDashBoard.ejs",{products});
 });
 
 export default sellerRouter
