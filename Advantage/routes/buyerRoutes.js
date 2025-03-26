@@ -8,6 +8,7 @@ import {
   findUserByEmail,
   getWishlistProducts,
   removeWishlistProduct,
+  updateBuyerPassword
 } from "../models/User.js";
 
 // import { buyerLogin } from "../controllers/buyerLogin.js";
@@ -87,17 +88,33 @@ buyerRoutes.get("/contact", requireRole("buyer"), (req, res) => {
   });
 });
 
-buyerRoutes.get('/updatePassword',(req,res) =>{
-  res.render('buyerUpdatePassword',{
+buyerRoutes.get('/updatePassword', (req, res) => {
+  res.render('buyerUpdatePassword', {
     isLogged: req.isAuthenticated() && req.user.role == "buyer"
   });
 });
 
-buyerRoutes.post('/updatePassword',(req,res)=>{
-  let user=findUserByEmail(req.body.email);
-  if(user){
-      
-  }else{
-    res.send("email not found");
+buyerRoutes.post('/updatePassword', async (req, res) => {
+  if (req.body.newPassword !== req.body.confirmNewPassword) {
+    res.status(401).json("Password mismatch");
+  } else {
+    let user = await findUserByEmail(req.body.email);
+    if (user) {
+      if (user.password === req.body.oldPassword) {
+        await updateBuyerPassword(req.body.email,req.body.newPassword);
+          req.session.destroy((err)=>{
+            if(err){
+              console.log(err);
+            }else{
+              console.log("session destroyed successfully");
+            }
+          });
+          res.redirect('/');
+      }else{
+        res.status(401).json("Incorrect Old Password");
+      }
+    } else {
+      res.status(401).json("email not found");
+    }
   }
 });

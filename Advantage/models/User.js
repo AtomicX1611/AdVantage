@@ -202,7 +202,7 @@ export const findSendersForEmail = async (buyer) => {
     });
 };
 
-export const findSendersForSeller=async(seller)=>{
+export const findSendersForSeller = async (seller) => {
     return new Promise((resolve, reject) => {
         let query = `select distinct buyerMail from conversation where sellerMail=?`;
         //fetching all buyerMails for this seller********
@@ -271,7 +271,7 @@ export const senderList = async (result) => {
     });
 };
 
-export const buyerList=async (result)=>{
+export const buyerList = async (result) => {
     return new Promise((resolve, reject) => {
         if (result.length === 0) {
             resolve([]);
@@ -281,7 +281,7 @@ export const buyerList=async (result)=>{
         for (let i = 0; i < result.length; i++) {
             buyerEmails.push(result[i].buyerMail);
         }
-        console.log("buyerEmails: ",buyerEmails);
+        console.log("buyerEmails: ", buyerEmails);
         const placeholders = buyerEmails.map(() => '?').join(',');
         //here placholders is an array of emails
         const query = `
@@ -301,7 +301,7 @@ export const buyerList=async (result)=>{
     });
 }
 export const fetchConversations = (sellerMail, buyerMail) => {
-    console.log("entered fetchConversations in user.js",sellerMail,buyerMail);
+    console.log("entered fetchConversations in user.js", sellerMail, buyerMail);
     return new Promise((resolve, reject) => {
         const query = `
             SELECT * 
@@ -326,7 +326,7 @@ export const fetchConversations = (sellerMail, buyerMail) => {
 };
 
 //sender field added extra in this..................
-export const saveMessage = async (sellerMail, buyerMail, message,sender) => {
+export const saveMessage = async (sellerMail, buyerMail, message, sender) => {
     return new Promise((resolve, reject) => {
         const currentDateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
         const query = `
@@ -642,27 +642,46 @@ export const removeSeller = async (email) => {
         });
     });
 }
-export const removeProduct = async (productId) =>{
-    return new Promise((resolve,reject) => {
+export const removeProduct = async (productId) => {
+    return new Promise((resolve, reject) => {
         let query = `DELETE FROM products WHERE ProductId=?`;
-        db.run(query,[productId],(err)=>{
-            if(err){
+        db.run(query, [productId], (err) => {
+            if (err) {
                 reject(err);
-            }else{
+            } else {
                 resolve("deletion done");
             }
         });
     });
 }
 //PK with seller email ivvu ee function ki products kosam also use await dont use try catch and make it complex
-export const findProductsBySeller= async function(email) {
-    return new Promise((resolve,reject)=>{
-        let query=`SELECT * FROM products WHERE SellerEmail=?`;
-        db.all(query,[email],(err,rows)=>{
-            if(err){
+export const findProductsBySeller = async function (email) {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT * FROM products WHERE SellerEmail=?`;
+        db.all(query, [email],async (err, rows) => {
+            if (err) {
                 reject(err);
-            }else{
+            } else {
+                for (let row of rows) {
+                    let Images = await findImages(row.ProductId);
+                    for (let j = 0; j < Images.length; j++) {
+                        row[`Image${j + 1}Src`] = Images[j].Image;
+                    }
+                }
                 resolve(rows);
+            }
+        });
+    });
+}
+
+export const updateBuyerPassword = async function (email, password) {
+    return new Promise((resolve, reject) => {
+        let query = `UPDATE users SET password=? WHERE email=?`;
+        db.run(query, [password, email], (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve("password updated");
             }
         });
     });
