@@ -36,6 +36,9 @@
               <%= product.City %>
             </h4>
           </div>
+          <% if(hisProduct) { %>
+            <button id="deleteProduct">Delete Product</button>
+            <% } %>
           <% if(product.verified != 0) { %>
           <h4 id="verified">✅ Verified Product</h4>
           <% } %>
@@ -114,7 +117,7 @@
     });
 
       const verifyProductButton = document.getElementById("verifyButton");
-      verifyProductButton.addEventListener("click", async (e) => {
+      verifyProductButton?.addEventListener("click", async (e) => {
         const productId = addToWishlist.getAttribute("data-id");
         const response = await fetch("http://localhost:3000/manager/verify", {
           method: "POST",
@@ -129,6 +132,18 @@
         } catch (err) {
           window.location.href = response.url;
         }
+      });
+      const deleteProductBtn = document.getElementById('deleteProduct');
+      deleteProductBtn?.addEventListener("click", async (e) => {
+        const productId = addToWishlist.getAttribute("data-id");
+        const response = await fetch("http://localhost:3000/seller/deleteProduct", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ pid: productId })
+        });
+        window.location.href = response.url;
       });
     </script>
   </body>

@@ -30,7 +30,8 @@ export const getProductDetails = async (req, res) => {
     product: pro,
     sellerId:pro.SellerEmail,
     isLogged: req.isAuthenticated() && (req.user.role == "buyer"),
-    manager : req.isAuthenticated() && (req.user.role == "manager")
+    manager : req.isAuthenticated() && (req.user.role == "manager"),
+    hisProduct : req.isAuthenticated() && (req.user.role == "seller") && (req.user.email === pro.SellerEmail)
   });
 };
 

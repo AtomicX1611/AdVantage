@@ -1,5 +1,7 @@
 import sqlite3 from "sqlite3";
 import { products } from "./Products.js";
+import { resolve } from "path";
+import { rejects } from "assert";
 
 const db = new sqlite3.Database(":memory:", (err) => {
     if (err) {
@@ -687,6 +689,51 @@ export const removeSeller = async (email) => {
         });
     });
 }
+export const removeProduct = async (productId) => {
+    return new Promise((resolve, reject) => {
+        let query = `DELETE FROM products WHERE ProductId=?`;
+        db.run(query, [productId], (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve("deletion done");
+            }
+        });
+    });
+}
+//PK with seller email ivvu ee function ki products kosam also use await dont use try catch and make it complex
+export const findProductsBySeller = async function (email) {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT * FROM products WHERE SellerEmail=?`;
+        db.all(query, [email],async (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                for (let row of rows) {
+                    let Images = await findImages(row.ProductId);
+                    for (let j = 0; j < Images.length; j++) {
+                        row[`Image${j + 1}Src`] = Images[j].Image;
+                    }
+                }
+                resolve(rows);
+            }
+        });
+    });
+}
+
+export const updateBuyerPassword = async function (email, password) {
+    return new Promise((resolve, reject) => {
+        let query = `UPDATE users SET password=? WHERE email=?`;
+        db.run(query, [password, email], (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve("password updated");
+            }
+        });
+    });
+}
+
 /*let products = [
     {
         Name: "BOUNCING SHOES FOR MEN",
@@ -808,14 +855,3 @@ export const removeSeller = async (email) => {
         distance: 0
     },
 ]*/
-
-
-
-
-/*  
-                */
-
-
-
-
-/* */
