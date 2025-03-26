@@ -10,9 +10,10 @@ import { createContact } from "../models/User.js";
 import { findMessages } from "../models/User.js";
 import { saveMessage } from "../models/User.js";
 import { findSendersForSeller } from "../models/User.js";
+import { requireRole } from "../middleware/roleMiddleware.js";
 export const chatRoutes = express();
 
-chatRoutes.get("/buyerInbox",async (req, res) => {
+chatRoutes.get("/buyerInbox",requireRole("buyer"),async (req, res) => {
     if (req.isAuthenticated() && req.user.role == "buyer") {
         let results=await findSendersForEmail(req.user.email);
         let senders = await senderList(results);

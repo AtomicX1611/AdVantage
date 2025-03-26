@@ -6,7 +6,11 @@
 
   <body>
     <div class="BG">
+      <% if(!seller) { %>
       <%- include("HomeHeader.ejs") %>
+      <% } else { %>
+      <%- include("sellerHeader.ejs") %>
+      <% } %>
       <div id="notification">
         <span id="notif-message"></span>
         <button id="close-btn" onclick="hideNotification()">X</button>
@@ -37,7 +41,7 @@
             </h4>
           </div>
           <% if(hisProduct) { %>
-            <button id="deleteProduct">Delete Product</button>
+            <button id="deleteProduct" data-id="<%= product.ProductId %>"> Delete Product</button>
             <% } %>
           <% if(product.verified != 0) { %>
           <h4 id="verified">✅ Verified Product</h4>
@@ -59,7 +63,7 @@
               <%= product.Description %>
             </h3>
             <% if(manager) { %>
-            <button id="verifyButton">Verify</button>
+            <button id="verifyButton" data-id="<%= product.ProductId %>">Verify</button>
             <% } %>
             <button id="addToWishlist" data-id="<%= product.ProductId %>">Add to Wishlist</button>
           </div>
@@ -97,7 +101,7 @@
         big_card.src = e.target.src;
       }
     });
-    addToWishlist.addEventListener('click', async (e) => {
+    addToWishlist?.addEventListener('click', async (e) => {
       const productId = addToWishlist.getAttribute("data-id");
       const response = await fetch('http://localhost:3000/buyer/wishlist/add', {
         method: "POST",
@@ -118,7 +122,7 @@
 
       const verifyProductButton = document.getElementById("verifyButton");
       verifyProductButton?.addEventListener("click", async (e) => {
-        const productId = addToWishlist.getAttribute("data-id");
+        const productId = verifyProductButton.getAttribute("data-id");
         const response = await fetch("http://localhost:3000/manager/verify", {
           method: "POST",
           headers: {
@@ -135,7 +139,7 @@
       });
       const deleteProductBtn = document.getElementById('deleteProduct');
       deleteProductBtn?.addEventListener("click", async (e) => {
-        const productId = addToWishlist.getAttribute("data-id");
+        const productId = deleteProductBtn.getAttribute("data-id");
         const response = await fetch("http://localhost:3000/seller/deleteProduct", {
           method: "POST",
           headers: {

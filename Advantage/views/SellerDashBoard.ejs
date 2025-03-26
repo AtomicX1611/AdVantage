@@ -17,37 +17,37 @@
     <h1 class="title">Welcome Rajeev!</h1>
     <h2>Your current Ads</h2>
     <div class="card_container">
-      <% const cards = [
-       {title : "Title" ,desc : "desc"},
-       {title : "Title" ,desc : "desc"},
-       {title : "Title" ,desc : "desc"},
-       {title : "Title" ,desc : "desc"},
-       {title : "Title" ,desc : "desc"},
-       {title : "Title" ,desc : "desc"},
-       {title : "Title" ,desc : "desc"}
-       ]; %> 
-      <% for (let i = 0; i <cards.length; i++) {%> 
-            <div class="card">
-                <h3><%= cards[i].title %></h3>
-            </div> 
+      <% for (let i = 0; i < products.length; i++) {%> 
+            <a href="http://localhost:3000/search/product/<%= products[i].ProductId %>"><div class="card">
+              <img src="<%= products[i].Image1Src%>" %> alt="<%= products[i].Name %>">
+                <h3><%= products[i].Name %></h3>
+            </div></a> 
         <% } %>
     </div>
-    <h2>Previous Ads</h2>
-     <div class="card_container">
-        <% const prevCards = [
-        {title : "Title" ,desc : "desc"},
-        {title : "Title" ,desc : "desc"},
-        {title : "Title" ,desc : "desc"},
-        {title : "Title" ,desc : "desc"},
-        {title : "Title" ,desc : "desc"},
-        {title : "Title" ,desc : "desc"},
-        {title : "Title" ,desc : "desc"}
-        ]; %> 
-       <% for (let i = 0; i <prevCards.length; i++) {%> 
-             <div class="card">
-                 <h3><%= prevCards[i].title %></h3>
-             </div> 
-         <% } %>
-     </div>
+   
   </body>
 </html>
+
+
+
+
+
+<!--
+<h2>Previous Ads</h2>
+<div class="card_container">
+    <% const prevCards = [
+    {title : "Title" ,desc : "desc"},
+    {title : "Title" ,desc : "desc"},
+    {title : "Title" ,desc : "desc"},
+    {title : "Title" ,desc : "desc"},
+    {title : "Title" ,desc : "desc"},
+    {title : "Title" ,desc : "desc"},
+    {title : "Title" ,desc : "desc"}
+    ]; %> 
+    <% for (let i = 0; i <prevCards.length; i++) {%> 
+        <div class="card">
+            <h3><%= prevCards[i].title %></h3>
+        </div> 
+    <% } %>
+</div>
+-->

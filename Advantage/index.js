@@ -57,6 +57,23 @@ app.use("/product", productRouter);
 app.use("/manager", managerRouter);
 app.use("/admin",adminRouter)
 
+app.get("/logout", (req, res) => {
+  if (req.isAuthenticated()) {
+      const redirectPath = req.user.role === "seller" ? "/seller" : "/";
+
+      req.logout((err) => {
+          if (err) return next(err);
+          req.session.destroy((err) => {
+              if (err) return next(err);
+              res.redirect(redirectPath);
+          });
+      });
+  } else {
+      res.redirect("/");
+  }
+});
+
+
 passport.use(
   new LocalStrategy(
     {
@@ -71,6 +88,7 @@ passport.use(
       } else if (email.slice(email.length - 1, email.length) == "b") {
         email = email.slice(0, email.length - 1);
         result = await findUserByEmail(email);
+        console.log(result);
       } else if (email.slice(email.length - 1, email.length) == "m") {
         console.log("callig find");
         email = email.slice(0, email.length - 1);

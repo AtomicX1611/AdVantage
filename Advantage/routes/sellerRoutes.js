@@ -5,14 +5,11 @@ import { insertProduct } from "../controllers/seller.js";
 // import { sellerLogin } from "../controllers/sellerLogin.js";
 // import { sellerSignup } from "../controllers/sellerSignUp.js";
 // import multer from "multer";
-import path from "path";
-import { fileURLToPath } from "url";
-import { findProduct, removeProduct, removeSeller, updateSellerPassword, findSellerByEmail } from "../models/User.js";
+// import path from "path";
+// import { fileURLToPath } from "url";
+import { findProduct, removeProduct, removeSeller, updateSellerPassword, findSellerByEmail,findProductsBySeller } from "../models/User.js";
 
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const BASE_DIR = path.join(__dirname, '../public/assets/products');
 
 const sellerRouter = express.Router();
 
@@ -25,8 +22,11 @@ sellerRouter.use(express.urlencoded({ extended: true }));
 sellerRouter.use("/chats", chatRoutes);
 // sellerRouter.post("/login", sellerLogin);
 
-sellerRouter.get("/", requireRole("seller"), (req, res) => {
-  res.render("SellerDashBoard.ejs");
+sellerRouter.get("/",requireRole("seller"),async (req, res) => {
+  let products;
+  products = await findProductsBySeller(req.user.email)
+  // console.log(products);
+  res.render("SellerDashBoard.ejs",{products});
 });
 
 export default sellerRouter
