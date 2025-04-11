@@ -1,26 +1,22 @@
-import sqlite3 from "sqlite3";
+import mysql from "mysql2";
 import { products } from "./Products.js";
-import { resolve } from "path";
-import { rejects } from "assert";
 
-const db = new sqlite3.Database(":memory:", (err) => {
-    if (err) {
-        console.error("Error connecting to in-memory SQLite:", err.message);
-    } else {
-        console.log("Connected to in-memory SQLite database.");
-    }
+const db = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'fsd',
+    password : '1005',
+    database : 'advantage'
 });
 
 async function initializeDatabase() {
     return new Promise((resolve, reject) => {
-        db.serialize(() => {
-            db.run("PRAGMA foreign_keys = ON;");
-            db.run(
+            // db.run("PRAGMA foreign_keys = ON;");
+            db.query(
                 `CREATE TABLE IF NOT EXISTS users(
-                    username TEXT NOT NULL,
-                    contact TEXT NOT NULL,
-                    email TEXT PRIMARY KEY,
-                    password TEXT NOT NULL
+                    username VARCHAR(200) NOT NULL,
+                    contact VARCHAR(40) NOT NULL,
+                    email VARCHAR(200) PRIMARY KEY,
+                    password VARCHAR(200) NOT NULL
                 )`, (err) => {
                 if (err) {
                     console.log(err.message);
@@ -29,12 +25,12 @@ async function initializeDatabase() {
                 }
             }
             );
-            db.run(
+            db.query(
                 `CREATE TABLE IF NOT EXISTS sellers(
-                    username TEXT NOT NULL,
-                    contact TEXT NOT NULL,
-                    email TEXT PRIMARY KEY,
-                    password TEXT NOT NULL
+                    username VARCHAR(200) NOT NULL,
+                    contact VARCHAR(40) NOT NULL,
+                    email VARCHAR(200) PRIMARY KEY,
+                    password VARCHAR(200) NOT NULL
                 )`, (err) => {
                 if (err) {
                     console.log(err.message);
@@ -43,20 +39,22 @@ async function initializeDatabase() {
                 }
             }
             );
-            db.run(
+            db.query(
                 `CREATE TABLE IF NOT EXISTS products (
-                    Name TEXT NOT NULL,
-                    Price REAL NOT NULL,
-                    Description TEXT NOT NULL,
-                    PostingDate DATE DEFAULT CURRENT_DATE,
-                    zipCode INTEGER NOT NULL,
-                    SellerEmail TEXT NOT NULL,
-                    ProductId INTEGER PRIMARY KEY AUTOINCREMENT,
-                    verified INTEGER DEFAULT 0,
-                    category TEXT NOT NULL,
-                    District TEXT NOT NULL,
-                    City TEXT NOT NULL,
-                    State TEXT NOT NULL,
+                    Name VARCHAR(200) NOT NULL,
+                    Price DECIMAL(20,2) NOT NULL,
+                    Description MEDIUMTEXT NOT NULL,
+                    PostingDate DATE DEFAULT (CURDATE()),
+                    zipCode INT NOT NULL,
+                    SellerEmail VARCHAR(200) NOT NULL,
+                    ProductId INT PRIMARY KEY AUTO_INCREMENT,
+                    verified TINYINT DEFAULT 0,
+                    category VARCHAR(200) NOT NULL,
+                    District MEDIUMTEXT NOT NULL,
+                    City VARCHAR(200) NOT NULL,
+                    State VARCHAR(200) NOT NULL,
+                    SoldTo VARCHAR(200) DEFAULT NULL,
+                    FOREIGN KEY (SoldTo) REFERENCES users (email) ON DELETE SET NULL,
                     FOREIGN KEY (SellerEmail) REFERENCES sellers (email) ON DELETE CASCADE,
                     CHECK (state IN (
                     'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -74,10 +72,10 @@ async function initializeDatabase() {
                 }
             }
             );
-            db.run(
+            db.query(
                 `CREATE TABLE IF NOT EXISTS images(
-                        ProductId INTEGER,
-                        Image TEXT,
+                        ProductId INT NOT NULL,
+                        Image MEDIUMTEXT NOT NULL,
                         FOREIGN KEY (ProductId) REFERENCES products (ProductId) ON DELETE CASCADE
                     )`, (err) => {
                 if (err) {
@@ -87,10 +85,10 @@ async function initializeDatabase() {
                 }
             }
             );
-            db.run(
+            db.query(
                 `CREATE TABLE IF NOT EXISTS wishlist (
-                        userEmail TEXT NOT NULL,
-                        ProductId INTEGER NOT NULL,
+                        userEmail VARCHAR(200) NOT NULL,
+                        ProductId INT NOT NULL,
                         UNIQUE(ProductId, userEmail),
                         FOREIGN KEY (ProductId) REFERENCES products (ProductId) ON DELETE CASCADE
                     )`,
@@ -99,41 +97,55 @@ async function initializeDatabase() {
                         console.error("Error creating table:", err.message);
                     } else {
                         console.log("wishlist table created in memory.");
-                        resolve();
                     }
                 }
             );
-        });
+            db.query(
+                `CREATE TABLE IF NOT EXISTS requests(
+                    requestId INT PRIMARY KEY AUTO_INCREMENT,
+                    userEmail VARCHAR(200) NOT NULL,
+                    productId INT NOT NULL,
+                    Price REAL NOT NULL,
+                    UNIQUE(ProductId, userEmail,Price),
+                    FOREIGN KEY (ProductId) REFERENCES products (ProductId) ON DELETE CASCADE
+                )`,(err) =>{
+                    if(err){
+                        console.error(err.message);
+                    }else{
+                        resolve();
+                    }
+                }
+            )
     });
 }
 
+// real inserting dummy data
+// (async function () {
+//     await initializeDatabase();
+//     await createSeller({
+//         username: "sk",
+//         contact: '1234567890',
+//         email: "sk@gmail.com",
+//         password: "12345678"
+//     });
+//     await createSeller({
+//         username: "abc",
+//         contact: '1234567890',
+//         email: "abc@gmail.com",
+//         password: "12345678"
+//     });
 
-(async function () {
-    await initializeDatabase();
-    await createSeller({
-        username: "sk",
-        contact: '1234567890',
-        email: "sk@gmail.com",
-        password: "12345678"
-    });
-    await createSeller({
-        username: "abc",
-        contact: '1234567890',
-        email: "abc@gmail.com",
-        password: "12345678"
-    });
-
-    for (let product of products) {
-        addProduct(product.name, product.price, product.description, product.zipcode, product.sellerEmail, product.images, product.category, product.district, product.state, product.city);
-    }
-    addProduct("test product 1", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
-    addProduct("test product 2", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
-    addProduct("test product 3", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
-    addProduct("test product 4", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
-    addProduct("test product 5", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
-    addProduct("test product 6", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
-    addProduct("test product 7", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
-})();
+//     for (let product of products) {
+//         addProduct(product.name, product.price, product.description, product.zipcode, product.sellerEmail, product.images, product.category, product.district, product.state, product.city);
+//     }
+//     addProduct("test product 1", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+//     addProduct("test product 2", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+//     addProduct("test product 3", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+//     addProduct("test product 4", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+//     addProduct("test product 5", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+//     addProduct("test product 6", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+//     addProduct("test product 7", '500', "test producttest producttest producttest producttest producttest producttest producttest producttest product", '522003', 'abc@gmail.com', ['https://m.media-amazon.com/images/I/71vVzlZINxL._SX695_.jpg'], 'Fashion', 'guntur', 'Andhra Pradesh', 'guntur');
+// })();
 
 let admins = [
     {
@@ -143,7 +155,7 @@ let admins = [
 ]
 
 export const findAdmins = (email) => {
-    return admins.find(admin => admin.email === email)
+    return admins.find(admin => admin.email === email);
 }
 /*let users = [
     {
@@ -158,12 +170,12 @@ export const findAdmins = (email) => {
         password: "123",
         role : "buyer",
 //*********CONVERSATIONS QUERIES STARTS HERE************* */
-db.run(
+db.query(
     `create table if not exists conversation (
-        sellerMail TEXT not null,
-        sender TEXT,
-        buyerMail TEXT not null,
-        message TEXT NOT NULL,
+        sellerMail VARCHAR(200) not null,
+        sender VARCHAR(200),
+        buyerMail VARCHAR(200) not null,
+        message VARCHAR(200) NOT NULL,
         date DATETIME not null
     )`, (err) => {
     if (err) {
@@ -179,7 +191,7 @@ db.run(
 export const findMessages = async (seller, buyer) => {
     return new Promise((resolve, reject) => {
         let query = `select sellerMail from conversation where buyerMail=? and sellerMail=?`;
-        db.all(query, [buyer, seller], (err, rows) => {
+        db.query(query, [buyer, seller], (err, rows) => {
             if (err) {
                 reject(err);
             } else {
@@ -192,7 +204,7 @@ export const findMessages = async (seller, buyer) => {
 export const findSendersForEmail = async (buyer) => {
     return new Promise((resolve, reject) => {
         let query = `select distinct sellerMail from conversation where buyerMail=?`;
-        db.all(query, [buyer], (err, rows) => {
+        db.query(query, [buyer], (err, rows) => {
             if (err) {
                 reject(err);
             } else {
@@ -206,7 +218,7 @@ export const findSendersForSeller = async (seller) => {
     return new Promise((resolve, reject) => {
         let query = `select distinct buyerMail from conversation where sellerMail=?`;
         //fetching all buyerMails for this seller********
-        db.all(query, [seller], (err, rows) => {
+        db.query(query, [seller], (err, rows) => {
             if (err) {
                 reject(err);
             } else {
@@ -225,7 +237,7 @@ export const createContact = (seller, buyer) => {
             INSERT INTO conversation (sellerMail, buyerMail, message, date)
             VALUES (?, ?, ?, ?)
         `;
-        db.run(query, [seller, buyer, message, date], (err) => {
+        db.query(query, [seller, buyer, message, date], (err) => {
             if (err) {
                 reject(err);
             } else {
@@ -261,7 +273,7 @@ export const senderList = async (result) => {
         FROM sellers
         WHERE email IN (${placeholders})
 `;
-        db.all(query, sellerEmails, (err, rows) => {
+        db.query(query, sellerEmails, (err, rows) => {
             if (err) {
                 reject(err);
             } else {
@@ -291,7 +303,7 @@ export const buyerList = async (result) => {
         FROM users
         WHERE email IN (${placeholders})
 `;
-        db.all(query, buyerEmails, (err, rows) => {
+        db.query(query, buyerEmails, (err, rows) => {
             if (err) {
                 reject(err);
             } else {
@@ -311,7 +323,7 @@ export const fetchConversations = (sellerMail, buyerMail) => {
             ORDER BY date ASC
         `;
         // 1 change done here in select statement
-        db.all(
+        db.query(
             query,
             [sellerMail, buyerMail, buyerMail, sellerMail],
             (err, rows) => {
@@ -333,7 +345,7 @@ export const saveMessage = async (sellerMail, buyerMail, message, sender) => {
             INSERT INTO conversation (sellerMail, sender,buyerMail, message, date)
             VALUES (?, ?, ?, ?, ?)
         `;
-        db.run(
+        db.query(
             query,
             [sellerMail, sender, buyerMail, message, currentDateTime],
             function (err) {
@@ -354,7 +366,7 @@ export const saveMessage = async (sellerMail, buyerMail, message, sender) => {
 };
 //conversation queries end here
 
-export let prodid = { value: 0 };
+// export let prodid = { value: 0 };
 
 // export const freshProducts = [
 //     { name: "Product 1", image: "https://m.media-amazon.com/images/I/51u461LQQQL._SY695_.jpg", ProductId: "2" },
@@ -385,7 +397,7 @@ export const featuredProducts = async () => {
             SELECT * FROM products
             LIMIT 10`;
 
-        db.all(query, async (err, rows) => {
+        db.query(query, async (err, rows) => {
             if (err) {
                 reject(err);
             } else {
@@ -409,7 +421,7 @@ export const freshProducts = async () => {
             LIMIT 15 OFFSET 10
         `;
 
-        db.all(query, async (err, rows) => {
+        db.query(query, async (err, rows) => {
             if (err) {
                 reject(err);
             } else {
@@ -431,7 +443,7 @@ export const freshProducts = async () => {
 const findImages = async function (prodId) {
     return new Promise((resolve, reject) => {
         let query = `SELECT Image FROM images WHERE ProductId=?`;
-        db.all(query, [prodId], (err, rows) => {
+        db.query(query, [prodId], (err, rows) => {
             if (err) {
                 reject(err);
             } else {
@@ -446,9 +458,10 @@ export const findProducts = async function (Name) {
     return new Promise((resolve, reject) => {
         let names = Name.split(" ");
         let bestMatchCondition = names.map(() => "(Name LIKE ?)").join("+");
-        let query = `SELECT *, (${bestMatchCondition}) AS best_match FROM products WHERE best_match != 0 ORDER BY best_match DESC`;
+        let query = `SELECT *, (${bestMatchCondition}) AS best_match FROM products HAVING best_match > 0 ORDER BY best_match DESC`;
+        // console.log(query);
         let params = names.map(nam => `%${nam}%`);
-        db.all(query, params, async (err, rows) => {
+        db.query(query, params, async (err, rows) => {
             if (err) {
                 console.log(err.message);
                 reject("error");
@@ -470,15 +483,16 @@ export const findProducts = async function (Name) {
 export const findProduct = function (prodId) {
     return new Promise((resolve, reject) => {
         let query = `SELECT * FROM products WHERE ProductId = ?`
-        db.get(query, [prodId], async (err, row) => {
+        db.query(query, [prodId], async (err, row) => {
             if (err) {
                 reject(err);
             } else {
-                let Images = await findImages(row.ProductId);
+                let Images = await findImages(row[0].ProductId);
                 for (let j = 0; j < Images.length; j++) {
-                    row[`Image${j + 1}Src`] = Images[j].Image;
+                    row[0][`Image${j + 1}Src`] = Images[j].Image;
                 }
-                resolve(row);
+                // console.log(row,Images);
+                resolve(row[0]);
             }
         });
     });
@@ -487,12 +501,12 @@ export const findProduct = function (prodId) {
 
 export const addProduct = function (Name, Price, Description, zipCode, sellerEmail, images, category, district, state, city) {
     let query = `INSERT INTO products (Name, Price, Description, zipCode, sellerEmail, category, District, State, City) VALUES (?,?,?,?,?,?,?,?,?)`;
-    db.run(query, [Name, Price, Description, zipCode, sellerEmail, category, district, state, city], function (err) {
+    db.query(query, [Name, Price, Description, zipCode, sellerEmail, category, district, state, city], function (err,result) {
         if (err) {
             console.log(err.message);
         } else {
             for (let image of images) {
-                db.run(`INSERT INTO images (Image,ProductId) VALUES (?,?)`, [image, this.lastID], (err) => {
+                db.query(`INSERT INTO images (Image,ProductId) VALUES (?,?)`, [image, result.insertId], (err) => {
                     if (err) {
                         console.error(err.message);
                     }
@@ -506,7 +520,7 @@ export const addProduct = function (Name, Price, Description, zipCode, sellerEma
 export const addToWishlist = function (userEmail, productId) {
     return new Promise((resolve, reject) => {
         const query = `INSERT INTO wishlist (userEmail, productId) VALUES (?, ?)`;
-        db.run(query, [userEmail, productId], function (err) {
+        db.query(query, [userEmail, productId], function (err) {
             if (err) {
                 if (err.message.includes("UNIQUE constraint failed")) {
                     return reject("Product is already in the wishlist");
@@ -522,7 +536,7 @@ export const addToWishlist = function (userEmail, productId) {
 export const getWishlistProducts = function (userEmail) {
     return new Promise((resolve, reject) => {
         const query = `SELECT productId FROM wishlist WHERE userEmail = ?`;
-        db.all(query, [userEmail], (err, rows) => {
+        db.query(query, [userEmail], (err, rows) => {
             if (err) {
                 return reject(err);
             }
@@ -535,7 +549,7 @@ export const getWishlistProducts = function (userEmail) {
 export const removeWishlistProduct = function (userEmail, productId) {
     return new Promise((resolve, reject) => {
         const query = `DELETE FROM wishlist WHERE userEmail = ? AND productId = ?`;
-        db.run(query, [userEmail, productId], (err) => {
+        db.query(query, [userEmail, productId], (err) => {
             if (err) {
                 console.log(err.message);
                 reject(err.message);
@@ -550,11 +564,11 @@ export const removeWishlistProduct = function (userEmail, productId) {
 export const findUserByEmail = async (email) => {
     return new Promise((resolve, reject) => {
         let query = `SELECT * FROM users WHERE email=?`;
-        db.get(query, [email], (err, row) => {
+        db.query(query, [email], (err, row) => {
             if (err) {
                 reject(err);
             } else {
-                resolve(row);
+                resolve(row[0]);
             }
         });
     });
@@ -565,7 +579,7 @@ export const findUserByEmail = async (email) => {
 export const verifyProduct = async (productId) => {
     return new Promise((resolve, reject) => {
         const query = `UPDATE products SET verified = 1 where ProductId =?`;
-        db.run(query, [productId], (err) => {
+        db.query(query, [productId], (err) => {
             if (err) {
                 reject(err);
             } else {
@@ -579,7 +593,7 @@ export const verifyProduct = async (productId) => {
 export const findProductsNotVerified = async () => {
     return new Promise((resolve, reject) => {
         const query = `SELECT * FROM products WHERE verified = 0 ORDER BY PostingDate`;
-        db.all(query, (err, rows) => {
+        db.query(query, (err, rows) => {
             if (err) {
                 reject(err);
             } else {
@@ -590,7 +604,7 @@ export const findProductsNotVerified = async () => {
 }
 
 export const createUser = (user) => {
-    db.run(`INSERT INTO users(username,contact,email,password) VALUES (?,?,?,?)`, [user.username, user.contact, user.email, user.password], (err => {
+    db.query(`INSERT INTO users(username,contact,email,password) VALUES (?,?,?,?)`, [user.username, user.contact, user.email, user.password], (err => {
         if (err) {
             console.error(err.message);
         }
@@ -604,11 +618,11 @@ export const createUser = (user) => {
 export const findSellerByEmail = (email) => {
     return new Promise((resolve, reject) => {
         let query = `SELECT * FROM sellers WHERE email=?`;
-        db.get(query, [email], (err, row) => {
+        db.query(query, [email], (err, row) => {
             if (err) {
                 reject(err);
             } else {
-                resolve(row);
+                resolve(row[0]);
             }
         });
     });
@@ -616,12 +630,12 @@ export const findSellerByEmail = (email) => {
 
 export const createSeller = (seller) => {
     return new Promise((resolve, reject) => {
-        db.run(`INSERT INTO sellers VALUES (?,?,?,?)`, [seller.username, seller.contact, seller.email, seller.password], (err => {
+        db.query(`INSERT INTO sellers VALUES (?,?,?,?)`, [seller.username, seller.contact, seller.email, seller.password], (err => {
             if (err) {
                 console.error(err.message);
                 reject(err);
             } else {
-                resolve();
+                resolve("Done");
             }
         }));
     });
@@ -632,7 +646,7 @@ export const createSeller = (seller) => {
 export const findProductsByCategory = async (category) => {
     return new Promise((resolve, reject) => {
         const query = `SELECT ProductId FROM products where category = ?`;
-        db.all(query, [category], async (err, rows) => {
+        db.query(query, [category], async (err, rows) => {
             if (err) {
                 console.log(err.message);
                 reject(err);
@@ -653,7 +667,7 @@ export const findSellersForAdmin = async () => {
         let query = `SELECT username,contact,email,password,count(ProductId) AS numberOfProducts FROM sellers
         JOIN products ON sellers.email=products.SellerEmail
         GROUP BY email`;
-        db.all(query, (err, rows) => {
+        db.query(query, (err, rows) => {
             if (err) {
                 reject(err);
             } else {
@@ -667,7 +681,7 @@ export const findSellersForAdmin = async () => {
 export const findUsersForAdmin = async () => {
     return new Promise((resolve, reject) => {
         let query = `SELECT * FROM users`;
-        db.all(query, (err, rows) => {
+        db.query(query, (err, rows) => {
             if (err) {
                 reject(err);
             } else {
@@ -679,7 +693,7 @@ export const findUsersForAdmin = async () => {
 
 export const removeSeller = async (email) => {
     return new Promise((resolve, reject) => {
-        db.run(`DELETE FROM sellers WHERE email=?`, [email], (err) => {
+        db.query(`DELETE FROM sellers WHERE email=?`, [email], (err) => {
             if (err) {
                 // console.log(err.message);
                 reject(err);
@@ -692,7 +706,7 @@ export const removeSeller = async (email) => {
 export const removeProduct = async (productId) => {
     return new Promise((resolve, reject) => {
         let query = `DELETE FROM products WHERE ProductId=?`;
-        db.run(query, [productId], (err) => {
+        db.query(query, [productId], (err) => {
             if (err) {
                 reject(err);
             } else {
@@ -705,7 +719,7 @@ export const removeProduct = async (productId) => {
 export const findProductsBySeller = async function (email) {
     return new Promise((resolve, reject) => {
         let query = `SELECT * FROM products WHERE SellerEmail=?`;
-        db.all(query, [email],async (err, rows) => {
+        db.query(query, [email], async (err, rows) => {
             if (err) {
                 reject(err);
             } else {
@@ -724,7 +738,7 @@ export const findProductsBySeller = async function (email) {
 export const updateBuyerPassword = async function (email, password) {
     return new Promise((resolve, reject) => {
         let query = `UPDATE users SET password=? WHERE email=?`;
-        db.run(query, [password, email], (err) => {
+        db.query(query, [password, email], (err) => {
             if (err) {
                 reject(err);
             } else {
@@ -737,7 +751,7 @@ export const updateBuyerPassword = async function (email, password) {
 export const updateSellerPassword = async function (email, password) {
     return new Promise((resolve, reject) => {
         let query = `UPDATE sellers SET password=? WHERE email=?`;
-        db.run(query, [password, email], (err) => {
+        db.query(query, [password, email], (err) => {
             if (err) {
                 reject(err);
             } else {
@@ -747,6 +761,58 @@ export const updateSellerPassword = async function (email, password) {
     });
 }
 
+export const getRequestInfo = async (requestId) =>{
+    return new Promise((resolve,reject)=>{
+        let query=`SELECT * FROM requests JOIN products ON requests.productId=products.ProductId WHERE requestId =?`;
+        db.query(query,[requestId],(err,rows)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve(rows[0]);
+            }
+        })
+    });
+}
+
+export const acceptRequest = async function (userEmail,price,productId) {
+    // let requestInfo= await getRequestInfo(requestId);
+    return new Promise((resolve,reject)=>{
+        let query=`UPDATE products SET SoldTo=?,Price=? WHERE ProductId=?`;
+            db.query(query,[userEmail,price,productId],(err)=>{
+                if(err){
+                    reject(err);
+                }else{
+                    resolve("Acceptance Done");
+                }
+            });
+    });
+}
+
+export const rejectRequest = async function (requestId){
+    return new Promise((resolve,reject)=>{
+        let query=`DELETE FROM requests WHERE requestId=?`;
+        db.query(query,[requestId],(err)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve("rejection Done");
+            }
+        });
+    });
+}
+
+export const addRequest = async function (userEmail,price,productId){
+    return new Promise((resolve,reject)=>{
+        let query=`INSERT INTO requests(userEmail,productId,Price) VALUES (?,?,?)`;
+        db.query(query,[userEmail,productId,price],(err)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve("Adding Request Done");
+            }
+        });
+    });
+}
 /*let products = [
     {
         Name: "BOUNCING SHOES FOR MEN",

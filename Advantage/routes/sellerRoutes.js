@@ -1,13 +1,8 @@
 import express from "express";
 import { requireRole } from "../middleware/roleMiddleware.js";
 import { chatRoutes } from "./charRoutes.js";
-import { insertProduct } from "../controllers/seller.js";
-// import { sellerLogin } from "../controllers/sellerLogin.js";
-// import { sellerSignup } from "../controllers/sellerSignUp.js";
-// import multer from "multer";
-// import path from "path";
-// import { fileURLToPath } from "url";
-import { findProduct, removeProduct, removeSeller, updateSellerPassword, findSellerByEmail,findProductsBySeller } from "../models/User.js";
+import { insertProduct,rejectRequestController,updateSellerPasswordController,acceptRequestController } from "../controllers/seller.js";
+import { findProduct, removeProduct, removeSeller, findSellerByEmail,findProductsBySeller } from "../models/User.js";
 
 
 
@@ -91,28 +86,9 @@ sellerRouter.post('/deleteProduct', requireRole("seller"), async (req, res) => {
 sellerRouter.get('/updatePassword',(req,res)=>{
   res.render('sellerUpdatePassword');
 });
+// sellerRouter.get('/requests',(req,res)=>{
 
-sellerRouter.post('/updatePassword', async (req, res) => {
-  if (req.body.newPassword !== req.body.confirmNewPassword) {
-    res.status(401).json("Password mismatch");
-  } else {
-    let seller = await findSellerByEmail(req.body.email);
-    if (seller) {
-      if (seller.password === req.body.oldPassword) {
-        await updateSellerPassword(req.body.email, req.body.newPassword);
-        req.session.destroy((err) => {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log("session destroyed successfully");
-          }
-        });
-        res.redirect('/seller');
-      } else {
-        res.status(401).json("Incorrect Old Password");
-      }
-    } else {
-      res.status(401).json("email not found");
-    }
-  }
-});
+// });
+sellerRouter.post('/updatePassword', updateSellerPasswordController);
+sellerRouter.get('/acceptRequest/:requestId',requireRole('seller'),acceptRequestController);
+sellerRouter.get('/rejectRequest/:requestId',requireRole('seller'),rejectRequestController);

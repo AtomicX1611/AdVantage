@@ -43,13 +43,17 @@
               </h3>
               <% } %>
                 <% for(let i=0;i < products.length; i++) { %>
-                  <a href="http://localhost:3000/search/product/<%= products[i].ProductId %>">
+                  <a href="/search/product/<%= products[i].ProductId %>">
                     <div class="products">
                       <img src="<%= products[i].Image1Src %>" alt="image" class="images" />
                       <h4 style="margin-left: 20px; font-size: 15px">
                         <%= products[i].Name %>
                       </h4>
+                      <% if(products[i].SoldTo === null){ %>
                       <h3 style="margin-left: 0px">Rs. <%= products[i].Price %>/-</h3>
+                      <% }else{ %>
+                      <h3 style="margin-left: 0px">Sold Out</h3>
+                      <% } %>
                     </div>
                   </a>
                   <% }%>
@@ -75,7 +79,7 @@
         price = parseFloat(products[i].Price);
         // console.log(price);
         if ((price >= minValue) && (price <= maxValue) && ( (!verifiedCheckbox.checked) || (products[i].verified != 0))) {
-          html = `<a href="http://localhost:3000/search/product/${products[i].ProductId}">
+          html = `<a href="/search/product/${products[i].ProductId}">
                               <div class="products">
                                   <img src="${products[i].Image1Src}" alt="image" class="images">
                                   <h4 style="margin-left: 20px; font-size: 15px;">

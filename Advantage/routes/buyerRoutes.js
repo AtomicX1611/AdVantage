@@ -8,7 +8,8 @@ import {
   findUserByEmail,
   getWishlistProducts,
   removeWishlistProduct,
-  updateBuyerPassword
+  updateBuyerPassword,
+  addRequest
 } from "../models/User.js";
 import { featuredProducts } from "../models/User.js";
 // import { freshProducts } from "../models/User.js";
@@ -130,4 +131,8 @@ buyerRoutes.post('/updatePassword', async (req, res) => {
       res.status(401).json("email not found");
     }
   }
+});
+
+buyerRoutes.post('/addRequest',async (req,res) => {
+  addRequest();
 });

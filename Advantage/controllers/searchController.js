@@ -44,4 +44,3 @@ export const getProductBycategory = async (req,res) => {
     isLogged: req.isAuthenticated() && (req.user.role == "buyer")
   });
 }
-

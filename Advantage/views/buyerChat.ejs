@@ -53,9 +53,8 @@
         // MAKE SURE THAT NO DUPLICATES IN ACTIVE USERS 
 
         async function fetchConvo(email) {
-            alert("fetching convo");
             console.log("email: ",email);
-            let data = await fetch(`http://localhost:3000/buyer/chats/conversation/?sender=${email}`, {
+            let data = await fetch(`/buyer/chats/conversation/?sender=${email}`, {
                 method: 'GET',
                 headers: {
                     "Content-type": "application/json"
