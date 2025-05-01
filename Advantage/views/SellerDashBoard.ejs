@@ -18,7 +18,7 @@
     <h2>Your current Ads</h2>
     <div class="card_container">
       <% for (let i = 0; i < products.length; i++) {%> 
-            <a href="/search/product/<%= products[i].ProductId %>"><div class="card">
+            <a href="http://localhost:3000/search/product/<%= products[i].ProductId %>"><div class="card">
               <img src="<%= products[i].Image1Src%>" %> alt="<%= products[i].Name %>">
                 <h3><%= products[i].Name %></h3>
             </div></a> 

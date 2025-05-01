@@ -1,4 +1,4 @@
-import { findProducts,findProduct,findProductsByCategory } from "../models/User.js";
+import { findProducts,findProduct,findProductsByCategory } from "../models/MongoUser.js";
 
 // const searchProducts = async (req, res) => {
 //   let name = req.query.search;
@@ -44,3 +44,4 @@ export const getProductBycategory = async (req,res) => {
     isLogged: req.isAuthenticated() && (req.user.role == "buyer")
   });
 }
+

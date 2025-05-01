@@ -1,6 +1,6 @@
 import experss from "express";
 import passport from "passport";
-import { findSellersForAdmin, findUsersForAdmin } from "../models/User.js";
+import { findSellersForAdmin, findUsersForAdmin } from "../models/MongoUser.js";
 
 const adminRouter = experss.Router();
 

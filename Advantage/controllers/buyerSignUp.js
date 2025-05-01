@@ -1,4 +1,4 @@
-import { createUser, findUserByEmail } from "../models/User.js";
+import { createUser, findUserByEmail } from "../models/MongoUser.js";
 
 export const buyerSignup=async (req,res)=>{
     let {email,password,cnfpwd}=req.body;

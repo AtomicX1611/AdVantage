@@ -4,7 +4,7 @@ import {
   createUser,
   findSellerByEmail,
   createSeller,
-} from "../models/User.js";
+} from "../models/MongoUser.js";
 
 export const buyerLogin = async (req, res, next) => {
   console.log("request recived : ", req.body);

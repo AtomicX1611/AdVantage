@@ -8,10 +8,9 @@ import {
   findUserByEmail,
   getWishlistProducts,
   removeWishlistProduct,
-  updateBuyerPassword,
-  addRequest
-} from "../models/User.js";
-import { featuredProducts } from "../models/User.js";
+  updateBuyerPassword
+} from "../models/MongoUser.js";
+import { featuredProducts } from "../models/MongoUser.js";
 // import { freshProducts } from "../models/User.js";
 import { lch } from "d3";
 
@@ -56,20 +55,10 @@ buyerRoutes.post("/wishlist/add", requireRole("buyer"), async (req, res) => {
 });
 
 buyerRoutes.get("/wishlist", requireRole("buyer"), async (req, res) => {
-  const productIds = await getWishlistProducts(req.user.email);
-  console.log("product ids" + productIds);
-  // const products=productIds.map(async (obj)=> await findProduct(obj.productId));
-  let products = new Array(),
-    product;
-  for (let productIdobj of productIds) {
-    product = await findProduct(productIdobj.ProductId);
-    products.push(product);
-  }
-  console.log(products);
-  console.log(products);
+  const products = await getWishlistProducts(req.user.email);
   res.render("wishlist", {
     products: products,
-    isLogged: req.isAuthenticated() && req.user.role == "buyer",
+    isLogged: req.isAuthenticated() && req.user.role == "buyer"
   });
 });
 
@@ -131,8 +120,4 @@ buyerRoutes.post('/updatePassword', async (req, res) => {
       res.status(401).json("email not found");
     }
   }
-});
-
-buyerRoutes.post('/addRequest',async (req,res) => {
-  addRequest();
 });

@@ -1,8 +1,8 @@
 import express from "express";
-import { verifyProduct } from "../models/User.js";
+import { verifyProduct } from "../models/MongoUser.js";
 import passport from "passport";
 import { requireRole } from "../middleware/roleMiddleware.js";
-import { findProductsNotVerified } from "../models/User.js";
+import { findProductsNotVerified } from "../models/MongoUser.js";
 
 const managerRouter = express.Router();
 

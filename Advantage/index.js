@@ -7,7 +7,7 @@ import session from "express-session";
 import passport from "passport";
 import productRouter from "./routes/productRoutes.js";
 import pkg from "passport-local";
-import { findAdmins, findSellerByEmail, findUserByEmail } from "./models/User.js";
+import { findAdmins, findSellerByEmail, findUserByEmail } from "./models/MongoUser.js";
 import { Server } from "socket.io";
 import { sock } from "./controllers/Socket.js";
 import cors from "cors";
@@ -15,7 +15,7 @@ import managerRouter from "./routes/managerRoutes.js";
 import adminRouter from "./routes/adminRouter.js";
 
 const app = express();
-const port = 3002;
+const port = 3000;
 
 app.use(cors());
 
@@ -95,7 +95,7 @@ passport.use(
         result = managers.find((manager) => manager.email === email);
         console.log("resulkt L: ", result);
       }else if(email.slice(email.length - 1, email.length) == "a"){
-        email = email.slice(0,email.length - 1);
+        email = email.slice(0,email.length - 1)
         result = findAdmins(email)
         console.log("resulkt admin : ", result);
       }
@@ -130,7 +130,7 @@ passport.deserializeUser(async (user, cb) => {
   cb(null, user);
 });
 
-const server = app.listen(port,"0.0.0.0", () => console.log("Running on Port 3000"));
+const server = app.listen(port, () => console.log("Running on Port 3000"));
 export const io = new Server(server);
 
 io.on("connection", sock);
