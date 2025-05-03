@@ -217,7 +217,6 @@ export const findSendersForSeller = async (seller) => {
 }
 
 export const createContact = (seller, buyer) => {
-    // ENSURE BIDIRECTIONNAL CONTACT
     return new Promise((resolve, reject) => {
         const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
         const message = '__init';

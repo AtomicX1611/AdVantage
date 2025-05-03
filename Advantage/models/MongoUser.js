@@ -133,6 +133,40 @@ export const findProductsBySeller = async function (email) {
     return rows;
 }
 
+// adding featured product and fresh product fetching functions:
+export const featuredProducts = async () => {
+    try {
+        const rows = await Product.find().limit(10);
+
+        for (let row of rows) {
+            let Images = await findImages(row._id);
+            for (let j = 0; j < Images.length; j++) {
+                row[`Image${j + 1}Src`] = Images[j].Image;
+            }
+        }
+
+        return rows;
+    } catch (err) {
+        throw err;
+    }
+};
+
+export const freshProducts = async () => {
+    try {
+        const rows = await Product.find().skip(10).limit(15);
+
+        for (let row of rows) {
+            let Images = await findImages(row._id);
+            for (let j = 0; j < Images.length; j++) {
+                row[`Image${j + 1}Src`] = Images[j].Image;
+            }
+        }
+
+        return rows;
+    } catch (err) {
+        throw err;
+    }
+};
 
 //sellers
 const sellersSchema = new mongoose.Schema({
@@ -273,3 +307,155 @@ const admins = [
 export const findAdmins = (email) => {
     return admins.find(admin => admin.email === email)
 }
+
+//conversation
+const conversationSchema = new mongoose.Schema({
+    sellerMail: {
+        type: String,
+        required: true,
+        trim: true,
+        lowercase: true
+    },
+    sender: {
+        type: String,
+        default: null,
+        trim: true,
+        lowercase: true
+    },
+    buyerMail: {
+        type: String,
+        required: true,
+        trim: true,
+        lowercase: true
+    },
+    message: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    date: {
+        type: Date,
+        required: true,
+        default: Date.now
+    }
+}, {
+    collection: 'conversation'
+});
+
+const Conversation = mongoose.model('Conversation', conversationSchema);
+
+export const findMessages = async (seller, buyer) => {
+    try {
+        const rows = await Conversation.find({ buyerMail: buyer, sellerMail: seller }, 'sellerMail');
+        return rows;
+    } catch (err) {
+        throw err;
+    }
+};
+
+export const findSendersForEmail = async (buyer) => {
+    try {
+        const rows = await Conversation.find({ buyerMail: buyer }).distinct('sellerMail');
+        return rows.map(email => ({ sellerMail: email }));
+    } catch (err) {
+        throw err;
+    }
+};
+
+export const findSendersForSeller = async (seller) => {
+    try {
+        const rows = await Conversation.find({ sellerMail: seller }).distinct('buyerMail');
+        return rows.map(email => ({ buyerMail: email }));
+    } catch (err) {
+        throw err;
+    }
+};
+
+export const createContact = async (seller, buyer) => {
+    try {
+        const date = new Date();
+        const message = '__init';
+
+        await Conversation.create({
+            sellerMail: seller,
+            buyerMail: buyer,
+            message: message,
+            date: date
+        });
+
+        return {
+            message: 'Contact created successfully!',
+            sellerMail: seller,
+            buyerMail: buyer,
+            date: date
+        };
+    } catch (err) {
+        throw err;
+    }
+};
+
+export const senderList = async (result) => {
+    try {
+        if (result.length === 0) return [];
+
+        const sellerEmails = result.map(item => item.sellerMail);
+        const rows = await Seller.find({ email: { $in: sellerEmails } }, 'username email');
+
+        return rows.map(({ username, email }) => ({ senderUsername: username, sender: email }));
+    } catch (err) {
+        throw err;
+    }
+};
+
+export const buyerList = async (result) => {
+    try {
+        if (result.length === 0) return [];
+
+        const buyerEmails = result.map(item => item.buyerMail);
+        const rows = await User.find({ email: { $in: buyerEmails } }, 'username email');
+
+        return rows.map(({ username, email }) => ({ senderUsername: username, sender: email }));
+    } catch (err) {
+        throw err;
+    }
+};
+
+export const fetchConversations = async (sellerMail, buyerMail) => {
+    console.log("entered fetchConversations in user.js", sellerMail, buyerMail);
+    try {
+        const rows = await Conversation.find({
+            $or: [
+                { sellerMail: sellerMail, buyerMail: buyerMail },
+                { sellerMail: buyerMail, buyerMail: sellerMail }
+            ]
+        }).sort({ date: 1 });
+        return rows;
+    } catch (err) {
+        throw err;
+    }
+};
+
+//sender field added extra in this..................
+export const saveMessage = async (sellerMail, buyerMail, message, sender) => {
+    try {
+        const currentDateTime = new Date();
+
+        const doc = await Conversation.create({
+            sellerMail,
+            sender,
+            buyerMail,
+            message,
+            date: currentDateTime
+        });
+
+        return {
+            sellerMail,
+            sender,
+            buyerMail,
+            message,
+            date: currentDateTime
+        };
+    } catch (err) {
+        throw err;
+    }
+};
