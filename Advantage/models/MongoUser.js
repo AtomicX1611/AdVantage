@@ -59,6 +59,11 @@ const productSchema = new mongoose.Schema({
             'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
             'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
         ]
+    },
+    sold: {
+        type: mongoose.Schema.Types.Boolean,
+        default: false,
+        required: true
     }
 });
 const products = mongoose.model('products', productSchema);
@@ -129,8 +134,12 @@ export const removeProduct = async (productId) => {
 }
 export const findProductsBySeller = async function (email) {
     const seller = await findSellerByEmail(email);
+    console.log(seller);
     const rows= await products.find({seller:seller._id}).lean();
     return rows;
+}
+export const setSoldTo = function(productId){
+    products.updateOne({_id:productId},{sold:true});
 }
 
 // adding featured product and fresh product fetching functions:
@@ -192,7 +201,7 @@ export const findSellerByEmail = async (email) => {
     return seller;
 }
 export const createSeller = async (seller) => {
-    await users.collection.insertOne(seller);
+    await sellers.collection.insertOne(seller);
     return;
 };
 export const findSellersForAdmin = async () => {

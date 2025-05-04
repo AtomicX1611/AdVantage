@@ -121,3 +121,11 @@ buyerRoutes.post('/updatePassword', async (req, res) => {
     }
   }
 });
+// buyerRoutes.get('/buy/:productId',requireRole("buyer"),async (req,res)=>{
+//   let product=await findProduct(req.params.productId);
+//   if(product.sold){
+//     res.redirect(`/search/product/${req.params.productId}`);
+//   }else{
+//     res.render('buyerPaymentForm',{productId:req.params.productId});
+//   }
+// });

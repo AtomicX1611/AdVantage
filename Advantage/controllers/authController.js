@@ -114,8 +114,8 @@ export const sellerSignup = async (req, res) => {
       role: "seller",
     };
 
-    createSeller(user);
-
+    await createSeller(user);
+    fetchedSeller = await findSellerByEmail(email);
     req.login(user, (err) => {
       if (err) {
         console.error("Error during req.login:", err);
