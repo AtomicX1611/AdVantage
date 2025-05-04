@@ -404,7 +404,7 @@ export const senderList = async (result) => {
         if (result.length === 0) return [];
 
         const sellerEmails = result.map(item => item.sellerMail);
-        const rows = await Seller.find({ email: { $in: sellerEmails } }, 'username email');
+        const rows = await sellers.find({ email: { $in: sellerEmails } }, 'username email');
 
         return rows.map(({ username, email }) => ({ senderUsername: username, sender: email }));
     } catch (err) {
@@ -417,7 +417,7 @@ export const buyerList = async (result) => {
         if (result.length === 0) return [];
 
         const buyerEmails = result.map(item => item.buyerMail);
-        const rows = await User.find({ email: { $in: buyerEmails } }, 'username email');
+        const rows = await users.find({ email: { $in: buyerEmails } }, 'username email');
 
         return rows.map(({ username, email }) => ({ senderUsername: username, sender: email }));
     } catch (err) {
