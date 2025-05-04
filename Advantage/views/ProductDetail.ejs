@@ -47,15 +47,19 @@
           <h4 id="verified">✅ Verified Product</h4>
           <% } %>
           <div class="options">
-            <a href=/buyer/chats/contact/<%=sellerId%>>
+            <a href="/buyer/chats/contact/<%= sellerId %>">
               <div class="chatWs btn" id="chat-btn">
                 Chat with seller
                 <input type="hidden" name="selleId" value="<%= sellerId%>">
               </div>
             </a>
-            <div class="purchase btn">
-              Buy now
-            </div>
+            <% if(product.sold == 0){ %>
+            <a href="/buyer/buy/<%= product._id %>">
+              <div class="purchase btn">
+                Buy now
+              </div>
+            </a>
+            <% } %>
           </div>
           <div class="description">
             <h2 class="item_desc">Description</h2>
@@ -64,6 +68,10 @@
             </h3>
             <% if(manager) { %>
             <button id="verifyButton" data-id="<%= product._id %>">Verify</button>
+            <% } %>
+            <% if(sold1) { %>
+              <a href="/seller/accept/<%= product._id %>" style="color: white;">accept</a>
+              <a href="/seller/reject/<%= product._id %>" style="color: white;">reject</a>
             <% } %>
             <button id="addToWishlist" data-id="<%= product._id %>">Add to Wishlist</button>
           </div>

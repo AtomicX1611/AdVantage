@@ -1,5 +1,5 @@
 import mongoose, { mongo } from 'mongoose';
-import { sellersdummy,productsdummy } from './Products.js';
+import { sellersdummy, productsdummy } from './Products.js';
 
 await mongoose.connect('mongodb://localhost:27017/AdVantage');
 
@@ -61,8 +61,13 @@ const productSchema = new mongoose.Schema({
         ]
     },
     sold: {
-        type: mongoose.Schema.Types.Boolean,
-        default: false,
+        type: mongoose.Schema.Types.Int32,
+        default: 0,
+        required: true
+    },
+    soldTo: {
+        type: mongoose.Schema.Types.String,
+        default: null,
         required: true
     }
 });
@@ -81,7 +86,7 @@ export const findProducts = async function (Name) {
     }
 };
 export const findProduct = async function (prodId) {
-    const product =await products.findById(prodId).populate('seller').lean();
+    const product = await products.findById(prodId).populate('seller').lean();
     return product;
 }
 export const addProduct = async function (Name, Price, Description, zipCode, sellerEmail, images, category, district, state, city) {
@@ -95,16 +100,18 @@ export const addProduct = async function (Name, Price, Description, zipCode, sel
             price: Price,
             description: Description,
             zipCode: zipCode,
-            postingDate: new Date(), // optional, handled by schema too
+            postingDate: new Date(),
             verified: false,
             category: category,
             district: district,
             city: city,
             state: state,
-            seller: seller._id
+            seller: seller._id,
+            sold: 0,
+            soldTo: null
         };
-        for(let i=0;i<images.length;i++){
-            product[`Image${i+1}Src`]=images[i];
+        for (let i = 0; i < images.length; i++) {
+            product[`Image${i + 1}Src`] = images[i];
         }
         const result = await products.collection.insertOne(product);
         return result;
@@ -121,25 +128,34 @@ export const verifyProduct = async (productId) => {
     return true;
 }
 export const findProductsNotVerified = async () => {
-    const rows=await products.find({verified:false}).populate('seller');
+    const rows = await products.find({ verified: false }).populate('seller');
     return rows;
 }
 export const findProductsByCategory = async (category) => {
-    const rows=await products.find({category: category}).lean();
+    const rows = await products.find({ category: category }).lean();
     return rows;
 }
 export const removeProduct = async (productId) => {
-    await products.collection.deleteOne({_id:productId});
+    await products.collection.deleteOne({ _id: productId });
     return;
 }
 export const findProductsBySeller = async function (email) {
     const seller = await findSellerByEmail(email);
     console.log(seller);
-    const rows= await products.find({seller:seller._id}).lean();
+    const rows = await products.find({ seller: seller._id }).lean();
     return rows;
 }
-export const setSoldTo = function(productId){
-    products.updateOne({_id:productId},{sold:true});
+export const increaseSold = async function (email, productId) {
+    let p = await products.findOneAndUpdate({ _id: productId, sold: { $gte: 0, $lte: 1 } }, { $inc: { sold: 1 } }, { new: true }).populate('seller');
+    console.log("In : "+productId);
+    if (p && (p.sold == 1)) {
+        await products.updateOne({ _id: productId }, { soldTo:  email}); //here email is buyer email
+    } else if (p && (p.sold == 2)) {
+        await users.updateOne({ email: p.soldTo }, { $push: { products: productId } });
+    }
+}
+export const decreaseSold = async function (productId) {
+    await products.updateOne({ _id: productId, sold: 1 }, { $inc: { sold: -1 } });
 }
 
 // adding featured product and fresh product fetching functions:
@@ -207,35 +223,38 @@ export const createSeller = async (seller) => {
 export const findSellersForAdmin = async () => {
     const result = await sellers.aggregate([
         {
-          $lookup: {
-            from: 'products',
-            localField: '_id',
-            foreignField: 'seller',
-            as: 'products'
-          }
+            $lookup: {
+                from: 'products',
+                localField: '_id',
+                foreignField: 'seller',
+                as: 'products'
+            }
         },
         {
-          $project: {
-            username: 1,
-            contact: 1,
-            email: 1,
-            password: 1,
-            numberOfProducts: { $size: '$products' }
-          }
+            $project: {
+                username: 1,
+                contact: 1,
+                email: 1,
+                password: 1,
+                numberOfProducts: { $size: '$products' }
+            }
         }
-      ]);
+    ]);
     return result;
 }
 export const removeSeller = async (email) => {
-    await sellers.collection.deleteOne({email:email});
+    let seller = await sellers.findOneAndDelete({ email: email });
+    if (seller) {
+        await products.deleteMany({ seller: seller._id, sold: { $lt: 2 } });
+    }
     return;
 }
 export const updateSellerPassword = async function (email, password) {
     await sellers.updateOne(
         { email: email },
         { $set: { password: password } }
-      );
-} 
+    );
+}
 
 //users
 const usersSchema = new mongoose.Schema({
@@ -259,7 +278,16 @@ const usersSchema = new mongoose.Schema({
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'products',
-            default:[]
+            default: [],
+            required: true
+        }
+    ],
+    products: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'products',
+            default: [],
+            required: true
         }
     ]
 });
@@ -274,14 +302,14 @@ export const createUser = async (user) => {
 };
 export const updateBuyerPassword = async function (email, password) {
     await users.updateOne(
-      { email: email },
-      { $set: { password: password } }
+        { email: email },
+        { $set: { password: password } }
     );
 };
 export const getWishlistProducts = async function (userEmail) {
-    const user=await users.findOne({ email: userEmail })
+    const user = await users.findOne({ email: userEmail })
         .populate({
-            path:'wishlistProducts',
+            path: 'wishlistProducts',
             populate: {
                 path: 'seller'
             }
@@ -291,11 +319,11 @@ export const getWishlistProducts = async function (userEmail) {
 export const addToWishlist = function (userEmail, productId) {
     return new Promise(async (resolve, reject) => {
         // const user=await findUserByEmail(userEmail);
-            await users.updateOne(
-                { email: userEmail },
-                { $addToSet: { wishlistProducts: productId } }
-            );
-            resolve("Product added to the wishlist successfully");
+        await users.updateOne(
+            { email: userEmail },
+            { $addToSet: { wishlistProducts: productId } }
+        );
+        resolve("Product added to the wishlist successfully");
     });
 }
 export const removeWishlistProduct = function (userEmail, productId) {
@@ -310,6 +338,10 @@ export const removeWishlistProduct = function (userEmail, productId) {
 export const findUsersForAdmin = async () => {
     return await users.find();
 };
+export const findUserProducts = async (email) => {
+    let u=await users.findOne({email: email}).populate('products').lean();
+    return u.products;
+}
 
 //admin
 const admins = [
@@ -478,18 +510,18 @@ export const saveMessage = async (sellerMail, buyerMail, message, sender) => {
 
 
 //dummy data
-// sellers.collection.insertOne(sellersdummy[0]);
-// for (let i = 0; i < productsdummy.length; i++) {
-//     await addProduct(
-//         productsdummy[i].name,
-//         productsdummy[i].price,
-//         productsdummy[i].description,
-//         productsdummy[i].zipcode,
-//         productsdummy[i].sellerEmail,
-//         productsdummy[i].images,
-//         productsdummy[i].category,
-//         productsdummy[i].district,
-//         productsdummy[i].state,
-//         productsdummy[i].city
-//     );
-// }
+sellers.collection.insertOne(sellersdummy[0]);
+for (let i = 0; i < productsdummy.length; i++) {
+    await addProduct(
+        productsdummy[i].name,
+        productsdummy[i].price,
+        productsdummy[i].description,
+        productsdummy[i].zipcode,
+        productsdummy[i].sellerEmail,
+        productsdummy[i].images,
+        productsdummy[i].category,
+        productsdummy[i].district,
+        productsdummy[i].state,
+        productsdummy[i].city
+    );
+}

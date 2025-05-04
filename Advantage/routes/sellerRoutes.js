@@ -7,7 +7,7 @@ import { insertProduct } from "../controllers/seller.js";
 // import multer from "multer";
 // import path from "path";
 // import { fileURLToPath } from "url";
-import { findProduct, removeProduct, removeSeller, updateSellerPassword, findSellerByEmail,findProductsBySeller } from "../models/MongoUser.js";
+import { findProduct, removeProduct, removeSeller, updateSellerPassword, findSellerByEmail, findProductsBySeller, decreaseSold, increaseSold } from "../models/MongoUser.js";
 
 
 
@@ -22,11 +22,11 @@ sellerRouter.use(express.urlencoded({ extended: true }));
 sellerRouter.use("/chats", chatRoutes);
 // sellerRouter.post("/login", sellerLogin);
 
-sellerRouter.get("/",requireRole("seller"),async (req, res) => {
+sellerRouter.get("/", requireRole("seller"), async (req, res) => {
   let products;
   products = await findProductsBySeller(req.user.email);
   // console.log(products);
-  res.render("SellerDashBoard.ejs",{products});
+  res.render("SellerDashBoard.ejs", { products });
 });
 
 export default sellerRouter;
@@ -88,7 +88,7 @@ sellerRouter.post('/deleteProduct', requireRole("seller"), async (req, res) => {
   }
 });
 
-sellerRouter.get('/updatePassword',(req,res)=>{
+sellerRouter.get('/updatePassword', (req, res) => {
   res.render('sellerUpdatePassword');
 });
 
@@ -115,4 +115,20 @@ sellerRouter.post('/updatePassword', async (req, res) => {
       res.status(401).json("email not found");
     }
   }
+});
+sellerRouter.get('/accept/:productId', requireRole('seller'), async (req, res) => {
+  let product = await findProduct(req.params.productId);
+  // console.log(product);
+  if ((product.seller.email == req.user.email) && (product.sold == 1)) {
+    await increaseSold(req.user.email, req.params.productId);
+  }
+  res.redirect('/seller');
+});
+sellerRouter.get('/reject/:productId', requireRole('seller'), async (req, res) => {
+  let product = await findProduct(req.params.productId);
+  if ((product.seller.email == req.user.email) && (product.sold == 1)) {
+    console.log("calling decrease..");
+    await decreaseSold(req.params.productId);
+  }
+  res.redirect('/seller');
 });

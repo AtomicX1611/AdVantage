@@ -43,6 +43,9 @@ chatRoutes.get("/contact/:id",async (req,res)=>{
         res.redirect("/auth/buyer");
     }
 })
+chatRoutes.get("/contact",(req,res)=>{
+    res.send("seller account is deleted");
+});
 
 chatRoutes.post("/save",async (req,res)=>{
     let {sellerMail,buyerMail,message,sender}=req.body;

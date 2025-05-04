@@ -8,7 +8,9 @@ import {
   findUserByEmail,
   getWishlistProducts,
   removeWishlistProduct,
-  updateBuyerPassword
+  updateBuyerPassword,
+  increaseSold,
+  findUserProducts
 } from "../models/MongoUser.js";
 import { featuredProducts } from "../models/MongoUser.js";
 // import { freshProducts } from "../models/User.js";
@@ -121,11 +123,18 @@ buyerRoutes.post('/updatePassword', async (req, res) => {
     }
   }
 });
-// buyerRoutes.get('/buy/:productId',requireRole("buyer"),async (req,res)=>{
-//   let product=await findProduct(req.params.productId);
-//   if(product.sold){
-//     res.redirect(`/search/product/${req.params.productId}`);
-//   }else{
-//     res.render('buyerPaymentForm',{productId:req.params.productId});
-//   }
-// });
+buyerRoutes.get('/buy/:productId',requireRole("buyer"),async (req,res)=>{
+  let product=await findProduct(req.params.productId);
+  if(product.sold!=0){
+    res.redirect(`/search/product/${req.params.productId}`);
+  }else{
+    // console.log("hii");
+    console.log(req.user.email);
+    await increaseSold(req.user.email,req.params.productId);
+    res.redirect("/buyer/yourProducts");
+  }
+});
+buyerRoutes.get("/yourProducts",async (req,res)=>{
+  let ps=await findUserProducts(req.user.email);
+  res.render('yourproducts',ps);
+});
