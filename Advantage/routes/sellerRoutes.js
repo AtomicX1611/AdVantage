@@ -24,12 +24,12 @@ sellerRouter.use("/chats", chatRoutes);
 
 sellerRouter.get("/",requireRole("seller"),async (req, res) => {
   let products;
-  products = await findProductsBySeller(req.user.email)
+  products = await findProductsBySeller(req.user.email);
   // console.log(products);
   res.render("SellerDashBoard.ejs",{products});
 });
 
-export default sellerRouter
+export default sellerRouter;
 
 //  const sellerRoutes=express.Router();
 // sellerRoutes.use(express.json());
@@ -79,8 +79,8 @@ sellerRouter.get('/remove/:sellerEmail', requireRole("admin"), async (req, res) 
 sellerRouter.post('/deleteProduct', requireRole("seller"), async (req, res) => {
   const product = await findProduct(req.body.pid);
   // console.log(req.user);
-  if (product.SellerEmail === req.user.email) {
-    // console.log("hii");
+  if (product.seller.email === req.user.email) {
+    console.log("hii");
     await removeProduct(req.body.pid);
     res.redirect('/seller');
   } else {

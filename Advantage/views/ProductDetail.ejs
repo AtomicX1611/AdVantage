@@ -25,23 +25,23 @@
         <div class="product_details">
           <div class="item_header">
             <h2 class="item_title">
-              <%= product.Name %>
+              <%= product.name %>
             </h2>
-            <h2 class="item_price">₹<%= product.Price %>/-</h2>
+            <h2 class="item_price">₹<%= product.price %>/-</h2>
           </div>
           <div>
             <h2 class="item_address">
-              <%= product.State %>
+              <%= product.state %>
             </h2>
             <h3 class="item_address">
-              <%= product.District %>
+              <%= product.district %>
             </h3>
             <h4 class="item_address">
-              <%= product.City %>
+              <%= product.city %>
             </h4>
           </div>
           <% if(hisProduct) { %>
-            <button id="deleteProduct" data-id="<%= product.ProductId %>"> Delete Product</button>
+            <button id="deleteProduct" data-id="<%= product._id %>"> Delete Product</button>
             <% } %>
           <% if(product.verified != 0) { %>
           <h4 id="verified">✅ Verified Product</h4>
@@ -60,12 +60,12 @@
           <div class="description">
             <h2 class="item_desc">Description</h2>
             <h3 class="item_title">
-              <%= product.Description %>
+              <%= product.description %>
             </h3>
             <% if(manager) { %>
-            <button id="verifyButton" data-id="<%= product.ProductId %>">Verify</button>
+            <button id="verifyButton" data-id="<%= product._id %>">Verify</button>
             <% } %>
-            <button id="addToWishlist" data-id="<%= product.ProductId %>">Add to Wishlist</button>
+            <button id="addToWishlist" data-id="<%= product._id %>">Add to Wishlist</button>
           </div>
         </div>
       </div>

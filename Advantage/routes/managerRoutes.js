@@ -40,8 +40,10 @@ managerRouter.post("/login", (req, res, next) => {
 
 managerRouter.post("/verify", requireRole("manager"), async (req, res) => {
   const productId = req.body.pid;
+  // console.log(productId);
   try {
     const verify = await verifyProduct(productId);
+    // console.log(verify);
     if (verify) {
       return res.redirect("/manager/dashboard");
     } else {

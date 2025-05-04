@@ -1,4 +1,4 @@
-export const products = [
+export const productsdummy = [
     //clothes
     {
         name: "CB-COLEBROOK Men's Regular Fit Solid Soft Touch Cotton Casual Shirt with Pocket Design with Spread Collar & Full Sleeves",
@@ -79,7 +79,7 @@ export const products = [
     },
     {
         name: "iQOO Z9 Lite 5G (Mocha Brown, 6GB RAM, 128GB Storage) | Dimensity 6300 5G | 50MP Sony AI Camera | Charger in The Box",
-        category:"Mobiles",
+        category: "Mobiles",
         price: "11090",
         description: " Take your cinematic experience to the next level with 120Hz 3D Curved AMOLED display. The 1800 nits local peak brightness ensures outstanding visibility, even in direct sunlight. Powered by MediaTek Dimensity 7300 with 702K+ AnTuTu Score, 4nm TSMC Octa-core CPU architecture which gives you effortless multi-tasking. experience.Capture colors & details with lifelike Accuracy with the 50MP Sony IMX882 OIS Camera with AURA Light. Features like AI Photo Enhance ensures No memory is blurry & with AI Erase snap worry-free & eliminate any unwanted objects & people from your photo.",
         images: ["https://m.media-amazon.com/images/I/41hmUyFtwdL._SX38_SY50_CR,0,0,38,50_.jpg",
@@ -126,7 +126,7 @@ export const products = [
     },
     {
         name: "ASUS TUF Gaming A15, AMD Ryzen 7 7435Hs, NVIDIA Geforce RTX 3050, 16GB RAM, 512GB SSD, FHD 144Hz, 15.6, Windows 11, Graphite Black, 2.3KG, FA506NCR-HN054W, 48WHR Gaming Laptop",
-        category : "Laptops",
+        category: "Laptops",
         price: "63500",
         description: "The ASUS TUF Gaming A15 is a high-performance gaming laptop designed to deliver an immersive gaming experience with cutting-edge hardware and robust durability. Powered by the powerful AMD Ryzen 7 7435HS processor, this laptop ensures smooth multitasking and seamless gameplay, making it ideal for gamers and content creators alike. Equipped with 16GB RAM and a 512GB SSD, it offers lightning-fast load times, ample storage, and efficient handling of heavy applications. The 15.6-inch Full HD display with a 144Hz refresh rate guarantees fluid visuals and ultra-smooth gameplay, enhancing your competitive edge in fast-paced games With the NVIDIA GeForce RTX 3050 GPU,",
         images: ["https://m.media-amazon.com/images/I/41Aw8+krn+L._SS40_.jpg",
@@ -434,3 +434,11 @@ export const products = [
     },
 
 ]
+export const sellersdummy = [
+    {
+        username:"ali",
+        contact:"7894561230",
+        email:"sk@gmail.com",
+        password:"12345678"
+    }
+];

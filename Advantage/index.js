@@ -96,10 +96,9 @@ passport.use(
         console.log("resulkt L: ", result);
       }else if(email.slice(email.length - 1, email.length) == "a"){
         email = email.slice(0,email.length - 1)
-        result = findAdmins(email)
-        console.log("resulkt admin : ", result);
+        result = findAdmins(email);
+        console.log("result admin : ", result);
       }
-      console.log(result);
       if (result) {
         if (result.password !== password) {
           console.log(result.password);

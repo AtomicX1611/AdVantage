@@ -1,4 +1,5 @@
 import mongoose, { mongo } from 'mongoose';
+import { sellersdummy,productsdummy } from './Products.js';
 
 await mongoose.connect('mongodb://localhost:27017/AdVantage');
 
@@ -22,7 +23,7 @@ const productSchema = new mongoose.Schema({
         required: true
     },
     zipCode: {
-        type: Number,
+        type: String,
         required: true
     },
     seller: {
@@ -67,8 +68,7 @@ export const findProducts = async function (Name) {
         const productsList = await products
             .find({ $text: { $search: Name } }, { score: { $meta: "textScore" } })
             .sort({ score: { $meta: "textScore" } })
-            .populate('seller');
-
+            .populate('seller').lean();
         return productsList;
     } catch (err) {
         console.error("Error finding products:", err.message);
@@ -76,7 +76,7 @@ export const findProducts = async function (Name) {
     }
 };
 export const findProduct = async function (prodId) {
-    const product =await products.findById(prodId);
+    const product =await products.findById(prodId).populate('seller').lean();
     return product;
 }
 export const addProduct = async function (Name, Price, Description, zipCode, sellerEmail, images, category, district, state, city) {
@@ -113,14 +113,14 @@ export const verifyProduct = async (productId) => {
         { _id: productId },
         { $set: { verified: true } }
     );
-    return;
+    return true;
 }
 export const findProductsNotVerified = async () => {
-    const rows=await products.find({verified:false});
+    const rows=await products.find({verified:false}).populate('seller');
     return rows;
 }
 export const findProductsByCategory = async (category) => {
-    const rows=await products.find({category: category});
+    const rows=await products.find({category: category}).lean();
     return rows;
 }
 export const removeProduct = async (productId) => {
@@ -129,22 +129,21 @@ export const removeProduct = async (productId) => {
 }
 export const findProductsBySeller = async function (email) {
     const seller = await findSellerByEmail(email);
-    const rows= await products.find({seller:seller._id});
+    const rows= await products.find({seller:seller._id}).lean();
     return rows;
 }
 
 // adding featured product and fresh product fetching functions:
 export const featuredProducts = async () => {
     try {
-        const rows = await Product.find().limit(10);
+        const rows = await products.find().limit(10).lean();
 
-        for (let row of rows) {
-            let Images = await findImages(row._id);
-            for (let j = 0; j < Images.length; j++) {
-                row[`Image${j + 1}Src`] = Images[j].Image;
-            }
-        }
-
+        // for (let row of rows) {
+        //     let Images = await findImages(row._id);
+        //     for (let j = 0; j < Images.length; j++) {
+        //         row[`Image${j + 1}Src`] = Images[j].Image;
+        //     }
+        // }
         return rows;
     } catch (err) {
         throw err;
@@ -153,14 +152,14 @@ export const featuredProducts = async () => {
 
 export const freshProducts = async () => {
     try {
-        const rows = await Product.find().skip(10).limit(15);
+        const rows = await products.find().skip(10).limit(15).lean();
 
-        for (let row of rows) {
-            let Images = await findImages(row._id);
-            for (let j = 0; j < Images.length; j++) {
-                row[`Image${j + 1}Src`] = Images[j].Image;
-            }
-        }
+        // for (let row of rows) {
+        //     let Images = await findImages(row._id);
+        //     for (let j = 0; j < Images.length; j++) {
+        //         row[`Image${j + 1}Src`] = Images[j].Image;
+        //     }
+        // }
 
         return rows;
     } catch (err) {
@@ -250,11 +249,12 @@ const usersSchema = new mongoose.Schema({
     wishlistProducts: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'products'
+            ref: 'products',
+            default:[]
         }
     ]
 });
-const users = mongoose.model('sellers', sellersSchema);
+const users = mongoose.model('users', usersSchema);
 export const findUserByEmail = async (email) => {
     const user = await users.findOne({ email: email });
     return user;
@@ -270,22 +270,23 @@ export const updateBuyerPassword = async function (email, password) {
     );
 };
 export const getWishlistProducts = async function (userEmail) {
-    const user=await findUserByEmail(userEmail)
-        .populate('wishlistProducts');
+    const user=await users.findOne({ email: userEmail })
+        .populate({
+            path:'wishlistProducts',
+            populate: {
+                path: 'seller'
+            }
+        }).lean();
     return user.wishlistProducts;
 }
 export const addToWishlist = function (userEmail, productId) {
     return new Promise(async (resolve, reject) => {
-        const user=await findUserByEmail(userEmail);
-            if(user.wishlistProducts.includes(productId)){
-                reject("Product is already in the wishlist");
-            }else{
-                await users.updateOne(
-                    { email: userEmail },
-                    { $push: { wishlistProducts: productId } }
-                );
-                resolve("Product added to the wishlist successfully");
-            }
+        // const user=await findUserByEmail(userEmail);
+            await users.updateOne(
+                { email: userEmail },
+                { $addToSet: { wishlistProducts: productId } }
+            );
+            resolve("Product added to the wishlist successfully");
     });
 }
 export const removeWishlistProduct = function (userEmail, productId) {
@@ -294,8 +295,12 @@ export const removeWishlistProduct = function (userEmail, productId) {
             { email: userEmail },
             { $pull: { wishlistProducts: productId } }
         );
+        resolve("Product removed");
     })
 }
+export const findUsersForAdmin = async () => {
+    return await users.find();
+};
 
 //admin
 const admins = [
@@ -305,8 +310,8 @@ const admins = [
     }
 ];
 export const findAdmins = (email) => {
-    return admins.find(admin => admin.email === email)
-}
+    return admins.find(admin => admin.email === email);
+};
 
 //conversation
 const conversationSchema = new mongoose.Schema({
@@ -459,3 +464,23 @@ export const saveMessage = async (sellerMail, buyerMail, message, sender) => {
         throw err;
     }
 };
+
+
+
+
+//dummy data
+// sellers.collection.insertOne(sellersdummy[0]);
+// for (let i = 0; i < productsdummy.length; i++) {
+//     await addProduct(
+//         productsdummy[i].name,
+//         productsdummy[i].price,
+//         productsdummy[i].description,
+//         productsdummy[i].zipcode,
+//         productsdummy[i].sellerEmail,
+//         productsdummy[i].images,
+//         productsdummy[i].category,
+//         productsdummy[i].district,
+//         productsdummy[i].state,
+//         productsdummy[i].city
+//     );
+// }

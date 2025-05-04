@@ -23,7 +23,7 @@
 </div>
     <script>
             const products = <%- JSON.stringify(products) %>;
-            // console.log(products);
+            // console.log(products); // apotential issue password is visible need to solve
             for(let product of products){
                 product[`Images`]=new Array();
                 for(let i=1;product[`Image${i}Src`] !== undefined;i++){
@@ -368,11 +368,13 @@
                         <img id="img-${index}" src="${product.Images[0]}" alt="${product.name}">
                         <button class="next" onclick="changeImage(${index}, 1)">❯</button>
                     </div>
-                    <h3>${product.Name}</h3>
-                    <p><b>Price :</b>${product.Price} Rs</p>
+                    <h3>${product.name}</h3>
+                    <p><b>Price :</b>${product.price} Rs</p>
                     <p style="word-break: break-word;"><strong>Description:</strong>${product.description}</p>
-                    <p><strong>Seller:</strong> ${product.SellerEmail}</p>
-                    <p><strong>Address:</strong> ${product.Address}</p>
+                    <p><strong>Seller:</strong> ${product.seller.email}</p>
+                    <h3><strong>State :</strong> ${product.state}</h3>
+                    <h4><strong>District :</strong> ${product.district}</h4>
+                    <h5><strong>City :</strong> ${product.city}</h5>
                     <p><strong>Posting Date:</strong> ${product.postingDate}</p>
                     <p><strong>Zip Code:</strong> ${product.zipCode}</p>
                     <button class="remove-btn" onclick="removeFromCompare(${index})">X</button>

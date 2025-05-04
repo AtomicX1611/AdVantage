@@ -72,16 +72,15 @@
       mainSection.innerHTML = '';
       let html, price;
       for (let i = 0; i < products.length; i++) {
-        price = parseFloat(products[i].Price);
-        // console.log(price);
-        if ((price >= minValue) && (price <= maxValue) && ( (!verifiedCheckbox.checked) || (products[i].verified != 0))) {
-          html = `<a href="http://localhost:3000/search/product/${products[i].ProductId}">
+        price = parseFloat(products[i].price);
+        if ((price >= minValue) && (price <= maxValue) && ( (!verifiedCheckbox.checked) || (products[i].verified != false))) {
+          html = `<a href="http://localhost:3000/search/product/${products[i]._id}">
                               <div class="products">
                                   <img src="${products[i].Image1Src}" alt="image" class="images">
                                   <h4 style="margin-left: 20px; font-size: 15px;">
-                                      ${products[i].Name}
+                                      ${products[i].name}
                                   </h4>
-                                  <h3 style="margin-left: 0px"> Rs. ${products[i].Price}/- </h3>
+                                  <h3 style="margin-left: 0px"> Rs. ${products[i].price}/- </h3>
                               </div>
                           </a>`;
           mainSection.insertAdjacentHTML("beforeend", html);

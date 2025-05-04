@@ -26,12 +26,13 @@ export const getProductsNoFilter = async (req,res) => {
 export const getProductDetails = async (req, res) => {
   const productId = req.params.productId;
   let pro=await findProduct(productId);
+  console.log(pro);
   res.render("ProductDetail", {
     product: pro,
-    sellerId:pro.SellerEmail,
+    sellerId:pro.seller.email,
     isLogged: req.isAuthenticated() && (req.user.role == "buyer"),
     manager : req.isAuthenticated() && (req.user.role == "manager"),
-    hisProduct : req.isAuthenticated() && (req.user.role == "seller") && (req.user.email === pro.SellerEmail),
+    hisProduct : req.isAuthenticated() && (req.user.role == "seller") && (req.user.email === pro.seller.email),
     seller: req.isAuthenticated() && (req.user.role == "seller")
   });
 };
