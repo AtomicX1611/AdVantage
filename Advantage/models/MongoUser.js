@@ -63,6 +63,7 @@ const productSchema = new mongoose.Schema({
 });
 const products = mongoose.model('products', productSchema);
 await products.collection.createIndex({ name: "text" });
+
 export const findProducts = async function (Name) {
     try {
         const productsList = await products
@@ -108,6 +109,7 @@ export const addProduct = async function (Name, Price, Description, zipCode, sel
         throw err;
     }
 };
+
 export const verifyProduct = async (productId) => {
     await products.updateOne(
         { _id: productId },
@@ -115,10 +117,12 @@ export const verifyProduct = async (productId) => {
     );
     return true;
 }
+
 export const findProductsNotVerified = async () => {
     const rows=await products.find({verified:false}).populate('seller');
     return rows;
 }
+
 export const findProductsByCategory = async (category) => {
     const rows=await products.find({category: category}).lean();
     return rows;
@@ -129,6 +133,8 @@ export const removeProduct = async (productId) => {
 }
 export const findProductsBySeller = async function (email) {
     const seller = await findSellerByEmail(email);
+    console.log("Seller : ",);
+    
     const rows= await products.find({seller:seller._id}).lean();
     return rows;
 }
@@ -347,7 +353,7 @@ const conversationSchema = new mongoose.Schema({
     collection: 'conversation'
 });
 
-const Conversation = mongoose.model('Conversation', conversationSchema);
+export const Conversation = mongoose.model('Conversation', conversationSchema);
 
 export const findMessages = async (seller, buyer) => {
     try {
@@ -464,9 +470,6 @@ export const saveMessage = async (sellerMail, buyerMail, message, sender) => {
         throw err;
     }
 };
-
-
-
 
 //dummy data
 // sellers.collection.insertOne(sellersdummy[0]);

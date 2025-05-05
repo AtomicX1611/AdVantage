@@ -67,3 +67,116 @@ export const senderList = (email, role) => {
     }
     return senders;
 };
+
+
+// const conversationSchema = new mongoose.Schema({
+//     sellerMail: {
+//         type: String,
+//         required: true,
+//         trim: true,
+//         lowercase: true
+//     },
+//     sender: {
+//         type: String,
+//         default: null,
+//         trim: true,
+//         lowercase: true
+//     },
+//     buyerMail: {
+//         type: String,
+//         required: true,
+//         trim: true,
+//         lowercase: true
+//     },
+//     message: {
+//         type: String,
+//         required: true,
+//         trim: true
+//     },
+//     date: {
+//         type: Date,
+//         required: true,
+//         default: Date.now
+//     }
+// }, {
+//     collection: 'conversation'
+// });
+
+// const Conversation = mongoose.model('Conversation', conversationSchema);
+
+
+
+
+// export const findMessages = async (seller, buyer) => {
+//     try {
+//         const rows = await Conversation.find({ buyerMail: buyer, sellerMail: seller }, 'sellerMail');
+//         return rows;
+//     } catch (err) {
+//         throw err;
+//     }
+// };
+
+// export const createContact = async (seller, buyer) => {
+//     try {
+//         const date = new Date();
+//         const message = '__init';
+
+//         await Conversation.create({
+//             sellerMail: seller,
+//             buyerMail: buyer,
+//             message: message,
+//             date: date
+//         });
+
+//         return {
+//             message: 'Contact created successfully!',
+//             sellerMail: seller,
+//             buyerMail: buyer,
+//             date: date
+//         };
+//     } catch (err) {
+//         throw err;
+//     }
+// };
+
+// export const fetchConversations = async (sellerMail, buyerMail) => {
+//     console.log("entered fetchConversations in user.js", sellerMail, buyerMail);
+//     try {
+//         const rows = await Conversation.find({
+//             $or: [
+//                 { sellerMail: sellerMail, buyerMail: buyerMail },
+//                 { sellerMail: buyerMail, buyerMail: sellerMail }
+//             ]
+//         }).sort({ date: 1 });
+//         return rows;
+//     } catch (err) {
+//         throw err;
+//     }
+// };
+
+
+// export const saveMessage = async (sellerMail, buyerMail, message, sender) => {
+//     try {
+//         const currentDateTime = new Date();
+
+//         await Conversation.create({
+//             sellerMail,
+//             sender,
+//             buyerMail,
+//             message,
+//             date: currentDateTime
+//         });
+
+//         return {
+//             sellerMail,
+//             sender,
+//             buyerMail,
+//             message,
+//             date: currentDateTime
+//         };
+//     } catch (err) {
+//         throw err;
+//     }
+// };
+
+
