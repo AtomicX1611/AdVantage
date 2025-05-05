@@ -29,11 +29,12 @@ export const getProductDetails = async (req, res) => {
   console.log(pro);
   res.render("ProductDetail", {
     product: pro,
-    sellerId:pro.seller.email,
+    sellerId:pro.seller?.email,
     isLogged: req.isAuthenticated() && (req.user.role == "buyer"),
     manager : req.isAuthenticated() && (req.user.role == "manager"),
-    hisProduct : req.isAuthenticated() && (req.user.role == "seller") && (req.user.email === pro.seller.email),
-    seller: req.isAuthenticated() && (req.user.role == "seller")
+    hisProduct : req.isAuthenticated() && (req.user.role == "seller") && (req.user.email === pro.seller?.email) && (pro.sold < 2),
+    seller: req.isAuthenticated() && (req.user.role == "seller"),
+    sold1: req.isAuthenticated() && (req.user.role == "seller") && (req.user.email === pro.seller?.email) && (pro.sold ==1)
   });
 };
 

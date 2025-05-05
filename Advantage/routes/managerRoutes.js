@@ -26,7 +26,7 @@ managerRouter.post("/login", (req, res, next) => {
     }
 
     user.role = "manager";
-    
+
     req.login(user, (err) => {
       if (err) {
         console.error("Error during req.login:", err);
@@ -57,8 +57,10 @@ managerRouter.post("/verify", requireRole("manager"), async (req, res) => {
 });
 
 managerRouter.get("/dashboard", requireRole("manager"), async (req, res) => {
-    const products = await findProductsNotVerified();
-    return res.render("ManagerDashboard", { products });
+  const products = await findProductsNotVerified();
+  console.log("Manager products : ", products);
+
+  return res.render("ManagerDashboard", { products });
   // const products = [
   //   { name: "Product 1", description: "High quality item A", price: 199 },
   //   { name: "Product 2", description: "Best in class item B", price: 299 },

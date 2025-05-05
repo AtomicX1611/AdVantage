@@ -4,33 +4,61 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="/SellerDashBoard.css" />
     <style>
       h2 {
-          font-family: 'Inter', sans-serif;
+        font-family: "Inter", sans-serif;
       }
-  </style>
+    </style>
   </head>
   <body>
     <%- include("sellerHeader.ejs") %>
-    <h1 class="title">Welcome Rajeev!</h1>
+    <h1 class="title">Welcome!</h1>
+    <h2>Requested Ads</h2>
+    <div class="card_container">
+      <% for (let i = 0; i < products.length; i++) {%> <% if(products[i].sold ==
+      1){ %>
+      <a href="http://localhost:3000/search/product/<%= products[i]._id %>"
+        ><div class="card">
+          <img src="<%= products[i].Image1Src%>" % /> alt="<%= products[i].name
+          %>">
+          <h3><%= products[i].name %></h3>
+        </div></a
+      >
+      <% } %> <% } %>
+    </div>
     <h2>Your current Ads</h2>
     <div class="card_container">
-      <% for (let i = 0; i < products.length; i++) {%> 
-            <a href="http://localhost:3000/search/product/<%= products[i]._id %>"><div class="card">
-              <img src="<%= products[i].Image1Src%>" %> alt="<%= products[i].Name %>">
-                <h3><%= products[i].Name %></h3>
-            </div></a>
-        <% } %>
+      <% for (let i = 0; i < products.length; i++) {%> <% if(products[i].sold ==
+      0){ %>
+      <a href="http://localhost:3000/search/product/<%= products[i]._id %>"
+        ><div class="card">
+          <img src="<%= products[i].Image1Src%>" % /> alt="<%= products[i].name
+          %>">
+          <h3><%= products[i].name %></h3>
+        </div></a
+      >
+      <% } %> <% } %>
     </div>
-   
+    <h2>Previous Ads</h2>
+    <div class="card_container">
+      <% for (let i = 0; i < products.length; i++) {%> <% if(products[i].sold ==
+      2){ %>
+      <a href="http://localhost:3000/search/product/<%= products[i]._id %>"
+        ><div class="card">
+          <img src="<%= products[i].Image1Src%>" % /> alt="<%= products[i].name
+          %>">
+          <h3><%= products[i].name %></h3>
+        </div></a
+      >
+      <% } %> <% } %>
+    </div>
   </body>
 </html>
-
-
-
-
 
 <!--
 <h2>Previous Ads</h2>

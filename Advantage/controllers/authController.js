@@ -21,7 +21,9 @@ export const buyerLogin = async (req, res, next) => {
       console.log("Authentication failed:", info.message);
       return res.status(401).json({ error: info.message });
     }
+
     user.role = "buyer";
+    
     req.login(user, (err) => {
       if (err) {
         console.error("Error during req.login:", err);
@@ -30,6 +32,7 @@ export const buyerLogin = async (req, res, next) => {
       console.log("User logged in:", user);
       return res.status(200).json({ success: "User logged in", user });
     });
+    
   })(req, res, next);
 };
 
@@ -114,8 +117,8 @@ export const sellerSignup = async (req, res) => {
       role: "seller",
     };
 
-    createSeller(user);
-
+    await createSeller(user);
+    fetchedSeller = await findSellerByEmail(email);
     req.login(user, (err) => {
       if (err) {
         console.error("Error during req.login:", err);
