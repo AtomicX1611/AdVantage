@@ -18,7 +18,7 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100vw;
+    max-width: 100vw;
 }
 
 .logo {
@@ -36,6 +36,7 @@ nav {
     margin-right: 2vw;
     gap: 3vw;
 }
+
 
 .newProduct {
     height: max(30px,inherit);
@@ -60,11 +61,11 @@ nav {
 .hover {
     cursor: pointer;
 }
-
-.hover a:hover {
+.hover:hover {
     color: white;
-    transition: all 0.1s ease;
+    transition: all 0.2s ease;
 }
+
 
 a {
     text-decoration: none;

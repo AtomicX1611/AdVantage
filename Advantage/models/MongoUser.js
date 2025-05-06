@@ -1,8 +1,7 @@
 import mongoose, { mongo } from 'mongoose';
 import { sellersdummy, productsdummy } from './Products.js';
 
-await mongoose.connect('mongodb://localhost:27017/AdVantage');
-
+await mongoose.connect('mongodb://127.0.0.1:27017/AdVantage');
 //products
 const productSchema = new mongoose.Schema({
     name: {
@@ -209,6 +208,10 @@ const sellersSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    subscription:{
+        type:Number,
+        default:0
     }
 });
 const sellers = mongoose.model('sellers', sellersSchema);
@@ -217,6 +220,7 @@ export const findSellerByEmail = async (email) => {
     return seller;
 }
 export const createSeller = async (seller) => {
+    seller.subscription=0;
     await sellers.collection.insertOne(seller);
     return;
 };
@@ -254,6 +258,20 @@ export const updateSellerPassword = async function (email, password) {
         { email: email },
         { $set: { password: password } }
     );
+}
+
+export const updateSellerSubscription=async function(email,type) {
+    try {
+        await sellers.updateOne(
+            {email:email},
+            {$set:{subscription:type}}
+        );
+        
+        return true
+    }
+    catch(err) {
+        return false;
+    }
 }
 
 //users
@@ -510,18 +528,18 @@ export const saveMessage = async (sellerMail, buyerMail, message, sender) => {
 
 
 //dummy data
-sellers.collection.insertOne(sellersdummy[0]);
-for (let i = 0; i < productsdummy.length; i++) {
-    await addProduct(
-        productsdummy[i].name,
-        productsdummy[i].price,
-        productsdummy[i].description,
-        productsdummy[i].zipcode,
-        productsdummy[i].sellerEmail,
-        productsdummy[i].images,
-        productsdummy[i].category,
-        productsdummy[i].district,
-        productsdummy[i].state,
-        productsdummy[i].city
-    );
-}
+// let result =await sellers.collection.insertOne(sellersdummy[0]);
+// for (let i = 0; i < productsdummy.length; i++) {
+//     await addProduct(
+//         productsdummy[i].name,
+//         productsdummy[i].price,
+//         productsdummy[i].description,
+//         productsdummy[i].zipcode,
+//         productsdummy[i].sellerEmail,
+//         productsdummy[i].images,
+//         productsdummy[i].category,
+//         productsdummy[i].district,
+//         productsdummy[i].state,
+//         productsdummy[i].city
+//     );
+// }

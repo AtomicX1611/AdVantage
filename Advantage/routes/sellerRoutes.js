@@ -7,7 +7,7 @@ import { insertProduct } from "../controllers/seller.js";
 // import multer from "multer";
 // import path from "path";
 // import { fileURLToPath } from "url";
-import { findProduct, removeProduct, removeSeller, updateSellerPassword, findSellerByEmail, findProductsBySeller, decreaseSold, increaseSold } from "../models/MongoUser.js";
+import { findProduct, removeProduct, removeSeller, updateSellerPassword, findSellerByEmail, findProductsBySeller, decreaseSold, increaseSold,updateSellerSubscription } from "../models/MongoUser.js";
 
 
 
@@ -132,3 +132,40 @@ sellerRouter.get('/reject/:productId', requireRole('seller'), async (req, res) =
   }
   res.redirect('/seller');
 });
+
+
+sellerRouter.get("/subscriptions",requireRole('seller'),async (req,res)=>{
+    let user=await findSellerByEmail(req.user.email);
+    let currentPlan=user.subscription;
+    console.log(currentPlan);
+    res.render("sellerSubscription.ejs",{currentPlan:currentPlan});
+})
+
+sellerRouter.get("/subscription/vip",(req,res)=>{
+    res.render("paymentPage.ejs",{mail:req.user.email,type:"VIP",Price:"100 Rs",duration:"1 Month"});
+})
+sellerRouter.get("/subscription/premium",(req,res)=>{
+    res.render("paymentPage.ejs",{mail:req.user.email,type:"Premium",Price:"999 Rs",duration:"1 Year"});
+});
+
+
+sellerRouter.post("/payment",async (req,res)=>{
+    let mail=req.user.email;
+    let type=req.body.type;
+    console.log("type: ",type);
+    console.log("mail: ",mail);
+
+    let result;
+    if(type=="Premium") {
+      result=await updateSellerSubscription(mail,2);
+    }
+    if(type=="VIP") {
+      result=await updateSellerSubscription(mail,1);
+    }
+    if(result) {
+        return res.status(200).json({msg:"Success"})
+    }
+    else {
+        return res.status(400).json({err:"Something went wrong"});
+    }
+})
