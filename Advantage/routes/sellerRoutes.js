@@ -8,6 +8,7 @@ import { insertProduct } from "../controllers/seller.js";
 // import path from "path";
 // import { fileURLToPath } from "url";
 import { findProduct, removeProduct, removeSeller, updateSellerPassword, findSellerByEmail, findProductsBySeller, decreaseSold, increaseSold,updateSellerSubscription } from "../models/MongoUser.js";
+import { isAllowed } from "../middleware/isAllowed.js";
 
 
 
@@ -26,7 +27,7 @@ sellerRouter.get("/", requireRole("seller"), async (req, res) => {
   let products;
   products = await findProductsBySeller(req.user.email);
   // console.log(products);
-  res.render("SellerDashBoard.ejs", { products });
+  res.render("SellerDashBoard.ejs", { products:products,message:0 });
 });
 
 export default sellerRouter;
@@ -66,10 +67,10 @@ export default sellerRouter;
 
 
 
-sellerRouter.get('/addProductForm', requireRole("seller"), (req, res) => {
+sellerRouter.get('/addProductForm', requireRole("seller"), isAllowed, (req, res) => {
   res.render('AddproductForm');
 });
-sellerRouter.post('/addProduct', insertProduct);
+sellerRouter.post('/addProduct', requireRole("seller"), isAllowed, insertProduct);
 
 sellerRouter.get('/remove/:sellerEmail', requireRole("admin"), async (req, res) => {
   await removeSeller(req.params.sellerEmail);

@@ -179,7 +179,7 @@ export const removeProduct = async (productId) => {
 export const findProductsBySeller = async function (email) {
     const seller = await findSellerByEmail(email);
     console.log(seller);
-    const rows = await products.find({ seller: seller._id }).lean();
+    const rows = await products.find({ seller: seller._id }).populate('seller').lean();
     return rows;
 };
 export const increaseSold = async function (email, productId) {
@@ -289,7 +289,8 @@ export const findSellersForAdmin = async () => {
                 contact: 1,
                 email: 1,
                 password: 1,
-                numberOfProducts: { $size: "$products" },
+                subscription:1,
+                numberOfProducts: { $size: "$products" }
             },
         },
     ]);
