@@ -10,7 +10,7 @@ import {
   removeWishlistProduct,
   updateBuyerPassword,
   increaseSold,
-  findUserProducts
+  findUserProducts,
 } from "../models/MongoUser.js";
 import { featuredProducts } from "../models/MongoUser.js";
 // import { freshProducts } from "../models/User.js";
@@ -23,8 +23,8 @@ buyerRoutes.use(express.urlencoded({ extended: true }));
 buyerRoutes.use("/chats", chatRoutes);
 
 buyerRoutes.get("/home", async (req, res) => {
-  let freshProductsFetched=await freshProducts();
-  let featuredProductsFetched=await featuredProducts();
+  let freshProductsFetched = await freshProducts();
+  let featuredProductsFetched = await featuredProducts();
   res.render("Home.ejs", {
     isLogged: req.isAuthenticated() && req.user.role == "buyer",
     freshProducts: freshProductsFetched,
@@ -60,7 +60,7 @@ buyerRoutes.get("/wishlist", requireRole("buyer"), async (req, res) => {
   const products = await getWishlistProducts(req.user.email);
   res.render("wishlist", {
     products: products,
-    isLogged: req.isAuthenticated() && req.user.role == "buyer"
+    isLogged: req.isAuthenticated() && req.user.role == "buyer",
   });
 });
 
@@ -75,47 +75,47 @@ buyerRoutes.get(
   }
 );
 
-buyerRoutes.get("/featuredProd",async (req,res)=>{
-  let data=await featuredProducts();
+buyerRoutes.get("/featuredProd", async (req, res) => {
+  let data = await featuredProducts();
   console.log(data.length);
   res.status(200).json(data);
-})
+});
 
-buyerRoutes.get("/freshProd",async (req,res)=>{
-  let data=await freshProducts();
+buyerRoutes.get("/freshProd", async (req, res) => {
+  let data = await freshProducts();
   console.log(data.length);
   res.status(200).json(data);
 });
 
 buyerRoutes.get("/contact", requireRole("buyer"), (req, res) => {
   res.render("ContactUs.ejs", {
-    isLogged: req.isAuthenticated() && req.user.role == "buyer"
+    isLogged: req.isAuthenticated() && req.user.role == "buyer",
   });
 });
 
-buyerRoutes.get('/updatePassword', (req, res) => {
-  res.render('buyerUpdatePassword', {
-    isLogged: req.isAuthenticated() && req.user.role == "buyer"
+buyerRoutes.get("/updatePassword", (req, res) => {
+  res.render("buyerUpdatePassword", {
+    isLogged: req.isAuthenticated() && req.user.role == "buyer",
   });
 });
 
-buyerRoutes.post('/updatePassword', async (req, res) => {
+buyerRoutes.post("/updatePassword", async (req, res) => {
   if (req.body.newPassword !== req.body.confirmNewPassword) {
     res.status(401).json("Password mismatch");
   } else {
     let user = await findUserByEmail(req.body.email);
     if (user) {
       if (user.password === req.body.oldPassword) {
-        await updateBuyerPassword(req.body.email,req.body.newPassword);
-          req.session.destroy((err)=>{
-            if(err){
-              console.log(err);
-            }else{
-              console.log("session destroyed successfully");
-            }
-          });
-          res.redirect('/');
-      }else{
+        await updateBuyerPassword(req.body.email, req.body.newPassword);
+        req.session.destroy((err) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("session destroyed successfully");
+          }
+        });
+        res.redirect("/");
+      } else {
         res.status(401).json("Incorrect Old Password");
       }
     } else {
@@ -123,18 +123,23 @@ buyerRoutes.post('/updatePassword', async (req, res) => {
     }
   }
 });
-buyerRoutes.get('/buy/:productId',requireRole("buyer"),async (req,res)=>{
-  let product=await findProduct(req.params.productId);
-  if(product.sold!=0){
+buyerRoutes.get("/buy/:productId", requireRole("buyer"), async (req, res) => {
+  let product = await findProduct(req.params.productId);
+  if (product.sold != 0) {
     res.redirect(`/search/product/${req.params.productId}`);
-  }else{
+  } else {
     // console.log("hii");
     console.log(req.user.email);
-    await increaseSold(req.user.email,req.params.productId);
-    res.redirect("/buyer/yourProducts");
+    await increaseSold(req.user.email, req.params.productId);
+    res.redirect(`/search/product/${req.params.productId}`);
   }
 });
-buyerRoutes.get("/yourProducts",async (req,res)=>{
-  let ps=await findUserProducts(req.user.email);
-  res.render('yourproducts',ps);
+buyerRoutes.get("/yourProducts", async (req, res) => {
+  let products = await findUserProducts(req.user.email);
+  console.log("User products : ", products);
+
+  res.render("yourproducts.ejs", {
+    isLogged: true,
+    userProducts: products ? products : [],
+  });
 });

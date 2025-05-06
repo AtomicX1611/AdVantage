@@ -72,6 +72,7 @@
             <% if(sold1) { %>
               <a href="/seller/accept/<%= product._id %>" style="color: white;">accept</a>
               <a href="/seller/reject/<%= product._id %>" style="color: white;">reject</a>
+              <p style="color: white;">From user : <%= product.soldTo %></p>
             <% } %>
             <button id="addToWishlist" data-id="<%= product._id %>">Add to Wishlist</button>
           </div>

@@ -6,7 +6,7 @@
     justify-content: center;
     align-items: center;
     background: linear-gradient(65deg, #1E1E1E 30%, #767e87 100%);
-
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
 }
 
@@ -36,7 +36,7 @@
     font-size: 22px;
     font-weight: 600;
     flex-direction: column;
-    margin-top: 3vh;
+    margin-top: 1vh;
     /* animation: appear2 1.2s ease-out; */
 }
 .benfit {

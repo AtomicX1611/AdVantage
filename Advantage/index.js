@@ -7,7 +7,11 @@ import session from "express-session";
 import passport from "passport";
 import productRouter from "./routes/productRoutes.js";
 import pkg from "passport-local";
-import { findAdmins, findSellerByEmail, findUserByEmail } from "./models/MongoUser.js";
+import {
+  findAdmins,
+  findSellerByEmail,
+  findUserByEmail,
+} from "./models/MongoUser.js";
 import { Server } from "socket.io";
 import { sock } from "./controllers/Socket.js";
 import cors from "cors";
@@ -55,30 +59,29 @@ app.use("/seller", sellerRouter);
 app.use("/search", searchRouter);
 app.use("/product", productRouter);
 app.use("/manager", managerRouter);
-app.use("/admin",adminRouter)
+app.use("/admin", adminRouter);
 
 app.get("/logout", (req, res) => {
   if (req.isAuthenticated()) {
-      const redirectPath = req.user.role === "seller" ? "/seller" : "/";
+    const redirectPath = req.user.role === "seller" ? "/seller" : "/";
 
-      req.logout((err) => {
-          if (err) return next(err);
-          req.session.destroy((err) => {
-              if (err) return next(err);
-              res.redirect(redirectPath);
-          });
+    req.logout((err) => {
+      if (err) return next(err);
+      req.session.destroy((err) => {
+        if (err) return next(err);
+        res.redirect(redirectPath);
       });
+    });
   } else {
-      res.redirect("/");
+    res.redirect("/");
   }
 });
-
 
 passport.use(
   new LocalStrategy(
     {
       usernameField: "email",
-      passwordField: "password"
+      passwordField: "password",
     },
     async function verify(email, password, cb) {
       let result;
@@ -94,8 +97,8 @@ passport.use(
         email = email.slice(0, email.length - 1);
         result = managers.find((manager) => manager.email === email);
         console.log("resulkt L: ", result);
-      }else if(email.slice(email.length - 1, email.length) == "a"){
-        email = email.slice(0,email.length - 1)
+      } else if (email.slice(email.length - 1, email.length) == "a") {
+        email = email.slice(0, email.length - 1);
         result = findAdmins(email);
         console.log("result admin : ", result);
       }
