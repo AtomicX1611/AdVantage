@@ -141,10 +141,10 @@ sellerRouter.get("/subscriptions",requireRole('seller'),async (req,res)=>{
     res.render("sellerSubscription.ejs",{currentPlan:currentPlan});
 })
 
-sellerRouter.get("/subscription/vip",(req,res)=>{
+sellerRouter.get("/subscription/vip",requireRole('seller'),(req,res)=>{
     res.render("paymentPage.ejs",{mail:req.user.email,type:"VIP",Price:"100 Rs",duration:"1 Month"});
 })
-sellerRouter.get("/subscription/premium",(req,res)=>{
+sellerRouter.get("/subscription/premium",requireRole('seller'),(req,res)=>{
     res.render("paymentPage.ejs",{mail:req.user.email,type:"Premium",Price:"999 Rs",duration:"1 Year"});
 });
 

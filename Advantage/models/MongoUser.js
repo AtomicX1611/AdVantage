@@ -159,32 +159,30 @@ export const decreaseSold = async function (productId) {
 
 // adding featured product and fresh product fetching functions:
 export const featuredProducts = async () => {
-    try {
-        const rows = await products.find().limit(10).lean();
-
-        // for (let row of rows) {
-        //     let Images = await findImages(row._id);
-        //     for (let j = 0; j < Images.length; j++) {
-        //         row[`Image${j + 1}Src`] = Images[j].Image;
-        //     }
-        // }
-        return rows;
-    } catch (err) {
-        throw err;
-    }
-};
+    const rows = await products.aggregate([
+      {
+        $lookup: {
+          from: "sellers",
+          localField: "seller",
+          foreignField: "_id",
+          as: "seller",
+        },
+      },
+      { $unwind: "$seller" },
+      {
+        $sort: {
+          "seller.subscription": -1, 
+        },
+      },
+      { $limit: 10 },
+    ]);
+  
+    return rows;
+};  
 
 export const freshProducts = async () => {
     try {
-        const rows = await products.find().skip(10).limit(15).lean();
-
-        // for (let row of rows) {
-        //     let Images = await findImages(row._id);
-        //     for (let j = 0; j < Images.length; j++) {
-        //         row[`Image${j + 1}Src`] = Images[j].Image;
-        //     }
-        // }
-
+        const rows = await products.find().sort({postingDate: -1}).limit(15).lean();
         return rows;
     } catch (err) {
         throw err;
