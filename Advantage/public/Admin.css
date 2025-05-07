@@ -182,3 +182,8 @@ th {
 .g{
     background-color: #8193a3;
 }
+
+.pie_chart {
+    display: flex;
+    width: 600px;
+}
