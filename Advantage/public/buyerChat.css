@@ -4,7 +4,7 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 main {
-    height: 84vh;
+    height: 78vh;
     width:94vw;
     margin-top: 5vh;
     margin-left: 3vw;
@@ -13,6 +13,9 @@ main {
     border-top-right-radius: 20px;
     background-color: rgb(217, 217, 217);
     display: flex;
+}
+body {
+    background: linear-gradient(70deg,#242424 40%,rgb(88, 88, 88) 100%);
 }
 .left {
     width: 30vw;
@@ -75,7 +78,7 @@ main {
     margin-left: 1vw;
 }
 .chatbox {
-    height: 80vh;
+    height: 75vh;
     width: 64vw;
     border-top-right-radius: 20px;
     height: inherit;
@@ -181,16 +184,17 @@ main {
 #text-box {
     resize:none;
     width: 30vw;
-    height: 40px;
+    height: 30px;
     display: flex;
     padding: 3px 5px;
     align-items: center;
     font-size: 16px;
+    border-radius: 10px;
 }
 .send-btn {
     height: fit-content;
     width: fit-content;
-    padding: 5px;
+    padding: 4px;
     border: 1px solid black;
     cursor: pointer;
     border-radius: 5px;
