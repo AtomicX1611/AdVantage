@@ -18,7 +18,8 @@
           <div class="curve_graph"></div>
         </div>
         <!-- <div class="pie_chart"></div> -->
-        <canvas id="myChart" style="max-height:300px;max-width:600px;"></canvas>
+          <canvas id="myChart" style="max-height:300px;max-width:600px;"></canvas>
+          <canvas id="myChart1" style="max-height:300px;max-width:600px;"></canvas>
       </div>
       <div class="user_data">
         <div class="stat_card">
@@ -96,6 +97,34 @@
         title: {
           display: true,
           text: "Buyers Sellers ratio"
+        }
+      }
+    });
+
+
+
+    const xValues1 = ["Basic", "VIP","Premium"];
+    const yValues1 = [<%= sellers.filter(seller => (seller.subscription == 0)).length %>, <%= sellers.filter(seller => (seller.subscription == 1)).length %>,<%= sellers.filter(seller => (seller.subscription == 2)).length %>];
+    console.log(yValues1);
+    const barColors1 = [
+      "#08027c",
+      "#8193a3",
+      "#9292f1"
+    ];
+
+    new Chart("myChart1", {
+      type: "pie",
+      data: {
+        labels: xValues1,
+        datasets: [{
+          backgroundColor: barColors1,
+          data: yValues1
+        }]
+      },
+      options: {
+        title: {
+          display: true,
+          text: "Subscription ratio"
         }
       }
     });

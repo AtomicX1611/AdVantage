@@ -136,7 +136,7 @@
         if (email.includes('@')) {
             let atIndex = email.indexOf('@');
             let aferAtTheRate = email.slice(atIndex + 1);
-            
+
             if (!isNaN(aferAtTheRate)) {
                 alert("Numbers not allowed in domain ");
                 return;
@@ -157,12 +157,12 @@
                     alert("Invalid Email: Incomplete domain");
                     return;
                 }
-                if(true) {
-                    for(let i=0;i<afterDot.length;i++) {
-                        let ch=afterDot.charAt(i);
-                        if(!isNaN(ch)) {
+                if (true) {
+                    for (let i = 0; i < afterDot.length; i++) {
+                        let ch = afterDot.charAt(i);
+                        if (!isNaN(ch)) {
                             alert("Domain should contain only characters");
-                            return ;
+                            return;
                         }
                     }
                 }
@@ -173,31 +173,30 @@
             alert("Username cannot be empty!");
             return;
         }
-        if(true) {
-                for(let i=0;i<username.length;i++) {
-                    let ch=username.charAt(i);
-                    if(!isNaN(ch)) {
-                        alert("Name cannot contain numbers");
-                        return;
-                    }
+        if (true) {
+            for (let i = 0; i < username.length; i++) {
+                let ch = username.charAt(i);
+                if (!isNaN(ch)) {
+                    alert("Name cannot contain numbers");
+                    return;
                 }
             }
-        
-        if(contact.charAt(0)!='0' &&contact.trim().length !=10) {
-            alert("Mobile number should contain 10 digits");
-            return;
         }
-        if(contact.charAt(0)==0 && contact.trim().length!=11) {
-            alert("Invalid landline number");
-            return ;
+
+        const mobileRegex = /^[6-9]\d{9}$/;  
+        const landlineRegex = /^0\d{10}$/;            
+
+        if (!mobileRegex.test(contact) && !landlineRegex.test(contact)) {
+            alert("Please enter a valid 10-digit mobile number or 11-digit landline number.");
+            return;
         }
         if (pwd === "" || cnfpwd === "") {
             alert("Password is required.");
             return;
         }
-        if(pwd.trim().length<8) {
+        if (pwd.trim().length < 8) {
             alert("password length should be atleast 8");
-            return ;
+            return;
         }
         if (pwd !== cnfpwd) {
             alert("Passwords do not match.");
