@@ -52,7 +52,6 @@
         socket.emit("seller-register", myAccount);
 
         async function fetchConvo(email) {
-            alert("fetching convo");
             console.log("email: ",email);
             let data = await fetch(`http://localhost:3000/buyer/chats/conversation/?sender=${email}`, {
                 method: 'GET',
@@ -70,11 +69,13 @@
             let chatContainer = document.querySelector(".messages");
             chatContainer.innerHTML = '';
             for (let i = 0; i < data.messages.length; i++) {
-                if (data.messages[i].sender == sender) {
-                    createLeft(data.messages[i]);
-                }
-                else {
-                    createRight(data.messages[i]);
+                if(data.messages[i].sender!=null) {
+                    if (data.messages[i].sender == sender) {
+                        createLeft(data.messages[i]);
+                    }
+                    else {
+                        createRight(data.messages[i]);
+                    }
                 }
             }
         }

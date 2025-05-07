@@ -148,7 +148,7 @@ sellerRouter.get("/subscription/vip",requireRole('seller'),(req,res)=>{
     res.render("paymentPage.ejs",{mail:req.user.email,type:"VIP",Price:"100 Rs",duration:"1 Month"});
 })
 sellerRouter.get("/subscription/premium",requireRole('seller'),(req,res)=>{
-    res.render("paymentPage.ejs",{mail:req.user.email,type:"Premium",Price:"999 Rs",duration:"1 Year"});
+    res.render("paymentPage.ejs",{mail:req.user.email,type:"Premium",Price:"1299 Rs",duration:"1 Year"});
 });
 
 
