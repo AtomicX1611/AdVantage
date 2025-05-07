@@ -334,6 +334,7 @@ const usersSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
+        unique : true
     },
     password: {
         type: String,
@@ -357,15 +358,19 @@ const usersSchema = new mongoose.Schema({
     ],
 });
 const users = mongoose.model("users", usersSchema);
+
 export const findUserByEmail = async (email) => {
     const user = await users.findOne({ email: email });
     return user;
 };
+
 export const createUser = async (user) => {
     user.products = new Array();
+    user.wishlistProducts = new Array();
     await users.collection.insertOne(user);
     return;
 };
+
 export const updateBuyerPassword = async function (email, password) {
     await users.updateOne({ email: email }, { $set: { password: password } });
 };

@@ -77,6 +77,7 @@ main {
     /* margin: 1px; */
     /* background-color: purple; */
     width: 18.35vw;
+    height: 100vh;
     /* height: 100vh; */
 }
 
@@ -152,6 +153,17 @@ input::-webkit-inner-spin-button {
     -webkit-appearance: none;
 }
 
-#verifiedWrapper{
-    margin-top: 2vh;
+#verifiedWrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5vw;
+    margin-top: 3vh;
+    margin-left: -.5vw;
+    gap: 0vw;
+    font-size: 1.5vw; /* Adjust text size here */
+}
+
+#verifiedCheckbox {
+    width: 1.2vw;   /* Adjust checkbox width */
+    height: 1.2vw;  /* Adjust checkbox height */
 }
