@@ -173,7 +173,7 @@ export const findProductsByCategory = async (category) => {
     return rows;
 };
 export const removeProduct = async (productId) => {
-    await products.collection.deleteOne({ _id: productId });
+    await products.findByIdAndDelete(productId);
     return;
 };
 export const findProductsBySeller = async function (email) {

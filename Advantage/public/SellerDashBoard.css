@@ -35,13 +35,18 @@ h3 {
   border-radius: 12px;
   height: 200px;
   width: 220px;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0);
+  border-color: white;
+  border-width: 3px solid;
+ 
 }
 
 .card img {
   width: 100%; 
-  height: 70%;  
+  height: 100%;  
   object-fit: cover; 
   border-top-left-radius: 12px; 
   border-top-right-radius: 12px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }

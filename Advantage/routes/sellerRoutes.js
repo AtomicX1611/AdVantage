@@ -78,10 +78,12 @@ sellerRouter.get('/remove/:sellerEmail', requireRole("admin"), async (req, res) 
 });
 
 sellerRouter.post('/deleteProduct', requireRole("seller"), async (req, res) => {
+  
   const product = await findProduct(req.body.pid);
+  // console.log("HIII :"+product.description);
   // console.log(req.user);
   if (product.seller.email === req.user.email) {
-    console.log("hii");
+    // console.log("hii");
     await removeProduct(req.body.pid);
     res.redirect('/seller');
   } else {

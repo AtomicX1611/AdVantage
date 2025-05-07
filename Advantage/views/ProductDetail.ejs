@@ -26,9 +26,11 @@
                   </div>
                   <img class="big_card" src="<%= product[`Image1Src`] %>" alt="bigImage">
                 </div>
+                <% if(!seller){ %>
                   <div class="wishlist_button_container">
                     <button id="addToWishlist" class="btn" data-id="<%= product._id %>">Add to Wishlist</button>
                   </div>
+                   <% } %>
                 </div>
                 <div class="product_details">
                   <div class="item_header">
@@ -55,13 +57,15 @@
                         <h4 id="verified">✅ Verified Product</h4>
                         <% } %>
                           <div class="options">
+                            <% if(!seller){ %>
                             <a href="/buyer/chats/contact/<%= sellerId %>">
                               <div class="chatWs btn" id="chat-btn">
                                 Chat with seller
                                 <input type="hidden" name="selleId" value="<%= sellerId%>">
                               </div>
                             </a>
-                            <% if(product.sold==0){ %>
+                            <% } %>
+                            <% if(product.sold==0 && !seller){ %>
                               <a href="/buyer/buy/<%= product._id %>">
                                 <div class="purchase btn">
                                   Buy now
@@ -77,12 +81,15 @@
                             <% if(manager) { %>
                               <button id="verifyButton" data-id="<%= product._id %>">Verify</button>
                               <% } %>
-                                <% if(sold1) { %>
-                                  <a href="/seller/accept/<%= product._id %>" style="color: white;">accept</a>
-                                  <a href="/seller/reject/<%= product._id %>" style="color: white;">reject</a>
-                                  <p style="color: white;">From user : <%= product.soldTo %>
-                                  </p>
-                                  <% } %>
+
+                              <% if(sold1) { %>
+                                <div id="sold">
+                                <a href="/seller/accept/<%= product._id %>" class="decision-btn">Accept</a>
+                                <a href="/seller/reject/<%= product._id %>" class="decision-btn">Reject</a>
+                              </div>
+                                <p style="color: white;">From user : <%= product.soldTo %></p>
+                              <% } %>
+                              
 
                           </div>
                 </div>

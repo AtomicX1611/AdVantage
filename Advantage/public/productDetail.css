@@ -241,3 +241,33 @@ img.card_container:hover{
 .image_container {
   width: 50vw;
 }
+
+.decision-btn {
+  width: 100%;
+  text-align: center;
+  padding: 15px;
+  border: 2px solid white;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  box-sizing: border-box;
+  min-width: 150px;
+  text-decoration: none; /* to remove underline from links */
+  display: inline-block;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+
+.decision-btn:hover {
+  background-color: white;
+  color: black;
+}
+
+#sold{
+  margin-top: 2vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
