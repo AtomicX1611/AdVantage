@@ -1,83 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <link rel="stylesheet" href="/productDetail.css" />
-  </head>
 
-  <body>
-    <div class="BG">
-      <% if(!seller) { %>
+<head>
+  <link rel="stylesheet" href="/productDetail.css" />
+</head>
+
+<body>
+  <div class="BG">
+    <% if(!seller) { %>
       <%- include("HomeHeader.ejs") %>
-      <% } else { %>
-      <%- include("sellerHeader.ejs") %>
-      <% } %>
-      <div id="notification">
-        <span id="notif-message"></span>
-        <button id="close-btn" onclick="hideNotification()">X</button>
-      </div>
-      <div class="main_container">
-        <div class="card_list">
-          <% for(let i=1; product[`Image${i}Src`] !==undefined; i++) { %>
-            <img src="<%= product[`Image${i}Src`] %>" alt="image" class="card_container">
+        <% } else { %>
+          <%- include("sellerHeader.ejs") %>
             <% } %>
-        </div>
-        <img class="big_card" src="<%= product[`Image1Src`] %>" alt="bigImage">
-        <div class="product_details">
-          <div class="item_header">
-            <h2 class="item_title">
-              <%= product.name %>
-            </h2>
-            <h2 class="item_price">₹<%= product.price %>/-</h2>
-          </div>
-          <div>
-            <h2 class="item_address">
-              <%= product.state %>
-            </h2>
-            <h3 class="item_address">
-              <%= product.district %>
-            </h3>
-            <h4 class="item_address">
-              <%= product.city %>
-            </h4>
-          </div>
-          <% if(hisProduct) { %>
-            <button id="deleteProduct" data-id="<%= product._id %>"> Delete Product</button>
-            <% } %>
-          <% if(product.verified != 0) { %>
-          <h4 id="verified">✅ Verified Product</h4>
-          <% } %>
-          <div class="options">
-            <a href="/buyer/chats/contact/<%= sellerId %>">
-              <div class="chatWs btn" id="chat-btn">
-                Chat with seller
-                <input type="hidden" name="selleId" value="<%= sellerId%>">
+              <div id="notification">
+                <span id="notif-message"></span>
+                <button id="close-btn" onclick="hideNotification()">X</button>
               </div>
-            </a>
-            <% if(product.sold == 0){ %>
-            <a href="/buyer/buy/<%= product._id %>">
-              <div class="purchase btn">
-                Buy now
+              <div class="main_container">
+                <div class="big_container">
+                <div class="image_container">
+                  <div class="card_list">
+                    <% for(let i=1; product[`Image${i}Src`] !==undefined; i++) { %>
+                      <img src="<%= product[`Image${i}Src`] %>" alt="image" class="card_container">
+                      <% } %>
+                  </div>
+                  <img class="big_card" src="<%= product[`Image1Src`] %>" alt="bigImage">
+                </div>
+                  <div class="wishlist_button_container">
+                    <button id="addToWishlist" class="btn" data-id="<%= product._id %>">Add to Wishlist</button>
+                  </div>
+                </div>
+                <div class="product_details">
+                  <div class="item_header">
+                    <h2 class="item_title">
+                      <%= product.name %>
+                    </h2>
+                    <h2 class="item_price">₹<%= product.price %>/-</h2>
+                  </div>
+                  <div>
+                    <h2 class="item_address">
+                      <%= product.state %>
+                    </h2>
+                    <h3 class="item_address">
+                      <%= product.district %>
+                    </h3>
+                    <h4 class="item_address">
+                      <%= product.city %>
+                    </h4>
+                  </div>
+                  <% if(hisProduct) { %>
+                    <button id="deleteProduct" data-id="<%= product._id %>"> Delete Product</button>
+                    <% } %>
+                      <% if(product.verified !=0) { %>
+                        <h4 id="verified">✅ Verified Product</h4>
+                        <% } %>
+                          <div class="options">
+                            <a href="/buyer/chats/contact/<%= sellerId %>">
+                              <div class="chatWs btn" id="chat-btn">
+                                Chat with seller
+                                <input type="hidden" name="selleId" value="<%= sellerId%>">
+                              </div>
+                            </a>
+                            <% if(product.sold==0){ %>
+                              <a href="/buyer/buy/<%= product._id %>">
+                                <div class="purchase btn">
+                                  Buy now
+                                </div>
+                              </a>
+                              <% } %>
+                          </div>
+                          <div class="description">
+                            <h2 class="item_desc">Description</h2>
+                            <h3 class="item_title">
+                              <%= product.description %>
+                            </h3>
+                            <% if(manager) { %>
+                              <button id="verifyButton" data-id="<%= product._id %>">Verify</button>
+                              <% } %>
+                                <% if(sold1) { %>
+                                  <a href="/seller/accept/<%= product._id %>" style="color: white;">accept</a>
+                                  <a href="/seller/reject/<%= product._id %>" style="color: white;">reject</a>
+                                  <p style="color: white;">From user : <%= product.soldTo %>
+                                  </p>
+                                  <% } %>
+
+                          </div>
+                </div>
               </div>
-            </a>
-            <% } %>
-          </div>
-          <div class="description">
-            <h2 class="item_desc">Description</h2>
-            <h3 class="item_title">
-              <%= product.description %>
-            </h3>
-            <% if(manager) { %>
-            <button id="verifyButton" data-id="<%= product._id %>">Verify</button>
-            <% } %>
-            <% if(sold1) { %>
-              <a href="/seller/accept/<%= product._id %>" style="color: white;">accept</a>
-              <a href="/seller/reject/<%= product._id %>" style="color: white;">reject</a>
-              <p style="color: white;">From user : <%= product.soldTo %></p>
-            <% } %>
-            <button id="addToWishlist" data-id="<%= product._id %>">Add to Wishlist</button>
-          </div>
-        </div>
-      </div>
   </div>
   <script>
     function showNotification(message) {
@@ -129,35 +138,36 @@
       }
     });
 
-      const verifyProductButton = document.getElementById("verifyButton");
-      verifyProductButton?.addEventListener("click", async (e) => {
-        const productId = verifyProductButton.getAttribute("data-id");
-        const response = await fetch("http://localhost:3000/manager/verify", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ pid: productId }),
-        });
-        try {
-          const data = await response.json();
-          console.log("data: ", data);
-        } catch (err) {
-          window.location.href = response.url;
-        }
+    const verifyProductButton = document.getElementById("verifyButton");
+    verifyProductButton?.addEventListener("click", async (e) => {
+      const productId = verifyProductButton.getAttribute("data-id");
+      const response = await fetch("http://localhost:3000/manager/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ pid: productId }),
       });
-      const deleteProductBtn = document.getElementById('deleteProduct');
-      deleteProductBtn?.addEventListener("click", async (e) => {
-        const productId = deleteProductBtn.getAttribute("data-id");
-        const response = await fetch("http://localhost:3000/seller/deleteProduct", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ pid: productId })
-        });
+      try {
+        const data = await response.json();
+        console.log("data: ", data);
+      } catch (err) {
         window.location.href = response.url;
+      }
+    });
+    const deleteProductBtn = document.getElementById('deleteProduct');
+    deleteProductBtn?.addEventListener("click", async (e) => {
+      const productId = deleteProductBtn.getAttribute("data-id");
+      const response = await fetch("http://localhost:3000/seller/deleteProduct", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ pid: productId })
       });
-    </script>
-  </body>
+      window.location.href = response.url;
+    });
+  </script>
+</body>
+
 </html>
