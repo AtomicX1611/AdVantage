@@ -81,3 +81,43 @@ export const rejectProductRequestDao = async (productId, buyerId) => {
 
     return { success: true };
 };
+
+export const verifyProductDao = async (productId) =>{
+    try {
+        const product=await Products.findById({_id:productId});
+        if(!product) return {
+            success:false,
+            message:"Product not found"
+        },
+
+        await Products.updateOne(
+            {_id:productId},
+            {$set:{verified:true}}
+        )
+
+        return {
+            success:true,
+            message:"Verified Product with id"
+        }
+    } catch (error) {
+        return {
+            success:false,
+            message:"Database error"
+        }
+    }
+}
+
+export const findUnverifiedProducts = async () =>{
+    try {
+        const products=await Products.find({verified:false});
+        return {
+            success:true,
+            products:products
+        }
+    } catch (error) {
+        return {
+            success:false,
+            message:"database error"
+        }
+    }
+}
