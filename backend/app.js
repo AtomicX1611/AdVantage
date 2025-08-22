@@ -8,6 +8,7 @@ import path from "node:path";
 import authRouter from "./src/routes/auth.router.js";
 import buyerRouter from "./src/routes/buyer.router.js";
 import sellerRouter from "./src/routes/seller.router.js";
+import adminRouter from "./src/routes/admin.router.js";
 
 const app=express();
 
@@ -25,6 +26,8 @@ app.use("/uploads", express.static(path.join("./", "uploads")));
 app.use("/auth",authRouter);
 app.use("/buyer",buyerRouter);
 app.use("/seller",sellerRouter);
+
+app.use("/admin",adminRouter);
 
 
 app.listen(process.env.PORT,()=>{

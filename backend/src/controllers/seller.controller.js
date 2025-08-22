@@ -43,7 +43,7 @@ export const updateSellerProfile = async (req, res) => {
         }
 
         const response = await updateSellerProfileService(sellerId, updateData, req.file);
-
+        
         if (!response.success) {
             return res.status(response.status).json({
                 success: false,
