@@ -1,0 +1,132 @@
+     *{
+        margin: 0px;
+        padding: 0px;
+     }
+     body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #010101;
+        }
+
+        .container {
+            display: flex;
+            color:rgb(255, 240, 240);
+            width: 100%;
+        }
+
+        .sidebar {
+            
+            width: 15%;
+            background: rgb(0, 0, 0);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid #f8f4f4;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+        }
+        .product-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #000000;
+            border: 1px solid #f8f4f4 ;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .product-item img {
+            width: 50px;
+            height: 50px;
+            scale: 1.2;
+            margin-right: 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .main {
+            flex: 1;
+            padding: 20px;
+            color: rgb(255, 245, 245);
+        }
+
+        #comparison-container {
+             display: flex;
+            gap: 15px;
+            color:rgb(255, 255, 255);
+        }
+
+        .comparison-card {
+            width: 30%;
+            background: rgb(0, 0, 0);
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+            border: 1px solid #f8f4f4;
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .carousel {
+            position: relative;
+        }
+
+        .carousel img {
+            width: 100px;
+            height: 100px;
+        }
+
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            transform: translateY(-50%);
+        }
+
+        .prev { left: 10px; }
+        .next { right: 10px; }
+
+        .remove-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .remove-btn:hover {
+            background: darkred;
+        }
+        .comparison-card p{
+            margin: 5vh 0px;
+        }
+
+
+        #DeletefromWishlist{
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .Window{
+            background-image: url("/Assets/WIshlist.png") no-repeat;
+            background-size: cover;
+        }

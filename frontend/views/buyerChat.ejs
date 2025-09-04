@@ -1,0 +1,181 @@
+<%- include('HomeHeader.ejs') %>
+    <link rel="stylesheet" href="/buyerChat.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="/socket.io/socket.io.js"></script>
+    <h1 id="myName">Welcome ,<%= myUsername %></h1>
+    <main>
+        <div class="left">
+            <div class="chatHead">
+                <h1>CHATS</h1>
+            </div>
+            <div class="contacts">
+                <% for(let i=0;i<senders.length;i++) { %>
+                    <div class="person">
+                        <div class="dp">
+
+                        </div>
+                        <div class="name">
+                            <%= senders[i].senderUsername%>
+                            <input type="hidden" name="senderMail" value="<%= senders[i].sender%>" id="sender">
+                        </div>
+                    </div>
+                    <% } %>
+            </div>
+        </div>
+        <div class="chatbox">
+            <div class="currentChat">
+                <div class="dp">
+
+                </div>
+                <div class="currentSender">
+                    Name
+                </div>
+            </div>
+            <div class="messages">
+
+            </div>
+            <div class="type">
+                <textarea name="newMessage" id="text-box" placeholder="Type a message"></textarea>
+                <div class="send-btn">
+                    Send<i class='bx bx-send'></i>
+                </div>
+            </div>
+        </div>
+
+
+    </main>
+    <script>
+        const socket = io();
+        let myAccount = "<%=myAccount  %>";
+        let sender="";
+
+        socket.emit("buyer-register", myAccount);
+        // MAKE SURE THAT NO DUPLICATES IN ACTIVE USERS 
+
+        async function fetchConvo(email) {
+            console.log("email: ",email);
+            let data = await fetch(`http://localhost:3000/buyer/chats/conversation/?sender=${email}`, {
+                method: 'GET',
+                headers: {
+                    "Content-type": "application/json"
+                }
+            })
+            
+            let response = await data.json();
+            console.log("response: ",response);
+            return response;
+        }
+
+        function loadConversation(data, sender) {
+            let chatContainer = document.querySelector(".messages");
+            chatContainer.innerHTML = '';
+            for (let i = 0; i < data.messages.length; i++) {
+                if(data.messages[i].sender!=null) {
+                    if (data.messages[i].sender == sender) {
+                        createLeft(data.messages[i]);
+                    }
+                    else {
+                        createRight(data.messages[i]);
+                    }
+                }
+            }
+        }
+
+        function createLeft(messageData) {
+            let chatContainer = document.querySelector(".messages");
+            let messageDiv = document.createElement("div");
+            messageDiv.classList.add("message-left", "msg-style");
+
+            let dpDiv = document.createElement("div");
+            dpDiv.classList.add("dp-circle-small");
+
+            let messageContent = document.createElement("div");
+            messageContent.classList.add("message-content");
+            messageContent.innerText = messageData.message;
+
+            messageDiv.appendChild(dpDiv);
+            messageDiv.appendChild(messageContent);
+
+            chatContainer.appendChild(messageDiv);
+        }
+
+        function createRight(messageData) {
+            let chatContainer = document.querySelector(".messages");
+            console.log("message data in left: ", messageData);
+            let messageDiv = document.createElement("div");
+            messageDiv.classList.add("message-right", "msg-style");
+
+            let messageContent = document.createElement("div");
+            messageContent.classList.add("message-content");
+            messageContent.innerText = messageData.message;
+
+            let dpDiv = document.createElement("div");
+            dpDiv.classList.add("dp-circle-small");
+
+            messageDiv.appendChild(messageContent);
+            messageDiv.appendChild(dpDiv);
+
+            chatContainer.appendChild(messageDiv);
+        }
+
+        let persons = document.getElementsByClassName("person");
+        for (let i = 0; i < persons.length; i++) {
+            persons[i].addEventListener("click", async () => {
+                let senderUsername = persons[i].querySelector(".name").innerText;
+                sender = persons[i].querySelector("#sender").value;
+                document.querySelector(".currentSender").innerText = senderUsername;
+                console.log("sender: ",sender);
+                let data = await fetchConvo(sender);
+                console.log("data: ", data);
+                console.log("sender: ", sender);
+                loadConversation(data, sender);
+            });
+        }
+
+
+        function sendMessage() {
+            let message = document.getElementById("text-box").value.trim();
+            if (message === "") return;
+
+            let myAccount = "<%= myAccount %>";
+            let receiver = sender;
+
+            let messageData = {
+                sender: myAccount,
+                receiver: receiver,
+                message: message
+            };
+            createRight(messageData);
+            socket.emit("send", messageData);
+            document.getElementById("text-box").value = "";
+
+            let save=fetch("/buyer/chats/save",{
+                method:'POST',
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body:JSON.stringify({
+                    buyerMail:myAccount,
+                    sellerMail:receiver,
+                    message:message,
+                    sender:myAccount
+                })
+            })
+        }
+
+        let send = document.getElementsByClassName("send-btn")[0];
+        send.addEventListener("click", sendMessage);
+
+        socket.on("newMessage",(data)=>{
+            console.log("event detected: ",data);
+            let sentTo=data.sender;
+            console.log("data.sender",data.sender);
+            console.log("data.reciever: ",data.receiver);
+            let msg=data.message;
+            console.log("msg: ",msg);
+            if(sentTo==sender) {
+                createLeft(data);
+            }
+        })
+
+    </script>

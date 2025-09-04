@@ -1,0 +1,187 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #000;
+    color: white;
+}
+
+
+.dashboard {
+    display: flex;
+    flex-direction: row;
+    gap: 25px;
+    height: 100%;
+    background: no-repeat url("/Assets/AdminSidebar.png");
+}
+
+.title {
+    width: 200px;
+    min-height: 100vh;
+}
+
+.title h1 {
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+    color: #8888aa;
+    height: 100%;
+    padding: 15px;
+}
+
+.main_section {
+    margin-left: 20vw;
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+
+#graphs {
+    margin-top: 0px;
+    margin-right: 150px;
+    margin-left: 150px;
+    gap: 20px;
+}
+
+.curve {
+    border-radius: 10px;
+    width: 600px;
+    height: 10px;
+    background-color: black;
+}
+
+.curve_graph {
+    width: 100%;
+    overflow: hidden;
+}
+
+.pie_chart {
+    border-radius: 10px;
+    width: 300px;
+    height: 280px;
+    background-color: white;
+}
+
+.line {
+    fill: none;
+    stroke: #3b82f6;
+    stroke-width: 3;
+}
+
+.area {
+    fill: url(#area-gradient);
+    opacity: 0.5;
+}
+
+.axis {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.axis line {
+    stroke: #e2e8f0;
+}
+
+.axis path {
+    stroke: #cbd5e1;
+}
+
+.grid line {
+    stroke: #e2e8f0;
+    stroke-opacity: 0.5;
+}
+
+.grid path {
+    stroke-width: 0;
+}
+
+.tooltip {
+    position: absolute;
+    padding: 8px 12px;
+    background: #1e293b;
+    color: white;
+    border-radius: 6px;
+    font-size: 14px;
+    pointer-events: none;
+    transform: translate(-50%, -100%);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.user_data {
+    margin-top: 70px;
+    margin-left: 20px;
+    gap: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.stat_card {
+    border-radius: 12px;
+    width: 210px;
+    height: 200px;
+    background: linear-gradient(to bottom, #00013D, #999999);
+    display: flex;
+    flex-direction: column;
+}
+
+.stat_card h1 {
+    margin-top: 15px;
+    margin-left: 15px;
+    font-size: 80px;
+}
+
+#stat_color {
+    color: #000;
+}
+
+h2 {
+    margin: 15px;
+    margin-top: 15px;
+    font-size: 30px;
+}
+
+
+.sideBar {
+    margin-top: 0%;
+    height: 80%;
+}
+
+table {
+    border-radius: 12px;
+    margin: 15px;
+    margin-top: 30px;
+    border-collapse: collapse;
+    color: white;
+    background: linear-gradient(to right, #999999, #00013D);
+    font-family: Arial, sans-serif;
+}
+
+th,
+td {
+    padding: 20px 60px;
+    border: 2px solid black;
+    text-align: center;
+}
+
+th {
+    font-size: 22px;
+}
+
+.productPageBtn {
+    text-decoration: none;
+    color: white;
+}
+
+
+.g{
+    background-color: #8193a3;
+}
+
+.pie_chart {
+    display: flex;
+    width: 600px;
+}

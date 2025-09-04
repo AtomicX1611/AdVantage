@@ -1,0 +1,161 @@
+<link rel="stylesheet" href="/paymentPage.css">
+<%- include('sellerHeader.ejs') %>
+
+    <main>
+        <div class="payment-type box">
+            <h2>Select Payment Method:</h2>
+
+            <div class="payment-options">
+                <button class="payment-option" data-type="card">💳 Debit Card</button>
+                <button class="payment-option" data-type="upi">📱 UPI</button>
+            </div>
+
+            <div id="upi-section" class="payment-section">
+                <p>Select UPI App:</p>
+                <select>
+                    <option value="phonepe">PhonePe</option>
+                    <option value="gpay">Google Pay</option>
+                    <option value="paytm">Paytm</option>
+                </select>
+                <button class="payment-btn" id="pay-upi">Pay via UPI</button>
+            </div>
+
+            <div id="card-section" class="payment-section">
+                <label>Card Number:<br>
+                    <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456">
+                </label><br>
+                <label>Card Holder Name:<br>
+                    <input type="text" id="card-holder-name" placeholder="e.g, AB Deviliers">
+                </label><br>
+                <label>CVV:<br>
+                    <input type="password" id="cvv" placeholder="123">
+                </label><br>
+                <button class="payment-btn" id="pay-card">Pay via Card</button>
+            </div>
+        </div>
+
+
+        <div class="payment-details box">
+            <div class="head">
+                Payment Details
+            </div>
+            <div class="details">
+                <div class="detail">
+                    <ul>
+                        <li>
+                            Your Mail: <span>
+                                <%= mail %>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="detail">
+                    <ul>
+                        <li>
+                            Subscription Type: <span id="type">
+                                <%= type %>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="detail">
+                    <ul>
+                        <li>
+                            Subscription Duration: <span>
+                                <%= duration %>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="detail">
+                    <ul>
+                        <li>
+                            Price: <span>
+                                <%= Price %>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="detail">
+                    <ul>
+                        <li>
+                            Total Amount: <span>
+                                <%= Price %>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const buttons = document.querySelectorAll(".payment-option");
+        const upi = document.getElementById("upi-section");
+        const card = document.getElementById("card-section");
+
+        buttons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                buttons.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                if (btn.dataset.type === "upi") {
+                    upi.style.display = "block";
+                    card.style.display = "none";
+                } else {
+                    upi.style.display = "none";
+                    card.style.display = "block";
+                }
+            });
+        });
+
+        let type = document.getElementById("type").innerText;
+        let Card = document.getElementById("pay-card");
+        let Upi = document.getElementById("pay-upi");
+        async function payment() {
+            const cardNumber = document.getElementById("cardNumber").value.trim();
+            const cardHolder = document.getElementById("card-holder-name").value.trim();
+            const cvv = document.getElementById("cvv").value.trim();
+
+
+            const cardNumberDigits = cardNumber.replace(/\s+/g, '');
+            if (!/^\d{16}$/.test(cardNumberDigits)) {
+                alert("Please enter a valid 16-digit card number.");
+                return;
+            }
+            if (/^(\d)\1{15}$/.test(cardNumberDigits)) {
+                alert("Card number cannot be all the same digit.");
+                return;
+            }
+            if (!/^[A-Za-z ]{2,}$/.test(cardHolder)) {
+                alert("Please enter a valid card holder name.");
+                return;
+            }
+            if (!/^\d{3}$/.test(cvv) || /^0{3}$/.test(cvv)) {
+                alert("Please enter a valid 3-digit CVV (cannot be all zeros).");
+                return;
+            }
+
+
+            let res = await fetch("/seller/payment", {
+                method: 'POST',
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    type: type
+                })
+            })
+            let result = await res.json();
+
+            if (res.status == 200) {
+                alert("Payment Done sucessfully");
+                window.location.href = "/seller";
+            }
+            else {
+                alert("Something went wrong");
+            }
+        }
+        Card.addEventListener("click", payment);
+        Upi.addEventListener("click", payment);
+    </script>

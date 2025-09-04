@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <link rel="stylesheet" href="/AddproductForm.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    <a href="/seller"><img src="/Assets/Logo.svg" alt="Logo" draggable="false" id="logo"></a>
+    <br>
+    <img src="/Assets/Add New Product.svg" alt="add new product" draggable="false" height="50px" id="addNewProd">
+
+    <form action="/seller/addProduct" method="post" id="formElement">
+        <div class="parent">
+            <div class="div1 griditem">
+                <h3 class="flexitem">General Information</h3>
+                <label for="Name" class="flexitem">Product Name</label>
+                <input type="text" name="Name" id="Name" class="flexitem" placeholder="Your product name" required>
+                <label for="Description" class="flexitem">Product Description</label>
+                <textarea type="text" name="Description" id="Description" class="flexitem"
+                    placeholder="Describe your product here.."></textarea>
+                <div class="parentd flexitem">
+                    <div class="div2d">
+
+                    </div>
+                    <div class="div3d">
+                    </div>
+                    <div class="div4d">
+                        <label for="category">Choose Category</label>
+                        <select name="category" id="category">
+                            <option value="default">Select Product Category</option>
+                            <option value="Clothes">Clothes</option>
+                            <option value="Mobiles">Mobiles</option>
+                            <option value="Laptops">Laptops</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Books">Books</option>
+                            <option value="Furniture">Furniture</option>
+                            <option value="Automobiles">Automobiles</option>
+                            <option value="Sports">Sports</option>
+                            <option value="Fashion">Fashion</option>
+                            <option value="Musical Instruments">Musical Instruments</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="div2 griditem">
+                <h3 style="margin-left: 1vw;">Your Address</h3>
+                <label for="State" class="flexitem">State</label>
+                <select name="state" id="State" class="flexitem" required>
+                    <option value="default">Select your state</option>
+                    <option value="Andhra Pradesh">Andhra Pradesh</option>
+                    <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                    <option value="Assam">Assam</option>
+                    <option value="Bihar">Bihar</option>
+                    <option value="Chhattisgarh">Chhattisgarh</option>
+                    <option value="Goa">Goa</option>
+                    <option value="Gujarat">Gujarat</option>
+                    <option value="Haryana">Haryana</option>
+                    <option value="Himachal Pradesh">Himachal Pradesh</option>
+                    <option value="Jharkhand">Jharkhand</option>
+                    <option value="Karnataka">Karnataka</option>
+                    <option value="Kerala">Kerala</option>
+                    <option value="Madhya Pradesh">Madhya Pradesh</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                    <option value="Manipur">Manipur</option>
+                    <option value="Meghalaya">Meghalaya</option>
+                    <option value="Mizoram">Mizoram</option>
+                    <option value="Nagaland">Nagaland</option>
+                    <option value="Odisha">Odisha</option>
+                    <option value="Punjab">Punjab</option>
+                    <option value="Rajasthan">Rajasthan</option>
+                    <option value="Sikkim">Sikkim</option>
+                    <option value="Tamil Nadu">Tamil Nadu</option>
+                    <option value="Telangana">Telangana</option>
+                    <option value="Tripura">Tripura</option>
+                    <option value="Uttar Pradesh">Uttar Pradesh</option>
+                    <option value="Uttarakhand">Uttarakhand</option>
+                    <option value="West Bengal">West Bengal</option>
+                </select>
+
+                <label for="District" class="flexitem">District</label>
+                <input type="text" class="flexitem" name="district" id="District" placeholder="District" required
+                    autocomplete>
+                <label for="City" class="flexitem">City</label>
+                <input type="text" class="flexitem" name="city" id="City" placeholder="City" required autocomplete>
+                <label for="zipcode" class="flexitem">Zipcode</label>
+                <input type="number" id="zipcode" name="zipcode" placeholder="Zipcode" class="flexitem" required>
+            </div>
+            <div class="div3 griditem">
+                <div class="parent1">
+                    <div class="div11">
+                        <h3 class="flexitem" style="display: inline-block;">Upload Images</h3>
+                    </div>
+                    <div class="div22">
+                    </div>
+                    <div class="div33">
+                        <label for="image" id="plus">+</label>
+                        <input type="file" id="image" name="image" style="display: none;" multiple>
+                    </div>
+                </div>
+            </div>
+            <div class="div4 griditem">
+                <h3 class="flexitem">Price and Submit</h3>
+                <br>
+                <input type="number" name="price" class="flexitem" placeholder="Price" id="price" required> Rs
+                <button type="submit" id="submit-form">Submit</button>
+            </div>
+        </div>
+    </form>
+    <script>
+        let completed = true;
+        const formElement = document.getElementById('formElement');
+
+        const fileUploader = document.getElementById('image');
+
+        const div22 = document.querySelector('.div22');
+        const div2 = document.querySelector('.div2');
+        let imgEvent;
+        // formElement.addEventListener('submit',(event)=>{
+        //     event.preventDefault();
+        //         while(!completed);
+        //         fileUploader.remove();
+        //         formElement.submit();
+
+        // });
+        fileUploader.addEventListener('change', (event) => {
+            completed = false;
+            let count = 0;
+            div22.innerHTML = ''; // Clear previous images
+            console.log(event.target.files);
+            let i = 0, tempinput;
+            for (let file of event.target.files) {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    let img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.height = "75px";
+                    img.style.borderRadius = "10px";
+                    img.style.margin = "5px";
+                    div22.appendChild(img);
+                    tempinput = document.createElement('input');
+                    tempinput.type = 'text';
+                    tempinput.value = e.target.result;
+                    count++;
+                    tempinput.id = "image" + count;
+                    tempinput.name = "image" + count;
+                    tempinput.style.display = "none";
+                    div2.insertAdjacentElement("beforeend", tempinput);
+                    if (event.target.files.length === count) {
+                        completed = true;
+                    }
+                };
+                i++;
+            }
+        });
+
+        let submit = document.getElementById("submit-form");
+
+        submit.addEventListener("click", (event) => {
+            event.preventDefault();
+            let price = document.getElementById("price").value;
+            let category = document.getElementById("category").value;
+            const zipcodeInput = document.getElementById('zipcode').value;
+            let name = document.getElementById("Name").value;
+            let description = document.getElementById("Description").value;
+
+            const state = document.getElementById("State").value;
+            const district = document.getElementById("District").value;
+            const city = document.getElementById("City").value;
+
+            if (name.trim().length == 0) {
+                alert("Name cannot be empty");
+                return;
+            }
+            if (true) {
+                let ch = name.charAt(0);
+                if (!isNaN(ch)) {
+                    alert("Product name cannot start with a number");
+                    return;
+                }
+            }
+            if (description.trim().length <= 20) {
+                alert("Description should be atleast 20 characters long");
+                return;
+            }
+
+            if (state === "default") {
+                alert("Please select your state");
+                return;
+            }
+            if (district.trim().length < 3) {
+                alert("District Name should be atleast 3 character long");
+                return;
+            }
+            if (!isNaN(district.charAt(0))) {
+                alert("District name cannot start with number");
+                return;
+            }
+            if (city.trim().length < 3) {
+                alert("City name should be atleast 3 character long");
+                return;
+            }
+            if (!isNaN(city.charAt(0))) {
+                alert("City name cannot start with number");
+                return;
+            }
+            if (!(zipcodeInput >= 100000 && zipcodeInput < 10000000)) {
+                alert("Invalid Zipcode");
+                return;
+            }
+
+            if (category == "default") {
+                alert("Select category of your product");
+                return;
+            }
+            if (price.trim().length == 0) {
+                alert("Enter price for the product");
+                return;
+            }
+            if (price < 0) {
+                alert("Price cannot be negative");
+                return;
+            }
+            console.log("imgaes: ", fileUploader.files);
+            if (fileUploader.files.length == 0) {
+                alert("Upload atleast one image of your product!");
+                return;
+            }
+            formElement.submit();
+        })
+
+
+    </script>
+</body>
+
+</html>

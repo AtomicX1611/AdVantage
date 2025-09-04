@@ -1,0 +1,66 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+main {
+    height: 85vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url('/Assets/Backgrounds/download 2.jpg') ;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+.head {
+    width: 100vw;
+    display: flex;
+    justify-content:center;
+    color: white;
+    
+}
+#contact-form {
+    height: 500px;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid white;
+    border-radius: 10px;
+}
+#conatct-form>input {
+    height: 50px;
+    width: 300px;
+
+}
+label {
+    color: white;
+
+}
+.label {
+    width: 300px;
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 6px;
+}
+.cf {
+    height: 30px;
+    width: 300px;
+    border-radius: 10px;
+    padding: 5px;
+}
+textarea {
+    resize: none;
+    height: 100px;
+    padding: 5px;
+    width: 300px;
+    border-radius: 10px;
+}
+#submit{
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+}

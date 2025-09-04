@@ -1,0 +1,273 @@
+.main_container {
+  min-height: 100%;
+  width: 100%;
+  margin: 0 0;
+  margin-bottom: 120px;
+  display: flex;
+  flex-direction: row;
+}
+
+.BG {
+  position: relative;
+  background-image: url("Assets/Backgrounds/Proudcts_Bg.png");
+  background-repeat: no-repeat;
+  background-position: right bottom;
+}
+
+.BG::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-image: url("Assets/Backgrounds/Proudcts_Bg.png");
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: cover;
+  opacity: 0.2; /* Adjust this value (0.1 to 1) for desired opacity */
+  pointer-events: none; /* Allows clicking through the overlay */
+  z-index: 0;
+}
+
+.BG > * {
+  position: relative;
+  z-index: 1; /* Keeps content above the overlay */
+}
+
+
+.title {
+  color: rgb(233, 219, 236);
+  margin: 0;
+  padding: 0;
+  margin-top: 10px;
+}
+
+body {
+  background-color: black;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  
+}
+
+.card_container {
+  border-radius: 12px;
+  margin-top: 15px;
+  width: 128px;
+  height: 128px;
+  margin-left: 100px;
+  background-color: rgba(255, 255, 255, 0);
+  overflow: hidden;
+}
+
+.card_list {
+  margin-top: 110px;
+  margin-bottom: 20px;
+  width: 10vw;
+  float: left;
+}
+
+img.card_container:hover{
+  transform: scale(1.1,1.1);
+  border: solid 3px rgb(34, 87, 122);
+}
+
+.card_title {
+  padding: 5px;
+  padding-left: 10px;
+}
+
+.big_card{
+  border-radius: 20px;
+  background-color: white;
+  width: 500px;
+  height: 570px;
+  margin-top: 50px;
+  margin-left: 100px;
+}
+
+.product_details{
+  margin-top: 50px;
+  width: 30vw;
+  background-color: rgba(240, 248, 255, 0.08);
+  margin-left: 140px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ffffff;
+  border-radius: 5%;
+  padding: 20px;
+}
+
+.item_header{
+  padding-bottom: 10px;
+}
+
+.item_title {
+  color: white;
+  /* width: 20vw; <-- REMOVE this */
+  word-spacing: 5px;
+  word-break: break-word;
+  letter-spacing: 1px;
+  overflow-wrap: break-word; /* Ensures long words wrap */
+  white-space: normal; /* Allows multi-line wrapping */
+}
+
+.item_address{
+  color: #B2ADAD;
+}
+
+.item_price{
+  color: #999999;
+}
+
+.item_title{
+  color: white;
+}
+
+.description {
+  margin-top: 20px;
+  width: 100%; /* Use full width of parent */
+}
+
+.item_desc {
+  color: white;
+  margin: 0;
+  padding: 0;
+}
+#addToWishlist{
+  padding: 5px 3px;
+  border-radius: 3px;
+}
+#addToWishlist:hover{
+  cursor: pointer;
+  background-color: #B2ADAD;
+}
+
+#notification {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #000000;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: none; 
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+#close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.options {
+  margin-top: 2vh;
+  display: flex;
+  justify-content: center;
+  gap: 3vw;
+}
+.btn {
+  width: 100%;
+  text-align: center;
+  padding: 15px;
+  border: 2px solid white;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  box-sizing: border-box;
+  min-width: 150px; /* Add this */
+}
+.btn:hover {
+  background-color: white;
+  color: black;
+}
+#verified{
+  color: white;
+}
+#deleteProduct{
+  color: white;
+  background-color: #999999;
+  padding: 10px 5px;
+  border-radius: 5px;
+}
+.wishlist_button_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  width: 20vw;
+  /* margin-left: 15vw; */
+  margin-right: 7vw;
+}
+
+#addToWishlist.btn {
+  padding: 15px;
+  border: 2px solid white;
+  border-radius: 8px;
+  color: white;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#addToWishlist.btn:hover {
+  background-color: white;
+  color: black;
+}
+
+.big_container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 5vh;
+}
+
+.image_container {
+  width: 50vw;
+}
+
+.decision-btn {
+  width: 100%;
+  text-align: center;
+  padding: 15px;
+  border: 2px solid white;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  box-sizing: border-box;
+  min-width: 150px;
+  text-decoration: none; /* to remove underline from links */
+  display: inline-block;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+
+.decision-btn:hover {
+  background-color: white;
+  color: black;
+}
+
+#sold{
+  margin-top: 2vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
