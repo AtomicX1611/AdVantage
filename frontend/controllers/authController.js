@@ -24,6 +24,7 @@ export const buyerLogin = async (req, res) => {
     if (setCookie) {
       res.setHeader("set-cookie", setCookie);
     }
+    // console.log(setCookie);
 
     res.status(response.status).json(data);
 
@@ -40,12 +41,14 @@ export const buyerSignup = async (req, res) => {
   try {
     const { username, contact, email, password } = req.body;
 
+    // console.log("hehe");
+
     const response = await fetch("http://localhost:3000/auth/buyer/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, contact, email, password, cnfpwd }),
+      body: JSON.stringify({ username, contact, email, password}),
     });
 
     const data = await response.json();
@@ -54,8 +57,8 @@ export const buyerSignup = async (req, res) => {
     if (setCookie) {
       res.setHeader("set-cookie", setCookie);
     }
+    console.log(setCookie);
 
-    // Forward backend status + body
     res.status(response.status).json(data);
 
   } catch (error) {

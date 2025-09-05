@@ -1,6 +1,7 @@
 import express from "express";
 import { requireRole } from "../middleware/roleMiddleware.js";
 import { chatRoutes } from "./charRoutes.js";
+// import fetch from "node-fetch";
 import {
   addToWishlist,
   findProduct,
@@ -27,10 +28,25 @@ buyerRoutes.use(express.urlencoded({ extended: true }));
 buyerRoutes.use("/chats", chatRoutes);
 
 buyerRoutes.get("/home", async (req, res) => {
+  let isLogged = false;
+  try {
+    // console.log(req.cookies);
+    if (req.cookies.token) {
+      console.log("Token:", req.cookies.token);
+      const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
+      console.log("hhh : "+decoded.role);
+      isLogged = (decoded.role == "buyer");
+    }
+  } catch (err) {
+    // console.log("hhh : ");
+    console.log(err);
+    
+    isLogged = false;
+  }
   let freshProductsFetched = await freshProducts();
   let featuredProductsFetched = await featuredProducts();
   res.render("Home.ejs", {
-    isLogged: req.isAuthenticated() && req.user.role == "buyer",
+    isLogged: isLogged,
     freshProducts: freshProductsFetched,
     featuredProducts: featuredProductsFetched,
   });
@@ -88,23 +104,61 @@ buyerRoutes.post("/wishlist/add", async (req, res) => {
 
 
 buyerRoutes.get("/wishlist", requireRole("buyer"), async (req, res) => {
-  const products = await getWishlistProducts(req.user.email);
+  let isLogged = false;
+  try {
+    if (req.cookies.token) {
+      const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
+      isLogged = (decoded.role == "buyer");
+    }
+  } catch (err) {
+    isLogged = false;
+  }
+  if (isLogged === false) {
+    return res.redirect("/auth/buyer/login");
+  }
+
+  const backendRes = await fetch("http://localhost:3000/buyer/wishlist", {
+    method: "GET",
+    headers: {
+      cookie: req.headers.cookie || "",
+    },
+  });
+
+  const data = await backendRes.json();
+
   res.render("wishlist", {
-    products: products,
-    isLogged: req.isAuthenticated() && req.user.role == "buyer",
+    products: data.products,
+    isLogged: isLogged,
   });
 });
 
-buyerRoutes.get(
-  "/wishlist/remove/:productId",
-  requireRole("buyer"),
-  async (req, res) => {
-    const productId = req.params.productId;
-    const userEmail = req.user.email;
-    await removeWishlistProduct(userEmail, productId);
+buyerRoutes.get("/wishlist/remove/:productId", async (req, res) => {
+  const { productId } = req.params;
+
+  try {
+    const backendRes = await fetch(`http://localhost:3000/buyer/wishlist/remove/${productId}`, {
+      method: "DELETE",
+      headers: {
+        cookie: req.headers.cookie || "",
+      },
+    });
+
+    const data = await backendRes.json();
+
+    if (!backendRes.ok) {
+      console.error("Failed to remove from wishlist:", data);
+      return res.status(backendRes.status).json(data);
+    }
+
     res.redirect("/buyer/wishlist");
+  } catch (err) {
+    console.error("Proxy error (removeFromWishlist):", err);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error (proxy)",
+    });
   }
-);
+});
 
 buyerRoutes.get("/featuredProd", async (req, res) => {
   let data = await featuredProducts();
@@ -124,7 +178,7 @@ buyerRoutes.get("/contact", requireRole("buyer"), (req, res) => {
   });
 });
 
-buyerRoutes.get("/updatePassword",async (req, res) => {
+buyerRoutes.get("/updatePassword", async (req, res) => {
   let isLogged = false;
   try {
     if (req.cookies.token) {
