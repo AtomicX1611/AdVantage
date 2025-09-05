@@ -18,6 +18,7 @@ export const buyerSignup = async (req, res) => {
         }
         const response = await signupBuyerService(username, contact, email, password);
         if (!response.success) {
+            console.log(response.message);
             return res.status(response.status).json({
                 message: response.message,
                 success: false,
@@ -36,6 +37,7 @@ export const buyerSignup = async (req, res) => {
             email: response.newBuyer.email,
         });
     } catch (error) {
+        console.log(error);
         res.status(500).json({
             message: error.message || "Internal server error"
         });
@@ -82,6 +84,7 @@ export const sellerSignup = async (req, res) => {
 
 export const buyerLogin = async (req, res) => {
     try {
+        console.log("request rcvd: ",req.body);
         const { email, password } = req.body;
         if (!email || !password) {
             return res.status(400).json({
@@ -91,6 +94,7 @@ export const buyerLogin = async (req, res) => {
         }
         const response = await buyerLoginService(email, password);
         if (!response.success) {
+            console.log(response.message);
             return res.status(response.status).json({
                 success: false,
                 message: response.message,
@@ -107,6 +111,7 @@ export const buyerLogin = async (req, res) => {
             message: "Buyer login successful",
         });
     } catch (error) {
+        console.log(error);
         res.status(500).json({
             message: error.message || "Internal server error",
         });

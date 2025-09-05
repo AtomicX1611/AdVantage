@@ -19,7 +19,7 @@ import managerRouter from "./routes/managerRoutes.js";
 import adminRouter from "./routes/adminRouter.js";
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 app.use(cors());
 
@@ -132,7 +132,7 @@ passport.deserializeUser(async (user, cb) => {
   cb(null, user);
 });
 
-const server = app.listen(port, () => console.log("Running on Port 3000"));
+const server = app.listen(port, () => console.log("Running on Port 3001"));
 export const io = new Server(server);
 
 io.on("connection", sock);

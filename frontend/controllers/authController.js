@@ -19,6 +19,7 @@ export const buyerLogin = async (req, res) => {
     });
 
     const data = await response.json();
+    console.log("response from backend :",data);
 
     const setCookie = response.headers.get("set-cookie");
     if (setCookie) {
@@ -28,6 +29,7 @@ export const buyerLogin = async (req, res) => {
     res.status(response.status).json(data);
 
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
       message: error.message || "Something went wrong in frontend proxy (buyerLogin)",
@@ -45,7 +47,7 @@ export const buyerSignup = async (req, res) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, contact, email, password, cnfpwd }),
+      body: JSON.stringify({ username, contact, email, password}),
     });
 
     const data = await response.json();
