@@ -9,6 +9,7 @@ import {
 
 export const buyerSignup = async (req, res) => {
     try {
+        // console.log("in backend buyersignup");
         const { username, contact, email, password } = req.body;
         if (!username || !contact || !email || !password) {
             return res.status(400).json({

@@ -1,6 +1,14 @@
 import { createProduct } from "../daos/products.dao.js";
-import { updateSellerById,updateSellerPassById } from "../daos/sellers.dao.js";
-import { acceptProductRequestDao, rejectProductRequestDao } from "../daos/products.dao.js";
+import {
+    getSellerById,
+    updateSellerById,
+    updateSellerPassById,
+    updateSellerSubscriptionDao
+} from "../daos/sellers.dao.js";
+import {
+    acceptProductRequestDao,
+    rejectProductRequestDao
+} from "../daos/products.dao.js";
 
 export const addProductService = async (req) => {
     const {
@@ -76,9 +84,26 @@ export const updateSellerProfileService = async (sellerId, updateData, file) => 
 
     return {
         success: true,
-        updatedSeller:plainSeller,
+        updatedSeller: plainSeller,
     };
 };
+
+export const updateSellerSubscriptionService = async (sellerId, subscription) => {
+    const seller = await getSellerById(sellerId);
+    if(seller.subscription>=subscription){
+        return {
+            success: false,
+            message: "Seller already have better or Equal plan than the choosen one",
+        };
+    }
+    seller.subscription=subscription;
+    await seller.save();
+    // const response = await updateSellerSubscriptionDao(sellerId,subscription);
+    return {
+        success: true,
+        updatedSeller: seller,
+    }
+}
 
 export const acceptProductRequestService = async (productId, buyerId) => {
     const result = await acceptProductRequestDao(productId, buyerId);
