@@ -5,6 +5,7 @@ import {
     requestProductService,
     updateBuyerPasswordService,
     getWishlistProductsService,
+    getYourProductsService,
 } from "../services/buyer.service.js";
 
 export const updateBuyerProfile = async (req, res) => {
@@ -177,6 +178,28 @@ export const updateBuyerPassword = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             message: error
+        });
+    }
+}
+
+export const getYourProducts = async (req,res) =>{
+    try {
+        const userId = req.user._id;
+        const response = await getYourProductsService(userId);
+        if (!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            products: response.products,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error"
         });
     }
 }

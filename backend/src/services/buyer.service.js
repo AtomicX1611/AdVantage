@@ -6,7 +6,11 @@ import {
     updateBuyerPassById,
     getWishlistProductsDao,
 } from "../daos/buyers.dao.js";
-import { addProductRequestDao } from "../daos/products.dao.js";
+import {
+    addProductRequestDao,
+    getYourProductsDao,
+} from "../daos/products.dao.js";
+
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
 
     const allowedFields = ["username", "contact"];
@@ -132,4 +136,14 @@ export const updateBuyerPasswordService = async (oldPassword, newPassword, userI
     return {
         success: true,
     }
+}
+
+export const getYourProductsService = async (buyerId) => {
+    const products = await getYourProductsDao(buyerId);
+
+    return {
+        success: true,
+        message: "Your products retrieved successfully",
+        products: products,
+    };
 }

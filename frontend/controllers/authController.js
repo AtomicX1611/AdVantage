@@ -133,7 +133,7 @@ export const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const response = await fetch("http://localhost:3000/api/admin/login", {
+    const response = await fetch("http://localhost:3000/auth/admin/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

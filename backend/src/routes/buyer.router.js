@@ -12,6 +12,7 @@ import {
     requestProduct,
     updateBuyerPassword,
     getWishlistProducts,
+    getYourProducts,
 } from "../controllers/buyer.controller.js";
 
 export const router = express.Router();
@@ -29,5 +30,7 @@ router.get("/wishlist", getWishlistProducts);
 router.delete("/wishlist/remove/:productId", removeFromWishlist);
 router.put("/update/password",updateBuyerPassword); 
 router.put("/update/profile", upload.single("profilePic"), updateBuyerProfile);
+
+router.get("/yourProducts",getYourProducts);
 
 export default router;
