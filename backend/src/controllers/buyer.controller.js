@@ -4,6 +4,8 @@ import {
     removeFromWishlistService,
     requestProductService,
     updateBuyerPasswordService,
+    getWishlistProductsService,
+    getYourProductsService,
 } from "../services/buyer.service.js";
 
 export const updateBuyerProfile = async (req, res) => {
@@ -102,6 +104,29 @@ export const removeFromWishlist = async (req, res) => {
     }
 };
 
+export const getWishlistProducts = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const response = await getWishlistProductsService(userId);
+        if (!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: response.message,
+            products: response.products,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error"
+        });
+    }
+}
+
 export const requestProduct = async (req, res) => {
     try {
         const buyerId = req.user._id;
@@ -150,9 +175,31 @@ export const updateBuyerPassword = async (req, res) => {
             success: true,
             message: "password updated successfully",
         });
-    }catch(error){
+    } catch (error) {
         return res.status(500).json({
             message: error
+        });
+    }
+}
+
+export const getYourProducts = async (req,res) =>{
+    try {
+        const userId = req.user._id;
+        const response = await getYourProductsService(userId);
+        if (!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            products: response.products,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error"
         });
     }
 }

@@ -4,6 +4,7 @@ import {
     rejectProductRequestService,
     updateSellerProfileService,
     updateSellerPasswordService,
+    updateSellerSubscriptionService,
 } from "../services/seller.service.js";
 
 export const addProduct = async (req, res) => {
@@ -43,7 +44,7 @@ export const updateSellerProfile = async (req, res) => {
         }
 
         const response = await updateSellerProfileService(sellerId, updateData, req.file);
-        
+
         if (!response.success) {
             return res.status(response.status).json({
                 success: false,
@@ -64,6 +65,38 @@ export const updateSellerProfile = async (req, res) => {
         });
     }
 };
+
+export const updateSellerSubscription = async (req, res) => {
+    try {
+        const sellerId = req.user._id;
+        const { subscription } = req.body;
+        if(subscription<1){
+            return res.status(400).json({
+                success: false,
+                message: "Subscription cannot be less that 1",
+            });
+        }
+        const response = await updateSellerSubscriptionService(sellerId,subscription);
+
+        if (!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message,
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            updatedSeller: response.updatedSeller,
+            message: "Subscription updated successfully",
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error",
+        });
+    }
+}
 
 export const acceptRequest = async (req, res) => {
     try {

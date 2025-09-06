@@ -1,6 +1,7 @@
 import express from "express";
 import { requireRole } from "../middleware/roleMiddleware.js";
 import { chatRoutes } from "./charRoutes.js";
+// import fetch from "node-fetch";
 import {
   addToWishlist,
   findProduct,
@@ -26,17 +27,50 @@ buyerRoutes.use(express.urlencoded({ extended: true }));
 buyerRoutes.use("/chats", chatRoutes);
 
 buyerRoutes.get("/home", async (req, res) => {
-  let freshProductsFetched = await freshProducts();
-  let featuredProductsFetched = await featuredProducts();
-  res.render("Home.ejs", {
-    isLogged: req.isAuthenticated() && req.user.role == "buyer",
-    freshProducts: freshProductsFetched,
-    featuredProducts: featuredProductsFetched,
-  });
+  let isLogged = false;
+
+  try {
+    if (req.cookies.token) {
+      await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
+      isLogged = true;
+    }
+  } catch (err) {
+    isLogged = false;
+  }
+
+  try {
+    const apiResponse = await fetch("http://localhost:3000/anyone/HomeRequirements");
+    const response = await apiResponse.json();
+
+    res.render("Home.ejs", {
+      isLogged: isLogged,
+      freshProducts: response.freshProducts || [],
+      featuredProducts: response.featuredProducts || [],
+    });
+  } catch (error) {
+    res.render("Home.ejs", {
+      isLogged: isLogged,
+      freshProducts: [],
+      featuredProducts: [],
+    });
+  }
 });
 
-buyerRoutes.get("/profile", requireRole("buyer"), (req, res) => {
-  if (req.isAuthenticated()) res.render("Profile.ejs", { isLogged: true });
+
+buyerRoutes.get("/profile", requireRole("buyer"), async (req, res) => {
+  let isLogged = false;
+  try {
+    // console.log(req.cookies);
+    if (req.cookies.token) {
+      const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
+      isLogged = true;
+    }
+  } catch (err) {
+    // console.log("hhh : ");
+    // console.log(err);
+    isLogged = false;
+  }
+  if (isLogged) res.render("Profile.ejs", { isLogged: true });
   else res.send("No data");
 });
 
@@ -86,36 +120,74 @@ buyerRoutes.post("/wishlist/add", async (req, res) => {
 });
 
 
-buyerRoutes.get("/wishlist", requireRole("buyer"), async (req, res) => {
-  const products = await getWishlistProducts(req.user.email);
+buyerRoutes.get("/wishlist", async (req, res) => {
+  let isLogged = false;
+  try {
+    if (req.cookies.token) {
+      const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
+      isLogged = (decoded.role == "buyer");
+    }
+  } catch (err) {
+    isLogged = false;
+  }
+  if (isLogged === false) {
+    return res.redirect("/auth/buyer/login");
+  }
+
+  const backendRes = await fetch("http://localhost:3000/buyer/wishlist", {
+    method: "GET",
+    headers: {
+      cookie: req.headers.cookie || "",
+    },
+  });
+
+  const data = await backendRes.json();
+
   res.render("wishlist", {
-    products: products,
-    isLogged: req.isAuthenticated() && req.user.role == "buyer",
+    products: data.products,
+    isLogged: isLogged,
   });
 });
 
-buyerRoutes.get(
-  "/wishlist/remove/:productId",
-  requireRole("buyer"),
-  async (req, res) => {
-    const productId = req.params.productId;
-    const userEmail = req.user.email;
-    await removeWishlistProduct(userEmail, productId);
+buyerRoutes.get("/wishlist/remove/:productId", async (req, res) => {
+  const { productId } = req.params;
+
+  try {
+    const backendRes = await fetch(`http://localhost:3000/buyer/wishlist/remove/${productId}`, {
+      method: "DELETE",
+      headers: {
+        cookie: req.headers.cookie || "",
+      },
+    });
+
+    const data = await backendRes.json();
+
+    if (!backendRes.ok) {
+      console.error("Failed to remove from wishlist:", data);
+      return res.status(backendRes.status).json(data);
+    }
+
     res.redirect("/buyer/wishlist");
+  } catch (err) {
+    console.error("Proxy error (removeFromWishlist):", err);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error (proxy)",
+    });
   }
-);
-
-buyerRoutes.get("/featuredProd", async (req, res) => {
-  let data = await featuredProducts();
-  console.log(data.length);
-  res.status(200).json(data);
 });
 
-buyerRoutes.get("/freshProd", async (req, res) => {
-  let data = await freshProducts();
-  console.log(data.length);
-  res.status(200).json(data);
-});
+// buyerRoutes.get("/featuredProd", async (req, res) => {
+//   let data = await featuredProducts();
+//   console.log(data.length);
+//   res.status(200).json(data);
+// });
+
+// buyerRoutes.get("/freshProd", async (req, res) => {
+//   let data = await freshProducts();
+//   console.log(data.length);
+//   res.status(200).json(data);
+// });
 
 buyerRoutes.get("/contact", requireRole("buyer"), (req, res) => {
   res.render("ContactUs.ejs", {
@@ -123,7 +195,7 @@ buyerRoutes.get("/contact", requireRole("buyer"), (req, res) => {
   });
 });
 
-buyerRoutes.get("/updatePassword",async (req, res) => {
+buyerRoutes.get("/updatePassword", async (req, res) => {
   let isLogged = false;
   try {
     if (req.cookies.token) {
@@ -176,22 +248,63 @@ buyerRoutes.post("/updatePassword", async (req, res) => {
 });
 
 buyerRoutes.get("/buy/:productId", requireRole("buyer"), async (req, res) => {
-  let product = await findProduct(req.params.productId);
-  if (product.sold != 0) {
+  const { productId } = req.params;
+
+  try {
+    const backendRes = await fetch(`http://localhost:3000/buyer/request/${productId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: req.headers.cookie || "",
+      },
+    });
+
+    const data = await backendRes.json();
+
+    if (!backendRes.ok) {
+      return res.status(backendRes.status).json(data);
+    }
+
     res.redirect(`/search/product/${req.params.productId}`);
-  } else {
-    console.log(req.user.email);
-    await increaseSold(req.user.email, req.params.productId);
-    res.redirect(`/search/product/${req.params.productId}`);
+  } catch (err) {
+    console.error("Proxy error (buy product):", err);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error (proxy)",
+    });
   }
 });
 
 buyerRoutes.get("/yourProducts", async (req, res) => {
-  let products = await findUserProducts(req.user.email);
-  console.log("User products : ", products);
+  try {
+    // call backend API with cookies forwarded
+    const backendRes = await fetch(`http://localhost:3000/buyer/yourProducts`, {
+      method: "GET",
+      headers: {
+        cookie: req.headers.cookie || "",
+      },
+    });
 
-  res.render("yourproducts.ejs", {
-    isLogged: true,
-    userProducts: products ? products : [],
-  });
+    const data = await backendRes.json();
+
+    if (!backendRes.ok || !data.success) {
+      return res.render("yourproducts.ejs", {
+        isLogged: !!req.cookies?.token,
+        userProducts: [],
+        error: data.message || "Failed to load your products",
+      });
+    }
+
+    res.render("yourproducts.ejs", {
+      isLogged: !!req.cookies?.token,
+      userProducts: data.products || [],
+    });
+  } catch (err) {
+    console.error("Proxy error (/yourProducts):", err);
+    res.render("yourproducts.ejs", {
+      isLogged: !!req.cookies?.token,
+      userProducts: [],
+      error: "Internal server error (proxy)",
+    });
+  }
 });

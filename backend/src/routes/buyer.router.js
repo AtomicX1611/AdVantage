@@ -11,6 +11,8 @@ import {
     removeFromWishlist,
     requestProduct,
     updateBuyerPassword,
+    getWishlistProducts,
+    getYourProducts,
 } from "../controllers/buyer.controller.js";
 
 export const router = express.Router();
@@ -20,9 +22,15 @@ router.use(serializeUser);
 router.use(authorize("buyer"));
 
 router.post("/request/:productId",requestProduct);
+
+
 router.put("/wishlist/add/:productId", addToWishlist);
+router.get("/wishlist", getWishlistProducts);
+
 router.delete("/wishlist/remove/:productId", removeFromWishlist);
 router.put("/update/password",updateBuyerPassword); 
 router.put("/update/profile", upload.single("profilePic"), updateBuyerProfile);
+
+router.get("/yourProducts",getYourProducts);
 
 export default router;

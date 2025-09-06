@@ -40,7 +40,7 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
         return { success: false, reason: "not_found" };
     }
 
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo && product.soldTo.buyer) { // i think there is a mistake in the logic
         return { success: false, reason: "already_sold" };
     }
 
@@ -82,42 +82,80 @@ export const rejectProductRequestDao = async (productId, buyerId) => {
     return { success: true };
 };
 
-export const verifyProductDao = async (productId) =>{
+export const verifyProductDao = async (productId) => {
     try {
-        const product=await Products.findById({_id:productId});
-        if(!product) return {
-            success:false,
-            message:"Product not found"
+        const product = await Products.findById({ _id: productId });
+        if (!product) return {
+            success: false,
+            message: "Product not found"
         },
 
-        await Products.updateOne(
-            {_id:productId},
-            {$set:{verified:true}}
-        )
+            await Products.updateOne(
+                { _id: productId },
+                { $set: { verified: true } }
+            )
 
         return {
-            success:true,
-            message:"Verified Product with id"
+            success: true,
+            message: "Verified Product with id"
         }
     } catch (error) {
         return {
-            success:false,
-            message:"Database error"
+            success: false,
+            message: "Database error"
         }
     }
-}
+};
 
-export const findUnverifiedProducts = async () =>{
+export const findUnverifiedProducts = async () => {
     try {
-        const products=await Products.find({verified:false});
+        const products = await Products.find({ verified: false });
         return {
-            success:true,
-            products:products
+            success: true,
+            products: products
         }
     } catch (error) {
         return {
-            success:false,
-            message:"database error"
+            success: false,
+            message: "database error"
         }
     }
-}
+};
+
+export const getYourProductsDao = async (buyerId) => {
+    const products = await Products.find({ soldTo: buyerId });
+    return products;
+};
+
+
+export const getFreshProductsDao = async () => {
+    const products = await Products.find()
+        .sort({ postingDate: -1 })
+        .limit(20)
+        .populate("seller", "username subscription");
+
+    return products;
+};
+
+export const getFeaturedProductsDao = async () => {
+    const products = await Products.aggregate([
+        {
+            $lookup: {
+                from: "Sellers",
+                localField: "seller",
+                foreignField: "_id",
+                as: "sellerInfo",
+            },
+        },
+        { $unwind: "$sellerInfo" },
+        {
+            $sort: {
+                "sellerInfo.subscription": -1,
+                postingDate: -1,
+            },
+        },
+        { $limit: 20 },
+    ]);
+
+    return products;
+};
