@@ -57,7 +57,6 @@ export const takeDownSeller = async (req, res) => {
         message: "Email is required"
       });
     }
-
     const result = await removeSeller(userId);
     return res.status(result.success ? 200 : 404).json(result);
 

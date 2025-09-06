@@ -17,7 +17,7 @@ router.post('/buyer/login', buyerLogin);
 router.post('/seller/signup', sellerSignup);
 router.post('/seller/login',sellerLogin);
 //admin
-router.post('admin/login',adminLogin);
+router.post('/admin/login',adminLogin);
 //manager
 router.post('/manager/login',managerLogin);
 

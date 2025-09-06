@@ -129,7 +129,6 @@ export const sellerSignup = async (req, res) => {
 export const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const response = await fetch("http://localhost:3000/api/admin/login", {
       method: "POST",
       headers: {
@@ -141,12 +140,12 @@ export const adminLogin = async (req, res) => {
     const data = await response.json();
 
     const setCookie = response.headers.get("set-cookie");
+    
     if (setCookie) {
       res.setHeader("set-cookie", setCookie);
     }
 
     res.status(response.status).json(data);
-
   } catch (error) {
     res.status(500).json({
       success: false,

@@ -19,8 +19,7 @@ import managerRouter from "./routes/managerRoutes.js";
 import adminRouter from "./routes/adminRouter.js";
 
 const app = express();
-const port = 3000;
-
+const port = 3001;
 app.use(cors());
 
 const LocalStrategy = pkg.Strategy;

@@ -78,6 +78,6 @@ managerRouter.get("/dashboard", requireRole("manager"), async (req, res) => {
   //   { name: "Product 14", description: "Premium segment", price: 999 },
   //   { name: "Product 15", description: "Eco-friendly product", price: 329 },
   // ];
-});
+}); 
 
 export default managerRouter;

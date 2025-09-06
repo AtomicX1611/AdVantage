@@ -14,7 +14,6 @@ import {
 } from "../models/MongoUser.js";
 import { featuredProducts } from "../models/MongoUser.js";
 // import { freshProducts } from "../models/User.js";
-import { lch } from "d3";
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
 
@@ -186,6 +185,7 @@ buyerRoutes.get("/buy/:productId", requireRole("buyer"), async (req, res) => {
     res.redirect(`/search/product/${req.params.productId}`);
   }
 });
+
 buyerRoutes.get("/yourProducts", async (req, res) => {
   let products = await findUserProducts(req.user.email);
   console.log("User products : ", products);

@@ -136,9 +136,9 @@ export const sellerLoginService = async (email, password) => {
 };
 
 export const adminLoginService = async (email, password) => {
+    
     const admin = await findAdminByEmail(email);
-
-    if (!admin) {
+    if (!admin){
         return {
             success: false,
             status: 404,
@@ -146,6 +146,9 @@ export const adminLoginService = async (email, password) => {
         };
     }
 
+    console.log('Log with admin ,',admin,email,password);
+    
+    
     if (admin.password !== password) {
         return {
             success: false,
@@ -153,10 +156,10 @@ export const adminLoginService = async (email, password) => {
             message: "email or password is incorrect",
         };
     }
-
+    
     const token = jwt.sign(
         { _id: admin._id, role: "admin" },
-        process.env.JWT_SECRET,
+        "process.env.JWT_SECRET",
         { expiresIn: "7d" }
     );
 
