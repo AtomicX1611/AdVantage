@@ -131,6 +131,7 @@ export const sellerSignup = async (req, res) => {
 
 export const adminLogin = async (req, res) => {
   try {
+    // console.log("Hii");
     const { email, password } = req.body;
 
     const response = await fetch("http://localhost:3000/auth/admin/login", {
@@ -139,11 +140,18 @@ export const adminLogin = async (req, res) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, password }),
+      credentials: "include",
     });
 
+    // console.log("hhh");
     const data = await response.json();
+    
 
+    // console.log(response.headers);
+    console.log(data);
+    
     const setCookie = response.headers.get("set-cookie");
+    // console.log(setCookie);
     
     if (setCookie) {
       res.setHeader("set-cookie", setCookie);
@@ -151,6 +159,7 @@ export const adminLogin = async (req, res) => {
 
     res.status(response.status).json(data);
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
       message: error.message || "Something went wrong in frontend proxy (adminLogin)",

@@ -43,7 +43,7 @@
               </h3>
               <% } %>
                 <% for(let i=0;i < products.length; i++) { %>
-                  <a href="http://localhost:3000/search/product/<%= products[i]._id %>">
+                  <a href="/search/product/<%= products[i]._id %>">
                     <div class="products">
                       <img src="<%= products[i].Image1Src %>" alt="image" class="images" />
                       <h4 style="margin-left: 20px; font-size: 15px">
@@ -75,7 +75,7 @@ const products = <%- JSON.stringify(products) %>;
       for (let i = 0; i < products.length; i++) {
         price = parseFloat(products[i].price);
         if ((price >= minValue) && (price <= maxValue) && ( (!verifiedCheckbox.checked) || (products[i].verified != false))) {
-          html = `<a href="http://localhost:3000/search/product/${products[i]._id}">
+          html = `<a href="/search/product/${products[i]._id}">
                               <div class="products">
                                   <img src="${products[i].Image1Src}" alt="image" class="images">
                                   <h4 style="margin-left: 20px; font-size: 15px;">
