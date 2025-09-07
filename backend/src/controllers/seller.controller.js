@@ -90,6 +90,7 @@ export const updateSellerSubscription = async (req, res) => {
             updatedSeller: response.updatedSeller,
             message: "Subscription updated successfully",
         });
+        
     } catch (error) {
         res.status(500).json({
             success: false,

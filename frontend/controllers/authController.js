@@ -132,23 +132,24 @@ export const sellerSignup = async (req, res) => {
 export const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-
+   
     const response = await fetch("http://localhost:3000/auth/admin/login", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json", 
       },
       body: JSON.stringify({ email, password }),
+      credentials : 'include'
     });
 
     const data = await response.json();
-
+    
     const setCookie = response.headers.get("set-cookie");
     
     if (setCookie) {
       res.setHeader("set-cookie", setCookie);
     }
-
+    
     res.status(response.status).json(data);
   } catch (error) {
     res.status(500).json({

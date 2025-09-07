@@ -13,9 +13,11 @@ export const router = express.Router();
 //buyer
 router.post('/buyer/signup', buyerSignup);
 router.post('/buyer/login', buyerLogin);
+
 //seller
 router.post('/seller/signup', sellerSignup);
 router.post('/seller/login',sellerLogin);
+
 //admin
 router.post('/admin/login',adminLogin);
 //manager

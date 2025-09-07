@@ -1,13 +1,15 @@
 import experss from "express";
 import { getGraphData, getUsersData, removeSeller } from "../controllers/adminController.js";
+import { adminMiddleWare } from "../middleware/roleMiddleware.js";
 
 const adminRouter = experss.Router();
 
 adminRouter.get("/login", (req, res) => {
+  console.log('Loggin in admin');
+  
   res.render("AdminLogin.ejs");
 });
 
-//Pass the cookie for verification every time.
 adminRouter.get('/', getUsersData)
 adminRouter.get('/graph',getGraphData)
 adminRouter.get('/removeSeller',removeSeller)

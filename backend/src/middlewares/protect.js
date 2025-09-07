@@ -1,9 +1,10 @@
 import jwt from "jsonwebtoken";
 
 export const serializeUser = (req, res, next) => {
-  // console.log(process.env.JWT_SECRET);
-  
-    jwt.verify(req.token, process.env.JWT_SECRET, (err, decoded) => {
+    console.log(process.env.JWT_SECRET);
+    console.log('Logging in backend with token : ',req.cookies.token);
+    
+    jwt.verify(req.cookies.token, "process.env.JWT_SECRET", (err, decoded) => {
         if (err) {
             console.log('ERROR: Could not verify token');
             return res.sendStatus(403); // Forbidden
@@ -16,7 +17,8 @@ export const serializeUser = (req, res, next) => {
 
 export const checkToken = (req, res, next) => {
     const token = req.cookies.token;
-
+    console.log('Checking valid token ',token);
+    
     if (!token) {
         return res.status(403).json({
             error: "token not there in cookies"

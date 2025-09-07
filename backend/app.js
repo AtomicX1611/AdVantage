@@ -12,8 +12,6 @@ import adminRouter from "./src/routes/admin.router.js";
 import anyoneRouter from "./src/routes/anyone.router.js";
 
 const app=express();
-
-
 await connectDB();
 
 // body Parsing middleware
