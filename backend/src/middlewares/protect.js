@@ -8,7 +8,7 @@ export const serializeUser = (req, res, next) => {
             console.log('ERROR: Could not verify token');
             return res.sendStatus(403); // Forbidden
         }
-        // console.log(decoded);
+        console.log(decoded);
         req.user = decoded;
         next();
     });
@@ -16,7 +16,7 @@ export const serializeUser = (req, res, next) => {
 
 export const checkToken = (req, res, next) => {
     const token = req.cookies.token;
-
+    
     if (!token) {
         return res.status(403).json({
             error: "token not there in cookies"

@@ -6,7 +6,10 @@ import {
     updateSellerProfile,
     acceptRequest,
     rejectRequest,
-    updateSellerPassword
+    updateSellerPassword,
+    updateSellerSubscription,
+    findSellerProducts,
+    findSellerSubscription,
 } from "../controllers/seller.controller.js";
 
 export const router = express.Router();
@@ -15,9 +18,15 @@ router.use(checkToken);
 router.use(serializeUser);
 router.use(authorize("seller"));
 
+// TO BE DONE :-
+router.get("/products",findSellerProducts);
+router.get("/subscriptionStatus/:id",findSellerSubscription);
+
 
 router.put("/upate/password",updateSellerPassword);
 router.put("/update/profile", upload.single("profilePic"), updateSellerProfile); // it must have profile pic, username, contact updation dynamically based on req.body
+router.put("/update/subscription",updateSellerSubscription);
+
 router.post("/addProduct", upload.fields([
     { name: "productImages", maxCount: 10 },
     { name: "invoice", maxCount: 1 }

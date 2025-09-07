@@ -4,6 +4,7 @@ import {
     removeFromWishlistDao,
     getBuyerById,
     updateBuyerPassById,
+    getWishlistProductsDao,
 } from "../daos/buyers.dao.js";
 import { addProductRequestDao } from "../daos/products.dao.js";
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
@@ -60,6 +61,26 @@ export const addToWishlistService = async (userId, productId) => {
     return { success: true, message: "Product added to wishlist" };
 };
 
+export const getWishlistProductsService = async (userId) => {
+    const result = await getWishlistProductsDao(userId);
+
+    if (!result.success) {
+        if (result.reason === "not_found") {
+            return { success: false, status: 404, message: "Buyer not found" };
+        }
+        return {
+            success: false,
+            message: "Unknown error...",
+        }
+    }
+
+    return {
+        success: true,
+        message: result.message,
+        products: result.products,
+    };
+}
+
 export const removeFromWishlistService = async (userId, productId) => {
     const result = await removeFromWishlistDao(userId, productId);
 
@@ -92,22 +113,22 @@ export const requestProductService = async (productId, buyerId) => {
 };
 
 export const updateBuyerPasswordService = async (oldPassword, newPassword, userId) => {
-    const buyer =await getBuyerById(userId);
-    if(!buyer){
+    const buyer = await getBuyerById(userId);
+    if (!buyer) {
         return {
             success: false,
             status: 404,
             message: "buyer not found",
         };
     }
-    if(buyer.password!==oldPassword){
+    if (buyer.password !== oldPassword) {
         return {
             success: false,
             status: 401,
             message: "Old password is incorrect",
         };
     }
-    const newBuyer=await updateBuyerPassById(userId,newPassword);
+    const newBuyer = await updateBuyerPassById(userId, newPassword);
     return {
         success: true,
     }

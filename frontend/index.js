@@ -17,6 +17,9 @@ import { sock } from "./controllers/Socket.js";
 import cors from "cors";
 import managerRouter from "./routes/managerRoutes.js";
 import adminRouter from "./routes/adminRouter.js";
+import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 const port = 3001;
@@ -41,6 +44,7 @@ app.use(
     },
   })
 );
+app.use(cookieParser());
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -132,7 +136,7 @@ passport.deserializeUser(async (user, cb) => {
   cb(null, user);
 });
 
-const server = app.listen(port, () => console.log("Running on Port 3001"));
+const server = app.listen(port, () => console.log("Running on Port "+port));
 export const io = new Server(server);
 
 io.on("connection", sock);

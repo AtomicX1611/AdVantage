@@ -27,6 +27,16 @@ export const addToWishlistDao = async (userId, productId) => {
     return { success: true };
 };
 
+export const getWishlistProductsDao = async (userId) => {
+    const buyer = await Buyers.findById(userId).populate('wishlistProducts');
+    if (!buyer) return { success: false, reason: "not_found" };
+    return {
+        success: true,
+        products: buyer.wishlistProducts,
+        message: "wishlist products received successfully",
+    };
+}
+
 export const removeFromWishlistDao = async (userId, productId) => {
     const buyer = await Buyers.findById(userId);
 
