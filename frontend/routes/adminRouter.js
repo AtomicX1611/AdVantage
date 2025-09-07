@@ -10,6 +10,7 @@ adminRouter.get("/login", (req, res) => {
   res.render("AdminLogin.ejs");
 });
 
+adminRouter.use(adminMiddleWare)
 adminRouter.get('/', getUsersData)
 adminRouter.get('/graph',getGraphData)
 adminRouter.get('/removeSeller',removeSeller)

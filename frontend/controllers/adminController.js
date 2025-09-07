@@ -1,7 +1,5 @@
 export const getUsersData = async (req, res) => {
   try {
-
-    
     const response = await fetch("http://localhost:3000/admin/", {
       method: "GET",
       headers: {

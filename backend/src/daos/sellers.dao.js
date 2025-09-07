@@ -1,4 +1,5 @@
 import Sellers from "../models/Sellers.js";
+import Products from "../models/Products.js";
 
 export const getSellerById= async (id)=>{
     return await Sellers.findById(id);
@@ -26,4 +27,45 @@ export const updateSellerPassById = async (sellerId, newPassword) => {
         { $set: { password: newPassword } },
         { new: true }
     );
+};
+
+export const findProductsForSeller = async (id) => {
+    try {
+        const products = await Products.find({ seller: id })
+            .populate("seller"); 
+        return {
+            success:true,
+            products:products
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            success:false,
+            message:"Database error"
+        }
+    }
+};
+
+export const findSellerSubsDao = async (userId) => {
+    try {
+        const seller = await Sellers.findById(userId).select("subscription");
+        
+        if (!seller) {
+            return {
+                success: false,
+                message: "Seller not found"
+            };
+        }
+
+        return {
+            success: true,
+            subscription: seller.subscription
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            success: false,
+            message: "Database error"
+        };
+    }
 };

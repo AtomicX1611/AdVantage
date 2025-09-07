@@ -22,7 +22,7 @@
     <div class="card_container">
       <% for (let i = 0; i < products.length; i++) {%> <% if(products[i].sold ==
       1){ %>
-      <a href="http://localhost:3000/search/product/<%= products[i]._id %>"
+      <a href="/search/product/<%= products[i]._id %>"
         ><div class="card">
           <img src="<%= products[i].Image1Src%>" alt="<%= products[i].name
           %>">
@@ -33,7 +33,7 @@
     <div class="card_container">
       <% for (let i = 0; i < products.length; i++) {%> <% if(products[i].sold ==
       0){ %>
-      <a href="http://localhost:3000/search/product/<%= products[i]._id %>"
+      <a href="/search/product/<%= products[i]._id %>"
         ><div class="card">
           <img src="<%= products[i].Image1Src%>" alt="<%= products[i].name
           %>">
@@ -44,7 +44,7 @@
     <div class="card_container">
       <% for (let i = 0; i < products.length; i++) {%> <% if(products[i].sold ==
       2){ %>
-      <a href="http://localhost:3000/search/product/<%= products[i]._id %>"
+      <a href="/search/product/<%= products[i]._id %>"
         ><div class="card">
           <img src="<%= products[i].Image1Src%>" % /> alt="<%= products[i].name
           %>">

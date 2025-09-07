@@ -128,7 +128,7 @@
     });
     addToWishlist?.addEventListener('click', async (e) => {
       const productId = addToWishlist.getAttribute("data-id");
-      const response = await fetch('http://localhost:3000/buyer/wishlist/add', {
+      const response = await fetch('/buyer/wishlist/add', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -148,7 +148,7 @@
     const verifyProductButton = document.getElementById("verifyButton");
     verifyProductButton?.addEventListener("click", async (e) => {
       const productId = verifyProductButton.getAttribute("data-id");
-      const response = await fetch("http://localhost:3000/manager/verify", {
+      const response = await fetch("/manager/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -165,7 +165,7 @@
     const deleteProductBtn = document.getElementById('deleteProduct');
     deleteProductBtn?.addEventListener("click", async (e) => {
       const productId = deleteProductBtn.getAttribute("data-id");
-      const response = await fetch("http://localhost:3000/seller/deleteProduct", {
+      const response = await fetch("/seller/deleteProduct", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

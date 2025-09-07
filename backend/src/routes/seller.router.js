@@ -8,6 +8,8 @@ import {
     rejectRequest,
     updateSellerPassword,
     updateSellerSubscription,
+    findSellerProducts,
+    findSellerSubscription,
 } from "../controllers/seller.controller.js";
 
 export const router = express.Router();
@@ -16,6 +18,8 @@ router.use(checkToken);
 router.use(serializeUser);
 router.use(authorize("seller"));
 
+router.get("/products",findSellerProducts);
+router.get("/subscriptionStatus",findSellerSubscription);
 
 router.put("/upate/password",updateSellerPassword);
 router.put("/update/profile", upload.single("profilePic"), updateSellerProfile); // it must have profile pic, username, contact updation dynamically based on req.body

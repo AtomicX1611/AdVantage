@@ -1,5 +1,6 @@
 import express from "express";
 import { requireRole } from "../middleware/roleMiddleware.js";
+import { sellerMiddleware } from "../middleware/roleMiddleware.js";
 import { chatRoutes } from "./charRoutes.js";
 import { insertProduct } from "../controllers/seller.js";
 // import { sellerLogin } from "../controllers/sellerLogin.js";
@@ -7,8 +8,11 @@ import { insertProduct } from "../controllers/seller.js";
 // import multer from "multer";
 // import path from "path";
 // import { fileURLToPath } from "url";
-import { findProduct, removeProduct, removeSeller, updateSellerPassword, findSellerByEmail, findProductsBySeller, decreaseSold, increaseSold,updateSellerSubscription } from "../models/MongoUser.js";
+import { findProduct, removeProduct, removeSeller, updateSellerPassword, findSellerByEmail, findProductsBySeller, decreaseSold, increaseSold, updateSellerSubscription } from "../models/MongoUser.js";
 import { isAllowed } from "../middleware/isAllowed.js";
+import {
+  homeController,
+} from "../controllers/Seller.controller.js";
 
 
 
@@ -23,11 +27,21 @@ sellerRouter.use(express.urlencoded({ extended: true }));
 sellerRouter.use("/chats", chatRoutes);
 // sellerRouter.post("/login", sellerLogin);
 
-sellerRouter.get("/", requireRole("seller"), async (req, res) => {
+//Seller Dashboard route
+sellerRouter.get("/", sellerMiddleware, async (req, res) => {
+  console.log(req.user);
   let products;
-  products = await findProductsBySeller(req.user.email);
-  // console.log(products);
-  res.render("SellerDashBoard.ejs", { products:products,message:0 });
+  let request = await fetch('http://localhost:3000/seller/products', {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json",
+      cookie: req.headers.cookie || "",
+    },
+
+  });
+  let data = await request.json();
+  res.render("SellerDashBoard.ejs", { products:data.products,message:0 });
 });
 
 export default sellerRouter;
@@ -78,7 +92,7 @@ sellerRouter.get('/remove/:sellerEmail', requireRole("admin"), async (req, res) 
 });
 
 sellerRouter.post('/deleteProduct', requireRole("seller"), async (req, res) => {
-  
+
   const product = await findProduct(req.body.pid);
   // console.log("HIII :"+product.description);
   // console.log(req.user);
@@ -137,38 +151,58 @@ sellerRouter.get('/reject/:productId', requireRole('seller'), async (req, res) =
 });
 
 
-sellerRouter.get("/subscriptions",requireRole('seller'),async (req,res)=>{
-    let user=await findSellerByEmail(req.user.email);
-    let currentPlan=user.subscription;
-    console.log(currentPlan);
-    res.render("sellerSubscription.ejs",{currentPlan:currentPlan});
+sellerRouter.get("/subscriptions", sellerMiddleware, async (req, res) => {
+  let request=await fetch('http://localhost:3000/seller/subscriptionStatus',{
+    method:'GET',
+    headers: {
+      "Content-Type": "application/json",
+      cookie: req.headers.cookie || "",
+    },
+  })
+  let data=await request.json();
+  if(data.success) {
+    let currentPlan=data.subscription
+    return res.render("sellerSubscription.ejs", { currentPlan: currentPlan });
+  }
+  console.log("error: ",data);
 })
 
-sellerRouter.get("/subscription/vip",requireRole('seller'),(req,res)=>{
-    res.render("paymentPage.ejs",{mail:req.user.email,type:"VIP",Price:"100 Rs",duration:"1 Month"});
+//payment page render routes
+sellerRouter.get("/subscription/vip",sellerMiddleware, (req, res) => {
+  res.render("paymentPage.ejs", { mail: req.user.email, type: "VIP", Price: "100 Rs", duration: "1 Month" });
 })
-sellerRouter.get("/subscription/premium",requireRole('seller'),(req,res)=>{
-    res.render("paymentPage.ejs",{mail:req.user.email,type:"Premium",Price:"1299 Rs",duration:"1 Year"});
+
+sellerRouter.get("/subscription/premium",sellerMiddleware, (req, res) => {
+  res.render("paymentPage.ejs", { mail: req.user.email, type: "Premium", Price: "1299 Rs", duration: "1 Year" });
 });
 
+// payment route
+sellerRouter.post("/payment", sellerMiddleware,async (req, res) => {
+  let type = req.body.type;
+  let subsNum=type==="Premium"?2:1;
 
-sellerRouter.post("/payment",async (req,res)=>{
-    let mail=req.user.email;
-    let type=req.body.type;
-    console.log("type: ",type);
-    console.log("mail: ",mail);
-
-    let result;
-    if(type=="Premium") {
-      result=await updateSellerSubscription(mail,2);
-    }
-    if(type=="VIP") {
-      result=await updateSellerSubscription(mail,1);
-    }
-    if(result) {
-        return res.status(200).json({msg:"Success"})
-    }
-    else {
-        return res.status(400).json({err:"Something went wrong"});
-    }
+  let request=await fetch('http://localhost:3000/seller/update/subscription',{
+    method:'PUT',
+    credentials:'include',
+    headers: {
+      "Content-Type": "application/json",
+      cookie: req.headers.cookie || "",
+    },
+    body:JSON.stringify({
+      subscription:subsNum
+    })
+  });
+  let response=await request.json();
+  if(response.success) {
+    return res.status(200).json({
+      success:true,
+      message:"Payment successful"
+    })
+  }
+  else {
+    return res.status(400).json({
+      success:false,
+      message:"Something went wrong please try again later"
+    })
+  }
 })

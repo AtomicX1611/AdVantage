@@ -31,8 +31,8 @@ buyerRoutes.get("/home", async (req, res) => {
 
   try {
     if (req.cookies.token) {
-      await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
-      isLogged = true;
+      const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
+      isLogged = (decoded.role == "buyer");
     }
   } catch (err) {
     isLogged = false;
@@ -63,7 +63,7 @@ buyerRoutes.get("/profile", requireRole("buyer"), async (req, res) => {
     // console.log(req.cookies);
     if (req.cookies.token) {
       const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
-      isLogged = true;
+      isLogged = (decoded.role == "buyer");
     }
   } catch (err) {
     // console.log("hhh : ");

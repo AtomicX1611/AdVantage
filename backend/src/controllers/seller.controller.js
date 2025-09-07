@@ -5,6 +5,8 @@ import {
     updateSellerProfileService,
     updateSellerPasswordService,
     updateSellerSubscriptionService,
+    sellerProdRetriveService,
+    sellerSubsRetService
 } from "../services/seller.service.js";
 
 export const addProduct = async (req, res) => {
@@ -183,3 +185,51 @@ export const updateSellerPassword = async (req, res) => {
         });
     }
 };
+
+export const findSellerProducts =async(req,res) => {
+    const userId=req.user._id;
+    if(!userId) return res.status(400).json({message:"userId not found"});
+
+    let response=await sellerProdRetriveService(userId);
+
+    if(!response.success) {
+        return res.status(500).json({
+            success:false,
+            messagea:response.message
+        })
+    }
+
+    return res.status(200).json({
+        success:true,
+        products:response.products
+    })
+}
+
+export const findSellerSubscription = async (req,res) => {
+    try {
+        const userId=req.user._id;
+        if(!userId) return res.status(404).json({
+            success:false,
+            message:"userId not found"
+        })
+
+        const response=await sellerSubsRetService(userId);
+        if(!response.success) {
+            return res.status(409).json({
+                success:false,
+                message:response.message
+            })
+        }
+        return res.status(200).json({
+            success:true,
+            subscription:response.subscription
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success:false,
+            message:"Internal server error"
+        })
+        
+    }
+}
