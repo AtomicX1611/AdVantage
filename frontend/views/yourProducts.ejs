@@ -17,7 +17,7 @@
     <div class="product_list">
       <% for(let i = 0; i < userProducts.length; i++) { %> <% let product =
       userProducts[i]; %>
-      <a href="http://localhost:3000/search/product/<%= product._id %>">
+      <a href="/search/product/<%= product._id %>">
         <div class="product_card">
           <% if(product.Image1Src) { %>
           <img src="<%= product.Image1Src %>" alt="Product Image" />

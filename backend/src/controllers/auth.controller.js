@@ -159,6 +159,8 @@ export const sellerLogin = async (req, res) => {
 
 export const adminLogin = async (req, res) => {
     try {
+        console.log("GOT REQUEST");
+        
         const { email, password } = req.body;
 
         if (!email || !password){
@@ -167,16 +169,17 @@ export const adminLogin = async (req, res) => {
                 message: "email, password both are required",
             });
         }
-
+        console.log('Logging here before response');
+        
         const response = await adminLoginService(email, password);
-
+        console.log('Logging here after response ',response);
+        
         if (!response.success) {
             return res.status(response.status).json({
                 success: false,
                 message: response.message,
             });
         }
-
         // Set token cookie
         res.cookie("token", response.token, {
             httpOnly: true,

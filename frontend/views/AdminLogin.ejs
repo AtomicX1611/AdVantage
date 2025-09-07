@@ -71,17 +71,19 @@
         return;
       }
 
-      try {
-        const response = await fetch("/admin/login", {
+      try {        
+        console.log('Loggin here');
+        
+        const response = await fetch("/auth/admin/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ email, password }),
         });
-
+        
         const result = await response.json();
-
+       
         if (response.ok) {
           console.log("Admin Login Successful");
           window.location.href = "/admin";
