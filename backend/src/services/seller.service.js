@@ -4,7 +4,8 @@ import {
     updateSellerById,
     updateSellerPassById,
     // updateSellerSubscriptionDao
-    findProductsForSeller
+    findProductsForSeller,
+    findSellerSubsDao
 } from "../daos/sellers.dao.js";
 import {
     acceptProductRequestDao,
@@ -162,4 +163,8 @@ export const updateSellerPasswordService = async (oldPassword, newPassword, user
 
 export const sellerProdRetriveService=async (id)=> {
     return await findProductsForSeller(id);
+}
+
+export const sellerSubsRetService =async (userId)=> {
+    return await findSellerSubsDao(userId);
 }

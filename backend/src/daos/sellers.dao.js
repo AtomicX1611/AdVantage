@@ -45,3 +45,27 @@ export const findProductsForSeller = async (id) => {
         }
     }
 };
+
+export const findSellerSubsDao = async (userId) => {
+    try {
+        const seller = await Sellers.findById(userId).select("subscription");
+        
+        if (!seller) {
+            return {
+                success: false,
+                message: "Seller not found"
+            };
+        }
+
+        return {
+            success: true,
+            subscription: seller.subscription
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            success: false,
+            message: "Database error"
+        };
+    }
+};

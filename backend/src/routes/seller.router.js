@@ -18,10 +18,8 @@ router.use(checkToken);
 router.use(serializeUser);
 router.use(authorize("seller"));
 
-// TO BE DONE :-
 router.get("/products",findSellerProducts);
-router.get("/subscriptionStatus/:id",findSellerSubscription);
-
+router.get("/subscriptionStatus",findSellerSubscription);
 
 router.put("/upate/password",updateSellerPassword);
 router.put("/update/profile", upload.single("profilePic"), updateSellerProfile); // it must have profile pic, username, contact updation dynamically based on req.body
