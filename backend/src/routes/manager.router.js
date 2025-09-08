@@ -1,6 +1,5 @@
 import express from "express"
 import { 
-    loginController,
     verifyController,
     dashboardController
  } from "../controllers/manager.controller.js";
@@ -13,10 +12,10 @@ import {
 export const managerRouter=express.Router();
 
 managerRouter.use(checkToken);
-managerRouter.use(serializeUser);
+managerRouter.use(serializeUser); 
 managerRouter.use(authorize("manager"));
-
+ 
+managerRouter.get("/d",dashboardController);
 managerRouter.post("/verify",verifyController);
-managerRouter.get("/dashboard",dashboardController);
 
 

@@ -1,13 +1,12 @@
 import jwt from "jsonwebtoken";
 
 export const serializeUser = (req, res, next) => {
-    console.log(process.env.JWT_SECRET);
     console.log('Logging in backend with token : ',req.cookies.token);
     
-    jwt.verify(req.cookies.token, "process.env.JWT_SECRET", (err, decoded) => {
+    jwt.verify(req.cookies.token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             console.log('ERROR: Could not verify token');
-            return res.sendStatus(403); // Forbidden
+            return res.sendStatus(403);
         }
         console.log(decoded);
         req.user = decoded;

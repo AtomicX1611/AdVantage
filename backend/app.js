@@ -10,6 +10,7 @@ import buyerRouter from "./src/routes/buyer.router.js";
 import sellerRouter from "./src/routes/seller.router.js";
 import adminRouter from "./src/routes/admin.router.js";
 import anyoneRouter from "./src/routes/anyone.router.js";
+import { managerRouter } from "./src/routes/manager.router.js";
 
 const app=express();
 await connectDB();
@@ -27,7 +28,7 @@ app.use("/uploads", express.static(path.join("./", "uploads")));
 app.use("/auth",authRouter);
 app.use("/buyer",buyerRouter);
 app.use("/seller",sellerRouter);
-
+app.use('/manager',managerRouter)
 app.use("/admin",adminRouter);
 app.use("/anyone",anyoneRouter);
 

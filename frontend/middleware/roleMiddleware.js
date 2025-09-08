@@ -43,17 +43,26 @@ export const sellerMiddleware = (req, res, next) => {
     })
 }
 
-
-
 export const adminMiddleWare = (req,res,next) => {    
     // if(!req.cookies.token){
     //   return res.redirect('/admin/login')
     // }
 
-     jwt.verify(req.cookies.token, "process.env.JWT_SECRET", (err,decoded) => {
+     jwt.verify(req.cookies.token, "XXX", (err,decoded) => {
         if (err) {
             console.log("JWT verification failed:", err.message);
-            return res.redirect("/auth/admin/login");
+            return res.redirect("/admin/login");
+        }
+        req.user=decoded._id
+        next();
+    })
+}
+
+export const managerMiddleWare = (req,res,next) => {
+    jwt.verify(req.cookies.token, "XXX", (err,decoded) => {
+        if (err) {
+            console.log("JWT verification failed:", err.message);
+            return res.redirect("/manager/login");
         }
         req.user=decoded._id
         next();

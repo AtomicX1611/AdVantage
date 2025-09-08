@@ -1,7 +1,7 @@
 import { 
     verifyProduct,
     fetchUnverifiedProducts
- } from "../services/manager.service";
+ } from "../services/manager.service.js";
 
 export const verifyController = async (req,res) => {
     const productId=req.body.pid;
@@ -33,6 +33,8 @@ export const verifyController = async (req,res) => {
 
 export const dashboardController = async (req,res) => {
     try {
+        console.log('backend requrest for manager data');
+        
         const result=await fetchUnverifiedProducts();
         if(!result.success) {
             return res.status(503).json({
