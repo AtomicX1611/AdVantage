@@ -14,14 +14,14 @@
     <br>
     <img src="/Assets/Add New Product.svg" alt="add new product" draggable="false" height="50px" id="addNewProd">
 
-    <form action="/seller/addProduct" method="post" id="formElement">
+    <form method="post" id="formElement">
         <div class="parent">
             <div class="div1 griditem">
                 <h3 class="flexitem">General Information</h3>
                 <label for="Name" class="flexitem">Product Name</label>
-                <input type="text" name="Name" id="Name" class="flexitem" placeholder="Your product name" required>
+                <input type="text" name="name" id="Name" class="flexitem" placeholder="Your product name" required>
                 <label for="Description" class="flexitem">Product Description</label>
-                <textarea type="text" name="Description" id="Description" class="flexitem"
+                <textarea type="text" name="description" id="Description" class="flexitem"
                     placeholder="Describe your product here.."></textarea>
                 <div class="parentd flexitem">
                     <div class="div2d">
@@ -88,7 +88,7 @@
                 <label for="City" class="flexitem">City</label>
                 <input type="text" class="flexitem" name="city" id="City" placeholder="City" required autocomplete>
                 <label for="zipcode" class="flexitem">Zipcode</label>
-                <input type="number" id="zipcode" name="zipcode" placeholder="Zipcode" class="flexitem" required>
+                <input type="number" id="zipcode" name="zipCode" placeholder="Zipcode" class="flexitem" required>
             </div>
             <div class="div3 griditem">
                 <div class="parent1">
@@ -99,9 +99,14 @@
                     </div>
                     <div class="div33">
                         <label for="image" id="plus">+</label>
-                        <input type="file" id="image" name="image" style="display: none;" multiple>
+                        <input type="file" id="image" name="productImages" style="display: none;" multiple>
                     </div>
                 </div>
+            </div>
+            <div class="div5 griditem">
+                <label for="proof" style="font-size: xx-large;" id="labelForProof">+</label>
+                <input type="file" style="display: none;" id="proof" name="invoice">
+                <div id="demoName"></div>
             </div>
             <div class="div4 griditem">
                 <h3 class="flexitem">Price and Submit</h3>
@@ -161,7 +166,7 @@
 
         let submit = document.getElementById("submit-form");
 
-        submit.addEventListener("click", (event) => {
+        submit.addEventListener("click", async (event) => {
             event.preventDefault();
             let price = document.getElementById("price").value;
             let category = document.getElementById("category").value;
@@ -231,10 +236,46 @@
                 alert("Upload atleast one image of your product!");
                 return;
             }
-            formElement.submit();
+            let request=await fetch("http://localhost:3000/seller/addProduct", {
+                method: "POST",
+                credentials: "include",
+                body: new FormData(document.getElementById("formElement")),
+            });
+            let response=await request.json();
+            if(!response.success) {
+                console.log(response.message);
+                alert(response.message || response.error);
+            }
+            else  {
+                window.location.href= "/seller/"
+            }
         })
 
 
+
+        //newly added
+        const fileInput = document.getElementById("proof");
+        const demoName = document.getElementById("demoName");
+        const labelForProof = document.getElementById("labelForProof");
+
+        // labelForProof.addEventListener("click", () => fileInput.click());
+
+        fileInput.addEventListener("change", () => {
+            demoName.innerHTML = "";
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+
+                const fileURL = URL.createObjectURL(file);
+
+                const link = document.createElement("a");
+                link.href = fileURL;
+                link.target = "_blank";
+                link.textContent = file.name;
+
+                demoName.appendChild(link);
+            }
+        });
     </script>
 </body>
 

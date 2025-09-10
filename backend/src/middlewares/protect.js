@@ -15,6 +15,7 @@ export const serializeUser = (req, res, next) => {
 };
 
 export const checkToken = (req, res, next) => {
+    console.log("req.cookies: ",req.cookies);
     const token = req.cookies.token;
     
     if (!token) {

@@ -41,6 +41,7 @@ sellerRouter.get("/", sellerMiddleware, async (req, res) => {
 
   });
   let data = await request.json();
+  console.log(data.products[0].images);
   res.render("SellerDashBoard.ejs", { products:data.products,message:0 });
 });
 
@@ -81,7 +82,7 @@ export default sellerRouter;
 
 
 
-sellerRouter.get('/addProductForm', requireRole("seller"), isAllowed, (req, res) => {
+sellerRouter.get('/addProductForm', sellerMiddleware, (req, res) => {
   res.render('AddproductForm');
 });
 sellerRouter.post('/addProduct', requireRole("seller"), isAllowed, insertProduct);

@@ -18,7 +18,8 @@ export const addProduct = async (req, res) => {
             data: newProduct,
         });
     } catch (err) {
-        return res.status(400).json({
+        console.log("error: ",err);
+        return res.status(500).json({
             success: false,
             message: err.message,
         });
