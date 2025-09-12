@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
 export const serializeUser = (req, res, next) => {
-    console.log('Logging in backend with token : ',req.cookies.token);
+    console.log('Logging in serializeUser with token : ',req.cookies.token);
     
     jwt.verify(req.cookies.token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {

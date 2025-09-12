@@ -12,9 +12,8 @@ export const requireRole = (role) => {
                 return res.redirect("/manager/login");
             }
         }
-        if (req.user.role !== role) {
+        if (req.user.role !== role){
             console.log("Coming to not equal");
-
             if (role === "manager") {
                 return res.redirect("/manager/login");
             } else {
@@ -47,7 +46,6 @@ export const adminMiddleWare = (req,res,next) => {
     // if(!req.cookies.token){
     //   return res.redirect('/admin/login')
     // }
-
      jwt.verify(req.cookies.token, "XXX", (err,decoded) => {
         if (err) {
             console.log("JWT verification failed:", err.message);
@@ -67,4 +65,36 @@ export const managerMiddleWare = (req,res,next) => {
         req.user=decoded._id
         next();
     })
+}
+
+export const managerRole = async (req,res,next) => {
+     let isLogged = false;
+  try {
+    if (req.cookies.token) {
+      const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
+      isLogged = (decoded.role == "manager");
+    }
+  } catch (err) {
+    isLogged = false;
+  }
+  if (isLogged === false) {
+    return res.redirect("/admin/login");
+  }
+  next()
+}
+
+export const adminRole = async (req,res,next) => {
+     let isLogged = false;
+  try {
+    if (req.cookies.token) {
+      const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
+      isLogged = (decoded.role == "admin");
+    }
+  } catch (err) {
+    isLogged = false;
+  }
+  if (isLogged === false) {
+    return res.redirect("/admin/login");
+  }
+  next()
 }
