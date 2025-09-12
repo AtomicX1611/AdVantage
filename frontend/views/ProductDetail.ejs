@@ -65,7 +65,7 @@
                               </div>
                             </a>
                             <% } %>
-                            <% if(product.sold==0 && !seller){ %>
+                            <% if(!product.soldTo && !seller){ %>
                               <a href="/buyer/buy/<%= product._id %>">
                                 <div class="purchase btn">
                                   Buy now

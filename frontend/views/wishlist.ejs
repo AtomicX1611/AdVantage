@@ -26,8 +26,8 @@
             // console.log(products); // apotential issue password is visible need to solve
             for(let product of products){
                 product[`Images`]=new Array();
-                for(let i=1;product[`Image${i}Src`] !== undefined;i++){
-                    product[`Images`].push(product[`Image${i}Src`]);
+                for(let i=0;product.images[i] !== undefined;i++){
+                    product[`Images`].push(product.images[i]);
                 }
                 // console.log(product[`Images`].length);
             }

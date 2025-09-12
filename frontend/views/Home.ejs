@@ -93,7 +93,7 @@
           <a href="/search/product/<%= product._id %>">
             <div class="product_card">
               <% if(product.Image1Src) { %>
-                <img src="<%= product.Image1Src %>" alt="Product Image" />
+                <img src="http://localhost:3000/<%= product.images[0] %>" alt="Product Image" />
               <% } %>
               <div class="productName">
                 
@@ -114,8 +114,8 @@
           <% let product = freshProducts[i]; %>
           <a href="/search/product/<%= product._id %>">
             <div class="product_card">
-              <% if(product.Image1Src) { %>
-                <img src="<%= product.Image1Src %>" alt="Product Image" />
+              <% if(product.images[0]) { %>
+                <img src="http://localhost:3000/<%= product.images[0] %>" alt="Product Image" />
               <% } %>
               
             </div>

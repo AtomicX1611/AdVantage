@@ -29,7 +29,7 @@ app.use("/uploads", express.static(path.join("./", "uploads")));
 app.use("/auth",authRouter);
 app.use("/buyer",buyerRouter);
 app.use("/seller",sellerRouter);
-app.use('/manager',managerRouter)
+app.use('/manager',managerRouter);
 app.use("/admin",adminRouter);
 app.use("/anyone",anyoneRouter);
 

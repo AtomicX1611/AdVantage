@@ -18,7 +18,7 @@ import { featuredProducts } from "../models/MongoUser.js";
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
 
-const verifyJwt = promisify(jwt.verify);
+export const verifyJwt = promisify(jwt.verify);
 
 export const buyerRoutes = express.Router();
 
