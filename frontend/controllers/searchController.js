@@ -26,7 +26,6 @@ export const getProductsNoFilter = async (req,res) => {
 export const getProductDetails = async (req, res) => {
   const productId = req.params.productId;
   let pro=await findProduct(productId);
-  console.log(pro);
   res.render("ProductDetail", {
     product: pro,
     sellerId:pro.seller?.email,

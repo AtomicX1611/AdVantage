@@ -13,9 +13,9 @@
     <header>
         <nav>
             <div class="logo">
-                    <a href="/seller">
-                        <img src="/Assets/ADVANTAGE.png" alt="Logo" class="logo-img" draggable="false">
-                    </a>
+                <a href="/seller">
+                    <img src="/Assets/ADVANTAGE.png" alt="Logo" class="logo-img" draggable="false">
+                </a>
             </div>
             <div class="actions">
                 <a href="/seller">
@@ -23,7 +23,7 @@
                         Dashboard
                     </div>
                 </a>
-                
+
                 <a href="/seller/chats/sellerInbox">
                     <div class="inbox hover">
                         Inbox
@@ -47,13 +47,13 @@
                         <i class='bx bxs-user-circle'></i>
                     </div>
                 </a>
-                
-                    <a href="/logout">
-                        <div class="logout hover">
-                            Logout
-                        </div>
-                    </a>
-                </div>
+
+                <a>
+                    <div class="logout hover" id="logout">
+                        Logout
+                    </div>
+                </a>
+            </div>
             </div>
             <div id="burger">
                 <i class='bx bx-menu'></i>
@@ -61,5 +61,20 @@
         </nav>
     </header>
 </body>
+<script>
+    let logout = document.getElementById("logout");
+    logout.addEventListener("click", () => {
+
+        let token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = "/auth/seller"
+        }
+        let res = confirm("Do you want to logout ?");
+        if (res) {
+            localStorage.removeItem('token');
+            window.location.href("/auth/seller");
+        }
+    })
+</script>
 
 </html>

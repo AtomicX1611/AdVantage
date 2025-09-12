@@ -45,11 +45,13 @@
 
     </main>
     <script>
-        const socket = io();
+        const socket = io('http://localhost:3000');
         let myAccount = "<%=myAccount  %>";
         let sender="";
-
-        socket.emit("seller-register", myAccount);
+        const regData={
+            _id:myAccount
+        }
+        socket.emit("seller-register", regData);
 
         async function fetchConvo(email) {
             console.log("email: ",email);

@@ -165,11 +165,11 @@ export const updateSellerPassword = async (req, res) => {
         }
 
         const response = await updateSellerPasswordService(oldPassword, newPassword, userId);
-
+        console.log(response);
         if (!response.success) {
             return res.status(response.status).json({
                 success: false,
-                message: response.message,
+                message: response.message || "something went wrong",
             });
         }
 

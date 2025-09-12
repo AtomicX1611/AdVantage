@@ -46,10 +46,12 @@
     </main>
     <script>
         const socket = io();
-        let myAccount = "<%=myAccount  %>";
+        let myAccount = "<%=myAccount  %>";  // this is _id
         let sender="";
-
-        socket.emit("buyer-register", myAccount);
+        const regData= {
+            _id:myAccount
+        }
+        socket.emit("buyer-register", regData);
         // MAKE SURE THAT NO DUPLICATES IN ACTIVE USERS 
 
         async function fetchConvo(email) {
@@ -66,6 +68,7 @@
             return response;
         }
 
+        //Displays Conversation by calling create left and create right funcitons
         function loadConversation(data, sender) {
             let chatContainer = document.querySelector(".messages");
             chatContainer.innerHTML = '';
@@ -80,7 +83,8 @@
                 }
             }
         }
-
+        
+        // Creates a message and inserts on left side
         function createLeft(messageData) {
             let chatContainer = document.querySelector(".messages");
             let messageDiv = document.createElement("div");
@@ -98,7 +102,7 @@
 
             chatContainer.appendChild(messageDiv);
         }
-
+        // Creates a message and inserts on right side
         function createRight(messageData) {
             let chatContainer = document.querySelector(".messages");
             console.log("message data in left: ", messageData);

@@ -8,8 +8,8 @@ export const serializeUser = (req, res, next) => {
             console.log('ERROR: Could not verify token');
             return res.sendStatus(403); // Forbidden
         }
-        console.log(decoded);
-        req.user = decoded;
+        console.log("decoded : ",decoded);
+        req.user = decoded;  // req.user._id for userId
         next();
     });
 };

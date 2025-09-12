@@ -17,6 +17,7 @@ import { featuredProducts } from "../models/MongoUser.js";
 // import { freshProducts } from "../models/User.js";
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
+import { buyerMiddleWare } from "../middleware/roleMiddleware.js";
 
 const verifyJwt = promisify(jwt.verify);
 
@@ -247,7 +248,7 @@ buyerRoutes.post("/updatePassword", async (req, res) => {
   }
 });
 
-buyerRoutes.get("/buy/:productId", requireRole("buyer"), async (req, res) => {
+buyerRoutes.get("/buy/:productId", buyerMiddleWare, async (req, res) => {
   const { productId } = req.params;
 
   try {
@@ -260,7 +261,7 @@ buyerRoutes.get("/buy/:productId", requireRole("buyer"), async (req, res) => {
     });
 
     const data = await backendRes.json();
-
+    console.log("data: ",data);
     if (!backendRes.ok) {
       return res.status(backendRes.status).json(data);
     }
