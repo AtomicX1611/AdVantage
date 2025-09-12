@@ -19,7 +19,7 @@ import jwt from "jsonwebtoken";
 import { promisify } from "util";
 import { buyerMiddleWare } from "../middleware/roleMiddleware.js";
 
-const verifyJwt = promisify(jwt.verify);
+export const verifyJwt = promisify(jwt.verify);
 
 export const buyerRoutes = express.Router();
 

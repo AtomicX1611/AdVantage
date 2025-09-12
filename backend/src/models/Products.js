@@ -37,7 +37,16 @@ const productsSchema = new mongoose.Schema({
         type: String,
         required: true,
         enum: [
-            "test","Mobiles","Electronics"
+            "Clothes",
+            "Mobiles",
+            "Laptops",
+            "Electronics",
+            "Books",
+            "Furniture",
+            "Automobiles",
+            "Sports",
+            "Fashion",
+            "Musical Instruments",
         ],
         index: true,
     },

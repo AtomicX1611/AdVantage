@@ -20,11 +20,11 @@
                 <div class="big_container">
                 <div class="image_container">
                   <div class="card_list">
-                    <% for(let i=1; product[`Image${i}Src`] !==undefined; i++) { %>
-                      <img src="<%= product[`Image${i}Src`] %>" alt="image" class="card_container">
+                    <% for(let i=1; product.images[i] !==undefined; i++) { %>
+                      <img src="http://localhost:3000/<%= product.images[i] %>" alt="image" class="card_container">
                       <% } %>
                   </div>
-                  <img class="big_card" src="<%= product[`Image1Src`] %>" alt="bigImage">
+                  <img class="big_card" src="http://localhost:3000/<%= product.images[0] %>" alt="bigImage">
                 </div>
                 <% if(!seller){ %>
                   <div class="wishlist_button_container">
@@ -65,7 +65,7 @@
                               </div>
                             </a>
                             <% } %>
-                            <% if(product.sold==0 && !seller){ %>
+                            <% if(!product.soldTo && !seller){ %>
                               <a href="/buyer/buy/<%= product._id %>">
                                 <div class="purchase btn">
                                   Buy now

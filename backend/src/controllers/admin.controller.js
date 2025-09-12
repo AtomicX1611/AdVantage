@@ -20,6 +20,7 @@ export const getGraphData = async () => {
   
 export const getUsersData = async (req, res) => {
   try {
+    
     const sellersResult = await findSellersForAdmin();
     const usersResult = await findUsersForAdmin(); 
 

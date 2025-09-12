@@ -45,7 +45,7 @@ export const addProductService = async (req) => {
         invoice: invoicePath,
         soldTo: null,
     };
-
+    console.log("product data: ",productData);
     const newProduct = await createProduct(productData);
     return newProduct;
 };

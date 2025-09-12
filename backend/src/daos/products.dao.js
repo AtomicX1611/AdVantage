@@ -1,5 +1,11 @@
 import Products from "../models/Products.js";
 
+export const getProductById = async (productId) => {
+    console.log(productId);
+    const product = await Products.findById(productId);
+    return product;
+}
+
 export const createProduct = async (productData) => {
     return await Products.create(productData);
 };
@@ -158,4 +164,8 @@ export const getFeaturedProductsDao = async () => {
     ]);
 
     return products;
+};
+
+export const findProducts = async (filters) => {
+    return await Products.find(filters).lean();
 };

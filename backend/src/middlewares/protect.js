@@ -1,12 +1,12 @@
 import jwt from "jsonwebtoken";
 
 export const serializeUser = (req, res, next) => {
-  // console.log(process.env.JWT_SECRET);
-  
-    jwt.verify(req.token, process.env.JWT_SECRET, (err, decoded) => {
+    console.log('Logging in serializeUser with token : ',req.cookies.token);
+    
+    jwt.verify(req.cookies.token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             console.log('ERROR: Could not verify token');
-            return res.sendStatus(403); // Forbidden
+            return res.sendStatus(403);
         }
         console.log("decoded : ",decoded);
         req.user = decoded;  // req.user._id for userId
@@ -15,6 +15,7 @@ export const serializeUser = (req, res, next) => {
 };
 
 export const checkToken = (req, res, next) => {
+    console.log("req.cookies: ",req.cookies);
     const token = req.cookies.token;
     
     if (!token) {

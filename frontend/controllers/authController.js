@@ -135,22 +135,18 @@ export const adminLogin = async (req, res) => {
   try {
     // console.log("Hii");
     const { email, password } = req.body;
-
+   
     const response = await fetch("http://localhost:3000/auth/admin/login", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json", 
       },
       body: JSON.stringify({ email, password }),
-      credentials: "include",
+      credentials : 'include'
     });
 
     // console.log("hhh");
     const data = await response.json();
-    
-
-    // console.log(response.headers);
-    console.log(data);
     
     const setCookie = response.headers.get("set-cookie");
     // console.log(setCookie);
@@ -158,7 +154,7 @@ export const adminLogin = async (req, res) => {
     if (setCookie) {
       res.setHeader("set-cookie", setCookie);
     }
-
+    
     res.status(response.status).json(data);
   } catch (error) {
     console.log(error);

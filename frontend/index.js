@@ -67,7 +67,6 @@ app.use("/admin", adminRouter);
 app.get("/logout", (req, res) => {
   if (req.isAuthenticated()) {
     const redirectPath = req.user.role === "seller" ? "/seller" : "/";
-
     req.logout((err) => {
       if (err) return next(err);
       req.session.destroy((err) => {
