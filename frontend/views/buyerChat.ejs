@@ -1,7 +1,9 @@
 <%- include('HomeHeader.ejs') %>
     <link rel="stylesheet" href="/buyerChat.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
     <script src="/socket.io/socket.io.js"></script>
+
     <h1 id="myName">Welcome ,<%= myUsername %></h1>
     <main>
         <div class="left">
@@ -15,8 +17,8 @@
 
                         </div>
                         <div class="name">
-                            <%= senders[i].senderUsername%>
-                            <input type="hidden" name="senderMail" value="<%= senders[i].sender%>" id="sender">
+                            <%= senders[i].username%>
+                            <input type="hidden" name="senderMail" value="<%=senders[i]._id %>" id="sender">
                         </div>
                     </div>
                     <% } %>
@@ -29,6 +31,7 @@
                 </div>
                 <div class="currentSender">
                     Name
+
                 </div>
             </div>
             <div class="messages">
@@ -45,7 +48,7 @@
 
     </main>
     <script>
-        const socket = io();
+        const socket = io('http://localhost:3000');
         let myAccount = "<%=myAccount  %>";  // this is _id
         let sender="";
         const regData= {
@@ -142,7 +145,7 @@
             if (message === "") return;
 
             let myAccount = "<%= myAccount %>";
-            let receiver = sender;
+            let receiver = sender;   // Set the to _id of currently selected contact
 
             let messageData = {
                 sender: myAccount,
@@ -150,21 +153,22 @@
                 message: message
             };
             createRight(messageData);
+            console.log("messageData: ",messageData);
             socket.emit("send", messageData);
             document.getElementById("text-box").value = "";
 
-            let save=fetch("/buyer/chats/save",{
-                method:'POST',
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body:JSON.stringify({
-                    buyerMail:myAccount,
-                    sellerMail:receiver,
-                    message:message,
-                    sender:myAccount
-                })
-            })
+            // let save=fetch("/buyer/chats/save",{
+            //     method:'POST',
+            //     headers: {
+            //         "Content-type": "application/json"
+            //     },
+            //     body:JSON.stringify({
+            //         buyerMail:myAccount,
+            //         sellerMail:receiver,
+            //         message:message,
+            //         sender:myAccount
+            //     })
+            // })
         }
 
         let send = document.getElementsByClassName("send-btn")[0];

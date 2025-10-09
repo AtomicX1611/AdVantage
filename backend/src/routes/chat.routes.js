@@ -1,11 +1,13 @@
 import express from "express"
-import { checkToken,
+import { 
+    checkToken,
     serializeUser,
     authorize,
  } from "../middlewares/protect.js";
-import { getContacts,
+import {
+    getContacts,
     createContact
- } from "../controllers/chat.controller.js";
+} from "../controllers/chat.controller.js";
 
 export const chatRouter=express.Router();
 

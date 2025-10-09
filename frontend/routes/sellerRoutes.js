@@ -41,7 +41,7 @@ sellerRouter.get("/", sellerMiddleware, async (req, res) => {
 
   });
   let data = await request.json();
-  console.log(data.products[0].images);
+  console.log("data: ",data);
   res.render("SellerDashBoard.ejs", { products:data.products,message:0 });
 });
 

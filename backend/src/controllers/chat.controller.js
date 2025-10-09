@@ -12,7 +12,6 @@ export const getContacts=async (req,res)=> {
             })
         }
         let response=await getContactsService(userId);
-        console.log("response on backedn in getContacts",response);
         if(!response.success) return res.status(500).json({
             success:false,
             message:response.message
@@ -36,11 +35,12 @@ export const createContact=async (req,res)=> {
         const userId=req.user._id;
         const otherUserId=req.params.id;
 
-        if(!userId || otherUserId) return res.status(400).json({
+        if(!userId || !otherUserId) return res.status(400).json({
             sucess:false,
             message:"Missing fields to create contact"
         })
         let response=await createContactService(userId,otherUserId);
+        console.log("response: ",response);
         if(!response.success) {
             return res.status(500).json({
                 success:false,

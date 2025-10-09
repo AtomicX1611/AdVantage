@@ -31,24 +31,30 @@ chatRoutes.get("/buyerInbox", buyerMiddleWare, async (req, res) => {
     if(!response.success) {
         return res.send(response.message);
     }
+    // console.log("response contacts: ",response.contacts);
     res.render("buyerChat.ejs", { isLogged: true, senders: response.contacts, myAccount: userId, myUsername: response.userName });
 });
 
 // Call create contact here 
-chatRoutes.get("/contact/:id", async (req, res) => {
-    if (req.isAuthenticated()) {
-        const buyer = req.user.email;
-        const seller = req.params.id;
-        console.log("seller in /contact: ", seller);
-        const result = await findMessages(seller, buyer);
-        if (result.length == 0) {
-            await createContact(seller, buyer);
-        }
-        res.redirect("/buyer/chats/buyerInbox");
-    }
-    else {
-        res.redirect("/auth/buyer");
-    }
+chatRoutes.get("/contact/:id",buyerMiddleWare, async (req, res) => {
+    // Generate a chatId with these two _ids 
+    // If found redirect to chat page
+    // Else Create contact for these and Open Chat page then 
+    const buyerId=req.user;
+    const sellerId=req.params.id;
+    let request=await fetch(`http://localhost:3000/chat/createContact/${sellerId}`,{
+        method:'POST',
+        credentials:"include",
+        headers: {
+            "Content-Type": "application/json",
+            cookie: req.headers.cookie || "",
+        },
+    });
+    let response=await request.json();
+    console.log("response in frontend /contact/:id",response);
+    if(!response.success) return res.send("Some thing went wrong");
+
+    return res.redirect("/buyer/chat/buyerInbox");
 })
 // Unknown
 chatRoutes.get("/contact", (req, res) => {
@@ -62,9 +68,8 @@ chatRoutes.post("/save", async (req, res) => {
 });
 
 chatRoutes.get("/conversation", async (req, res) => {
-    console.log("req.query", req.query);
     let sender = req.query.sender;
-    let receiver = req.user.email;
+    let receiver = req.user;
     let data = await fetchConversations(receiver, sender);
     console.log("data in conversations :", data);
     res.status(200).json({ messages: data });
