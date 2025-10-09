@@ -24,7 +24,6 @@ export const requireRole = (role) => {
     };
 };
 
-
 export const sellerMiddleware = (req, res, next) => {
     if (!req.cookies.token) {
         return res.redirect("/auth/seller");
@@ -42,6 +41,22 @@ export const sellerMiddleware = (req, res, next) => {
     })
 }
 
+export const buyerMiddleWare = (req,res,next) => {
+    if(!req.cookies.token) {
+        return res.redirect("/auth/buyer");
+    }
+    const token=req.cookies.token;
+
+    jwt.verify(token,process.env.JWT_SECRET,(err,decoded)=> {
+        if(err) {
+            console.log("JWT verification failed:", err.message);
+            return res.redirect("/auth/buyer");
+        }
+
+        req.user=decoded._id
+        next();
+    })
+}
 export const adminMiddleWare = (req,res,next) => {    
     // if(!req.cookies.token){
     //   return res.redirect('/admin/login')

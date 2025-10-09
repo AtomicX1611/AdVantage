@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { io } from "../index.js";
+// import { io } from "../index.js";
 let activeUsers=[];
 
 export const sock=(socket) => {

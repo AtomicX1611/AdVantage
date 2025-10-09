@@ -10,6 +10,9 @@ import buyerRouter from "./src/routes/buyer.router.js";
 import sellerRouter from "./src/routes/seller.router.js";
 import adminRouter from "./src/routes/admin.router.js";
 import anyoneRouter from "./src/routes/anyone.router.js";
+import { chatRouter } from "./src/routes/chat.routes.js";
+import { Server } from "socket.io";
+import { socketActions } from "./src/controllers/socket.contoller.js";
 import { managerRouter } from "./src/routes/manager.router.js";
 
 const app=express();
@@ -33,6 +36,18 @@ app.use('/manager',managerRouter);
 app.use("/admin",adminRouter);
 app.use("/anyone",anyoneRouter);
 
-app.listen(process.env.PORT,()=>{
+app.use("/chat",chatRouter);
+
+const server=app.listen(process.env.PORT,()=>{
     console.log("Server listening on http://localhost:"+process.env.PORT);
 });
+
+export const io=new Server(server,{
+  cors: {
+    origin:"http://localhost:3001",
+    methods:['GET','POST'],
+    credentials:true
+  }
+});
+
+io.on("connection",socketActions);

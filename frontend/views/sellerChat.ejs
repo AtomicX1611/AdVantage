@@ -2,8 +2,9 @@
     <link rel="stylesheet" href="/buyerChat.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script src="/socket.io/socket.io.js"></script>
-    <h1 id="myName">Welcome ,<%= myUsername %></h1>
-    <main >
+    <h1 id="myName">Welcome ,<%= myUsername %>
+    </h1>
+    <main>
         <div class="left">
             <div class="chatHead">
                 <h1>CHATS</h1>
@@ -15,8 +16,8 @@
 
                         </div>
                         <div class="name">
-                            <%= senders[i].senderUsername%>
-                            <input type="hidden" name="senderMail" value="<%= senders[i].sender%>" id="sender">
+                            <%= senders[i].username%>
+                                <input type="hidden" name="senderMail" value="<%= senders[i]._id%>" id="sender">
                         </div>
                     </div>
                     <% } %>
@@ -45,23 +46,25 @@
 
     </main>
     <script>
-        const socket = io();
+        const socket = io('http://localhost:3000');
         let myAccount = "<%=myAccount  %>";
-        let sender="";
-
-        socket.emit("seller-register", myAccount);
+        let sender = "";
+        const regData = {
+            _id: myAccount
+        }
+        socket.emit("seller-register", regData);
 
         async function fetchConvo(email) {
-            console.log("email: ",email);
+            console.log("email: ", email);
             let data = await fetch(`/buyer/chats/conversation/?sender=${email}`, {
                 method: 'GET',
                 headers: {
                     "Content-type": "application/json"
                 }
             })
-            
+
             let response = await data.json();
-            console.log("response: ",response);
+            console.log("response: ", response);
             return response;
         }
 
@@ -69,7 +72,7 @@
             let chatContainer = document.querySelector(".messages");
             chatContainer.innerHTML = '';
             for (let i = 0; i < data.messages.length; i++) {
-                if(data.messages[i].sender!=null) {
+                if (data.messages[i].sender != null) {
                     if (data.messages[i].sender == sender) {
                         createLeft(data.messages[i]);
                     }
@@ -123,11 +126,15 @@
                 let senderUsername = persons[i].querySelector(".name").innerText;
                 sender = persons[i].querySelector("#sender").value;
                 document.querySelector(".currentSender").innerText = senderUsername;
-                console.log("sender: ",sender);
-                let data = await fetchConvo(sender);
-                console.log("data: ", data);
                 console.log("sender: ", sender);
-                loadConversation(data, sender);
+                // let data = await fetchConvo(sender);
+                // console.log("data: ", data);
+                // console.log("sender: ", sender);
+                // loadConversation(data, sender);
+
+                // Temporarily added here
+                let chatContainer = document.querySelector(".messages");
+                chatContainer.innerHTML = '';
             });
         }
 
@@ -148,31 +155,31 @@
             socket.emit("send", messageData);
             document.getElementById("text-box").value = "";
 
-            let save=fetch("/buyer/chats/save",{
-                method:'POST',
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body:JSON.stringify({
-                    buyerMail:myAccount,
-                    sellerMail:receiver,
-                    message:message,
-                    sender:myAccount
-                })
-            })
+            // let save = fetch("/buyer/chats/save", {
+            //     method: 'POST',
+            //     headers: {
+            //         "Content-type": "application/json"
+            //     },
+            //     body: JSON.stringify({
+            //         buyerMail: myAccount,
+            //         sellerMail: receiver,
+            //         message: message,
+            //         sender: myAccount
+            //     })
+            // })
         }
 
         let send = document.getElementsByClassName("send-btn")[0];
         send.addEventListener("click", sendMessage);
 
-        socket.on("newMessage",(data)=>{
-            console.log("event detected: ",data);
-            let sentTo=data.sender;
-            console.log("data.sender",data.sender);
-            console.log("data.reciever: ",data.receiver);
-            let msg=data.message;
-            console.log("msg: ",msg);
-            if(sentTo==sender) {
+        socket.on("newMessage", (data) => {
+            console.log("event detected in new Message : ", data);
+            let sentTo = data.sender;
+            console.log("data.sender", data.sender);
+            console.log("data.reciever: ", data.receiver);
+            let msg = data.message;
+            console.log("msg in new message: ", msg);
+            if (sentTo == sender) {
                 createLeft(data);
             }
         })

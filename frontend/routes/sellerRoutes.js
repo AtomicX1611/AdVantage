@@ -41,7 +41,7 @@ sellerRouter.get("/", sellerMiddleware, async (req, res) => {
 
   });
   let data = await request.json();
-  console.log(data.products[0].images);
+  console.log("data: ",data);
   res.render("SellerDashBoard.ejs", { products:data.products,message:0 });
 });
 
@@ -85,7 +85,7 @@ export default sellerRouter;
 sellerRouter.get('/addProductForm', sellerMiddleware, (req, res) => {
   res.render('AddproductForm');
 });
-sellerRouter.post('/addProduct', requireRole("seller"), isAllowed, insertProduct);
+sellerRouter.post('/addProduct', sellerMiddleware, insertProduct);
 
 sellerRouter.get('/remove/:sellerEmail', requireRole("admin"), async (req, res) => {
   await removeSeller(req.params.sellerEmail);
@@ -106,34 +106,38 @@ sellerRouter.post('/deleteProduct', requireRole("seller"), async (req, res) => {
   }
 });
 
+// Password update routes 
 sellerRouter.get('/updatePassword', (req, res) => {
   res.render('sellerUpdatePassword');
 });
-
 sellerRouter.post('/updatePassword', async (req, res) => {
+  const {newPassword,confirmNewPassword,oldPassword} = req.body;
   if (req.body.newPassword !== req.body.confirmNewPassword) {
-    res.status(401).json("Password mismatch");
+    res.status(401).json({
+      success: false,
+      message: "Password mismatch"
+    });
+
   } else {
-    let seller = await findSellerByEmail(req.body.email);
-    if (seller) {
-      if (seller.password === req.body.oldPassword) {
-        await updateSellerPassword(req.body.email, req.body.newPassword);
-        req.session.destroy((err) => {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log("session destroyed successfully");
-          }
-        });
-        res.redirect('/seller');
-      } else {
-        res.status(401).json("Incorrect Old Password");
-      }
-    } else {
-      res.status(401).json("email not found");
-    }
+    let request = await fetch('http://localhost:3000/seller/update/password', {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        "Content-Type": "application/json",
+        cookie: req.headers.cookie || "",
+      },
+      body:JSON.stringify({
+        newPassword:newPassword,
+        oldPassword:oldPassword
+      })
+    })
+    
+    let response = await request.json();
+    return res.status(request.status).json(response);
   }
 });
+
+// Product accept / reject routes 
 sellerRouter.get('/accept/:productId', requireRole('seller'), async (req, res) => {
   let product = await findProduct(req.params.productId);
   // console.log(product);
@@ -151,59 +155,59 @@ sellerRouter.get('/reject/:productId', requireRole('seller'), async (req, res) =
   res.redirect('/seller');
 });
 
-
+// subscriptioin route
 sellerRouter.get("/subscriptions", sellerMiddleware, async (req, res) => {
-  let request=await fetch('http://localhost:3000/seller/subscriptionStatus',{
-    method:'GET',
+  let request = await fetch('http://localhost:3000/seller/subscriptionStatus', {
+    method: 'GET',
     headers: {
       "Content-Type": "application/json",
       cookie: req.headers.cookie || "",
     },
   })
-  let data=await request.json();
-  if(data.success) {
-    let currentPlan=data.subscription
+  let data = await request.json();
+  if (data.success) {
+    let currentPlan = data.subscription
     return res.render("sellerSubscription.ejs", { currentPlan: currentPlan });
   }
-  console.log("error: ",data);
+  console.log("error: ", data);
 })
 
 //payment page render routes
-sellerRouter.get("/subscription/vip",sellerMiddleware, (req, res) => {
+sellerRouter.get("/subscription/vip", sellerMiddleware, (req, res) => {
   res.render("paymentPage.ejs", { mail: req.user.email, type: "VIP", Price: "100 Rs", duration: "1 Month" });
 })
 
-sellerRouter.get("/subscription/premium",sellerMiddleware, (req, res) => {
+sellerRouter.get("/subscription/premium", sellerMiddleware, (req, res) => {
   res.render("paymentPage.ejs", { mail: req.user.email, type: "Premium", Price: "1299 Rs", duration: "1 Year" });
 });
 
 // payment route
-sellerRouter.post("/payment", sellerMiddleware,async (req, res) => {
+sellerRouter.post("/payment", sellerMiddleware, async (req, res) => {
   let type = req.body.type;
-  let subsNum=type==="Premium"?2:1;
+  let subsNum = type === "Premium" ? 2 : 1;
 
-  let request=await fetch('http://localhost:3000/seller/update/subscription',{
-    method:'PUT',
-    credentials:'include',
+  let request = await fetch('http://localhost:3000/seller/update/subscription', {
+    method: 'PUT',
+    credentials: 'include',
     headers: {
       "Content-Type": "application/json",
       cookie: req.headers.cookie || "",
     },
-    body:JSON.stringify({
-      subscription:subsNum
+    body: JSON.stringify({
+      subscription: subsNum
     })
   });
-  let response=await request.json();
-  if(response.success) {
+  let response = await request.json();
+  if (response.success) {
     return res.status(200).json({
-      success:true,
-      message:"Payment successful"
+      success: true,
+      message: "Payment successful"
     })
   }
   else {
     return res.status(400).json({
-      success:false,
-      message:"Something went wrong please try again later"
+      success: false,
+      message: "Something went wrong please try again later"
     })
   }
 })

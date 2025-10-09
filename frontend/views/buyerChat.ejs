@@ -1,7 +1,9 @@
 <%- include('HomeHeader.ejs') %>
     <link rel="stylesheet" href="/buyerChat.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
     <script src="/socket.io/socket.io.js"></script>
+
     <h1 id="myName">Welcome ,<%= myUsername %></h1>
     <main>
         <div class="left">
@@ -15,8 +17,8 @@
 
                         </div>
                         <div class="name">
-                            <%= senders[i].senderUsername%>
-                            <input type="hidden" name="senderMail" value="<%= senders[i].sender%>" id="sender">
+                            <%= senders[i].username%>
+                            <input type="hidden" name="senderMail" value="<%=senders[i]._id %>" id="sender">
                         </div>
                     </div>
                     <% } %>
@@ -29,6 +31,7 @@
                 </div>
                 <div class="currentSender">
                     Name
+
                 </div>
             </div>
             <div class="messages">
@@ -45,11 +48,13 @@
 
     </main>
     <script>
-        const socket = io();
-        let myAccount = "<%=myAccount  %>";
+        const socket = io('http://localhost:3000');
+        let myAccount = "<%=myAccount  %>";  // this is _id
         let sender="";
-
-        socket.emit("buyer-register", myAccount);
+        const regData= {
+            _id:myAccount
+        }
+        socket.emit("buyer-register", regData);
         // MAKE SURE THAT NO DUPLICATES IN ACTIVE USERS 
 
         async function fetchConvo(email) {
@@ -66,6 +71,7 @@
             return response;
         }
 
+        //Displays Conversation by calling create left and create right funcitons
         function loadConversation(data, sender) {
             let chatContainer = document.querySelector(".messages");
             chatContainer.innerHTML = '';
@@ -80,7 +86,8 @@
                 }
             }
         }
-
+        
+        // Creates a message and inserts on left side
         function createLeft(messageData) {
             let chatContainer = document.querySelector(".messages");
             let messageDiv = document.createElement("div");
@@ -98,7 +105,7 @@
 
             chatContainer.appendChild(messageDiv);
         }
-
+        // Creates a message and inserts on right side
         function createRight(messageData) {
             let chatContainer = document.querySelector(".messages");
             console.log("message data in left: ", messageData);
@@ -138,7 +145,7 @@
             if (message === "") return;
 
             let myAccount = "<%= myAccount %>";
-            let receiver = sender;
+            let receiver = sender;   // Set the to _id of currently selected contact
 
             let messageData = {
                 sender: myAccount,
@@ -146,21 +153,22 @@
                 message: message
             };
             createRight(messageData);
+            console.log("messageData: ",messageData);
             socket.emit("send", messageData);
             document.getElementById("text-box").value = "";
 
-            let save=fetch("/buyer/chats/save",{
-                method:'POST',
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body:JSON.stringify({
-                    buyerMail:myAccount,
-                    sellerMail:receiver,
-                    message:message,
-                    sender:myAccount
-                })
-            })
+            // let save=fetch("/buyer/chats/save",{
+            //     method:'POST',
+            //     headers: {
+            //         "Content-type": "application/json"
+            //     },
+            //     body:JSON.stringify({
+            //         buyerMail:myAccount,
+            //         sellerMail:receiver,
+            //         message:message,
+            //         sender:myAccount
+            //     })
+            // })
         }
 
         let send = document.getElementsByClassName("send-btn")[0];

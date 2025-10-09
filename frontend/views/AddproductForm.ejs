@@ -117,7 +117,7 @@
         </div>
     </form>
     <script>
-        let completed = true;
+        // let completed = true;
         const formElement = document.getElementById('formElement');
 
         const fileUploader = document.getElementById('image');
@@ -133,11 +133,10 @@
 
         // });
         fileUploader.addEventListener('change', (event) => {
-            completed = false;
-            let count = 0;
+            // completed = false;
+            // let count = 0;
             div22.innerHTML = ''; // Clear previous images
-            console.log(event.target.files);
-            let i = 0, tempinput;
+            // console.log(event.target.files);
             for (let file of event.target.files) {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -148,19 +147,7 @@
                     img.style.borderRadius = "10px";
                     img.style.margin = "5px";
                     div22.appendChild(img);
-                    tempinput = document.createElement('input');
-                    tempinput.type = 'text';
-                    tempinput.value = e.target.result;
-                    count++;
-                    tempinput.id = "image" + count;
-                    tempinput.name = "image" + count;
-                    tempinput.style.display = "none";
-                    div2.insertAdjacentElement("beforeend", tempinput);
-                    if (event.target.files.length === count) {
-                        completed = true;
-                    }
                 };
-                i++;
             }
         });
 
