@@ -122,6 +122,7 @@ buyerRoutes.post("/wishlist/add", async (req, res) => {
 
 
 buyerRoutes.get("/wishlist", async (req, res) => {
+  // console.log("hii");
   let isLogged = false;
   try {
     if (req.cookies.token) {
@@ -143,7 +144,7 @@ buyerRoutes.get("/wishlist", async (req, res) => {
   });
 
   const data = await backendRes.json();
-
+  // console.log(data);
   res.render("wishlist", {
     products: data.products,
     isLogged: isLogged,

@@ -20,7 +20,7 @@
                 <div class="big_container">
                 <div class="image_container">
                   <div class="card_list">
-                    <% for(let i=1; product.images[i] !==undefined; i++) { %>
+                    <% for(let i=0; product.images[i] !==undefined; i++) { %>
                       <img src="http://localhost:3000/<%= product.images[i] %>" alt="image" class="card_container">
                       <% } %>
                   </div>
@@ -53,7 +53,7 @@
                   <% if(hisProduct) { %>
                     <button id="deleteProduct" data-id="<%= product._id %>"> Delete Product</button>
                     <% } %>
-                      <% if(product.verified !=0) { %>
+                      <% if(product.verified) { %>
                         <h4 id="verified">✅ Verified Product</h4>
                         <% } %>
                           <div class="options">
@@ -148,12 +148,14 @@
     const verifyProductButton = document.getElementById("verifyButton");
     verifyProductButton?.addEventListener("click", async (e) => {
       const productId = verifyProductButton.getAttribute("data-id");
-      const response = await fetch("/manager/verify", {
+      // console.log(productId);
+      const response = await fetch("http://localhost:3000/manager/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ pid: productId }),
+        credentials: "include",
       });
       try {
         const data = await response.json();

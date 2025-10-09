@@ -106,8 +106,10 @@ export const removeFromWishlist = async (req, res) => {
 
 export const getWishlistProducts = async (req, res) => {
     try {
+        // console.log("fdskjf");
         const userId = req.user._id;
         const response = await getWishlistProductsService(userId);
+        // console.log(response);
         if (!response.success) {
             return res.status(response.status).json({
                 success: false,
@@ -120,6 +122,7 @@ export const getWishlistProducts = async (req, res) => {
             products: response.products,
         });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({
             success: false,
             message: error.message || "Internal server error"

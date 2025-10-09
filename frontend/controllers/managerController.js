@@ -2,8 +2,7 @@
 
 export const managerLogin = async (req,res) => {
     try {
-        const {email,password} = req.body
-
+      const {email,password} = req.body;
       const response = await fetch("http://localhost:3000/auth/manager/login", {
       method: "POST",
       headers: {
@@ -20,7 +19,8 @@ export const managerLogin = async (req,res) => {
     }
     console.log('Manager login in backend success,cookie : ',setCookie);
     
-    res.status(response.status).json(data);
+    // res.status(response.status).json(data);
+    res.render("ManagerDashboard");
 
     } catch (error) {
     console.log(error);

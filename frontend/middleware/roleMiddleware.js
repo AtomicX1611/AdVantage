@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { verifyJwt } from "../routes/buyerRoutes.js";
 
 export const requireRole = (role) => {
     return (req, res, next) => {
@@ -37,7 +38,11 @@ export const sellerMiddleware = (req, res, next) => {
         }
 
         req.user=decoded._id
-        next();
+        if(decoded.role=="seller"){
+            return next();
+        }else{
+            return res.redirect("/auth/seller");
+        }
     })
 }
 
@@ -83,19 +88,23 @@ export const managerMiddleWare = (req,res,next) => {
 }
 
 export const managerRole = async (req,res,next) => {
-     let isLogged = false;
+    // console.log("cominguu");
+    let isLogged = false;
   try {
     if (req.cookies.token) {
       const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
+    //   console.log("managerRole");
+    //   console.log(decoded);
       isLogged = (decoded.role == "manager");
     }
   } catch (err) {
+    console.log(err);
     isLogged = false;
   }
   if (isLogged === false) {
-    return res.redirect("/admin/login");
+    return res.redirect("/manager/login");
   }
-  next()
+  next();
 }
 
 export const adminRole = async (req,res,next) => {

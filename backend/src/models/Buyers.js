@@ -25,7 +25,7 @@ const buyersSchema = new mongoose.Schema({
     wishlistProducts: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "products",
+            ref: "Products",
             default: [],
             required: true,
         },
