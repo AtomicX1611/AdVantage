@@ -84,7 +84,7 @@ export const getProductBycategory = async (req, res) => {
   }
 
   const category = req.params.category;
-  let response = await fetch(`http://localhost:3000/products/filtered?category=${encodeURIComponent(category)}`);
+  let response = await fetch(`http://localhost:3000/anyone/products/filtered?category=${encodeURIComponent(category)}`);
   let data = await response.json();
   res.render("searchPage", {
     products: data.products,
