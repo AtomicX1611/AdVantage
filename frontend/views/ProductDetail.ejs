@@ -84,8 +84,11 @@
 
                               <% if(sold1) { %>
                                 <div id="sold">
-                                <a href="/seller/accept/<%= product._id %>" class="decision-btn">Accept</a>
-                                <a href="/seller/reject/<%= product._id %>" class="decision-btn">Reject</a>
+                                <!-- <a href="/seller/accept/<%= product._id %>" class="decision-btn">Accept</a>
+                                <a href="/seller/reject/<%= product._id %>" class="decision-btn">Reject</a> -->
+                                <!-- <button id="acceptProductReq">Accept</button>
+                                <button id="rejectProductReq">Reject</button> -->
+                                <a href="/seller/requestsPage">View Requests</a>
                               </div>
                                 <p style="color: white;">From user : <%= product.soldTo %></p>
                               <% } %>
@@ -99,6 +102,8 @@
     function showNotification(message) {
       const notification = document.getElementById("notification");
       const notifMessage = document.getElementById("notif-message");
+      const accpetBtn=document.getElementById("acceptProductReq");
+      const rejectBtn=document.getElementById("rejectProductReq");
 
       notifMessage.textContent = message;
       notification.style.display = "block";
@@ -163,16 +168,56 @@
       }
     });
     const deleteProductBtn = document.getElementById('deleteProduct');
+    
     deleteProductBtn?.addEventListener("click", async (e) => {
       const productId = deleteProductBtn.getAttribute("data-id");
-      const response = await fetch("/seller/deleteProduct", {
-        method: "POST",
+      const response = await fetch(`http://localhost:3000/seller/deleteProduct/${productId}`, {
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ pid: productId })
+        
       });
       window.location.href = response.url;
+    });
+
+    accpetBtn.addEventListener("click",async()=> {
+      let response=await fetch('http://localhost:3000/seller/acceptRequest/${prodId}/${userId}',{
+        method:'DELETE',
+        headers:{ 
+          "content-type":"application/json"
+        },
+        credentials:"include"
+      });
+
+      let data=await response.json();
+      if(data.success) {
+        alert("Request accepted successfully");
+        return ;
+      }
+      else {
+        alert("Request  accepted failed");
+      }
+    });
+
+    rejectBtn.addEventListener("click",async()=> {
+      let response=await fetch('http"//localhost:3000/seller/rejectRequest/${prodId}/${userId}',{
+        method:'DELETE',
+        headers:{ 
+          "content-type":"application/json"
+        },
+        credentials:"include"
+      });
+
+      let data=await response.json();
+      if(data.success) {
+        alert("Rejected successfully");
+        return ;
+      }
+      else {
+        alert("Reject failed");
+        return ;
+      }
     });
   </script>
 </body>
