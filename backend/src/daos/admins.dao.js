@@ -96,7 +96,8 @@ export const removeSellerById = async (userId) => {
     if (!userId) {
       return { success: false, message: "Seller ID is required" };
     }
-
+    console.log("id in backend : ",userId);
+    
     const seller = await sellers.findOneAndDelete({ _id: userId });
 
     if (!seller) {
