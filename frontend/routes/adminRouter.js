@@ -8,11 +8,11 @@ adminRouter.get("/login", (req, res) => {
   res.render("AdminLogin.ejs");
 });
 
-adminRouter.use(adminMiddleWare)
-adminRouter.use(adminRole)
+// adminRouter.use(adminMiddleWare)
+// adminRouter.use(adminRole)
 adminRouter.get('/', getUsersData)
 adminRouter.get('/graph',getGraphData)
-adminRouter.get('/removeSeller',removeSeller)
+adminRouter.get('/remove/:id',removeSeller)
 
 export default adminRouter;
 

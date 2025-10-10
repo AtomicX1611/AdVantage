@@ -13,6 +13,7 @@ import { findManagerByEmail } from "../daos/managers.dao.js";
 export const signupBuyerService = async (username, contact, email, password) => {
 
     const existingBuyer = await findBuyerByEmail(email);
+    console.log(existingBuyer);
     if (existingBuyer) {
         return {
             success: false,
@@ -172,7 +173,7 @@ export const adminLoginService = async (email, password) => {
 
 export const managerLoginService = async (email, password) => {
     const manager = await findManagerByEmail(email);
-
+    console.log(manager);
     if (!manager) {
         return {
             success: false,

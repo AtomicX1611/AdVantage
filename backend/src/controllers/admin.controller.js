@@ -51,14 +51,27 @@ export const getUsersData = async (req, res) => {
 
 export const takeDownSeller = async (req, res) => {
   try {
-    const { userId } = req.user._id;
-    if (!userId) {
-      return res.status(400).json({
+    const adminId = req.user && req.user._id;
+    const sellerId = req.params.sellerId || req.body.sellerId;
+
+    if (!adminId) {
+      return res.status(401).json({
         success: false,
-        message: "Email is required"
+        message: "Admin not authenticated"
       });
     }
-    const result = await removeSeller(userId);
+
+    if (!sellerId) {
+      return res.status(400).json({
+        success: false,
+        message: "Seller id required"
+      });
+    }
+    console.log("admin id : ",adminId);
+    console.log("selelr id : ",sellerId);
+    
+    
+    const result = await removeSeller(sellerId);
     return res.status(result.success ? 200 : 404).json(result);
 
   } catch (error) {

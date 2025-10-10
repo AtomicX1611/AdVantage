@@ -22,16 +22,17 @@
     </div>
 </div>
     <script>
+            // <% console.log("fedlfn") %>
             const products = <%- JSON.stringify(products) %>;
             // console.log(products); // apotential issue password is visible need to solve
             for(let product of products){
                 product[`Images`]=new Array();
-                for(let i=0;product.images[i] !== undefined;i++){
+                for(let i=0;i<product.images.length;i++){
                     product[`Images`].push(product.images[i]);
                 }
                 // console.log(product[`Images`].length);
             }
-            
+            // console.log(products.Images);
             /*
             [
     {
@@ -326,7 +327,7 @@
              <div style="position: relative; text-align: center;">
                     <span style="font-size: 18px; position: absolute; top: 5px; right: 5px; cursor: pointer;">❤️</span>
                 <div style="text-align: center;">
-                    <img src="${product.Images[0]}" alt="${product.name}" style="width: 100px; height: 100px; margin-bottom: 10px;">
+                    <img src="http://localhost:3000/${product.Images[0]}" alt="${product.name}" style="width: 100px; height: 100px; margin-bottom: 10px;">
                     <p><strong>${product.name}</strong></p>
                     <p>${product.price}</p>
                 </div>
@@ -365,7 +366,7 @@
                 comparisonDiv.innerHTML = `
                     <div class="carousel">
                         <button class="prev" onclick="changeImage(${index}, -1)">❮</button>
-                        <img id="img-${index}" src="${product.Images[0]}" alt="${product.name}">
+                        <img id="img-${index}" src="http://localhost:3000/${product.Images[0]}" alt="${product.name}">
                         <button class="next" onclick="changeImage(${index}, 1)">❯</button>
                     </div>
                     <h3>${product.name}</h3>
@@ -401,7 +402,7 @@
             let currentSrc = imgElement.src.split("/").pop();
             let currentIndex = images.findIndex(img => img.includes(currentSrc));
             let newIndex = (currentIndex + direction + images.length) % images.length;
-            imgElement.src = `${images[newIndex]}`;
+            imgElement.src = `http://localhost:3000/${images[newIndex]}`;
         }
 
         loadProducts();

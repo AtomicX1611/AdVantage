@@ -10,6 +10,8 @@ export const serializeUser = (req, res, next) => {
         }
         // console.log("decoded : ",decoded); 
         req.user = decoded;  // req.user._id for userId
+        // console.log("serialize user");
+        // console.log(req.user);
         next();
     });
 };

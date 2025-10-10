@@ -100,7 +100,8 @@ export const verifyProductDao = async (productId) => {
                 { _id: productId },
                 { $set: { verified: true } }
             )
-
+        product.verified=true;
+        product.save();
         return {
             success: true,
             message: "Verified Product with id"
