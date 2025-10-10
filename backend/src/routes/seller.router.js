@@ -10,6 +10,7 @@ import {
     updateSellerSubscription,
     findSellerProducts,
     findSellerSubscription,
+    deleteProduct,
 } from "../controllers/seller.controller.js";
 
 export const router = express.Router();
@@ -29,6 +30,8 @@ router.post("/addProduct", upload.fields([
     { name: "productImages", maxCount: 10 },
     { name: "invoice", maxCount: 1 }
 ]), addProduct);
+
+router.delete("/deleteProduct/:productId",deleteProduct);
 
 router.delete("/rejectRequest/:productId/:buyerId/", rejectRequest);
 router.delete("/acceptRequest/:productId/:buyerId", acceptRequest);

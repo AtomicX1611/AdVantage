@@ -170,3 +170,7 @@ export const getFeaturedProductsDao = async () => {
 export const findProducts = async (filters) => {
     return await Products.find(filters).lean();
 };
+
+export const deleteProductDao = async (productId) => {
+    return await Products.findByIdAndDelete(productId);
+};
