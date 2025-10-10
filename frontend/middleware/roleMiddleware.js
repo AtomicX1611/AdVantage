@@ -62,6 +62,8 @@ export const buyerMiddleWare = (req,res,next) => {
         next();
     })
 }
+
+
 export const adminMiddleWare = (req,res,next) => {    
     // if(!req.cookies.token){
     //   return res.redirect('/admin/login')

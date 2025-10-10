@@ -80,7 +80,9 @@ export default sellerRouter;
 
 // const upload = multer({ storage });
 
-
+sellerRouter.get('/requestsPage',sellerMiddleware,(req,res)=> {
+  res.render('viewRequests.ejs');
+})
 
 sellerRouter.get('/addProductForm', sellerMiddleware, (req, res) => {
   res.render('AddproductForm');

@@ -81,10 +81,8 @@
           },
           body: JSON.stringify({ email, password }),
         });
-        
         const result = await response.json()
         console.log('response : ',result);
-        
         if(response.ok) {
           console.log("Admin Login Successful");
           window.location.href = "/admin";
