@@ -6,7 +6,9 @@ import {
  } from "../middlewares/protect.js";
 import {
     getContacts,
-    createContact
+    createContact,
+    inboxController,
+    saveController
 } from "../controllers/chat.controller.js";
 
 export const chatRouter=express.Router();
@@ -19,5 +21,5 @@ chatRouter.get("/contacts",getContacts);
 chatRouter.post("/createContact/:id",createContact);
 
 //Message routes
-// chatRouter.get("/messages/:id",);
-// chatRouter.post("/message/:id",);
+chatRouter.get("/messages/:id",inboxController);
+chatRouter.post("/message/:id",saveController);

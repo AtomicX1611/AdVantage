@@ -57,17 +57,17 @@
         socket.emit("buyer-register", regData);
         // MAKE SURE THAT NO DUPLICATES IN ACTIVE USERS 
 
-        async function fetchConvo(email) {
-            console.log("email: ",email);
-            let data = await fetch(`/buyer/chats/conversation/?sender=${email}`, {
+        async function fetchConvo(otherId) {
+            console.log("id in fetchConvo: ",otherId);
+            let data = await fetch(`http://localhost:3000/chat/messages/${otherId}`, {
                 method: 'GET',
                 headers: {
                     "Content-type": "application/json"
-                }
+                },
+                credentials:"include"
             })
             
             let response = await data.json();
-            console.log("response: ",response);
             return response;
         }
 
@@ -75,13 +75,15 @@
         function loadConversation(data, sender) {
             let chatContainer = document.querySelector(".messages");
             chatContainer.innerHTML = '';
-            for (let i = 0; i < data.messages.length; i++) {
-                if(data.messages[i].sender!=null) {
-                    if (data.messages[i].sender == sender) {
-                        createLeft(data.messages[i]);
+            for (let i = 0; i < data.length; i++) {
+                if(data[i].sender!=null) {
+                    console.log("data[i].sender: ",data[i].sender);
+                    console.log("passed sender: ",sender);
+                    if (data[i].sender == sender) {
+                        createLeft(data[i].message);
                     }
                     else {
-                        createRight(data.messages[i]);
+                        createRight(data[i].message);
                     }
                 }
             }
@@ -98,7 +100,7 @@
 
             let messageContent = document.createElement("div");
             messageContent.classList.add("message-content");
-            messageContent.innerText = messageData.message;
+            messageContent.innerText = messageData;
 
             messageDiv.appendChild(dpDiv);
             messageDiv.appendChild(messageContent);
@@ -108,13 +110,13 @@
         // Creates a message and inserts on right side
         function createRight(messageData) {
             let chatContainer = document.querySelector(".messages");
-            console.log("message data in left: ", messageData);
+            console.log("message data in right: ", messageData);
             let messageDiv = document.createElement("div");
             messageDiv.classList.add("message-right", "msg-style");
 
             let messageContent = document.createElement("div");
             messageContent.classList.add("message-content");
-            messageContent.innerText = messageData.message;
+            messageContent.innerText = messageData;
 
             let dpDiv = document.createElement("div");
             dpDiv.classList.add("dp-circle-small");
@@ -132,10 +134,15 @@
                 sender = persons[i].querySelector("#sender").value;
                 document.querySelector(".currentSender").innerText = senderUsername;
                 console.log("sender: ",sender);
-                let data = await fetchConvo(sender);
-                console.log("data: ", data);
-                console.log("sender: ", sender);
-                loadConversation(data, sender);
+                let response= await fetchConvo(sender);
+                console.log("response: ",response)
+                if(response.success) {
+                    console.log("data: ", response.messages);
+                    console.log("sender: ", sender);
+                    loadConversation(response.messages, sender);
+                }else {
+                    alert("Failed to fetch messages");
+                }
             });
         }
 
@@ -152,23 +159,23 @@
                 receiver: receiver,
                 message: message
             };
-            createRight(messageData);
+            createRight(messageData.message);
             console.log("messageData: ",messageData);
             socket.emit("send", messageData);
             document.getElementById("text-box").value = "";
 
-            // let save=fetch("/buyer/chats/save",{
-            //     method:'POST',
-            //     headers: {
-            //         "Content-type": "application/json"
-            //     },
-            //     body:JSON.stringify({
-            //         buyerMail:myAccount,
-            //         sellerMail:receiver,
-            //         message:message,
-            //         sender:myAccount
-            //     })
-            // })
+            const newMessage= {
+                sender:myAccount,
+                message:message
+            }
+            let save=fetch(`http://localhost:3000/chat/message/${sender}`,{
+                method:'POST',
+                headers: {
+                    "Content-type": "application/json"
+                },
+                credentials:'include',
+                body:JSON.stringify({newMessage})
+            })
         }
 
         let send = document.getElementsByClassName("send-btn")[0];
