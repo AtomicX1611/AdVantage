@@ -155,18 +155,18 @@
             socket.emit("send", messageData);
             document.getElementById("text-box").value = "";
 
-            // let save = fetch("/buyer/chats/save", {
-            //     method: 'POST',
-            //     headers: {
-            //         "Content-type": "application/json"
-            //     },
-            //     body: JSON.stringify({
-            //         buyerMail: myAccount,
-            //         sellerMail: receiver,
-            //         message: message,
-            //         sender: myAccount
-            //     })
-            // })
+            const newMessage= {
+                sender:myAccount,
+                message:message
+            }
+
+            let save = fetch(`http://localhost:3000/chat/message/${sender}`, {
+                method: 'POST',
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({newMessage})
+            })
         }
 
         let send = document.getElementsByClassName("send-btn")[0];

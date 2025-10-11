@@ -35,7 +35,6 @@ app.use("/seller",sellerRouter);
 app.use('/manager',managerRouter);
 app.use("/admin",adminRouter);
 app.use("/anyone",anyoneRouter);
-
 app.use("/chat",chatRouter);
 
 const server=app.listen(process.env.PORT,()=>{
