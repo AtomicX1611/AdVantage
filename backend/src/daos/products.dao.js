@@ -112,7 +112,7 @@ export const verifyProductDao = async (productId) => {
                 { _id: productId },
                 { $set: { verified: true } }
             )
-        product.verified=true;
+        product.verified = true;
         product.save();
         return {
             success: true,
@@ -183,6 +183,88 @@ export const findProducts = async (filters) => {
     return await Products.find(filters).lean();
 };
 
+export const rentDao = async (userId, productId) => {
+    try {
+        let prod = await Products.findById(productId);
+        if (!prod) {
+            return {
+                success: false,
+                message: "Product not found",
+                status: 404
+            }
+        }
+        if (prod.soldTo == null) {
+            return {
+                success: false,
+                message: "Already taken",
+                status: 400
+            }
+        }
+        if(prod.seller != userId) {
+            return {
+                success: false,
+                message: "Not your product",
+                status: 403
+            }
+        }
+        prod.requests.push(userId);
+        await prod.save();
+        return {
+            success: true,
+            message: "Rent request added",
+            status: 200
+        }
+
+    } catch (error) {
+        console.log(error);
+        return {
+            success: false,
+            message: "Database error",
+            status: 500
+        }
+    }
+}
+
+export const makeAvailableDao = async (sellerId, productId) => {
+    try {
+        const prod = await Products.findById(productId);
+        if (!prod) {
+            return {
+                success: false,
+                message: "Product not found",
+                status: 404
+            }
+        }
+        if (prod.soldTo == null) {
+            return {
+                success: false,
+                message: "Product already marked available",
+                status: 400
+            }
+        }
+        if(prod.seller != sellerId) {
+            return {
+                success:false,
+                message:"Not your product",
+                status:403
+            }
+        }
+        prod.soldTo = null;
+        prod.save();
+        return {
+            success: true,
+            message: "product made available",
+            status: 200
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            success:false,
+            message:"Database error",
+            status:500
+        }
+    }
+}
 export const deleteProductDao = async (productId) => {
     return await Products.findByIdAndDelete(productId);
 };

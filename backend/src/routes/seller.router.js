@@ -10,6 +10,7 @@ import {
     updateSellerSubscription,
     findSellerProducts,
     findSellerSubscription,
+    makeAvailableController,
     deleteProduct,
 } from "../controllers/seller.controller.js";
 
@@ -35,4 +36,6 @@ router.delete("/deleteProduct/:productId",deleteProduct);
 
 router.delete("/rejectRequest/:productId/:buyerId/", rejectRequest);
 router.delete("/acceptRequest/:productId/:buyerId", acceptRequest);
+
+router.post("/makeAvailable/:productId",makeAvailableController);
 export default router;
