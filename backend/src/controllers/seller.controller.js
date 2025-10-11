@@ -8,6 +8,7 @@ import {
     sellerProdRetriveService,
     sellerSubsRetService,
     makeAvailableService,
+    deleteProductService,
 } from "../services/seller.service.js";
 
 export const addProduct = async (req, res) => {
@@ -102,6 +103,27 @@ export const updateSellerSubscription = async (req, res) => {
         });
     }
 }
+
+export const deleteProduct = async (req, res) => {
+    try {
+        const { productId } = req.params;
+
+        const response = await deleteProductService(req.user._id, productId);
+
+        return res.status(response.status).json({
+            success: response.success,
+            message: response.message
+        });
+
+    } catch (error) {
+        console.error("Delete Product Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error"
+        });
+    }
+};
+
 
 export const acceptRequest = async (req, res) => {
     try {

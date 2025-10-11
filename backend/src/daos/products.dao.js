@@ -253,3 +253,6 @@ export const makeAvailableDao = async (sellerId, productId) => {
         }
     }
 }
+export const deleteProductDao = async (productId) => {
+    return await Products.findByIdAndDelete(productId);
+};

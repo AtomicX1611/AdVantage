@@ -1,4 +1,8 @@
-import { createProduct } from "../daos/products.dao.js";
+import {
+    createProduct,
+    getProductById,
+    deleteProductDao,
+} from "../daos/products.dao.js";
 import {
     getSellerById,
     updateSellerById,
@@ -46,10 +50,50 @@ export const addProductService = async (req) => {
         invoice: invoicePath,
         soldTo: null,
     };
-    console.log("product data: ",productData);
+    console.log("product data: ", productData);
     const newProduct = await createProduct(productData);
     return newProduct;
 };
+
+import { deleteProductDao, getProductById } from "../dao/product.dao.js";
+
+export const deleteProductService = async (sellerId, productId) => {
+    try {
+        const product = await getProductById(productId);
+        if (!product) {
+            return {
+                success: false,
+                status: 404,
+                message: "Product not found"
+            };
+        }
+
+        if (product.seller.toString() !== sellerId.toString()) {
+            return {
+                success: false,
+                status: 403,
+                message: "Unauthorized: You can delete only your own products"
+            };
+        }
+
+        await deleteProductDao(productId);
+
+        return {
+            success: true,
+            status: 200,
+            message: "Product deleted successfully"
+        };
+
+    } catch (error) {
+        console.error("Delete Product Service Error:", error);
+        return {
+            success: false,
+            status: 500,
+            message: error.message || "Internal server error"
+        };
+    }
+};
+
 
 export const updateSellerProfileService = async (sellerId, updateData, file) => {
     const allowedFields = ["username", "contact"];
@@ -93,13 +137,13 @@ export const updateSellerProfileService = async (sellerId, updateData, file) => 
 
 export const updateSellerSubscriptionService = async (sellerId, subscription) => {
     const seller = await getSellerById(sellerId);
-    if(seller.subscription>=subscription){
+    if (seller.subscription >= subscription) {
         return {
             success: false,
             message: "Seller already have better or Equal plan than the choosen one",
         };
     }
-    seller.subscription=subscription;
+    seller.subscription = subscription;
     await seller.save();
     // const response = await updateSellerSubscriptionDao(sellerId,subscription);
     return {
@@ -162,11 +206,11 @@ export const updateSellerPasswordService = async (oldPassword, newPassword, user
     };
 };
 
-export const sellerProdRetriveService=async (id)=> {
+export const sellerProdRetriveService = async (id) => {
     return await findProductsForSeller(id);
 }
 
-export const sellerSubsRetService =async (userId)=> {
+export const sellerSubsRetService = async (userId) => {
     return await findSellerSubsDao(userId);
 }
 
