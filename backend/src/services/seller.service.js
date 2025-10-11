@@ -14,7 +14,7 @@ import {
 import {
     acceptProductRequestDao,
     rejectProductRequestDao,
-    makeAvailableDao,
+    // makeAvailableDao,
 } from "../daos/products.dao.js";
 
 export const addProductService = async (req) => {
@@ -27,7 +27,9 @@ export const addProductService = async (req) => {
         district,
         city,
         state,
+        isRental
     } = req.body;
+    // console.log(req.body);
 
     if (!req.files?.productImages || req.files.productImages.length === 0) {
         throw new Error("At least one product image is required");
@@ -35,6 +37,8 @@ export const addProductService = async (req) => {
 
     const images = req.files.productImages.map(file => file.path);
     const invoicePath = req.files.invoice?.[0]?.path || null;
+
+    const isRental1 = (isRental !== undefined) ? true : false;
 
     const productData = {
         name,
@@ -47,6 +51,7 @@ export const addProductService = async (req) => {
         state,
         seller: req.user._id,
         images,
+        isRental: isRental1,
         invoice: invoicePath,
         soldTo: null,
     };
@@ -212,6 +217,7 @@ export const sellerSubsRetService = async (userId) => {
     return await findSellerSubsDao(userId);
 }
 
-export const makeAvailableService = async (sellerId,productId) => {
-    return await makeAvailableDao(sellerId,productId);
-}
+//theres no business logic here
+// export const makeAvailableService = async (sellerId,productId) => {
+//     return await makeAvailableDao(sellerId,productId);
+// }

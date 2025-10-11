@@ -7,7 +7,7 @@ import {
     updateSellerSubscriptionService,
     sellerProdRetriveService,
     sellerSubsRetService,
-    makeAvailableService,
+    // makeAvailableService,
     deleteProductService,
 } from "../services/seller.service.js";
 
