@@ -1,10 +1,20 @@
 import Products from "../models/Products.js";
 
 export const getProductById = async (productId) => {
-    console.log(productId);
-    const product = await Products.findById(productId);
+    // console.log(productId);
+
+    const product = await Products.findById(productId)
+        .populate({
+            path: "requests.buyer",
+            select: "username",
+        })
+        .populate({
+            path: "seller",
+            select: "username",
+        });
+
     return product;
-}
+};
 
 export const createProduct = async (productData) => {
     return await Products.create(productData);
@@ -67,6 +77,8 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
 
 export const rejectProductRequestDao = async (productId, buyerId) => {
     const product = await Products.findById(productId);
+    // console.log("reject products");
+    // console.log(product);
 
     if (!product) {
         return { success: false, reason: "not_found" };

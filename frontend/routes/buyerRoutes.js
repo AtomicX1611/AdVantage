@@ -264,6 +264,9 @@ buyerRoutes.get("/buy/:productId", buyerMiddleWare, async (req, res) => {
     const data = await backendRes.json();
     console.log("data: ",data);
     if (!backendRes.ok) {
+      if(backendRes.status==403){
+        return res.redirect("/auth/buyer");
+      }
       return res.status(backendRes.status).json(data);
     }
 

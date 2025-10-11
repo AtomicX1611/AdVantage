@@ -81,14 +81,15 @@
                             <% if(manager) { %>
                               <button id="verifyButton" data-id="<%= product._id %>">Verify</button>
                               <% } %>
-
+                              <% if(!product.soldTo){ %>
+                                <a href="/seller/requestsPage/<%= product._id %>">View Requests</a>
+                              <% } %>
                               <% if(sold1) { %>
                                 <div id="sold">
                                 <!-- <a href="/seller/accept/<%= product._id %>" class="decision-btn">Accept</a>
                                 <a href="/seller/reject/<%= product._id %>" class="decision-btn">Reject</a> -->
                                 <!-- <button id="acceptProductReq">Accept</button>
                                 <button id="rejectProductReq">Reject</button> -->
-                                <a href="/seller/requestsPage">View Requests</a>
                               </div>
                                 <p style="color: white;">From user : <%= product.soldTo %></p>
                               <% } %>
