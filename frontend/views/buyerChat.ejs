@@ -133,9 +133,10 @@
                 let senderUsername = persons[i].querySelector(".name").innerText;
                 sender = persons[i].querySelector("#sender").value;
                 document.querySelector(".currentSender").innerText = senderUsername;
-                console.log("sender: ",sender);
+                // console.log("sender: ",sender);
                 let response= await fetchConvo(sender);
-                console.log("response: ",response)
+                // console.log("response: ",response)
+
                 if(response.success) {
                     console.log("data: ", response.messages);
                     console.log("sender: ", sender);
@@ -189,7 +190,7 @@
             let msg=data.message;
             console.log("msg: ",msg);
             if(sentTo==sender) {
-                createLeft(data);
+                createLeft(data.message);
             }
         })
 

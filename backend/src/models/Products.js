@@ -89,6 +89,10 @@ const productsSchema = new mongoose.Schema({
         default: null,
         // required: true,
     },
+    isRental :{
+        type:Boolean,
+        required:true
+    },
 });
 
 productsSchema.index({ name: "text" });

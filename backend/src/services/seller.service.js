@@ -9,7 +9,8 @@ import {
 } from "../daos/sellers.dao.js";
 import {
     acceptProductRequestDao,
-    rejectProductRequestDao
+    rejectProductRequestDao,
+    makeAvailableDao,
 } from "../daos/products.dao.js";
 
 export const addProductService = async (req) => {
@@ -167,4 +168,8 @@ export const sellerProdRetriveService=async (id)=> {
 
 export const sellerSubsRetService =async (userId)=> {
     return await findSellerSubsDao(userId);
+}
+
+export const makeAvailableService = async (sellerId,productId) => {
+    return await makeAvailableDao(sellerId,productId);
 }

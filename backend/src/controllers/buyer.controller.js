@@ -6,6 +6,7 @@ import {
     updateBuyerPasswordService,
     getWishlistProductsService,
     getYourProductsService,
+    rentService,
 } from "../services/buyer.service.js";
 
 export const updateBuyerProfile = async (req, res) => {
@@ -205,4 +206,17 @@ export const getYourProducts = async (req,res) =>{
             message: error.message || "Internal server error"
         });
     }
+}
+
+export const rentProduct=async(req,res) =>{
+    const userId=req.user._id;
+    const productId=req.params.productId;
+
+    if(!userId || !productId) {
+        return res.status(404).json({message:"Missing fields"});
+    }
+
+    let respose=await rentService(userId,productId);
+    
+    return res.status(respose.status).json({success:respose.success,message:respose.message});
 }

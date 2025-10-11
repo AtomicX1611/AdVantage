@@ -10,6 +10,7 @@ import {
     updateSellerSubscription,
     findSellerProducts,
     findSellerSubscription,
+    makeAvailableController,
 } from "../controllers/seller.controller.js";
 
 export const router = express.Router();
@@ -32,4 +33,6 @@ router.post("/addProduct", upload.fields([
 
 router.delete("/rejectRequest/:productId/:buyerId/", rejectRequest);
 router.delete("/acceptRequest/:productId/:buyerId", acceptRequest);
+
+router.post("/makeAvailable/:productId",makeAvailableController);
 export default router;
