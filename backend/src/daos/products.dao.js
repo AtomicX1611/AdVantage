@@ -154,7 +154,7 @@ export const getYourProductsDao = async (buyerId) => {
 
 
 export const getFreshProductsDao = async () => {
-    const products = await Products.find()
+    const products = await Products.find({ soldTo: null })
         .sort({ postingDate: -1 })
         .limit(20)
         .populate("seller", "username subscription");
@@ -164,6 +164,9 @@ export const getFreshProductsDao = async () => {
 
 export const getFeaturedProductsDao = async () => {
     const products = await Products.aggregate([
+        {
+            $match: { soldTo: null }
+        },
         {
             $lookup: {
                 from: "Sellers",
