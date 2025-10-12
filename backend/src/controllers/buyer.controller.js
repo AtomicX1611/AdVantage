@@ -160,6 +160,7 @@ export const requestProduct = async (req, res) => {
 
 export const updateBuyerPassword = async (req, res) => {
     try {
+        // console.log("coming to buyerPassword");
         const { oldPassword, newPassword } = req.body;
         const userId = req.user._id;
         if (!oldPassword || !newPassword) {
