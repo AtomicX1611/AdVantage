@@ -60,6 +60,7 @@ export const getProductDetails = async (req, res) => {
   }
   const pro = data.product;
   // console.log(pro);
+  console.log(isLogged && (decoded.role == "seller") && (decoded._id === pro.seller) && (!pro.soldTo));
   res.render("ProductDetail", {
     product: pro,
     sellerId: pro.seller,

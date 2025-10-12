@@ -150,6 +150,6 @@ export const getYourProductsService = async (buyerId) => {
     };
 }
 
-export const rentService=async (userId,productId) => {
-    return await rentDao(userId,productId);
+export const rentService=async (buyerId,productId,from,to) => {
+    return await rentDao(buyerId,productId,from,to);
 }

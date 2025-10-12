@@ -69,7 +69,13 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
     }
 
     product.soldTo = buyerId;
-    product.requests = [];
+    if (product.isRental) {
+        product.requests = product.requests.filter(
+            req => req.buyer.toString() !== buyerId.toString()
+        );
+    }else{
+        product.requests=[];
+    }
     await product.save();
 
     return { success: true };
@@ -183,7 +189,7 @@ export const findProducts = async (filters) => {
     return await Products.find(filters).lean();
 };
 
-export const rentDao = async (userId, productId) => {
+export const rentDao = async (buyerId, productId, from, to) => {
     try {
         let prod = await Products.findById(productId);
         if (!prod) {
@@ -193,28 +199,24 @@ export const rentDao = async (userId, productId) => {
                 status: 404
             }
         }
-        if (prod.soldTo == null) {
+        if (prod.soldTo) {
             return {
                 success: false,
                 message: "Already taken",
                 status: 400
             }
         }
-        if (prod.seller != userId) {
-            return {
-                success: false,
-                message: "Not your product",
-                status: 403
-            }
-        }
-        prod.requests.push(userId);
+        prod.requests.push({
+            buyer: buyerId,
+            from: from,
+            to: to,
+        });
         await prod.save();
         return {
             success: true,
             message: "Rent request added",
             status: 200
         }
-
     } catch (error) {
         console.log(error);
         return {
@@ -225,47 +227,25 @@ export const rentDao = async (userId, productId) => {
     }
 }
 
-//why business logic came into daosssss
-// export const makeAvailableDao = async (sellerId, productId) => {
-//     try {
-//         const prod = await Products.findById(productId);
-//         if (!prod) {
-//             return {
-//                 success: false,
-//                 message: "Product not found",
-//                 status: 404
-//             }
-//         }
-//         if (prod.soldTo == null) {
-//             return {
-//                 success: false,
-//                 message: "Product already marked available",
-//                 status: 400
-//             }
-//         }
-//         if(prod.seller != sellerId) {
-//             return {
-//                 success:false,
-//                 message:"Not your product",
-//                 status:403
-//             }
-//         }
-//         prod.soldTo = null;
-//         prod.save();
-//         return {
-//             success: true,
-//             message: "product made available",
-//             status: 200
-//         }
-//     } catch (error) {
-//         console.log(error);
-//         return {
-//             success:false,
-//             message:"Database error",
-//             status:500
-//         }
-//     }
-// }
+export const makeAvailableDao = async (sellerId, productId) => {
+    try {
+        const product = await Products.findOneAndUpdate(
+            { _id: productId, seller: sellerId, isRental: true },
+            { $set: { soldTo: null } },
+            { new: true }
+        );
+
+        if (!product) {
+            return { success: false, message: "Product not found or not eligible" };
+        }
+
+        return { success: true, product };
+    } catch (error) {
+        console.error("Error in makeAvailableDao:", error);
+        throw new Error("Database error while making product available again");
+    }
+};
+
 export const deleteProductDao = async (productId) => {
     return await Products.findByIdAndDelete(productId);
 };

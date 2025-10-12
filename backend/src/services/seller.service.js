@@ -2,6 +2,9 @@ import {
     createProduct,
     getProductById,
     deleteProductDao,
+    acceptProductRequestDao,
+    rejectProductRequestDao,
+    makeAvailableDao,
 } from "../daos/products.dao.js";
 import {
     getSellerById,
@@ -11,11 +14,6 @@ import {
     findProductsForSeller,
     findSellerSubsDao
 } from "../daos/sellers.dao.js";
-import {
-    acceptProductRequestDao,
-    rejectProductRequestDao,
-    // makeAvailableDao,
-} from "../daos/products.dao.js";
 
 export const addProductService = async (req) => {
     const {
@@ -217,7 +215,27 @@ export const sellerSubsRetService = async (userId) => {
     return await findSellerSubsDao(userId);
 }
 
-//theres no business logic here
-// export const makeAvailableService = async (sellerId,productId) => {
-//     return await makeAvailableDao(sellerId,productId);
-// }
+export const makeAvailableService = async (sellerId, productId) => {
+    try {
+        const result = await makeAvailableDao(sellerId, productId);
+
+        if (!result.success) {
+            return {
+                success: false,
+                message: result.message || "Could not make product available again"
+            };
+        }
+
+        return {
+            success: true,
+            message: "Product marked as available again",
+            product: result.product
+        };
+    } catch (error) {
+        console.error("Error in makeAvailableService:", error);
+        return {
+            success: false,
+            message: "Internal server error while updating availability"
+        };
+    }
+};
