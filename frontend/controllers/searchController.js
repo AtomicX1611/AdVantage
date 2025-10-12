@@ -40,13 +40,14 @@ export const getProductsNoFilter = async (req, res) => {
 }
 
 export const getProductDetails = async (req, res) => {
-  let isLogged = false;
+  let isLogged = false;  // Initialization
   let decoded;
   try {
     if (req.cookies.token) {
       decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
       // console.log(decoded);
-      isLogged = true;
+      isLogged = true; 
+      console.log("isLogged: ",isLogged);
     }
   } catch (err) {
     isLogged = false;
@@ -60,14 +61,17 @@ export const getProductDetails = async (req, res) => {
   }
   const pro = data.product;
   // console.log(pro);
+  console.log("",isLogged && (decoded.role == "seller") && (decoded._id === pro.seller._id) && (!pro.soldTo));
+  console.log("product: ",pro);
   res.render("ProductDetail", {
     product: pro,
-    sellerId: pro.seller,
+    sellerId: pro.seller._id,
+    decoded:decoded,
     isLogged: isLogged && (decoded.role == "buyer"),
     manager: isLogged && (decoded.role == "manager"),
-    hisProduct: isLogged && (decoded.role == "seller") && (decoded._id === pro.seller) && (!pro.soldTo),
+    hisProduct: isLogged && (decoded.role == "seller") && (decoded._id === pro.seller._id) && (!pro.soldTo),
     seller: isLogged && (decoded.role == "seller"),
-    sold1: isLogged && (decoded.role == "seller") && (decoded._id === pro.seller) && (pro.requests.length > 0)
+    sold1: isLogged && (decoded.role == "seller") && (decoded._id === pro.seller._id) && (pro.requests.length > 0)
   });
 };
 

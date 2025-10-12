@@ -18,19 +18,20 @@
               </div>
               <div class="main_container">
                 <div class="big_container">
-                <div class="image_container">
-                  <div class="card_list">
-                    <% for(let i=0; product.images[i] !==undefined; i++) { %>
-                      <img src="http://localhost:3000/<%= product.images[i] %>" alt="image" class="card_container">
-                      <% } %>
+                  <div class="image_container">
+                    <div class="card_list">
+                      <% for(let i=0; product.images[i] !==undefined; i++) { %>
+                        <img src="http://localhost:3000/<%= product.images[i] %>" alt="image" class="card_container">
+                        <% } %>
+                    </div>
+                    <img class="big_card" src="http://localhost:3000/<%= product.images[0] %>" alt="bigImage">
                   </div>
-                  <img class="big_card" src="http://localhost:3000/<%= product.images[0] %>" alt="bigImage">
-                </div>
-                <% if(!seller){ %>
-                  <div class="wishlist_button_container">
-                    <button id="addToWishlist" class="btn" data-id="<%= product._id %>">Add to Wishlist</button>
-                  </div>
-                   <% } %>
+                  <% if(isLogged){ %>  
+                    <!-- isLogged: loggedIn+role = buyer so showing add to whishlist-->
+                    <div class="wishlist_button_container">
+                      <button id="addToWishlist" class="btn" data-id="<%= product._id %>">Add to Wishlist</button>
+                    </div>
+                    <% } %>
                 </div>
                 <div class="product_details">
                   <div class="item_header">
@@ -57,34 +58,36 @@
                         <h4 id="verified">✅ Verified Product</h4>
                         <% } %>
                           <div class="options">
-                            <% if(!seller){ %>
-                            <a href="/buyer/chats/contact/<%= sellerId %>">
-                              <div class="chatWs btn" id="chat-btn">
-                                Chat with seller
-                                <input type="hidden" name="selleId" value="<%= sellerId%>">
-                              </div>
-                            </a>
-                            <% } %>
-                            <% if(!product.soldTo && !seller && product.isRental==false){ %>
-                              <a href="/buyer/buy/<%= product._id %>">
-                                <div class="purchase btn">
-                                  Buy now
+                            <% if(isLogged){ %>  
+                              <!-- isLogged : isLoggged+role = buyer -->
+                              <a href="/buyer/chats/contact/<%= sellerId %>">
+                                <div class="chatWs btn" id="chat-btn">
+                                  Chat with seller
+                                  <input type="hidden" name="selleId" value="<%= sellerId%>">
                                 </div>
                               </a>
                               <% } %>
-                            <% if(!product.soldTo && !seller && product.isRental!=false){ %>
-                                <div class="purchase btn" id="rentNowBtn">
-                                  Rent now
-                                </div>
-                            <% } %>
-                            <div style="display: none;background-color: white;" id="rentRequestForm">
-                              <button style="background-color: red;" id="xBtn">X</button>
-                              <label for="fromDate">From : </label>
-                              <input type="date" placeholder="From" name="fromDate" id="fromDate">
-                              <label for="toF=Date">To : </label>
-                              <input type="date" name="toDate" id="toDate" placeholder="To">
-                              <button id="submitBtnRent">Submit</button>
-                            </div>
+                                <% if(!product.soldTo && isLogged && !product.isRental){ %>
+                                  <a href="/buyer/buy/<%= product._id %>">
+                                    <div class="purchase btn">
+                                      Buy now
+                                    </div>
+                                  </a>
+                                  <% } %>
+                                    <% if(!product.soldTo && isLogged && product.isRental){ %>
+                                      <div class="purchase btn" id="rentNowBtn">
+                                        Rent now
+                                      </div>
+                                      <% } %>
+                                      <!-- To be done form validation make submit work -->
+                                          <div style="display: none;background-color: white;" id="rentRequestForm">
+                                            <button style="background-color: red;" id="xBtn">X</button>
+                                            <label for="fromDate">From : </label>
+                                            <input type="date" placeholder="From" name="fromDate" id="fromDate">
+                                            <label for="toF=Date">To : </label>
+                                            <input type="date" name="toDate" id="toDate" placeholder="To">
+                                            <button id="submitBtnRent">Submit</button>
+                                          </div>
                           </div>
                           <div class="description">
                             <h2 class="item_desc">Description</h2>
@@ -94,19 +97,17 @@
                             <% if(manager) { %>
                               <button id="verifyButton" data-id="<%= product._id %>">Verify</button>
                               <% } %>
-                              <% if(!product.soldTo){ %>
-                              <a href="/seller/requestsPage/<%= product._id %>">View Requests</a>
-                              <% } %>
-                              <% if(sold1) { %>
-                                <div id="sold">
-                                <!-- <a href="/seller/accept/<%= product._id %>" class="decision-btn">Accept</a>
-                                <a href="/seller/reject/<%= product._id %>" class="decision-btn">Reject</a> -->
-                                <!-- <button id="acceptProductReq">Accept</button>
-                                <button id="rejectProductReq">Reject</button> -->
-                              </div>
-                                <p style="color: white;">From user : <%= product.soldTo %></p>
-                              <% } %>
-                              
+                                <% if(product.soldTo && product.isRental && decoded._id===sellerId){ %>
+                                    <button onclick="handleMakeAvailable(<%= product._id %>)">Make Available</button>
+                                  <% } %>
+                                    <% if(sold1) { %>
+                                      <a href="/seller/requestsPage/<%= product._id %>">
+                                        <div id="sold">
+                                          View Requests
+                                        </div>
+                                      </a>
+                                      <% } %>
+
 
                           </div>
                 </div>
@@ -116,8 +117,8 @@
     function showNotification(message) {
       const notification = document.getElementById("notification");
       const notifMessage = document.getElementById("notif-message");
-      const accpetBtn=document.getElementById("acceptProductReq");
-      const rejectBtn=document.getElementById("rejectProductReq");
+      const accpetBtn = document.getElementById("acceptProductReq");
+      const rejectBtn = document.getElementById("rejectProductReq");
 
       notifMessage.textContent = message;
       notification.style.display = "block";
@@ -137,18 +138,18 @@
       }, 300);
     }
 
-      const rentNowBtn=document.getElementById("rentNowBtn");
-      const rentRequestForm=document.getElementById("rentRequestForm");
-      const xBtn=document.getElementById("xBtn");
-      const submitBtnRent=document.getElementById("submitBtnRent");
-      rentNowBtn?.addEventListener('click',(e)=>{
-        // console.log("hii"+rentRequestForm.style.display);
-        rentRequestForm.style.display="block";
-      });
-      xBtn?.addEventListener('click',(e)=>{
-        // console.log("hii"+rentRequestForm.style.display);
-        rentRequestForm.style.display="none";
-      });
+    const rentNowBtn = document.getElementById("rentNowBtn");
+    const rentRequestForm = document.getElementById("rentRequestForm");
+    const xBtn = document.getElementById("xBtn");
+    const submitBtnRent = document.getElementById("submitBtnRent");
+    rentNowBtn?.addEventListener('click', (e) => {
+      // console.log("hii"+rentRequestForm.style.display);
+      rentRequestForm.style.display = "block";
+    });
+    xBtn?.addEventListener('click', (e) => {
+      // console.log("hii"+rentRequestForm.style.display);
+      rentRequestForm.style.display = "none";
+    });
 
     const card_container = document.querySelector('.card_list');
     const big_card = document.querySelector('.big_card');
@@ -197,7 +198,7 @@
       }
     });
     const deleteProductBtn = document.getElementById('deleteProduct');
-    
+
     deleteProductBtn?.addEventListener("click", async (e) => {
       const productId = deleteProductBtn.getAttribute("data-id");
       const response = await fetch(`http://localhost:3000/seller/deleteProduct/${productId}`, {
@@ -205,7 +206,7 @@
         headers: {
           "Content-Type": "application/json"
         },
-        
+
       });
       window.location.href = response.url;
     });
@@ -213,7 +214,7 @@
     // accpetBtn.addEventListener("click",async()=> {
     //   let response=await fetch('http://localhost:3000/seller/acceptRequest/${prodId}/${userId}',{
     //     method:'DELETE',
-    //     headers:{ 
+    //     headers:{
     //       "content-type":"application/json"
     //     },
     //     credentials:"include"
@@ -232,7 +233,7 @@
     // rejectBtn.addEventListener("click",async()=> {
     //   let response=await fetch('http"//localhost:3000/seller/rejectRequest/${prodId}/${userId}',{
     //     method:'DELETE',
-    //     headers:{ 
+    //     headers:{
     //       "content-type":"application/json"
     //     },
     //     credentials:"include"
@@ -248,6 +249,25 @@
     //     return ;
     //   }
     // });
+
+    async function handleMakeAvailable(productId) {
+        // Complete fetch request and redirect
+        let request=await fetch(`http://localhost:3000/seller/makeAvailable/${productId}`,{
+          method:'POST',
+          headers: {
+            "content-type":"application/json"
+          },
+          credentials:"include",
+    
+        });
+        let response=await request.json();
+        if(response.success) {
+          return window.location.href=`/search/product/${productId}`
+        }
+        else {
+          alert(response.message);
+        }
+    }
   </script>
 </body>
 

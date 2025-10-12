@@ -186,7 +186,7 @@ export const updateBuyerPassword = async (req, res) => {
     }
 }
 
-export const getYourProducts = async (req,res) =>{
+export const getYourProducts = async (req, res) => {
     try {
         const userId = req.user._id;
         const response = await getYourProductsService(userId);
@@ -208,15 +208,16 @@ export const getYourProducts = async (req,res) =>{
     }
 }
 
-export const rentProduct=async(req,res) =>{
-    const userId=req.user._id;
-    const productId=req.params.productId;
+export const rentProduct = async (req, res) => {
+    const buyerId = req.user._id;
+    const productId = req.params.productId;
+    const { from, to } = req.body;
 
-    if(!userId || !productId) {
-        return res.status(404).json({message:"Missing fields"});
+    if (!buyerId || !productId || !from || !to) {
+        return res.status(404).json({ message: "Missing buyerId or productId or from or to" });
     }
 
-    let respose=await rentService(userId,productId);
-    
-    return res.status(respose.status).json({success:respose.success,message:respose.message});
+    let respose = await rentService(buyerId, productId, from, to);
+
+    return res.status(respose.status).json({ success: respose.success, message: respose.message });
 }
