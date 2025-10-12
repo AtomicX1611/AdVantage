@@ -69,10 +69,22 @@
         <% } %>
       <% } %>
     </div>
+    <h2>Rented Ads</h2>
+    <div class="card_container">
+      <% for (let i=0; i < products.length; i++) {%>
+        <% if(products[i].soldTo && products[i].isRental){ %>
+          <a href="/search/product/<%= products[i]._id %>">
+            <div class="card">
+              <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+            </div>
+          </a>
+          <% } %>
+            <% } %>
+    </div>
     <h2>Previous Ads</h2>
     <div class="card_container">
       <% for (let i=0; i < products.length; i++) {%>
-        <% if(products[i].soldTo && products[i].isRental==false){ %>
+        <% if(products[i].soldTo && !products[i].isRental){ %>
           <a href="/search/product/<%= products[i]._id %>">
             <div class="card">
               <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
