@@ -188,13 +188,7 @@ export const rentDao = async (userId, productId) => {
                 status: 400
             }
         }
-        if(prod.seller != userId) {
-            return {
-                success: false,
-                message: "Not your product",
-                status: 403
-            }
-        }
+
         prod.requests.push(userId);
         await prod.save();
         return {
@@ -253,6 +247,7 @@ export const makeAvailableDao = async (sellerId, productId) => {
         }
     }
 }
+
 export const deleteProductDao = async (productId) => {
     return await Products.findByIdAndDelete(productId);
 };

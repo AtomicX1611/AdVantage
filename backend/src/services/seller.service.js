@@ -55,8 +55,6 @@ export const addProductService = async (req) => {
     return newProduct;
 };
 
-import { deleteProductDao, getProductById } from "../dao/product.dao.js";
-
 export const deleteProductService = async (sellerId, productId) => {
     try {
         const product = await getProductById(productId);
