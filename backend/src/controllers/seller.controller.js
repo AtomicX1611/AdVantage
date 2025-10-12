@@ -7,7 +7,7 @@ import {
     updateSellerSubscriptionService,
     sellerProdRetriveService,
     sellerSubsRetService,
-    makeAvailableService,
+    // makeAvailableService,
     deleteProductService,
 } from "../services/seller.service.js";
 
@@ -153,6 +153,7 @@ export const acceptRequest = async (req, res) => {
 
 export const rejectRequest = async (req, res) => {
     try {
+        console.log("int reject Request");
         const { productId, buyerId } = req.params;
 
         const response = await rejectProductRequestService(productId, buyerId);

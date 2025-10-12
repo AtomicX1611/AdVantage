@@ -65,13 +65,26 @@
                               </div>
                             </a>
                             <% } %>
-                            <% if(!product.soldTo && !seller){ %>
+                            <% if(!product.soldTo && !seller && product.isRental==false){ %>
                               <a href="/buyer/buy/<%= product._id %>">
                                 <div class="purchase btn">
                                   Buy now
                                 </div>
                               </a>
                               <% } %>
+                            <% if(!product.soldTo && !seller && product.isRental!=false){ %>
+                                <div class="purchase btn" id="rentNowBtn">
+                                  Rent now
+                                </div>
+                            <% } %>
+                            <div style="display: none;background-color: white;" id="rentRequestForm">
+                              <button style="background-color: red;" id="xBtn">X</button>
+                              <label for="fromDate">From : </label>
+                              <input type="date" placeholder="From" name="fromDate" id="fromDate">
+                              <label for="toF=Date">To : </label>
+                              <input type="date" name="toDate" id="toDate" placeholder="To">
+                              <button id="submitBtnRent">Submit</button>
+                            </div>
                           </div>
                           <div class="description">
                             <h2 class="item_desc">Description</h2>
@@ -81,14 +94,15 @@
                             <% if(manager) { %>
                               <button id="verifyButton" data-id="<%= product._id %>">Verify</button>
                               <% } %>
-
+                              <% if(!product.soldTo){ %>
+                              <a href="/seller/requestsPage/<%= product._id %>">View Requests</a>
+                              <% } %>
                               <% if(sold1) { %>
                                 <div id="sold">
                                 <!-- <a href="/seller/accept/<%= product._id %>" class="decision-btn">Accept</a>
                                 <a href="/seller/reject/<%= product._id %>" class="decision-btn">Reject</a> -->
                                 <!-- <button id="acceptProductReq">Accept</button>
                                 <button id="rejectProductReq">Reject</button> -->
-                                <a href="/seller/requestsPage">View Requests</a>
                               </div>
                                 <p style="color: white;">From user : <%= product.soldTo %></p>
                               <% } %>
@@ -122,6 +136,19 @@
         notification.style.animation = "";
       }, 300);
     }
+
+      const rentNowBtn=document.getElementById("rentNowBtn");
+      const rentRequestForm=document.getElementById("rentRequestForm");
+      const xBtn=document.getElementById("xBtn");
+      const submitBtnRent=document.getElementById("submitBtnRent");
+      rentNowBtn?.addEventListener('click',(e)=>{
+        // console.log("hii"+rentRequestForm.style.display);
+        rentRequestForm.style.display="block";
+      });
+      xBtn?.addEventListener('click',(e)=>{
+        // console.log("hii"+rentRequestForm.style.display);
+        rentRequestForm.style.display="none";
+      });
 
     const card_container = document.querySelector('.card_list');
     const big_card = document.querySelector('.big_card');
@@ -183,44 +210,44 @@
       window.location.href = response.url;
     });
 
-    accpetBtn.addEventListener("click",async()=> {
-      let response=await fetch('http://localhost:3000/seller/acceptRequest/${prodId}/${userId}',{
-        method:'DELETE',
-        headers:{ 
-          "content-type":"application/json"
-        },
-        credentials:"include"
-      });
+    // accpetBtn.addEventListener("click",async()=> {
+    //   let response=await fetch('http://localhost:3000/seller/acceptRequest/${prodId}/${userId}',{
+    //     method:'DELETE',
+    //     headers:{ 
+    //       "content-type":"application/json"
+    //     },
+    //     credentials:"include"
+    //   });
 
-      let data=await response.json();
-      if(data.success) {
-        alert("Request accepted successfully");
-        return ;
-      }
-      else {
-        alert("Request  accepted failed");
-      }
-    });
+    //   let data=await response.json();
+    //   if(data.success) {
+    //     alert("Request accepted successfully");
+    //     return ;
+    //   }
+    //   else {
+    //     alert("Request  accepted failed");
+    //   }
+    // });
 
-    rejectBtn.addEventListener("click",async()=> {
-      let response=await fetch('http"//localhost:3000/seller/rejectRequest/${prodId}/${userId}',{
-        method:'DELETE',
-        headers:{ 
-          "content-type":"application/json"
-        },
-        credentials:"include"
-      });
+    // rejectBtn.addEventListener("click",async()=> {
+    //   let response=await fetch('http"//localhost:3000/seller/rejectRequest/${prodId}/${userId}',{
+    //     method:'DELETE',
+    //     headers:{ 
+    //       "content-type":"application/json"
+    //     },
+    //     credentials:"include"
+    //   });
 
-      let data=await response.json();
-      if(data.success) {
-        alert("Rejected successfully");
-        return ;
-      }
-      else {
-        alert("Reject failed");
-        return ;
-      }
-    });
+    //   let data=await response.json();
+    //   if(data.success) {
+    //     alert("Rejected successfully");
+    //     return ;
+    //   }
+    //   else {
+    //     alert("Reject failed");
+    //     return ;
+    //   }
+    // });
   </script>
 </body>
 
