@@ -2,25 +2,9 @@ import jwt from "jsonwebtoken";
 import { verifyJwt } from "../routes/buyerRoutes.js";
 
 export const requireRole = (role) => {
+    //Commented this whole function  
+    //because req.isAuth is passport.js function and we are not using that .
     return (req, res, next) => {
-        if (!req.isAuthenticated()) {
-            console.log("Role is ;", role);
-            if (role == "buyer") {
-                return res.redirect("/auth/buyer");
-            } else if (role == "seller") {
-                return res.redirect("/auth/seller");
-            } else if (role == "manager") {
-                return res.redirect("/manager/login");
-            }
-        }
-        if (req.user.role !== role){
-            console.log("Coming to not equal");
-            if (role === "manager") {
-                return res.redirect("/manager/login");
-            } else {
-                return res.redirect("/auth/" + role);
-            }
-        }
         next();
     };
 };
@@ -47,6 +31,7 @@ export const sellerMiddleware = (req, res, next) => {
 }
 
 export const buyerMiddleWare = (req,res,next) => {
+  
     if(!req.cookies.token) {
         return res.redirect("/auth/buyer");
     }

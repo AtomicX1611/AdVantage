@@ -65,18 +65,20 @@ app.use("/manager", managerRouter);
 app.use("/admin", adminRouter);
 
 app.get("/logout", (req, res) => {
-  if (req.isAuthenticated()) {
-    const redirectPath = req.user.role === "seller" ? "/seller" : "/";
-    req.logout((err) => {
-      if (err) return next(err);
-      req.session.destroy((err) => {
-        if (err) return next(err);
-        res.redirect(redirectPath);
-      });
+  //need to change logout here .
+  // then logout button will work .
+    if (req.cookies && req.cookies.token) {
+    // Clear the cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false,   // set to false if running on localhost without HTTPS
+      sameSite: "strict",
     });
-  } else {
-    res.redirect("/");
   }
+
+  // Redirect to homepage after logout
+  return res.redirect("/");
+  
 });
 
 passport.use(

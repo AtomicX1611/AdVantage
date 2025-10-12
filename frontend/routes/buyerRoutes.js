@@ -58,8 +58,10 @@ buyerRoutes.get("/home", async (req, res) => {
 });
 
 
-buyerRoutes.get("/profile", requireRole("buyer"), async (req, res) => {
+buyerRoutes.get("/profile", buyerMiddleWare, async (req, res) => {
   let isLogged = false;
+  console.log("Calling profile");
+  
   try {
     // console.log(req.cookies);
     if (req.cookies.token) {
@@ -72,7 +74,7 @@ buyerRoutes.get("/profile", requireRole("buyer"), async (req, res) => {
     isLogged = false;
   }
   if (isLogged) res.render("Profile.ejs", { isLogged: true });
-  else res.send("No data");
+  else res.redirect("/auth/buyer");
 });
 
 // buyerRoutes.get("/chats", (req,res)=>{

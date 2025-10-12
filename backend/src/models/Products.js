@@ -78,9 +78,16 @@ const productsSchema = new mongoose.Schema({
     requests: [
         {
             buyer: {
+                required: true,
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Buyers",
-            }
+            },
+            from:{
+                type: mongoose.Schema.Types.Date,
+            },
+            to:{
+                type: mongoose.Schema.Types.Date,
+            },
         }
     ],
     soldTo: {
@@ -88,6 +95,10 @@ const productsSchema = new mongoose.Schema({
         ref: "Buyers",
         default: null,
         // required: true,
+    },
+    isRental: {
+        type: Boolean,
+        required: true
     },
 });
 

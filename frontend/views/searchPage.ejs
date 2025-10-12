@@ -11,7 +11,7 @@
 
 <body>
   <div class="searchpage_window">
-    <%- include("HomeHeader.ejs") %>
+    <%- include("Header.ejs") %>
       <main>
         <div id="up">
           <b id="filters">FILTERS</b>
@@ -29,6 +29,10 @@
             <div id="verifiedWrapper">
               <input type="checkbox" id="verifiedCheckbox"><b>Only verified</b>
             </div>
+
+            <div id="rentedwrapper">
+              <input type="checkbox" id="rentedCheckbox"><b>Only Rented</b>
+            </div>
             <!-- <b id="priceRange">category</b>
                         <div id="category">
                             <select id="selection">
@@ -43,13 +47,15 @@
               </h3>
               <% } %>
                 <% for(let i=0;i < products.length; i++) { %>
-                  <a href="/search/product/<%= products[i]._id %>">
+                  <a href="http://localhost:3000/search/product/<%= products[i]._id %>">
                     <div class="products">
-                      <img src="http://localhost:3000/<%= products[i].images[0] %>" alt="image" class="images" />
-                      <h4 style="margin-left: 20px; font-size: 15px">
+                      <img src="<%= products[i].Image1Src %>" alt="image" class="images" />
+                      <h3
+                        style="margin-top: 7px; margin-left: 5px; font-size: 15px; font-weight: 400; color: black; text-align: left;">
                         <%= products[i].name %>
-                      </h4>
-                      <h3 style="margin-left: 0px">Rs. <%= products[i].price %>/-</h3>
+                      </h3>
+                      <h3 style="margin-left: 5px;margin-top: 5px; text-align: right; color: #000000;">Rs. <%=
+                          products[i].price %>/-</h3>
                     </div>
                   </a>
                   <% }%>
@@ -58,9 +64,10 @@
       </main>
   </div>
   <script>
-const products = <%- JSON.stringify(products) %>;
+    const products = <% - JSON.stringify(products) %>;
 
     // console.log(products);
+    const rentedCheckbox = document.getElementById('rentedCheckbox');
     const filterApplier = (e) => {
       let maxValue = parseFloat(max.value);
       let minValue = parseFloat(min.value);
@@ -74,10 +81,11 @@ const products = <%- JSON.stringify(products) %>;
       let html, price;
       for (let i = 0; i < products.length; i++) {
         price = parseFloat(products[i].price);
-        if ((price >= minValue) && (price <= maxValue) && ( (!verifiedCheckbox.checked) || (products[i].verified != false))) {
-          html = `<a href="/search/product/${products[i]._id}">
+        if (  (price >= minValue) && (price <= maxValue) && ((!verifiedCheckbox.checked) || (products[i].verified === true)) && 
+        ((!rentedCheckbox.checked) || (products[i].isRental === true))) {
+          html = `<a href="http://localhost:3000/search/product/${products[i]._id}">
                               <div class="products">
-                                  <img src="http://localhost:3000/${products[i].images[0]}" alt="image" class="images">
+                                  <img src="${products[i].Image1Src}" alt="image" class="images">
                                   <h4 style="margin-left: 20px; font-size: 15px;">
                                       ${products[i].name}
                                   </h4>
@@ -97,7 +105,7 @@ const products = <%- JSON.stringify(products) %>;
     const apply = document.getElementById('filterApply');
     const verifiedCheckbox = document.getElementById('verifiedCheckbox');
     apply.addEventListener('click', filterApplier);
-    verifiedCheckbox.addEventListener('input',filterApplier);
+    verifiedCheckbox.addEventListener('input', filterApplier);
   </script>
 </body>
 
