@@ -54,7 +54,7 @@ chatRoutes.get("/contact/:id",buyerMiddleWare, async (req, res) => {
     console.log("response in frontend /contact/:id",response);
     if(!response.success) return res.send("Some thing went wrong");
 
-    return res.redirect("/buyer/chat/buyerInbox");
+    return res.redirect("/buyer/chats/buyerInbox");
 })
 // Unknown
 chatRoutes.get("/contact", (req, res) => {

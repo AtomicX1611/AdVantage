@@ -1,5 +1,6 @@
 import { Contacts } from "../models/Contact.js"
 import Buyers from '../models/Buyers.js'
+import {Messages} from '../models/Messages.js'
 import Sellers from '../models/Sellers.js'
 
 export const generateChatId = (user1, user2) => {
@@ -94,3 +95,72 @@ export const createContactDao = async (userId, otherId) => {
         };
     }
 };
+
+export const inboxDao=async(userId,otherId) => {
+    try {
+        let buyer=Buyers.findById(otherId);
+        let seller=Sellers.findById(otherId);
+
+        if(!buyer && !seller) {
+            return {
+                success:false,
+                status:404,
+                message:"User not found with given Id"
+            }
+        }
+
+        const chatId=generateChatId(userId,otherId);
+        let messages=await Messages.find({chatId:chatId});
+        return {
+            success:true,
+            status:200,
+            message:"Messages retrieved successfully",
+            messages:messages
+        }
+    } catch (error) {
+        return {
+            success:false,
+            status:500,
+            message:"Database error"
+        }
+    }
+}
+
+export const saveDao = async(userId,otherId,newMessage)=> {
+    try {
+        let buyer=Buyers.findById(otherId);
+        let seller=Sellers.findById(otherId);
+
+        if(!buyer && !seller) {
+            return {
+                success:false,
+                status:404,
+                message:"User not found with given Id"
+            }
+        }
+
+        const chatId=generateChatId(userId,otherId);
+        const sender=newMessage.sender;
+        const message=newMessage.message;
+
+        const saveMsg=new Messages({
+            chatId:chatId,
+            sender:sender,
+            message:message
+        });
+
+        await saveMsg.save()
+        
+        return {
+            success:true,
+            status:200,
+            message:"Saved message successfully"
+        }
+    } catch (error) {
+        return {
+            success:false,
+            message:"Database error",
+            status:500
+        }
+    }
+}

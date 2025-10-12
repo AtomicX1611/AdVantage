@@ -6,9 +6,11 @@ import {
     updateBuyerPassById,
     getWishlistProductsDao,
 } from "../daos/buyers.dao.js";
+
 import {
     addProductRequestDao,
     getYourProductsDao,
+    rentDao,
 } from "../daos/products.dao.js";
 
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
@@ -146,4 +148,8 @@ export const getYourProductsService = async (buyerId) => {
         message: "Your products retrieved successfully",
         products: products,
     };
+}
+
+export const rentService=async (buyerId,productId,from,to) => {
+    return await rentDao(buyerId,productId,from,to);
 }

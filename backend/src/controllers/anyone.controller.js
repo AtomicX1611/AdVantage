@@ -29,6 +29,7 @@ export const getFeaturedFreshProducts = async (req, res) => {
 
 export const getProductDetails = async (req,res) => {
     try {
+        console.log("At first coming");
         const { productId } = req.params;
         if(!productId){
             return res.status(400).json("Need product Id");
@@ -41,6 +42,7 @@ export const getProductDetails = async (req,res) => {
                 message: response.message
             });
         }
+        console.log(response.product);
         return res.status(200).json({
             success: true,
             product: response.product,

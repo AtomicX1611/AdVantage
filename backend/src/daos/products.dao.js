@@ -1,10 +1,20 @@
 import Products from "../models/Products.js";
 
 export const getProductById = async (productId) => {
-    console.log(productId);
-    const product = await Products.findById(productId);
+    // console.log(productId);
+
+    const product = await Products.findById(productId)
+        .populate({
+            path: "requests.buyer",
+            select: "username",
+        })
+        .populate({
+            path: "seller",
+            select: "username",
+        });
+
     return product;
-}
+};
 
 export const createProduct = async (productData) => {
     return await Products.create(productData);
@@ -59,7 +69,13 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
     }
 
     product.soldTo = buyerId;
-    product.requests = [];
+    if (product.isRental) {
+        product.requests = product.requests.filter(
+            req => req.buyer.toString() !== buyerId.toString()
+        );
+    }else{
+        product.requests=[];
+    }
     await product.save();
 
     return { success: true };
@@ -67,6 +83,8 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
 
 export const rejectProductRequestDao = async (productId, buyerId) => {
     const product = await Products.findById(productId);
+    // console.log("reject products");
+    // console.log(product);
 
     if (!product) {
         return { success: false, reason: "not_found" };
@@ -100,7 +118,7 @@ export const verifyProductDao = async (productId) => {
                 { _id: productId },
                 { $set: { verified: true } }
             )
-        product.verified=true;
+        product.verified = true;
         product.save();
         return {
             success: true,
@@ -169,4 +187,65 @@ export const getFeaturedProductsDao = async () => {
 
 export const findProducts = async (filters) => {
     return await Products.find(filters).lean();
+};
+
+export const rentDao = async (buyerId, productId, from, to) => {
+    try {
+        let prod = await Products.findById(productId);
+        if (!prod) {
+            return {
+                success: false,
+                message: "Product not found",
+                status: 404
+            }
+        }
+        if (prod.soldTo) {
+            return {
+                success: false,
+                message: "Already taken",
+                status: 400
+            }
+        }
+        prod.requests.push({
+            buyer: buyerId,
+            from: from,
+            to: to,
+        });
+        await prod.save();
+        return {
+            success: true,
+            message: "Rent request added",
+            status: 200
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            success: false,
+            message: "Database error",
+            status: 500
+        }
+    }
+}
+
+export const makeAvailableDao = async (sellerId, productId) => {
+    try {
+        const product = await Products.findOneAndUpdate(
+            { _id: productId, seller: sellerId, isRental: true },
+            { $set: { soldTo: null } },
+            { new: true }
+        );
+
+        if (!product) {
+            return { success: false, message: "Product not found or not eligible" };
+        }
+
+        return { success: true, product };
+    } catch (error) {
+        console.error("Error in makeAvailableDao:", error);
+        throw new Error("Database error while making product available again");
+    }
+};
+
+export const deleteProductDao = async (productId) => {
+    return await Products.findByIdAndDelete(productId);
 };

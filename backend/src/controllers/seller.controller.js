@@ -6,7 +6,9 @@ import {
     updateSellerPasswordService,
     updateSellerSubscriptionService,
     sellerProdRetriveService,
-    sellerSubsRetService
+    sellerSubsRetService,
+    makeAvailableService,
+    deleteProductService,
 } from "../services/seller.service.js";
 
 export const addProduct = async (req, res) => {
@@ -18,7 +20,7 @@ export const addProduct = async (req, res) => {
             data: newProduct,
         });
     } catch (err) {
-        console.log("error: ",err);
+        console.log("error: ", err);
         return res.status(500).json({
             success: false,
             message: err.message,
@@ -73,13 +75,13 @@ export const updateSellerSubscription = async (req, res) => {
     try {
         const sellerId = req.user._id;
         const { subscription } = req.body;
-        if(subscription<1){
+        if (subscription < 1) {
             return res.status(400).json({
                 success: false,
                 message: "Subscription cannot be less that 1",
             });
         }
-        const response = await updateSellerSubscriptionService(sellerId,subscription);
+        const response = await updateSellerSubscriptionService(sellerId, subscription);
 
         if (!response.success) {
             return res.status(response.status).json({
@@ -93,7 +95,7 @@ export const updateSellerSubscription = async (req, res) => {
             updatedSeller: response.updatedSeller,
             message: "Subscription updated successfully",
         });
-        
+
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -101,6 +103,27 @@ export const updateSellerSubscription = async (req, res) => {
         });
     }
 }
+
+export const deleteProduct = async (req, res) => {
+    try {
+        const { productId } = req.params;
+
+        const response = await deleteProductService(req.user._id, productId);
+
+        return res.status(response.status).json({
+            success: response.success,
+            message: response.message
+        });
+
+    } catch (error) {
+        console.error("Delete Product Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error"
+        });
+    }
+};
+
 
 export const acceptRequest = async (req, res) => {
     try {
@@ -130,6 +153,7 @@ export const acceptRequest = async (req, res) => {
 
 export const rejectRequest = async (req, res) => {
     try {
+        console.log("int reject Request");
         const { productId, buyerId } = req.params;
 
         const response = await rejectProductRequestService(productId, buyerId);
@@ -187,50 +211,63 @@ export const updateSellerPassword = async (req, res) => {
     }
 };
 
-export const findSellerProducts =async(req,res) => {
-    const userId=req.user._id;
-    if(!userId) return res.status(400).json({message:"userId not found"});
+export const findSellerProducts = async (req, res) => {
+    const userId = req.user._id;
+    if (!userId) return res.status(400).json({ message: "userId not found" });
 
-    let response=await sellerProdRetriveService(userId);
+    let response = await sellerProdRetriveService(userId);
 
-    if(!response.success) {
+    if (!response.success) {
         return res.status(500).json({
-            success:false,
-            messagea:response.message
+            success: false,
+            messagea: response.message
         })
     }
 
     return res.status(200).json({
-        success:true,
-        products:response.products
+        success: true,
+        products: response.products
     })
 }
 
-export const findSellerSubscription = async (req,res) => {
+export const findSellerSubscription = async (req, res) => {
     try {
-        const userId=req.user._id;
-        if(!userId) return res.status(404).json({
-            success:false,
-            message:"userId not found"
+        const userId = req.user._id;
+        if (!userId) return res.status(404).json({
+            success: false,
+            message: "userId not found"
         })
 
-        const response=await sellerSubsRetService(userId);
-        if(!response.success) {
+        const response = await sellerSubsRetService(userId);
+        if (!response.success) {
             return res.status(409).json({
-                success:false,
-                message:response.message
+                success: false,
+                message: response.message
             })
         }
         return res.status(200).json({
-            success:true,
-            subscription:response.subscription
+            success: true,
+            subscription: response.subscription
         })
     } catch (error) {
         console.log(error);
         return res.status(500).json({
-            success:false,
-            message:"Internal server error"
+            success: false,
+            message: "Internal server error"
         })
+
+    }
+}
+
+export const makeAvailableController = async (req, res) => {
+    try {
+        const sellerId = req.user._id;
+        const productId = req.params.productId;
         
+        let response=await makeAvailableService(sellerId,productId);
+        return res.status(response.status).json({message:response.message});
+        
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error"});
     }
 }

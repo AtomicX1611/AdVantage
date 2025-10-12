@@ -1,0 +1,218 @@
+<link rel="stylesheet" href="/requestsPage.css">
+<%- include('sellerHeader.ejs') %>
+
+    <div class="body">
+        <div id="main">
+            <h2>View Your Requests Here</h2>
+            <div class="box" id="requestBox">
+                <!-- Demo request (example) -->
+                <!-- <div class="request">
+                <div>From User</div>
+                <div class="actions">
+                    <button>Accept</button>
+                    <button>Reject</button>
+                </div>
+            </div> -->
+            </div>
+        </div>
+    </div>
+    <script>
+        let productId = "<%= productId %>";
+        // Simulated API response
+        const mockApiData = [
+            { from: "Alice" },
+            { from: "Bob" },
+            { from: "Charlie" }
+        ];
+
+        function populateRequests(data) {
+            const box = document.getElementById("requestBox");
+            box.innerHTML = "";
+
+            data.forEach(item => {
+                // Main request container
+                const requestDiv = document.createElement("div");
+                requestDiv.className = "request";
+
+                // "From user" text
+                const fromDiv = document.createElement("div");
+                fromDiv.textContent = `From ${item.from}`;
+
+                // If rental info is available, show rental period
+                if (item.from1 && item.to1) {
+                    const rentalPeriod = document.createElement("div");
+                    rentalPeriod.className = "rental-period";
+                    rentalPeriod.textContent = `Needed from ${new Date(item.from1).toLocaleDateString()} to ${new Date(item.to1).toLocaleDateString()}`;
+                    requestDiv.appendChild(rentalPeriod);
+                }
+
+                // Actions div
+                const actionsDiv = document.createElement("div");
+                actionsDiv.className = "actions";
+
+                // Accept button
+                const acceptBtn = document.createElement("button");
+                acceptBtn.textContent = "Accept";
+
+                // Reject button
+                const rejectBtn = document.createElement("button");
+                rejectBtn.textContent = "Reject";
+
+                // Event listeners
+                acceptBtn.addEventListener("click", async () => {
+                    let response = await fetch(`http://localhost:3000/seller/acceptRequest/${productId}/${item.userId}`, {
+                        method: 'DELETE',
+                        headers: { "content-type": "application/json" },
+                        credentials: "include"
+                    });
+
+                    let result = await response.json();
+                    if (result.success) {
+                        alert("Request accepted successfully");
+                        fetchRequests();
+                    } else {
+                        alert("Request acceptance failed");
+                    }
+                });
+
+                rejectBtn.addEventListener("click", async () => {
+                    let response = await fetch(`http://localhost:3000/seller/rejectRequest/${productId}/${item.userId}`, {
+                        method: 'DELETE',
+                        headers: { "content-type": "application/json" },
+                        credentials: "include"
+                    });
+
+                    let result = await response.json();
+                    if (result.success) {
+                        alert("Rejected successfully");
+                        fetchRequests();
+                    } else {
+                        alert("Reject failed");
+                    }
+                });
+
+                // Append buttons
+                actionsDiv.appendChild(acceptBtn);
+                actionsDiv.appendChild(rejectBtn);
+
+                // Append content
+                requestDiv.appendChild(fromDiv);
+                requestDiv.appendChild(actionsDiv);
+
+                // Append to box
+                box.appendChild(requestDiv);
+            });
+        }
+
+
+        // function populateRequests(data) {
+        //     const box = document.getElementById("requestBox");
+        //     box.innerHTML = "";
+
+        //     data.forEach(item => {
+        //         //Creating main request container
+        //         const requestDiv = document.createElement("div");
+        //         requestDiv.className = "request";
+
+        //         // Create "from user" text
+        //         const fromDiv = document.createElement("div");
+        //         fromDiv.textContent = `From ${item.from}`;
+
+        //         // Create actions div
+        //         const actionsDiv = document.createElement("div");
+        //         actionsDiv.className = "actions";
+
+        //         // Accept button
+        //         const acceptBtn = document.createElement("button");
+        //         acceptBtn.textContent = "Accept";
+
+        //         // Reject button
+        //         const rejectBtn = document.createElement("button");
+        //         rejectBtn.textContent = "Reject";
+        //         // rejectBtn.onclick = () => alert(`Rejected ${item.from}`);
+
+        //         acceptBtn.addEventListener("click", async () => {
+        //             let response = await fetch(`http://localhost:3000/seller/acceptRequest/${productId}/${item.userId}`, {
+        //                 method: 'DELETE',
+        //                 headers: {
+        //                     "content-type": "application/json"
+        //                 },
+        //                 credentials: "include"
+        //             });
+
+        //             let data = await response.json();
+        //             if (data.success) {
+        //                 alert("Request accepted successfully");
+        //                 fetchRequests();
+        //                 return;
+        //             }
+        //             else {
+        //                 alert("Request  accepted failed");
+        //             }
+        //         });
+
+        //         rejectBtn.addEventListener("click", async () => {
+        //             let response = await fetch(`http://localhost:3000/seller/rejectRequest/${productId}/${item.userId}`, {
+        //                 method: 'DELETE',
+        //                 headers: {
+        //                     "content-type": "application/json"
+        //                 },
+        //                 credentials: "include"
+        //             });
+
+        //             let data = await response.json();
+        //             if (data.success) {
+        //                 alert("Rejected successfully");
+        //                 fetchRequests();
+        //                 return;
+        //             }
+        //             else {
+        //                 alert("Reject failed");
+        //                 return;
+        //             }
+        //         });
+
+        //         // Append buttons into actions
+        //         actionsDiv.appendChild(acceptBtn);
+        //         actionsDiv.appendChild(rejectBtn);
+
+        //         // Append fromDiv and actions into requestDiv
+        //         requestDiv.appendChild(fromDiv);
+        //         requestDiv.appendChild(actionsDiv);
+
+        //         // Append requestDiv into box
+        //         box.appendChild(requestDiv);
+        //     });
+        // }
+
+        // Simulate API call
+        async function fetchRequests() {
+            const response = await fetch(`http://localhost:3000/anyone/products/${productId}`);
+            // console.log(response.status);
+            let data = await response.json();
+            let condition = false;
+            if (data.product.isRental) {
+                condition = true;
+            }
+            data = data.product.requests;
+            console.log("confirming : " + data);
+            if (condition) {
+                data = data.map((data1) => {
+                    return { from: data1.buyer.username, userId: data1.buyer._id, from1: data1.from, to1: data1.to };
+                });
+            } else {
+                data = data.map((data1) => {
+                    return { from: data1.buyer.username, userId: data1.buyer._id };
+                });
+            }
+            console.log(data);
+
+            // data=data.map((data1)=>{return {from:data1}})
+            // Here you'd normally use fetch(...)
+            // fetch("api/endpoint").then(...)
+            populateRequests(data);
+        }
+
+        // Call on page load
+        fetchRequests();
+    </script>

@@ -1,4 +1,11 @@
-import { createProduct } from "../daos/products.dao.js";
+import {
+    createProduct,
+    getProductById,
+    deleteProductDao,
+    acceptProductRequestDao,
+    rejectProductRequestDao,
+    makeAvailableDao,
+} from "../daos/products.dao.js";
 import {
     getSellerById,
     updateSellerById,
@@ -7,10 +14,6 @@ import {
     findProductsForSeller,
     findSellerSubsDao
 } from "../daos/sellers.dao.js";
-import {
-    acceptProductRequestDao,
-    rejectProductRequestDao
-} from "../daos/products.dao.js";
 
 export const addProductService = async (req) => {
     const {
@@ -22,7 +25,9 @@ export const addProductService = async (req) => {
         district,
         city,
         state,
+        isRental
     } = req.body;
+    // console.log(req.body);
 
     if (!req.files?.productImages || req.files.productImages.length === 0) {
         throw new Error("At least one product image is required");
@@ -30,6 +35,8 @@ export const addProductService = async (req) => {
 
     const images = req.files.productImages.map(file => file.path);
     const invoicePath = req.files.invoice?.[0]?.path || null;
+
+    const isRental1 = (isRental !== undefined) ? true : false;
 
     const productData = {
         name,
@@ -42,13 +49,52 @@ export const addProductService = async (req) => {
         state,
         seller: req.user._id,
         images,
+        isRental: isRental1,
         invoice: invoicePath,
         soldTo: null,
     };
-    console.log("product data: ",productData);
+    console.log("product data: ", productData);
     const newProduct = await createProduct(productData);
     return newProduct;
 };
+
+export const deleteProductService = async (sellerId, productId) => {
+    try {
+        const product = await getProductById(productId);
+        if (!product) {
+            return {
+                success: false,
+                status: 404,
+                message: "Product not found"
+            };
+        }
+
+        if (product.seller.toString() !== sellerId.toString()) {
+            return {
+                success: false,
+                status: 403,
+                message: "Unauthorized: You can delete only your own products"
+            };
+        }
+
+        await deleteProductDao(productId);
+
+        return {
+            success: true,
+            status: 200,
+            message: "Product deleted successfully"
+        };
+
+    } catch (error) {
+        console.error("Delete Product Service Error:", error);
+        return {
+            success: false,
+            status: 500,
+            message: error.message || "Internal server error"
+        };
+    }
+};
+
 
 export const updateSellerProfileService = async (sellerId, updateData, file) => {
     const allowedFields = ["username", "contact"];
@@ -92,13 +138,13 @@ export const updateSellerProfileService = async (sellerId, updateData, file) => 
 
 export const updateSellerSubscriptionService = async (sellerId, subscription) => {
     const seller = await getSellerById(sellerId);
-    if(seller.subscription>=subscription){
+    if (seller.subscription >= subscription) {
         return {
             success: false,
             message: "Seller already have better or Equal plan than the choosen one",
         };
     }
-    seller.subscription=subscription;
+    seller.subscription = subscription;
     await seller.save();
     // const response = await updateSellerSubscriptionDao(sellerId,subscription);
     return {
@@ -161,10 +207,35 @@ export const updateSellerPasswordService = async (oldPassword, newPassword, user
     };
 };
 
-export const sellerProdRetriveService=async (id)=> {
+export const sellerProdRetriveService = async (id) => {
     return await findProductsForSeller(id);
 }
 
-export const sellerSubsRetService =async (userId)=> {
+export const sellerSubsRetService = async (userId) => {
     return await findSellerSubsDao(userId);
 }
+
+export const makeAvailableService = async (sellerId, productId) => {
+    try {
+        const result = await makeAvailableDao(sellerId, productId);
+
+        if (!result.success) {
+            return {
+                success: false,
+                message: result.message || "Could not make product available again"
+            };
+        }
+
+        return {
+            success: true,
+            message: "Product marked as available again",
+            product: result.product
+        };
+    } catch (error) {
+        console.error("Error in makeAvailableService:", error);
+        return {
+            success: false,
+            message: "Internal server error while updating availability"
+        };
+    }
+};

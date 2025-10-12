@@ -13,6 +13,7 @@ import {
     updateBuyerPassword,
     getWishlistProducts,
     getYourProducts,
+    rentProduct
 } from "../controllers/buyer.controller.js";
 
 export const router = express.Router();
@@ -22,6 +23,7 @@ router.use(serializeUser);
 router.use(authorize("buyer"));
 
 router.post("/request/:productId",requestProduct);
+router.post("/rent/:productId",rentProduct);
 
 
 router.put("/wishlist/add/:productId", addToWishlist);
