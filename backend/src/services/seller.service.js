@@ -53,13 +53,14 @@ export const addProductService = async (req) => {
         invoice: invoicePath,
         soldTo: null,
     };
-    console.log("product data: ", productData);
+    // console.log("product data: ", productData);
     const newProduct = await createProduct(productData);
     return newProduct;
 };
 
 export const deleteProductService = async (sellerId, productId) => {
     try {
+        // console.log("Ali told");
         const product = await getProductById(productId);
         if (!product) {
             return {
@@ -68,8 +69,10 @@ export const deleteProductService = async (sellerId, productId) => {
                 message: "Product not found"
             };
         }
+        // console.log(" this "+sellerId.toString()+" , "+product.seller.toString());
+        
 
-        if (product.seller.toString() !== sellerId.toString()) {
+        if (product.seller._id.toString() !== sellerId.toString()) {
             return {
                 success: false,
                 status: 403,
@@ -221,12 +224,14 @@ export const makeAvailableService = async (sellerId, productId) => {
 
         if (!result.success) {
             return {
+                status: 400,
                 success: false,
                 message: result.message || "Could not make product available again"
             };
         }
 
         return {
+            status: 200,
             success: true,
             message: "Product marked as available again",
             product: result.product

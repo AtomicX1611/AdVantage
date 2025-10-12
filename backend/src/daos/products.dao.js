@@ -73,8 +73,8 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
         product.requests = product.requests.filter(
             req => req.buyer.toString() !== buyerId.toString()
         );
-    }else{
-        product.requests=[];
+    } else {
+        product.requests = [];
     }
     await product.save();
 
@@ -205,6 +205,17 @@ export const rentDao = async (buyerId, productId, from, to) => {
                 message: "Already taken",
                 status: 400
             }
+        }
+        const alreadyRequested = prod.requests.some(
+            (req) => req.buyer.toString() === buyerId.toString()
+        );
+
+        if (alreadyRequested) {
+            return {
+                success: false,
+                message: "You have already requested this product",
+                status: 400,
+            };
         }
         prod.requests.push({
             buyer: buyerId,

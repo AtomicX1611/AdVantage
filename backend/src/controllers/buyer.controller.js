@@ -208,7 +208,7 @@ export const getYourProducts = async (req, res) => {
     }
 }
 
-export const rentProduct = async (req, res) => {
+export const rentProductController = async (req, res) => {
     const buyerId = req.user._id;
     const productId = req.params.productId;
     const { from, to } = req.body;

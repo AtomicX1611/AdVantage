@@ -18,7 +18,7 @@ export const getFeaturedFreshProductsService = async () => {
 
 export const getProductDetailsService = async (productId) => {
     const product = await getProductById(productId);
-    console.log(product);
+    // console.log(product);
     if(!product){
         return {
             success: false,

@@ -17,6 +17,13 @@ export const fetchContacts = async (_id) => {
         const buyer = await Buyers.findById(_id);
         let seller;
         
+        if (!user) {
+            return {
+                success: false,
+                message: "No Chats or Contacts found"
+            }
+        }
+        
         // To retrive userName
         if (!buyer) {
             seller = await Sellers.findById(_id);
@@ -28,12 +35,7 @@ export const fetchContacts = async (_id) => {
             contacts=await Sellers.find({_id: { $in: user.contacts }}) // To get Complete document of contacts
         }
 
-        if (!user) {
-            return {
-                success: false,
-                message: "No Chats or Contacts found"
-            }
-        }
+        
         return {
             success: true,
             contacts: contacts,

@@ -33,7 +33,7 @@
     <h2>Rent Requested Ads</h2>
     <div class="card_container">
       <% for (let i=0; i < products.length; i++) {%>
-        <% if(products[i].requests.length !=0 && products[i].isRental){ %>
+        <% if(products[i].requests.length !=0 && products[i].isRental && !products[i].soldTo){ %>
           <a href="/search/product/<%= products[i]._id %>">
             <div class="card">
               <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name
