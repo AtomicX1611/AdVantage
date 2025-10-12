@@ -26,7 +26,7 @@
                     </div>
                     <img class="big_card" src="http://localhost:3000/<%= product.images[0] %>" alt="bigImage">
                   </div>
-                  <% if(isLogged){ %>  
+                  <% if(isLogged){ %>
                     <!-- isLogged: loggedIn+role = buyer so showing add to whishlist-->
                     <div class="wishlist_button_container">
                       <button id="addToWishlist" class="btn" data-id="<%= product._id %>">Add to Wishlist</button>
@@ -58,7 +58,7 @@
                         <h4 id="verified">✅ Verified Product</h4>
                         <% } %>
                           <div class="options">
-                            <% if(isLogged){ %>  
+                            <% if(isLogged){ %>
                               <!-- isLogged : isLoggged+role = buyer -->
                               <a href="/buyer/chats/contact/<%= sellerId %>">
                                 <div class="chatWs btn" id="chat-btn">
@@ -79,15 +79,15 @@
                                         Rent now
                                       </div>
                                       <% } %>
-                                      <!-- To be done form validation make submit work -->
-                                          <div style="display: none;background-color: white;" id="rentRequestForm">
-                                            <button style="background-color: red;" id="xBtn">X</button>
-                                            <label for="fromDate">From : </label>
-                                            <input type="date" placeholder="From" name="fromDate" id="fromDate">
-                                            <label for="toF=Date">To : </label>
-                                            <input type="date" name="toDate" id="toDate" placeholder="To">
-                                            <button id="submitBtnRent">Submit</button>
-                                          </div>
+                                        <!-- To be done form validation make submit work -->
+                                        <div style="display: none;background-color: white;" id="rentRequestForm">
+                                          <button style="background-color: red;" id="xBtn">X</button>
+                                          <label for="fromDate">From : </label>
+                                          <input type="date" placeholder="From" name="fromDate" id="fromDate">
+                                          <label for="toF=Date">To : </label>
+                                          <input type="date" name="toDate" id="toDate" placeholder="To">
+                                          <button id="submitBtnRent">Submit</button>
+                                        </div>
                           </div>
                           <div class="description">
                             <h2 class="item_desc">Description</h2>
@@ -98,9 +98,10 @@
                               <button id="verifyButton" data-id="<%= product._id %>">Verify</button>
                               <% } %>
                                 <% if(product.soldTo && product.isRental && decoded._id===sellerId){ %>
-                                    <button onclick="handleMakeAvailable(<%= product._id %>)">Make Available</button>
+                                  <button onclick="handleMakeAvailable(&quot;<%= product._id %>&quot;)">Make
+                                    Available</button>
                                   <% } %>
-                                    <% if(sold1) { %>
+                                    <% if(sold1 && !product.soldTo) { %>
                                       <a href="/seller/requestsPage/<%= product._id %>">
                                         <div id="sold">
                                           View Requests
@@ -114,6 +115,7 @@
               </div>
   </div>
   <script>
+    let ppid = "<%= product._id %>";
     function showNotification(message) {
       const notification = document.getElementById("notification");
       const notifMessage = document.getElementById("notif-message");
@@ -149,6 +151,55 @@
     xBtn?.addEventListener('click', (e) => {
       // console.log("hii"+rentRequestForm.style.display);
       rentRequestForm.style.display = "none";
+    });
+
+    submitBtnRent.addEventListener("click", async (e) => {
+
+      const fromDate = document.getElementById("fromDate").value;
+      const toDate = document.getElementById("toDate").value;
+
+      if (!fromDate || !toDate) {
+        alert("Please select both From and To dates.");
+        return;
+      }
+
+      if (fromDate >= toDate) {
+        alert("The 'From' date must be earlier than the 'To' date.");
+        return;
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (new Date(fromDate) < today) {
+        alert("The 'From' date cannot be in the past.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3000/buyer/rent/${ppid}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            from: fromDate,
+            to: toDate,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to send rent request");
+        }
+
+        alert("Rent request submitted successfully!");
+        console.log("Server response:", data);
+      } catch (error) {
+        console.error("Error submitting rent request:", error);
+        alert(`Error: ${error.message}`);
+      }
     });
 
     const card_container = document.querySelector('.card_list');
@@ -206,67 +257,29 @@
         headers: {
           "Content-Type": "application/json"
         },
-
+        credentials: "include",
       });
-      window.location.href = response.url;
+      console.log(await response.json());
+      window.location.href = "/seller";
     });
 
-    // accpetBtn.addEventListener("click",async()=> {
-    //   let response=await fetch('http://localhost:3000/seller/acceptRequest/${prodId}/${userId}',{
-    //     method:'DELETE',
-    //     headers:{
-    //       "content-type":"application/json"
-    //     },
-    //     credentials:"include"
-    //   });
-
-    //   let data=await response.json();
-    //   if(data.success) {
-    //     alert("Request accepted successfully");
-    //     return ;
-    //   }
-    //   else {
-    //     alert("Request  accepted failed");
-    //   }
-    // });
-
-    // rejectBtn.addEventListener("click",async()=> {
-    //   let response=await fetch('http"//localhost:3000/seller/rejectRequest/${prodId}/${userId}',{
-    //     method:'DELETE',
-    //     headers:{
-    //       "content-type":"application/json"
-    //     },
-    //     credentials:"include"
-    //   });
-
-    //   let data=await response.json();
-    //   if(data.success) {
-    //     alert("Rejected successfully");
-    //     return ;
-    //   }
-    //   else {
-    //     alert("Reject failed");
-    //     return ;
-    //   }
-    // });
-
     async function handleMakeAvailable(productId) {
-        // Complete fetch request and redirect
-        let request=await fetch(`http://localhost:3000/seller/makeAvailable/${productId}`,{
-          method:'POST',
-          headers: {
-            "content-type":"application/json"
-          },
-          credentials:"include",
-    
-        });
-        let response=await request.json();
-        if(response.success) {
-          return window.location.href=`/search/product/${productId}`
-        }
-        else {
-          alert(response.message);
-        }
+      let request = await fetch(`http://localhost:3000/seller/makeAvailable/${productId}`, {
+        method: 'POST',
+        headers: {
+          "content-type": "application/json"
+        },
+        credentials: "include",
+
+      });
+      let response = await request.json();
+      console.log(response);
+      if (response.success) {
+        window.location.href = `/search/product/${productId}`;
+      }
+      else {
+        alert(response.message);
+      }
     }
   </script>
 </body>
