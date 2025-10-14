@@ -153,7 +153,7 @@ export const acceptRequest = async (req, res) => {
 
 export const rejectRequest = async (req, res) => {
     try {
-        console.log("int reject Request");
+        // console.log("int reject Request");
         const { productId, buyerId } = req.params;
 
         const response = await rejectProductRequestService(productId, buyerId);
@@ -191,7 +191,7 @@ export const updateSellerPassword = async (req, res) => {
         }
 
         const response = await updateSellerPasswordService(oldPassword, newPassword, userId);
-        console.log(response);
+        // console.log(response);
         if (!response.success) {
             return res.status(response.status).json({
                 success: false,
@@ -261,13 +261,18 @@ export const findSellerSubscription = async (req, res) => {
 
 export const makeAvailableController = async (req, res) => {
     try {
+        // console.log("Ali is the webdev topper");
+
         const sellerId = req.user._id;
         const productId = req.params.productId;
-        
-        let response=await makeAvailableService(sellerId,productId);
-        return res.status(response.status).json({message:response.message});
-        
+
+        let response = await makeAvailableService(sellerId, productId);
+        return res.status(response.status).json({
+            message: response.message,
+            success:response.success,
+        });
     } catch (error) {
-        return res.status(500).json({message:"Internal server error"});
+        console.log(error);
+        return res.status(500).json({ message: "Internal server error" });
     }
 }

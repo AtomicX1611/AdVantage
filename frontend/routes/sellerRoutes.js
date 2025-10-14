@@ -95,18 +95,16 @@ sellerRouter.get('/remove/:sellerEmail', requireRole("admin"), async (req, res) 
   res.redirect('/admin');
 });
 
-sellerRouter.post('/deleteProduct', requireRole("seller"), async (req, res) => {
-
-  const product = await findProduct(req.body.pid);
-  // console.log("HIII :"+product.description);
-  // console.log(req.user);
-  if (product.seller.email === req.user.email) {
-    // console.log("hii");
-    await removeProduct(req.body.pid);
-    res.redirect('/seller');
-  } else {
-    res.redirect('/');
-  }
+sellerRouter.get('/deleteProduct/:productId', sellerMiddleware, async (req, res) => {
+  const { productId } = req.params; 
+   let request = await fetch(`http://localhost:3000/seller/deleteProduct/${productId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        "Content-Type": "application/json",
+        cookie: req.headers.cookie || "",
+      },
+    })
 });
 
 // Password update routes 

@@ -30,15 +30,12 @@
             box.innerHTML = "";
 
             data.forEach(item => {
-                // Main request container
                 const requestDiv = document.createElement("div");
                 requestDiv.className = "request";
 
-                // "From user" text
                 const fromDiv = document.createElement("div");
                 fromDiv.textContent = `From ${item.from}`;
 
-                // If rental info is available, show rental period
                 if (item.from1 && item.to1) {
                     const rentalPeriod = document.createElement("div");
                     rentalPeriod.className = "rental-period";
@@ -46,19 +43,15 @@
                     requestDiv.appendChild(rentalPeriod);
                 }
 
-                // Actions div
                 const actionsDiv = document.createElement("div");
                 actionsDiv.className = "actions";
 
-                // Accept button
                 const acceptBtn = document.createElement("button");
                 acceptBtn.textContent = "Accept";
 
-                // Reject button
                 const rejectBtn = document.createElement("button");
                 rejectBtn.textContent = "Reject";
 
-                // Event listeners
                 acceptBtn.addEventListener("click", async () => {
                     let response = await fetch(`http://localhost:3000/seller/acceptRequest/${productId}/${item.userId}`, {
                         method: 'DELETE',
@@ -91,15 +84,12 @@
                     }
                 });
 
-                // Append buttons
                 actionsDiv.appendChild(acceptBtn);
                 actionsDiv.appendChild(rejectBtn);
 
-                // Append content
                 requestDiv.appendChild(fromDiv);
                 requestDiv.appendChild(actionsDiv);
 
-                // Append to box
                 box.appendChild(requestDiv);
             });
         }

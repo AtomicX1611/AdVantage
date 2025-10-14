@@ -19,8 +19,8 @@ export const managerLogin = async (req,res) => {
     }
     console.log('Manager login in backend success,cookie : ',setCookie);
     
-    // res.status(response.status).json(data);
-    res.render("ManagerDashboard");
+    res.status(response.status).json(data);
+    
 
     } catch (error) {
     console.log(error);
@@ -70,7 +70,8 @@ export const getuUnVerifiedProducts = async (req,res) => {
     
      const data = await response.json()
       console.log('got data ',data);
-     const {products} = data
+     const {products} = data;
+     console.log(products);
      res.render("ManagerDashboard", { products });
   } catch (error) {
     res.status(500).json({

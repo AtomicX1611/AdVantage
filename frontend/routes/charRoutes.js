@@ -31,7 +31,7 @@ chatRoutes.get("/buyerInbox", buyerMiddleWare, async (req, res) => {
     if(!response.success) {
         return res.send(response.message);
     }
-    // console.log("response contacts: ",response.contacts);
+    console.log("response contacts: ",response);
     res.render("buyerChat.ejs", { isLogged: true, senders: response.contacts, myAccount: userId, myUsername: response.userName });
 });
 

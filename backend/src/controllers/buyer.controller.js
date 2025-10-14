@@ -160,6 +160,7 @@ export const requestProduct = async (req, res) => {
 
 export const updateBuyerPassword = async (req, res) => {
     try {
+        // console.log("coming to buyerPassword");
         const { oldPassword, newPassword } = req.body;
         const userId = req.user._id;
         if (!oldPassword || !newPassword) {
@@ -208,7 +209,7 @@ export const getYourProducts = async (req, res) => {
     }
 }
 
-export const rentProduct = async (req, res) => {
+export const rentProductController = async (req, res) => {
     const buyerId = req.user._id;
     const productId = req.params.productId;
     const { from, to } = req.body;

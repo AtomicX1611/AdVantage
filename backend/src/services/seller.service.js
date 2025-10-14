@@ -5,6 +5,8 @@ import {
     acceptProductRequestDao,
     rejectProductRequestDao,
     makeAvailableDao,
+    findProducts,
+    countProductsDao,
 } from "../daos/products.dao.js";
 import {
     getSellerById,
@@ -12,10 +14,26 @@ import {
     updateSellerPassById,
     // updateSellerSubscriptionDao
     findProductsForSeller,
-    findSellerSubsDao
+    findSellerSubsDao,
 } from "../daos/sellers.dao.js";
 
 export const addProductService = async (req) => {
+
+    async function isAllowed(sellerId) {
+        const arr=[15,50,100];
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        const filters={
+            seller:sellerId,
+            postingDate: { $gte: oneMonthAgo },
+        }
+        const count=await countProductsDao(filters);
+        const subscription=(await findSellerSubsDao(sellerId)).subscription;
+        console.log("subscription : "+subscription+" count : "+count);
+        return (count<arr[subscription]);
+    }
+
+
     const {
         name,
         price,
@@ -29,6 +47,10 @@ export const addProductService = async (req) => {
     } = req.body;
     // console.log(req.body);
 
+    const allowed = await isAllowed(req.user._id);
+    if(!allowed){
+        throw new Error("You exceeded your plan's limit per month");
+    }
     if (!req.files?.productImages || req.files.productImages.length === 0) {
         throw new Error("At least one product image is required");
     }
@@ -53,13 +75,14 @@ export const addProductService = async (req) => {
         invoice: invoicePath,
         soldTo: null,
     };
-    console.log("product data: ", productData);
+    // console.log("product data: ", productData);
     const newProduct = await createProduct(productData);
     return newProduct;
 };
 
 export const deleteProductService = async (sellerId, productId) => {
     try {
+        // console.log("Ali told");
         const product = await getProductById(productId);
         if (!product) {
             return {
@@ -68,8 +91,10 @@ export const deleteProductService = async (sellerId, productId) => {
                 message: "Product not found"
             };
         }
+        // console.log(" this "+sellerId.toString()+" , "+product.seller.toString());
 
-        if (product.seller.toString() !== sellerId.toString()) {
+
+        if (product.seller._id.toString() !== sellerId.toString()) {
             return {
                 success: false,
                 status: 403,
@@ -221,12 +246,14 @@ export const makeAvailableService = async (sellerId, productId) => {
 
         if (!result.success) {
             return {
+                status: 400,
                 success: false,
                 message: result.message || "Could not make product available again"
             };
         }
 
         return {
+            status: 200,
             success: true,
             message: "Product marked as available again",
             product: result.product

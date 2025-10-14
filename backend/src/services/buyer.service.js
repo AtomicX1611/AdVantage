@@ -120,6 +120,7 @@ export const requestProductService = async (productId, buyerId) => {
 
 export const updateBuyerPasswordService = async (oldPassword, newPassword, userId) => {
     const buyer = await getBuyerById(userId);
+    console.log(buyer);
     if (!buyer) {
         return {
             success: false,

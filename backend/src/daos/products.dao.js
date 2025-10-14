@@ -73,8 +73,8 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
         product.requests = product.requests.filter(
             req => req.buyer.toString() !== buyerId.toString()
         );
-    }else{
-        product.requests=[];
+    } else {
+        product.requests = [];
     }
     await product.save();
 
@@ -154,7 +154,7 @@ export const getYourProductsDao = async (buyerId) => {
 
 
 export const getFreshProductsDao = async () => {
-    const products = await Products.find()
+    const products = await Products.find({ soldTo: null })
         .sort({ postingDate: -1 })
         .limit(20)
         .populate("seller", "username subscription");
@@ -164,6 +164,9 @@ export const getFreshProductsDao = async () => {
 
 export const getFeaturedProductsDao = async () => {
     const products = await Products.aggregate([
+        {
+            $match: { soldTo: null }
+        },
         {
             $lookup: {
                 from: "Sellers",
@@ -189,6 +192,11 @@ export const findProducts = async (filters) => {
     return await Products.find(filters).lean();
 };
 
+export const countProductsDao = async (filters) => {
+    const count = await Products.countDocuments(filters);
+    return count;
+};
+
 export const rentDao = async (buyerId, productId, from, to) => {
     try {
         let prod = await Products.findById(productId);
@@ -205,6 +213,17 @@ export const rentDao = async (buyerId, productId, from, to) => {
                 message: "Already taken",
                 status: 400
             }
+        }
+        const alreadyRequested = prod.requests.some(
+            (req) => req.buyer.toString() === buyerId.toString()
+        );
+
+        if (alreadyRequested) {
+            return {
+                success: false,
+                message: "You have already requested this product",
+                status: 400,
+            };
         }
         prod.requests.push({
             buyer: buyerId,

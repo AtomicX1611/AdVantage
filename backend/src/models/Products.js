@@ -106,3 +106,5 @@ productsSchema.index({ name: "text" });
 
 
 export default mongoose.model("Products", productsSchema);
+
+//hook need to be written
