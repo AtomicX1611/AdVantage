@@ -192,6 +192,11 @@ export const findProducts = async (filters) => {
     return await Products.find(filters).lean();
 };
 
+export const countProductsDao = async (filters) => {
+    const count = await Products.countDocuments(filters);
+    return count;
+};
+
 export const rentDao = async (buyerId, productId, from, to) => {
     try {
         let prod = await Products.findById(productId);

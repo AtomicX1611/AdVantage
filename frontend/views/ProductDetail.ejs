@@ -94,7 +94,7 @@
                             <h3 class="item_title">
                               <%= product.description %>
                             </h3>
-                            <% if(manager) { %>
+                            <% if(manager && !product.verified) { %>
                               <button id="verifyButton" data-id="<%= product._id %>">Verify</button>
                               <% } %>
                                 <% if(product.soldTo && product.isRental && decoded._id===sellerId){ %>
@@ -244,6 +244,12 @@
       try {
         const data = await response.json();
         console.log("data: ", data);
+        if(response.ok){
+          alert("verified successfully");
+          window.location.reload();
+        }else{
+          alert(data.message);
+        }
       } catch (err) {
         window.location.href = response.url;
       }
@@ -260,6 +266,7 @@
         credentials: "include",
       });
       console.log(await response.json());
+      alert("Product deleted successfully");
       window.location.href = "/seller";
     });
 
@@ -275,6 +282,7 @@
       let response = await request.json();
       console.log(response);
       if (response.success) {
+        alert("product made available successfully successfully");
         window.location.href = `/search/product/${productId}`;
       }
       else {
