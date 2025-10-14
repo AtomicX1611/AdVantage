@@ -210,21 +210,16 @@
             body: JSON.stringify({ username: username, contact: contact, email: email, password: pwd, cnfpwd: cnfpwd })
         });
 
+        console.log("response.status: ",response.status);
         let result = await response.json();
         console.log(result);
 
-        if (response.status === 400) {
-            idExist.style.display = "flex";
-            return;
+        if(!response.ok) {
+            alert(result.message);
+            return ;
         }
-
-        if (response.status === 401) {
-            misMatchErr.style.display = "flex";
-            return;
-        }
-
-        if (response.status === 200) {
-            window.location.href = "/";
+        else {
+            window.location.href="/"
         }
 
     });
@@ -297,7 +292,7 @@
                 window.location.href = "/";
                 incErr.style.display = "none";
             } else {
-                console.log("Login Failed:", result.error);
+                console.log("Login Failed:", (result.error || result.message));
                 incErr.style.display = "flex";
             }
         } catch (error) {

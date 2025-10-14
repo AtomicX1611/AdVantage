@@ -191,7 +191,6 @@ export const fetchContacts = async (_id) => {
 
 export const createContactDao = async (userId, otherId) => {
     try {
-        // ✅ Step 1: Validate userId
         let userDoc = await Buyers.findById(userId);
         if (!userDoc) {
             userDoc = await Sellers.findById(userId);
@@ -203,7 +202,6 @@ export const createContactDao = async (userId, otherId) => {
             }
         }
 
-        // ✅ Step 2: Validate otherId
         let otherDoc = await Buyers.findById(otherId);
         if (!otherDoc) {
             otherDoc = await Sellers.findById(otherId);
@@ -215,10 +213,8 @@ export const createContactDao = async (userId, otherId) => {
             }
         }
 
-        // ✅ Step 3: Find contact list for userId
         let userContacts = await Contacts.findOne({ user: userId });
 
-        // ✅ Step 4: If no contacts, create both sides
         if (!userContacts) {
             const chatId = generateChatId(userId, otherId);
 
@@ -240,13 +236,11 @@ export const createContactDao = async (userId, otherId) => {
             };
         }
 
-        // ✅ Step 5: If contact list exists, check if already present
         const alreadyExists = userContacts.contacts.some(
             id => id.toString() === otherId.toString()
         );
 
         if (!alreadyExists) {
-            // ✅ Add otherId to userId's contacts
             userContacts.contacts.push(otherId);
             await userContacts.save();
         } else {
@@ -256,18 +250,15 @@ export const createContactDao = async (userId, otherId) => {
             };
         }
 
-        // ✅ Step 6: Also update otherId's contact list
         let otherContacts = await Contacts.findOne({ user: otherId });
 
         if (!otherContacts) {
-            // ✅ Create reverse contact list if it doesn't exist
             await Contacts.create({
                 user: otherId,
                 contacts: [userId],
                 chatId: userContacts.chatId // use same chatId
             });
         } else {
-            // ✅ Add userId if not already present
             const existsReverse = otherContacts.contacts.some(
                 id => id.toString() === userId.toString()
             );
