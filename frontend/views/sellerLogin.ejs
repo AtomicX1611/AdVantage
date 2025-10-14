@@ -192,6 +192,7 @@
             alert("Passwords do not match.");
             return;
         }
+
         let response = await fetch("/auth/sellerSignup", {
             method: 'POST',
             headers: {
@@ -202,8 +203,13 @@
 
         let result = await response.json();
         console.log(result);
+        console.log("response.status: ",response.status);
 
-        if (response.status === 400) {
+        if(result.success) {
+            window.location.href = "/seller"
+        }
+
+        if (response.status === 409) {
             idExist.style.display = "flex";
             return;
         }
@@ -213,7 +219,7 @@
             return;
         }
 
-        if (response.status === 200) {
+        if (response.status === 201) {
             window.location.href = "/seller/";
         }
 
