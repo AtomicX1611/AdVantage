@@ -18,6 +18,8 @@ import { featuredProducts } from "../models/MongoUser.js";
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
 import { buyerMiddleWare } from "../middleware/roleMiddleware.js";
+import { url } from "inspector";
+import { error } from "console";
 
 export const verifyJwt = promisify(jwt.verify);
 
@@ -61,7 +63,7 @@ buyerRoutes.get("/home", async (req, res) => {
 buyerRoutes.get("/profile", buyerMiddleWare, async (req, res) => {
   let isLogged = false;
   console.log("Calling profile");
-  
+
   try {
     // console.log(req.cookies);
     if (req.cookies.token) {
@@ -123,7 +125,7 @@ buyerRoutes.post("/wishlist/add", async (req, res) => {
 });
 
 
-buyerRoutes.get("/wishlist", async (req, res) => {
+buyerRoutes.get("/wishlist", buyerMiddleWare, async (req, res) => {
   // console.log("hii");
   let isLogged = false;
   try {
@@ -146,11 +148,27 @@ buyerRoutes.get("/wishlist", async (req, res) => {
   });
 
   const data = await backendRes.json();
-  // console.log(data);
-  res.render("wishlist", {
-    products: data.products,
-    isLogged: isLogged,
-  });
+
+  if (data.success && data.products.length == 0) {
+    return res.render("ErrorPage.ejs", {
+      account: "buyer",
+      error: "You haven't added anything to wishlist yet",
+      url: '/',
+      isLogged:true
+    })
+  }
+  if (data.success) {
+    return res.render("wishlist", {
+      products: data.products,
+      isLogged: isLogged,
+    });
+  }
+  return res.render("ErrorPage.ejs",{
+    isLogged:true,
+    account:"buyer",
+    error:data.message || data.error || "Unknown error occured",
+    url:'/'
+  })
 });
 
 buyerRoutes.get("/wishlist/remove/:productId", async (req, res) => {
@@ -264,9 +282,9 @@ buyerRoutes.get("/buy/:productId", buyerMiddleWare, async (req, res) => {
     });
 
     const data = await backendRes.json();
-    console.log("data: ",data);
+    console.log("data: ", data);
     if (!backendRes.ok) {
-      if(backendRes.status==403){
+      if (backendRes.status == 403) {
         return res.redirect("/auth/buyer");
       }
       return res.status(backendRes.status).json(data);
@@ -301,7 +319,9 @@ buyerRoutes.get("/yourProducts", async (req, res) => {
         error: data.message || "Failed to load your products",
       });
     }
-
+    if (backendRes.ok && data.products != null && data.products.length == 0) {
+      return res.render("ErrorPage.ejs", { account: "buyer", error: "You haven't purchased anything yet", url: "/", isLogged: true });
+    }
     res.render("yourproducts.ejs", {
       isLogged: !!req.cookies?.token,
       userProducts: data.products || [],

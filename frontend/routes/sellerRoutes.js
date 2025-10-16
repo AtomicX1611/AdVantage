@@ -41,8 +41,8 @@ sellerRouter.get("/", sellerMiddleware, async (req, res) => {
 
   });
   let data = await request.json();
-  console.log("data: ",data);
-  res.render("SellerDashBoard.ejs", { products:data.products,message:0 });
+  console.log("data: ", data);
+  res.render("SellerDashBoard.ejs", { products: data.products, message: 0 });
 });
 
 export default sellerRouter;
@@ -80,9 +80,9 @@ export default sellerRouter;
 
 // const upload = multer({ storage });
 
-sellerRouter.get('/requestsPage/:productId',sellerMiddleware,(req,res)=> {
-  const { productId }=req.params;
-  res.render('viewRequests.ejs',{productId});
+sellerRouter.get('/requestsPage/:productId', sellerMiddleware, (req, res) => {
+  const { productId } = req.params;
+  res.render('viewRequests.ejs', { productId });
 })
 
 sellerRouter.get('/addProductForm', sellerMiddleware, (req, res) => {
@@ -96,15 +96,15 @@ sellerRouter.get('/remove/:sellerEmail', requireRole("admin"), async (req, res) 
 });
 
 sellerRouter.get('/deleteProduct/:productId', sellerMiddleware, async (req, res) => {
-  const { productId } = req.params; 
-   let request = await fetch(`http://localhost:3000/seller/deleteProduct/${productId}`, {
-      method: 'DELETE',
-      credentials: 'include',
-      headers: {
-        "Content-Type": "application/json",
-        cookie: req.headers.cookie || "",
-      },
-    })
+  const { productId } = req.params;
+  let request = await fetch(`http://localhost:3000/seller/deleteProduct/${productId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json",
+      cookie: req.headers.cookie || "",
+    },
+  })
 });
 
 // Password update routes 
@@ -112,7 +112,7 @@ sellerRouter.get('/updatePassword', (req, res) => {
   res.render('sellerUpdatePassword');
 });
 sellerRouter.post('/updatePassword', async (req, res) => {
-  const {newPassword,confirmNewPassword,oldPassword} = req.body;
+  const { newPassword, confirmNewPassword, oldPassword } = req.body;
   if (req.body.newPassword !== req.body.confirmNewPassword) {
     res.status(401).json({
       success: false,
@@ -127,12 +127,12 @@ sellerRouter.post('/updatePassword', async (req, res) => {
         "Content-Type": "application/json",
         cookie: req.headers.cookie || "",
       },
-      body:JSON.stringify({
-        newPassword:newPassword,
-        oldPassword:oldPassword
+      body: JSON.stringify({
+        newPassword: newPassword,
+        oldPassword: oldPassword
       })
     })
-    
+
     let response = await request.json();
     return res.status(request.status).json(response);
   }
@@ -175,11 +175,27 @@ sellerRouter.get("/subscriptions", sellerMiddleware, async (req, res) => {
 
 //payment page render routes
 sellerRouter.get("/subscription/vip", sellerMiddleware, (req, res) => {
-  res.render("paymentPage.ejs", { mail: req.user.email, type: "VIP", Price: "100 Rs", duration: "1 Month" });
+  const date = new Date();
+  date.setMonth(date.getMonth() + 1);
+
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+
+  const validTill = `${dd}-${mm}-${yyyy}`;
+  res.render("paymentPage.ejs", { mail: req.user.email, type: "VIP", Price: "100 Rs", duration: "1 Month", validTill: validTill });
 })
 
 sellerRouter.get("/subscription/premium", sellerMiddleware, (req, res) => {
-  res.render("paymentPage.ejs", { mail: req.user.email, type: "Premium", Price: "1299 Rs", duration: "1 Year" });
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1);   // add 1 year
+
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-based
+  const yyyy = date.getFullYear();
+
+  const validTill = `${dd}-${mm}-${yyyy}`;
+  res.render("paymentPage.ejs", { mail: req.user.email, type: "Premium", Price: "1299 Rs", duration: "1 Year",validTill:validTill });
 });
 
 // payment route

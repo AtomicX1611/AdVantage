@@ -157,7 +157,7 @@ export const adminLogin = async (req, res) => {
     
     res.status(response.status).json(data);
   } catch (error) {
-    console.log(error);
+    console.log("error in adminLogin: ",error);
     res.status(500).json({
       success: false,
       message: error.message || "Something went wrong in frontend proxy (adminLogin)",

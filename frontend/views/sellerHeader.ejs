@@ -64,14 +64,12 @@
 <script>
     let logout = document.getElementById("logout");
     logout.addEventListener("click", () => {
-
-        let token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = "/auth/seller"
-        }
         let res = confirm("Do you want to logout ?");
+        console.log("res: ",res);
         if (res) {
             localStorage.removeItem('token');
+            // remove cookie before logout 
+            
             window.location.href("/auth/seller");
         }
     })
