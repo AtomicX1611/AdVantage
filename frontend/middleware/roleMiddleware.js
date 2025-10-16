@@ -109,3 +109,31 @@ export const adminRole = async (req,res,next) => {
   }
   next()
 }
+
+export const softBuyer = async (req,res,next) => {
+  let isLogged = false;
+  try {
+    if (req.cookies.token) {
+      const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
+      isLogged = (decoded.role == "buyer");
+      req.user=decoded; //remember this field
+    }
+  } catch (err) {
+    isLogged = false;
+  }
+  if(isLogged){
+    const response = await fetch(`${process.env.BACKEND_URL}buyer/getYourProfile`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: req.headers.cookie || "",
+      },
+    });
+    const data = await response.json();
+    if(response.ok){
+      req.data=data;
+    }
+  }
+  req.isLogged = isLogged; // remember this field
+  next();
+}

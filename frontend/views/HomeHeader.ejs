@@ -73,8 +73,13 @@
                                 <div class="hover box2-icons notifications alert" id="notification-icon">
                                     <a href="#"><img src="/Assets/notification.png" alt="" height="35px"></i></a>
                                 </div>
+                                <% const profilePic = data?.buyer?.profilePicPath; %>
                                 <div class="hover box2-icons profile">
+                                  <% if(profilePic){ %>
+                                    <a href="/buyer/profile"><img src="<%= backendURL %><%= data.buyer.profilePicPath %>" alt="your profile pic" height="50px" width="50px" style="border-radius: 50%;"></a>
+                                  <% }else{ %>
                                     <a href="/buyer/profile"><i class='bx bxs-user-circle'></i></a>
+                                  <% } %>
                                 </div>
                             </div>
             </div>

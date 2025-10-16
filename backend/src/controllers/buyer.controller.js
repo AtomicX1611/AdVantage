@@ -7,11 +7,12 @@ import {
     getWishlistProductsService,
     getYourProductsService,
     rentService,
+    getYouProfileService,
 } from "../services/buyer.service.js";
 
 export const updateBuyerProfile = async (req, res) => {
     try {
-        const buyerId = req.user._id; // assuming you set buyerId in middleware from JWT
+        const buyerId = req.user._id;
         const updateData = req.body;
 
         if (!buyerId) {
@@ -22,10 +23,12 @@ export const updateBuyerProfile = async (req, res) => {
         }
 
         if (!updateData || Object.keys(updateData).length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: "No update fields provided",
-            });
+            if (req.file === undefined) {
+                return res.status(400).json({
+                    success: false,
+                    message: "No update fields provided",
+                });
+            }
         }
 
         const response = await updateBuyerProfileService(buyerId, updateData, req.file);
@@ -221,4 +224,18 @@ export const rentProductController = async (req, res) => {
     let respose = await rentService(buyerId, productId, from, to);
 
     return res.status(respose.status).json({ success: respose.success, message: respose.message });
+}
+
+export const getYourProfile = async (req, res) => {
+    try {
+        const buyerId = req.user._id;
+        const response = await getYouProfileService(buyerId);
+        return res.status(response.status).json(response);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error"
+        });
+    }
 }

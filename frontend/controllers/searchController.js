@@ -37,6 +37,7 @@ export const getProductsNoFilter = async (req, res) => {
     products: data.products,
     isLogged: isLogged,
     backendURL: process.env.BACKEND_URL,
+    data: req.data,
   });
 }
 
@@ -74,6 +75,7 @@ export const getProductDetails = async (req, res) => {
     seller: isLogged && (decoded.role == "seller"),
     sold1: isLogged && (decoded.role == "seller") && (decoded._id === pro.seller._id) && (pro.requests.length > 0),
     backendURL: process.env.BACKEND_URL,
+    data: req.data,
   });
 };
 
@@ -96,6 +98,7 @@ export const getProductBycategory = async (req, res) => {
     products: data.products,
     isLogged: isLogged,
     backendURL: process.env.BACKEND_URL,
+    data: req.data,
   });
 }
 

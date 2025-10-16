@@ -30,7 +30,7 @@
               <input type="checkbox" id="verifiedCheckbox"><b>Only verified</b>
             </div>
             <div id="rentedwrapper">
-              <input type="checkbox" id="rentedCheckbox"><b>Only Rented</b>
+              <input type="checkbox" id="rentedCheckbox"><b>Only Rental</b>
             </div>
             <!-- <b id="priceRange">category</b>
                         <div id="category">
@@ -102,6 +102,7 @@ const products = <%- JSON.stringify(products) %>;
     const verifiedCheckbox = document.getElementById('verifiedCheckbox');
     apply.addEventListener('click', filterApplier);
     verifiedCheckbox.addEventListener('input',filterApplier);
+    rentedCheckbox.addEventListener('change',filterApplier);
   </script>
 </body>
 

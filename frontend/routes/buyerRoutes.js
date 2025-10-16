@@ -1,5 +1,5 @@
 import express from "express";
-import { requireRole } from "../middleware/roleMiddleware.js";
+import { requireRole, softBuyer } from "../middleware/roleMiddleware.js";
 import { chatRoutes } from "./charRoutes.js";
 // import fetch from "node-fetch";
 import {
@@ -27,56 +27,36 @@ buyerRoutes.use(express.json());
 buyerRoutes.use(express.urlencoded({ extended: true }));
 buyerRoutes.use("/chats", chatRoutes);
 
-buyerRoutes.get("/home", async (req, res) => {
-  let isLogged = false;
-
-  try {
-    if (req.cookies.token) {
-      const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
-      isLogged = (decoded.role == "buyer");
-    }
-  } catch (err) {
-    isLogged = false;
-  }
-
+buyerRoutes.get("/home", softBuyer, async (req, res) => {
   try {
     const apiResponse = await fetch(`${process.env.BACKEND_URL}anyone/HomeRequirements`);
     const response = await apiResponse.json();
 
     res.render("Home.ejs", {
-      isLogged: isLogged,
+      isLogged: req.isLogged,
       freshProducts: response.freshProducts || [],
       featuredProducts: response.featuredProducts || [],
       backendURL: process.env.BACKEND_URL,
+      data: req.data,
     });
   } catch (error) {
     res.render("Home.ejs", {
-      isLogged: isLogged,
+      isLogged: req.isLogged,
       freshProducts: [],
       featuredProducts: [],
       backendURL: process.env.BACKEND_URL,
+      data: req.data,
     });
   }
 });
 
 
-buyerRoutes.get("/profile", buyerMiddleWare, async (req, res) => {
-  let isLogged = false;
-  console.log("Calling profile");
-  
-  try {
-    // console.log(req.cookies);
-    if (req.cookies.token) {
-      const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
-      isLogged = (decoded.role == "buyer");
-    }
-  } catch (err) {
-    // console.log("hhh : ");
-    // console.log(err);
-    isLogged = false;
-  }
-  if (isLogged) res.render("Profile.ejs", { isLogged: true,backendURL: process.env.BACKEND_URL });
-  else res.redirect("/auth/buyer");
+buyerRoutes.get("/profile", softBuyer, buyerMiddleWare, async (req, res) => {
+  res.render("Profile.ejs", {
+    isLogged: true,
+    backendURL: process.env.BACKEND_URL,
+    data: req.data
+  });
 });
 
 // buyerRoutes.get("/chats", (req,res)=>{
@@ -125,20 +105,7 @@ buyerRoutes.post("/wishlist/add", async (req, res) => {
 });
 
 
-buyerRoutes.get("/wishlist", async (req, res) => {
-  // console.log("hii");
-  let isLogged = false;
-  try {
-    if (req.cookies.token) {
-      const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
-      isLogged = (decoded.role == "buyer");
-    }
-  } catch (err) {
-    isLogged = false;
-  }
-  if (isLogged === false) {
-    return res.redirect("/auth/buyer/login");
-  }
+buyerRoutes.get("/wishlist", softBuyer, async (req, res) => {
 
   const backendRes = await fetch(`${process.env.BACKEND_URL}buyer/wishlist`, {
     method: "GET",
@@ -151,8 +118,9 @@ buyerRoutes.get("/wishlist", async (req, res) => {
   // console.log(data);
   res.render("wishlist", {
     products: data.products,
-    isLogged: isLogged,
+    isLogged: req.isLogged,
     backendURL: process.env.BACKEND_URL,
+    data:req.data,
   });
 });
 
@@ -198,23 +166,24 @@ buyerRoutes.get("/wishlist/remove/:productId", async (req, res) => {
 
 buyerRoutes.get("/contact", requireRole("buyer"), (req, res) => {
   res.render("ContactUs.ejs", {
-    isLogged: req.isAuthenticated() && req.user.role == "buyer",backendURL: process.env.BACKEND_URL,
+    isLogged: req.isAuthenticated() && req.user.role == "buyer", backendURL: process.env.BACKEND_URL,
   });
 });
 
-buyerRoutes.get("/updatePassword", async (req, res) => {
-  let isLogged = false;
-  try {
-    if (req.cookies.token) {
-      const decoded = await verifyJwt(req.cookies.token, process.env.JWT_SECRET);
-      isLogged = (decoded.role == "buyer");
-    }
-  } catch (err) {
-    isLogged = false;
-  }
+buyerRoutes.get("/updatePassword", softBuyer, async (req, res) => {
+  console.log(req.data);
   res.render("buyerUpdatePassword", {
-    isLogged: isLogged,
+    isLogged: req.isLogged,
     backendURL: process.env.BACKEND_URL,
+    data:req.data,
+  });
+});
+
+buyerRoutes.get("/updateProfile",softBuyer,async (req,res)=> {
+  res.render("updateBuyerProfile",{
+    isLogged:req.isLogged,
+    backendURL: process.env.BACKEND_URL,
+    data:req.data,
   });
 });
 
@@ -268,9 +237,9 @@ buyerRoutes.get("/buy/:productId", buyerMiddleWare, async (req, res) => {
     });
 
     const data = await backendRes.json();
-    console.log("data: ",data);
+    console.log("data: ", data);
     if (!backendRes.ok) {
-      if(backendRes.status==403){
+      if (backendRes.status == 403) {
         return res.redirect("/auth/buyer");
       }
       return res.status(backendRes.status).json(data);
