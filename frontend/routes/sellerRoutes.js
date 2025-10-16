@@ -112,7 +112,7 @@ sellerRouter.get('/updatePassword', (req, res) => {
   res.render('sellerUpdatePassword',{backendURL: process.env.BACKEND_URL});
 });
 sellerRouter.post('/updatePassword', async (req, res) => {
-  const {newPassword,confirmNewPassword,oldPassword} = req.body;
+  const { newPassword, confirmNewPassword, oldPassword } = req.body;
   if (req.body.newPassword !== req.body.confirmNewPassword) {
     res.status(401).json({
       success: false,
@@ -127,12 +127,12 @@ sellerRouter.post('/updatePassword', async (req, res) => {
         "Content-Type": "application/json",
         cookie: req.headers.cookie || "",
       },
-      body:JSON.stringify({
-        newPassword:newPassword,
-        oldPassword:oldPassword
+      body: JSON.stringify({
+        newPassword: newPassword,
+        oldPassword: oldPassword
       })
     })
-    
+
     let response = await request.json();
     return res.status(request.status).json(response);
   }
@@ -175,12 +175,30 @@ sellerRouter.get("/subscriptions", sellerMiddleware, async (req, res) => {
 
 //payment page render routes
 sellerRouter.get("/subscription/vip", sellerMiddleware, (req, res) => {
-  res.render("paymentPage.ejs", { mail: req.user.email, type: "VIP", Price: "100 Rs", duration: "1 Month",backendURL: process.env.BACKEND_URL });
+  const date = new Date();
+  date.setMonth(date.getMonth() + 1);
+
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+
+  const validTill = `${dd}-${mm}-${yyyy}`;
+  res.render("paymentPage.ejs", { mail: req.user.email, type: "VIP", Price: "100 Rs", duration: "1 Month",backendURL: process.env.BACKEND_URL ,validTill:validTill});
 })
 
 sellerRouter.get("/subscription/premium", sellerMiddleware, (req, res) => {
-  res.render("paymentPage.ejs", { mail: req.user.email, type: "Premium", Price: "1299 Rs", duration: "1 Year",backendURL: process.env.BACKEND_URL });
-});
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1);   // add 1 year
+
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-based
+  const yyyy = date.getFullYear();
+
+  const validTill = `${dd}-${mm}-${yyyy}`;
+
+  res.render("paymentPage.ejs", { mail: req.user.email, type: "Premium", Price: "1299 Rs", duration: "1 Year",backendURL: process.env.BACKEND_URL ,validTill:validTill});
+})
+
 
 // payment route
 sellerRouter.post("/payment", sellerMiddleware, async (req, res) => {

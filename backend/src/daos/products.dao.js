@@ -169,7 +169,7 @@ export const getFeaturedProductsDao = async () => {
         },
         {
             $lookup: {
-                from: "Sellers",
+                from: "sellers",
                 localField: "seller",
                 foreignField: "_id",
                 as: "sellerInfo",

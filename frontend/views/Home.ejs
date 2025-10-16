@@ -91,7 +91,7 @@
           <% let product = featuredProducts[i]; %>
           <a href="/search/product/<%= product._id %>">
             <div class="product_card">
-              <% if(product.Image1Src) { %>
+              <% if(product.images[0]) { %>
                 <img src="<%= backendURL %><%= product.images[0] %>" alt="Product Image" />
               <% } %>
               <div class="productName">

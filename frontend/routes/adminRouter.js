@@ -10,9 +10,9 @@ adminRouter.get("/login", (req, res) => {
 
 // adminRouter.use(adminMiddleWare)
 // adminRouter.use(adminRole)
-adminRouter.get('/', getUsersData)
-adminRouter.get('/graph',getGraphData)
-adminRouter.get('/remove/:id',removeSeller)
+adminRouter.get('/',adminMiddleWare, getUsersData)
+adminRouter.get('/graph',adminMiddleWare,getGraphData)
+adminRouter.get('/remove/:id',adminMiddleWare,removeSeller)
 
 export default adminRouter;
 

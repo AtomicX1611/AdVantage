@@ -42,7 +42,10 @@ export const buyerMiddleWare = (req,res,next) => {
             console.log("JWT verification failed:", err.message);
             return res.redirect("/auth/buyer");
         }
-
+        console.log("decoded: ",decoded);
+        if(decoded.role !== "buyer") {
+          return res.redirect("/auth/buyer");
+        }
         req.user=decoded._id
         next();
     })
@@ -53,10 +56,15 @@ export const adminMiddleWare = (req,res,next) => {
     // if(!req.cookies.token){
     //   return res.redirect('/admin/login')
     // }
-     jwt.verify(req.cookies.token, "XXX", (err,decoded) => {
+     jwt.verify(req.cookies.token,process.env.JWT_SECRET, (err,decoded) => {
         if (err) {
             console.log("JWT verification failed:", err.message);
             return res.redirect("/admin/login");
+        }
+        console.log("decoded: ",decoded);
+        if(decoded.role!="admin") {
+          console.log("redirecting...");
+          return res.redirect("/admin/login");
         }
         req.user=decoded._id
         next();
@@ -68,6 +76,9 @@ export const managerMiddleWare = (req,res,next) => {
         if (err) {
             console.log("JWT verification failed:", err.message);
             return res.redirect("/manager/login");
+        }
+        if(decoded.role!=="manager") {
+          return res.redirect("/manager/login");
         }
         req.user=decoded._id
         next();

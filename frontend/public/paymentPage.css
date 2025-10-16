@@ -1,7 +1,7 @@
 main {
     height: 90vh;
     width: 100vw;
-    background: linear-gradient(65deg, #1E1E1E 20%, #767e87 100%);
+    background: #f6f3ff;
     display: flex;
     justify-content: center;
     gap: 10px;
@@ -12,15 +12,19 @@ main {
 .payment-type {
     height: 70vh;
     width: 400px;
-    background-color: white;
+    background-color: #f8f6ff !important;
+    border: 2px solid white;
+    box-shadow: 0px 0px 30px rgb(75, 75, 75);
+    color: black !important;
     margin-top: 10vh;
 }
 .payment-details {
     height: 260px;
     width: 350px;
-    background-color: #2c2c2c;
+    background-color: #f8f6ff;
     border: 2px solid white;
-    color: white;
+    box-shadow: 0px 0px 20px rgb(75, 75, 75);
+    color: black;
     margin-top: 10vh;
 }
 .head {
@@ -103,7 +107,7 @@ span {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(65deg, #1E1E1E 30%, #767e87 100%);
+     background-color: #242424;
     transition: all 0.3s ease-out;
     color: white;
     font-size: large;
@@ -111,12 +115,12 @@ span {
   }
 
   .payment-btn:hover {
-    background: linear-gradient(65deg, #767e87 30%, #1E1E1E 100%);
+    background-color: #f8f6ff;
+    color: black;
+    border-radius: 5px;
+    border: 2px solid black;
   }
 
   input {
     margin-bottom: 25px;
   }
-
-
-  

@@ -1,0 +1,26 @@
+<link rel="stylesheet" href="/ErrorStyles.css">
+<% if(account=="buyer")  {%>
+  <%- include('HomeHeader.ejs') %>
+  <% } %>
+  
+<% if(account=="seller")  {%>
+  <%- include('sellerHeader.ejs') %>
+  <% } %>
+  
+
+<div id="wrapper">
+    <div id="errorbox">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            style="color:#ff4d4d; margin-bottom:10px;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <circle cx="12" cy="16" r="1"></circle>
+        </svg>
+
+        <h2><%= error %></h2>
+        <a href="<%= url %>">
+            <button id="btn">Back to Home</button>
+        </a>
+    </div>
+</div>

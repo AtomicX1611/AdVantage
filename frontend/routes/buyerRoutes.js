@@ -18,6 +18,8 @@ import { featuredProducts } from "../models/MongoUser.js";
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
 import { buyerMiddleWare } from "../middleware/roleMiddleware.js";
+import { url } from "inspector";
+import { error } from "console";
 
 export const verifyJwt = promisify(jwt.verify);
 
@@ -275,7 +277,9 @@ buyerRoutes.get("/yourProducts", async (req, res) => {
         backendURL: process.env.BACKEND_URL,
       });
     }
-
+    if (backendRes.ok && data.products != null && data.products.length == 0) {
+      return res.render("ErrorPage.ejs", { account: "buyer", error: "You haven't purchased anything yet", url: "/", isLogged: true });
+    }
     res.render("yourproducts.ejs", {
       isLogged: !!req.cookies?.token,
       userProducts: data.products || [],
