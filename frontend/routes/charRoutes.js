@@ -1,11 +1,11 @@
 import express from "express";
 import { fetchConversations } from "../models/MongoUser.js";
 import { saveMessage } from "../models/MongoUser.js";
-import { buyerMiddleWare, sellerMiddleware } from "../middleware/roleMiddleware.js";
+import { buyerMiddleWare, sellerMiddleware, softBuyer } from "../middleware/roleMiddleware.js";
 export const chatRoutes = express();
 
 // Load buyer Inbox
-chatRoutes.get("/buyerInbox", buyerMiddleWare, async (req, res) => {
+chatRoutes.get("/buyerInbox", softBuyer, buyerMiddleWare, async (req, res) => {
     // Pass _id as my account for this page
     // Find userName in /getContact response and pass it 
     const userId = req.user; // this is _id 
@@ -19,10 +19,10 @@ chatRoutes.get("/buyerInbox", buyerMiddleWare, async (req, res) => {
     });
     let response=await request.json();
     if(!response.success) {
-        return res.render("ErrorPage.ejs",{isLogged:true,url:'/buyer/home',error:response.message ,account:"buyer"})
+        return res.render("ErrorPage.ejs",{isLogged:true,url:'/buyer/home',error:response.message ,account:"buyer", data:req.data})
     }
     console.log("response contacts: ",response);
-    res.render("buyerChat.ejs", { isLogged: true, senders: response.contacts, myAccount: userId, myUsername: response.userName,backendURL: process.env.BACKEND_URL });
+    res.render("buyerChat.ejs", { isLogged: true, senders: response.contacts, myAccount: userId, myUsername: response.userName,backendURL: process.env.BACKEND_URL,data:req.data });
 });
 
 // Call create contact here 
