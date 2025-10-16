@@ -113,6 +113,7 @@
                 <input type="checkbox" class="flexitem" name="isRental" id="isRental" value="true">
                 <h3 class="flexitem">Price and Submit</h3>
                 <br>
+                <label class="flexitem" for="price" id="labelForPrice">Sell Price</label>
                 <input type="number" name="price" class="flexitem" placeholder="Price" id="price" required> Rs
                 <button type="submit" id="submit-form">Submit</button>
             </div>
@@ -120,6 +121,8 @@
     </form>
     <script>
         // let completed = true;
+        const isrentalcheckBox = document.getElementById('isRental');
+        const priceLabel=document.getElementById('labelForPrice');
         const formElement = document.getElementById('formElement');
 
         const fileUploader = document.getElementById('image');
@@ -154,6 +157,14 @@
         });
 
         let submit = document.getElementById("submit-form");
+
+        isrentalcheckBox.addEventListener('change', (e) => {
+            if (event.target.checked) {
+                priceLabel.textContent="Per day"
+            } else {
+                priceLabel.textContent="Sell Price"
+            }
+        });
 
         submit.addEventListener("click", async (event) => {
             event.preventDefault();
@@ -225,19 +236,19 @@
                 alert("Upload atleast one image of your product!");
                 return;
             }
-            let request=await fetch("http://localhost:3000/seller/addProduct", {
+            let request = await fetch("<%= backendURL %>seller/addProduct", {
                 method: "POST",
                 credentials: "include",
                 body: new FormData(document.getElementById("formElement")),
             });
-            let response=await request.json();
-            if(!response.success) {
+            let response = await request.json();
+            if (!response.success) {
                 console.log(response.message);
                 alert(response.message || response.error);
             }
-            else  {
+            else {
                 alert("product added successfully");
-                window.location.href= "/seller/"
+                window.location.href = "/seller/"
             }
         })
 

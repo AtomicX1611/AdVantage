@@ -5,7 +5,7 @@ import { adminMiddleWare, adminRole } from "../middleware/roleMiddleware.js";
 const adminRouter = experss.Router();
 
 adminRouter.get("/login", (req, res) => {  
-  res.render("AdminLogin.ejs");
+  res.render("AdminLogin.ejs",{backendURL: process.env.BACKEND_URL});
 });
 
 // adminRouter.use(adminMiddleWare)

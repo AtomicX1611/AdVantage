@@ -92,7 +92,7 @@
           <a href="/search/product/<%= product._id %>">
             <div class="product_card">
               <% if(product.Image1Src) { %>
-                <img src="http://localhost:3000/<%= product.images[0] %>" alt="Product Image" />
+                <img src="<%= backendURL %><%= product.images[0] %>" alt="Product Image" />
               <% } %>
               <div class="productName">
                 
@@ -114,7 +114,7 @@
           <a href="/search/product/<%= product._id %>">
             <div class="product_card">
               <% if(product.images[0]) { %>
-                <img src="http://localhost:3000/<%= product.images[0] %>" alt="Product Image" />
+                <img src="<%= backendURL %><%= product.images[0] %>" alt="Product Image" />
               <% } %>
               
             </div>

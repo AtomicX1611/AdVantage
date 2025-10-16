@@ -19,7 +19,7 @@ chatRoutes.get("/buyerInbox", buyerMiddleWare, async (req, res) => {
     // Pass _id as my account for this page
     // Find userName in /getContact response and pass it 
     const userId = req.user; // this is _id 
-    let request = await fetch('http://localhost:3000/chat/contacts', {
+    let request = await fetch(`${process.env.BACKEND_URL}chat/contacts`, {
         method: 'GET',
         credentials:"include",
         headers: {
@@ -32,7 +32,7 @@ chatRoutes.get("/buyerInbox", buyerMiddleWare, async (req, res) => {
         return res.send(response.message);
     }
     console.log("response contacts: ",response);
-    res.render("buyerChat.ejs", { isLogged: true, senders: response.contacts, myAccount: userId, myUsername: response.userName });
+    res.render("buyerChat.ejs", { isLogged: true, senders: response.contacts, myAccount: userId, myUsername: response.userName,backendURL: process.env.BACKEND_URL });
 });
 
 // Call create contact here 
@@ -42,7 +42,7 @@ chatRoutes.get("/contact/:id",buyerMiddleWare, async (req, res) => {
     // Else Create contact for these and Open Chat page then 
     const buyerId=req.user;
     const sellerId=req.params.id;
-    let request=await fetch(`http://localhost:3000/chat/createContact/${sellerId}`,{
+    let request=await fetch(`${process.env.BACKEND_URL}chat/createContact/${sellerId}`,{
         method:'POST',
         credentials:"include",
         headers: {
@@ -80,7 +80,7 @@ chatRoutes.get("/sellerInbox", sellerMiddleware, async (req, res) => {
     // Find userName
     //Find sendersList
     // Find userName
-    let request=await fetch("http://localhost:3000/chat/contacts",{
+    let request=await fetch(`${process.env.BACKEND_URL}chat/contacts`,{
         method:'GET',
         credentials:"include",
         headers: {
@@ -93,5 +93,5 @@ chatRoutes.get("/sellerInbox", sellerMiddleware, async (req, res) => {
         return res.send(response.message);
     }
 
-    res.render("sellerChat.ejs", { isLogged: true, senders:response.contacts, myAccount: userId,myUsername:response.userName});
+    res.render("sellerChat.ejs", { isLogged: true, senders:response.contacts, myAccount: userId,myUsername:response.userName,backendURL: process.env.BACKEND_URL});
 })

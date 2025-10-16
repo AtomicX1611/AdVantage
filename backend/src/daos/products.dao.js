@@ -134,7 +134,7 @@ export const verifyProductDao = async (productId) => {
 
 export const findUnverifiedProducts = async () => {
     try {
-        const products = await Products.find({ verified: false });
+        const products = await Products.find({ verified: false }).populate('seller');
         return {
             success: true,
             products: products
