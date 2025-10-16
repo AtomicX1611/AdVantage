@@ -18,13 +18,14 @@
               <th>Seller Mail</th>
               <th>Product Name</th>
               <th>Posting Date</th>
-              <th>Description</th>
+              <th>Invoice</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             <% for(let i=0;i < products.length; i++) { %>
             <tr>
+              <% console.log(products[i]) %>
               <% if(products[i].seller!== null){ %>
               <td><%= products[i].seller.email %></td>
               <% }else{ %>
@@ -32,7 +33,11 @@
               <% } %>
               <td><%= products[i].name %></td>
               <td><%= products[i].postingDate %></td>
-              <td><%= products[i].description %></td>
+              <% if(products[i].invoice){ %>
+              <td><a href="<%= backendURL %><%= products[i].invoice %>">Invoice</a></td>
+              <% }else{ %>
+                No invoice
+              <% } %>
               <td>
                 <a
                   href="/search/product/<%= products[i]._id %>"

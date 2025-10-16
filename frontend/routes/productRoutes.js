@@ -7,6 +7,7 @@ productRouter.get("/", (req, res) => {
     name: "Page",
     description: "This is a very big desc",
     price: "40",
+    backendURL: process.env.BACKEND_URL,
   });
 });
 

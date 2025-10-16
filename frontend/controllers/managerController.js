@@ -3,7 +3,7 @@
 export const managerLogin = async (req,res) => {
     try {
       const {email,password} = req.body;
-      const response = await fetch("http://localhost:3000/auth/manager/login", {
+      const response = await fetch(`${process.env.BACKEND_URL}auth/manager/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json", 
@@ -35,7 +35,7 @@ export const verifyProduct = async (req, res) => {
   const productId = req.body.pid;
 
   try {
-    const verify = await fetch("http://localhost:3000/manager/verify", {
+    const verify = await fetch(`${process.env.BACKEND_URL}manager/verify`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -59,7 +59,7 @@ export const getuUnVerifiedProducts = async (req,res) => {
   try {
     console.log('getting manager dashboard data');
     
-     const response = await fetch("http://localhost:3000/manager/d", {
+     const response = await fetch(`${process.env.BACKEND_URL}manager/d`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -72,7 +72,7 @@ export const getuUnVerifiedProducts = async (req,res) => {
       console.log('got data ',data);
      const {products} = data;
      console.log(products);
-     res.render("ManagerDashboard", { products });
+     res.render("ManagerDashboard", { products,backendURL: process.env.BACKEND_URL });
   } catch (error) {
     res.status(500).json({
       success: false,

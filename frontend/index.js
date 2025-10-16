@@ -80,6 +80,22 @@ app.get("/logout", (req, res) => {
   return res.redirect("/");
   
 });
+app.get("/logout/seller", (req, res) => {
+  //need to change logout here .
+  // then logout button will work .
+    if (req.cookies && req.cookies.token) {
+    // Clear the cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false,   // set to false if running on localhost without HTTPS
+      sameSite: "strict",
+    });
+  }
+
+  // Redirect to homepage after logout
+  return res.redirect("/seller");
+  
+});
 
 passport.use(
   new LocalStrategy(

@@ -1,7 +1,7 @@
 export const getUsersData = async (req, res) => {
 
      try {
-    const response = await fetch("http://localhost:3000/admin/", {
+    const response = await fetch(`${process.env.BACKEND_URL}admin/`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -12,7 +12,7 @@ export const getUsersData = async (req, res) => {
      
     const data = await response.json();
     const { sellers, users } = data;
-    res.render("Admin.ejs", { sellers: sellers, users: users });
+    res.render("Admin.ejs", { sellers: sellers, users: users,backendURL: process.env.BACKEND_URL });
 
   } catch (error) {
     res.status(500).json({
@@ -27,7 +27,7 @@ export const getUsersData = async (req, res) => {
 export const getGraphData = async (req, res) => {
 
   try {
-    const response = await fetch("http://localhost:3000/admin/grahpData", {
+    const response = await fetch(`${process.env.BACKEND_URL}admin/grahpData`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -52,7 +52,7 @@ export const removeSeller = async (req, res) => {
     const { id } = req.params;
    
     
-    const response = await fetch(`http://localhost:3000/admin/remove/${id}`, {
+    const response = await fetch(`${process.env.BACKEND_URL}admin/remove/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

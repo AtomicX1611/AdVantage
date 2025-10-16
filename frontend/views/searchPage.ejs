@@ -48,7 +48,7 @@
                 <% for(let i=0;i < products.length; i++) { %>
                   <a href="/search/product/<%= products[i]._id %>">
                     <div class="products">
-                      <img src="http://localhost:3000/<%= products[i].images[0] %>" alt="image" class="images" />
+                      <img src="<%= backendURL %><%= products[i].images[0] %>" alt="image" class="images" />
                       <h4 style="margin-left: 20px; font-size: 15px">
                         <%= products[i].name %>
                       </h4>
@@ -81,7 +81,7 @@ const products = <%- JSON.stringify(products) %>;
         ((!rentedCheckbox.checked) || (products[i].isRental === true))) {
           html = `<a href="/search/product/${products[i]._id}">
                               <div class="products">
-                                  <img src="http://localhost:3000/${products[i].images[0]}" alt="image" class="images">
+                                  <img src="<%= backendURL %>${products[i].images[0]}" alt="image" class="images">
                                   <h4 style="margin-left: 20px; font-size: 15px;">
                                       ${products[i].name}
                                   </h4>
