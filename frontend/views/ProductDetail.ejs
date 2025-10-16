@@ -12,12 +12,17 @@
         <% } else { %>
           <%- include("sellerHeader.ejs") %>
             <% } %>
+
               <div id="notification">
                 <span id="notif-message"></span>
                 <button id="close-btn" onclick="hideNotification()">X</button>
               </div>
+
               <div class="main_container">
-                <div class="big_container">
+
+                <div class="product_display">
+
+                  <!-- Left: Image Gallery -->
                   <div class="image_container">
                     <div class="card_list">
                       <% for(let i=0; product.images[i] !==undefined; i++) { %>
@@ -26,109 +31,120 @@
                     </div>
                     <img class="big_card" src="http://localhost:3000/<%= product.images[0] %>" alt="bigImage">
                   </div>
-                  <% if(isLogged){ %>
-                    <!-- isLogged: loggedIn+role = buyer so showing add to whishlist-->
-                    <div class="wishlist_button_container">
-                      <button id="addToWishlist" class="btn" data-id="<%= product._id %>">Add to Wishlist</button>
-                    </div>
-                    <% } %>
-                </div>
-                <div class="product_details">
-                  <div class="item_header">
-                    <h2 class="item_title">
-                      <%= product.name %>
-                    </h2>
-                    <h2 class="item_price">₹<%= product.price %>/-</h2>
-                  </div>
-                  <div>
-                    <h2 class="item_address">
-                      <%= product.state %>
-                    </h2>
-                    <h3 class="item_address">
-                      <%= product.district %>
-                    </h3>
-                    <h4 class="item_address">
-                      <%= product.city %>
-                    </h4>
-                  </div>
-                  <% if(hisProduct) { %>
-                    <button id="deleteProduct" data-id="<%= product._id %>"> Delete Product</button>
-                    <% } %>
+
+                  <!-- Right: Product Details -->
+                  <div class="product_details">
+                    <div class="details_header">
+                      <div class="item_header">
+                        <h2 class="item_headertitle">
+                          <%= product.name %>
+                        </h2>
+                        <h2 class="item_price">₹<%= product.price %>/-</h2>
+                      </div>
+
+                      <div class="item_location">
+                        <h2 style="font-weight: 500;font-size: 1.7rem;">Address:</h2>
+                        <h2 class="item_address">
+                          <%= product.state %>
+                        </h2>
+                        <h3 class="item_address">
+                          <%= product.district %>
+                        </h3>
+                        <h4 class="item_address">
+                          <%= product.city %>
+                        </h4>
+                      </div>
+
                       <% if(product.verified) { %>
                         <h4 id="verified">✅ Verified Product</h4>
                         <% } %>
-                          <div class="options">
-                            <% if(isLogged){ %>
-                              <!-- isLogged : isLoggged+role = buyer -->
-                              <a href="/buyer/chats/contact/<%= sellerId %>">
-                                <div class="chatWs btn" id="chat-btn">
-                                  Chat with seller
-                                  <input type="hidden" name="selleId" value="<%= sellerId%>">
-                                </div>
-                              </a>
-                              <% } %>
-                                <% if(!product.soldTo && isLogged && !product.isRental){ %>
-                                  <a href="/buyer/buy/<%= product._id %>">
-                                    <div class="purchase btn">
-                                      Buy now
-                                    </div>
-                                  </a>
-                                  <% } %>
-                                    <% if(!product.soldTo && isLogged && product.isRental){ %>
-                                      <div class="purchase btn" id="rentNowBtn">
-                                        Rent now
+
+
+                    </div>
+                    <!-- All buttons and actions stay within this section -->
+                    <div class="options">
+                      <% if(isLogged){ %>
+                        <button id="addToWishlist" class="btn" data-id="<%= product._id %>">Add to Wishlist</button>
+                        <% } %>
+
+                          <% if(isLogged){ %>
+                            <a href="/buyer/chats/contact/<%= sellerId %>">
+                              <div class="chatWs btn" id="chat-btn">
+                                Chat with seller
+                                <input type="hidden" name="selleId" value="<%= sellerId%>">
+                              </div>
+                            </a>
+                            <% } %>
+
+                              <% if(!product.soldTo && isLogged && !product.isRental){ %>
+                                <a href="/buyer/buy/<%= product._id %>">
+                                  <div class="purchase btn">Buy now</div>
+                                </a>
+                                <% } %>
+
+                                  <% if(!product.soldTo && isLogged && product.isRental){ %>
+                                    <div class="purchase btn" id="rentNowBtn">Rent now</div>
+                                    <% } %>
+
+                                      <div style="display: none;background-color: white;" id="rentRequestForm">
+                                        <button style="background-color: red;" id="xBtn">X</button>
+                                        <label for="fromDate">From : </label>
+                                        <input type="date" placeholder="From" name="fromDate" id="fromDate">
+                                        <label for="toDate">To : </label>
+                                        <input type="date" name="toDate" id="toDate" placeholder="To">
+                                        <button id="submitBtnRent">Submit</button>
                                       </div>
-                                      <% } %>
-                                        <!-- To be done form validation make submit work -->
-                                        <div style="display: none;background-color: white;" id="rentRequestForm">
-                                          <button style="background-color: red;" id="xBtn">X</button>
-                                          <label for="fromDate">From : </label>
-                                          <input type="date" placeholder="From" name="fromDate" id="fromDate">
-                                          <label for="toF=Date">To : </label>
-                                          <input type="date" name="toDate" id="toDate" placeholder="To">
-                                          <button id="submitBtnRent">Submit</button>
-                                        </div>
-                          </div>
-                          <div class="description">
-                            <h2 class="item_desc">Description</h2>
-                            <h3 class="item_title">
-                              <%= product.description %>
-                            </h3>
-                            <% if(manager && !product.verified) { %>
-                              <button id="verifyButton" data-id="<%= product._id %>">Verify</button>
-                              <% } %>
-                                <% if(product.soldTo && product.isRental && decoded._id===sellerId){ %>
-                                  <button onclick="handleMakeAvailable(&quot;<%= product._id %>&quot;)">Make
-                                    Available</button>
-                                  <% } %>
-                                    <% if(sold1 && !product.soldTo) { %>
-                                      <a href="/seller/requestsPage/<%= product._id %>">
-                                        <div id="sold">
-                                          View Requests
-                                        </div>
-                                      </a>
-                                      <% } %>
+                                      <div class="sellerOptions">
+                                        <% if(product.soldTo && product.isRental && decoded._id===sellerId){ %>
+                                          <button onclick="handleMakeAvailable(&quot;<%= product._id %>&quot;)">Make
+                                            Available</button>
+                                          <% } %>
+
+                                            <% if(sold1 && !product.soldTo) { %>
+                                              <a href="/seller/requestsPage/<%= product._id %>">
+                                                <div id="sold">View Requests</div>
+                                              </a>
+                                              <% } %>
+
+                                                <% if(hisProduct) { %>
+                                                  <button id="deleteProduct" data-id="<%= product._id %>">Delete
+                                                    Product</button>
+                                                  <% } %>
+
+                                                    <% if(manager && !product.verified) { %>
+                                                      <button id="verifyButton"
+                                                        data-id="<%= product._id %>">Verify</button>
+                                                      <% } %>
 
 
-                          </div>
+                                      </div>
+
+
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Description Section (below product display) -->
+                <div class="description">
+                  <h2 class="item_desc">Description</h2>
+                  <h3 class="item_title">
+                    <%= product.description %>
+                  </h3>
+
+
                 </div>
               </div>
   </div>
+
   <script>
     let ppid = "<%= product._id %>";
     function showNotification(message) {
       const notification = document.getElementById("notification");
       const notifMessage = document.getElementById("notif-message");
-      const accpetBtn = document.getElementById("acceptProductReq");
-      const rejectBtn = document.getElementById("rejectProductReq");
-
       notifMessage.textContent = message;
       notification.style.display = "block";
       notification.style.opacity = "1";
-
-      setTimeout(() => {
-        hideNotification();
-      }, 1000);
+      setTimeout(() => hideNotification(), 1000);
     }
 
     function hideNotification() {
@@ -144,60 +160,37 @@
     const rentRequestForm = document.getElementById("rentRequestForm");
     const xBtn = document.getElementById("xBtn");
     const submitBtnRent = document.getElementById("submitBtnRent");
-    rentNowBtn?.addEventListener('click', (e) => {
-      // console.log("hii"+rentRequestForm.style.display);
-      rentRequestForm.style.display = "block";
-    });
-    xBtn?.addEventListener('click', (e) => {
-      // console.log("hii"+rentRequestForm.style.display);
-      rentRequestForm.style.display = "none";
-    });
 
-    submitBtnRent.addEventListener("click", async (e) => {
+    rentNowBtn?.addEventListener("click", () => rentRequestForm.style.display = "block");
+    xBtn?.addEventListener("click", () => rentRequestForm.style.display = "none");
 
+    submitBtnRent?.addEventListener("click", async () => {
       const fromDate = document.getElementById("fromDate").value;
       const toDate = document.getElementById("toDate").value;
 
-      if (!fromDate || !toDate) {
-        alert("Please select both From and To dates.");
-        return;
-      }
-
-      if (fromDate >= toDate) {
-        alert("The 'From' date must be earlier than the 'To' date.");
-        return;
-      }
+      if (!fromDate || !toDate) return alert("Please select both From and To dates.");
+      if (fromDate >= toDate) return alert("The 'From' date must be earlier than the 'To' date.");
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      if (new Date(fromDate) < today) {
-        alert("The 'From' date cannot be in the past.");
-        return;
-      }
+      if (new Date(fromDate) < today) return alert("The 'From' date cannot be in the past.");
 
       try {
         const response = await fetch(`http://localhost:3000/buyer/rent/${ppid}`, {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({
-            from: fromDate,
-            to: toDate,
-          }),
+          body: JSON.stringify({ from: fromDate, to: toDate }),
         });
 
         const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to send rent request");
-        }
+        if (!response.ok) throw new Error(data.message || "Failed to send rent request");
 
         alert("Rent request submitted successfully!");
-        console.log("Server response:", data);
+
+
+        rentRequestForm.style.display = "none";
       } catch (error) {
-        console.error("Error submitting rent request:", error);
         alert(`Error: ${error.message}`);
       }
     });
@@ -205,64 +198,50 @@
     const card_container = document.querySelector('.card_list');
     const big_card = document.querySelector('.big_card');
     const addToWishlist = document.getElementById('addToWishlist');
+
     card_container.addEventListener("mouseover", (e) => {
-      if (e.target.tagName === 'IMG') {
-        big_card.src = e.target.src;
-      }
+      if (e.target.tagName === 'IMG') big_card.src = e.target.src;
     });
-    addToWishlist?.addEventListener('click', async (e) => {
+
+    addToWishlist?.addEventListener('click', async () => {
       const productId = addToWishlist.getAttribute("data-id");
       const response = await fetch('/buyer/wishlist/add', {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ productId: productId })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId })
       });
       try {
         const data = await response.json();
-        console.log("data: ", data);
         showNotification(data.message);
-        // alert(data.message);
-      } catch (err) {
+      } catch {
         window.location.href = response.url;
       }
     });
 
     const verifyProductButton = document.getElementById("verifyButton");
-    verifyProductButton?.addEventListener("click", async (e) => {
+    verifyProductButton?.addEventListener("click", async () => {
       const productId = verifyProductButton.getAttribute("data-id");
-      // console.log(productId);
       const response = await fetch("http://localhost:3000/manager/verify", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pid: productId }),
         credentials: "include",
       });
-      try {
-        const data = await response.json();
-        console.log("data: ", data);
-        if(response.ok){
-          alert("verified successfully");
-          window.location.reload();
-        }else{
-          alert(data.message);
-        }
-      } catch (err) {
-        window.location.href = response.url;
+      const data = await response.json();
+      if (response.ok) {
+        alert("verified successfully");
+        window.location.reload();
+      } else {
+        alert(data.message);
       }
     });
-    const deleteProductBtn = document.getElementById('deleteProduct');
 
-    deleteProductBtn?.addEventListener("click", async (e) => {
+    const deleteProductBtn = document.getElementById('deleteProduct');
+    deleteProductBtn?.addEventListener("click", async () => {
       const productId = deleteProductBtn.getAttribute("data-id");
       const response = await fetch(`http://localhost:3000/seller/deleteProduct/${productId}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
       });
       console.log(await response.json());
@@ -273,19 +252,14 @@
     async function handleMakeAvailable(productId) {
       let request = await fetch(`http://localhost:3000/seller/makeAvailable/${productId}`, {
         method: 'POST',
-        headers: {
-          "content-type": "application/json"
-        },
+        headers: { "content-type": "application/json" },
         credentials: "include",
-
       });
       let response = await request.json();
-      console.log(response);
       if (response.success) {
-        alert("product made available successfully successfully");
+        alert("Product made available successfully");
         window.location.href = `/search/product/${productId}`;
-      }
-      else {
+      } else {
         alert(response.message);
       }
     }

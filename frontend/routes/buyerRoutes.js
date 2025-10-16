@@ -42,8 +42,11 @@ buyerRoutes.get("/home", async (req, res) => {
   try {
     const apiResponse = await fetch("http://localhost:3000/anyone/HomeRequirements");
     const response = await apiResponse.json();
-
+    
+    console.log(response);
+    
     res.render("Home.ejs", {
+      
       isLogged: isLogged,
       freshProducts: response.freshProducts || [],
       featuredProducts: response.featuredProducts || [],

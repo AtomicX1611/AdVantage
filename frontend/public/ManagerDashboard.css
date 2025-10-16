@@ -1,13 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: "Poppins", sans-serif;
 }
+
+
+
 
 body {
   background-color: #000;
   color: white;
+  padding: 2rem;
 }
 
 .dashboard {
@@ -30,17 +36,21 @@ table {
   border-collapse: collapse;
   color: white;
   background: linear-gradient(to right, #999999, #00013D);
-  font-family: Arial, sans-serif;
+  /* font-family: Arial, sans-serif; */
 }
 
-th, td {
+ td {
   padding: 20px 60px;
   border: 2px solid black;
   text-align: center;
 }
 
 th {
-  font-size: 22px;
+  font-size: 18px;
+  border: 2px solid black;
+  text-align: center;
+  padding: 20px 60px;
+
 }
 .productPageBtn{
   text-decoration: none;

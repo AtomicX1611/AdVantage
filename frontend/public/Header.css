@@ -20,7 +20,7 @@ body {
 
 header {
   height: max(9.765625vh, 40px);
-  /75px/
+  /*75px*/
   width: 100vw;
   background-color: #ffffff;
   /* margin-top: 5px; */

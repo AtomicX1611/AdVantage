@@ -4,121 +4,143 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document</title>
+  <title>Seller Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/SellerDashBoard.css" />
-  <style>
-    h2 {
-      font-family: "Inter", sans-serif;
-    }
-  </style>
+
 </head>
 
 <body>
   <%- include("sellerHeader.ejs") %>
-    <h1 class="title">Welcome!</h1>
-    <h2>Sell Requested Ads</h2>
-    <div class="card_container">
-      <% for (let i=0; i < products.length; i++) {%>
-        <% if(products[i].requests.length !=0 && !products[i].isRental){ %>
-          <a href="/search/product/<%= products[i]._id %>">
-            <div class="card">
-              <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name
-          %>">
-            </div>
-          </a>
-        <% } %>
-      <% } %>
+    <div class="container">
+      <h1 class="title">Welcome!</h1>
+
+      <div class="adcontainer">
+        <h2>Sell Requested Ads</h2>
+        <div class="card_container">
+          <% let found=false; %>
+            <% for (let i=0; i < products.length; i++) { %>
+              <% if(products[i].requests.length !=0 && !products[i].isRental){ found=true; %>
+                <a href="/search/product/<%= products[i]._id %>">
+                  <div class="card">
+                    <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                  </div>
+                </a>
+                <% } %>
+                  <% } %>
+                    <% if(!found) { %>
+                      <div class="no_products">No products are available.</div>
+                      <% } %>
+        </div>
+      </div>
+
+      <!-- Rent Requested Ads -->
+      <div class="adcontainer">
+        <h2>Rent Requested Ads</h2>
+        <div class="card_container">
+          <% found=false; %>
+            <% for (let i=0; i < products.length; i++) { %>
+              <% if(products[i].requests.length !=0 && products[i].isRental && !products[i].soldTo){ found=true; %>
+                <a href="/search/product/<%= products[i]._id %>">
+                  <div class="card">
+                    <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                  </div>
+                </a>
+                <% } %>
+                  <% } %>
+                    <% if(!found) { %>
+                      <div class="no_products">No products are available.</div>
+                      <% } %>
+        </div>
+      </div>
+
+      <!-- Current Selling Ads -->
+      <div class="adcontainer">
+        <h2>Your current Selling Ads</h2>
+        <div class="card_container">
+          <% found=false; %>
+            <% for (let i=0; i < products.length; i++) { %>
+              <% if(products[i].requests.length==0 && !products[i].soldTo && !products[i].isRental){ found=true; %>
+                <a href="/search/product/<%= products[i]._id %>">
+                  <div class="card">
+                    <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                  </div>
+                </a>
+                <% } %>
+                  <% } %>
+                    <% if(!found) { %>
+                      <div class="no_products">No products are available.</div>
+                      <% } %>
+        </div>
+      </div>
+
+      <!-- Current Renting Ads -->
+      <div class="adcontainer">
+        <h2>Your current Renting Ads</h2>
+        <div class="card_container">
+          <% found=false; %>
+            <% for (let i=0; i < products.length; i++) { %>
+              <% if(products[i].requests.length==0 && !products[i].soldTo && products[i].isRental){ found=true; %>
+                <a href="/search/product/<%= products[i]._id %>">
+                  <div class="card">
+                    <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                  </div>
+                </a>
+                <% } %>
+                  <% } %>
+                    <% if(!found) { %>
+                      <div class="no_products">No products are available.</div>
+                      <% } %>
+        </div>
+      </div>
+
+      <!-- Rented Ads -->
+      <div class="adcontainer">
+        <h2>Rented Ads</h2>
+        <div class="card_container">
+          <% found=false; %>
+            <% for (let i=0; i < products.length; i++) { %>
+              <% if(products[i].soldTo && products[i].isRental){ found=true; %>
+                <a href="/search/product/<%= products[i]._id %>">
+                  <div class="card">
+                    <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                  </div>
+                </a>
+                <% } %>
+                  <% } %>
+                    <% if(!found) { %>
+                      <div class="no_products">No products are available.</div>
+                      <% } %>
+        </div>
+      </div>
+
+      <!-- Previous Ads -->
+      <div class="adcontainer">
+        <h2>Previous Ads</h2>
+        <div class="card_container">
+          <% found=false; %>
+            <% for (let i=0; i < products.length; i++) { %>
+              <% if(products[i].soldTo && !products[i].isRental){ found=true; %>
+                <a href="/search/product/<%= products[i]._id %>">
+                  <div class="card">
+                    <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                  </div>
+                </a>
+                <% } %>
+                  <% } %>
+                    <% if(!found) { %>
+                      <div class="no_products">No products are available.</div>
+                      <% } %>
+        </div>
+      </div>
     </div>
-    <h2>Rent Requested Ads</h2>
-    <div class="card_container">
-      <% for (let i=0; i < products.length; i++) {%>
-        <% if(products[i].requests.length !=0 && products[i].isRental && !products[i].soldTo){ %>
-          <a href="/search/product/<%= products[i]._id %>">
-            <div class="card">
-              <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name
-          %>">
-            </div>
-          </a>
-        <% } %>
-      <% } %>
-    </div>
-    <h2>Your current Selling Ads</h2>
-    <div class="card_container">
-      <% for (let i=0; i < products.length; i++) {%>
-        <% if(products[i].requests.length==0 && !products[i].soldTo && !products[i].isRental){ %>
-          <a href="/search/product/<%= products[i]._id %>">
-            <div class="card">
-              <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name
-          %>">
-            </div>
-          </a>
-          <% } %>
-            <% } %>
-    </div>
-    <h2>Your current Renting Ads</h2>
-    <div class="card_container">
-      <% for (let i=0; i < products.length; i++) {%>
-        <% if(products[i].requests.length==0 && !products[i].soldTo && products[i].isRental){ %>
-          <a href="/search/product/<%= products[i]._id %>">
-            <div class="card">
-              <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name
-          %>">
-            </div>
-          </a>
-        <% } %>
-      <% } %>
-    </div>
-    <h2>Rented Ads</h2>
-    <div class="card_container">
-      <% for (let i=0; i < products.length; i++) {%>
-        <% if(products[i].soldTo && products[i].isRental){ %>
-          <a href="/search/product/<%= products[i]._id %>">
-            <div class="card">
-              <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
-            </div>
-          </a>
-          <% } %>
-            <% } %>
-    </div>
-    <h2>Previous Ads</h2>
-    <div class="card_container">
-      <% for (let i=0; i < products.length; i++) {%>
-        <% if(products[i].soldTo && !products[i].isRental){ %>
-          <a href="/search/product/<%= products[i]._id %>">
-            <div class="card">
-              <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
-            </div>
-          </a>
-          <% } %>
-            <% } %>
-    </div>
+
     <script>
       let message = <%= message %>;
       if (message == 1) {
-        alert("Ad Limit reached pleace upgrade your plan");
+        alert("Ad Limit reached, please upgrade your plan.");
       }
     </script>
 </body>
 
 </html>
-
-<!--
-<h2>Previous Ads</h2>
-<div class="card_container">
-    <% const prevCards = [
-    {title : "Title" ,desc : "desc"},
-    {title : "Title" ,desc : "desc"},
-    {title : "Title" ,desc : "desc"},
-    {title : "Title" ,desc : "desc"},
-    {title : "Title" ,desc : "desc"},
-    {title : "Title" ,desc : "desc"},
-    {title : "Title" ,desc : "desc"}
-    ]; %> 
-    <% for (let i = 0; i <prevCards.length; i++) {%> 
-        <div class="card">
-            <h3><%= prevCards[i].title %></h3>
-        </div> 
-    <% } %>
-</div>
--->
