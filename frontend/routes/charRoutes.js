@@ -1,16 +1,6 @@
 import express from "express";
-import { conversation } from "../models/Conversation.js";
 import { fetchConversations } from "../models/MongoUser.js";
-import { senderList } from "../models/MongoUser.js";
-import { buyerList } from "../models/MongoUser.js";
-import { findUserByEmail } from "../models/MongoUser.js";
-import { findSendersForEmail } from "../models/MongoUser.js";
-import { findSellerByEmail } from "../models/MongoUser.js";
-import { createContact } from "../models/MongoUser.js";
-import { findMessages } from "../models/MongoUser.js";
 import { saveMessage } from "../models/MongoUser.js";
-import { findSendersForSeller } from "../models/MongoUser.js";
-import { requireRole } from "../middleware/roleMiddleware.js";
 import { buyerMiddleWare, sellerMiddleware } from "../middleware/roleMiddleware.js";
 export const chatRoutes = express();
 
@@ -19,7 +9,7 @@ chatRoutes.get("/buyerInbox", buyerMiddleWare, async (req, res) => {
     // Pass _id as my account for this page
     // Find userName in /getContact response and pass it 
     const userId = req.user; // this is _id 
-    let request = await fetch('http://localhost:3000/chat/contacts', {
+    let request = await fetch(`${process.env.BACKEND_URL}chat/contacts`, {
         method: 'GET',
         credentials:"include",
         headers: {
@@ -32,7 +22,7 @@ chatRoutes.get("/buyerInbox", buyerMiddleWare, async (req, res) => {
         return res.render("ErrorPage.ejs",{isLogged:true,url:'/buyer/home',error:response.message ,account:"buyer"})
     }
     console.log("response contacts: ",response);
-    res.render("buyerChat.ejs", { isLogged: true, senders: response.contacts, myAccount: userId, myUsername: response.userName});
+    res.render("buyerChat.ejs", { isLogged: true, senders: response.contacts, myAccount: userId, myUsername: response.userName,backendURL: process.env.BACKEND_URL });
 });
 
 // Call create contact here 
@@ -42,7 +32,7 @@ chatRoutes.get("/contact/:id",buyerMiddleWare, async (req, res) => {
     // Else Create contact for these and Open Chat page then 
     const buyerId=req.user;
     const sellerId=req.params.id;
-    let request=await fetch(`http://localhost:3000/chat/createContact/${sellerId}`,{
+    let request=await fetch(`${process.env.BACKEND_URL}chat/createContact/${sellerId}`,{
         method:'POST',
         credentials:"include",
         headers: {
@@ -80,7 +70,7 @@ chatRoutes.get("/sellerInbox", sellerMiddleware, async (req, res) => {
     // Find userName
     //Find sendersList
     // Find userName
-    let request=await fetch("http://localhost:3000/chat/contacts",{
+    let request=await fetch(`${process.env.BACKEND_URL}chat/contacts`,{
         method:'GET',
         credentials:"include",
         headers: {
@@ -93,5 +83,5 @@ chatRoutes.get("/sellerInbox", sellerMiddleware, async (req, res) => {
         return res.render("ErrorPage.ejs",{isLogged:true,url:'/seller',error:response.message,account:"seller"})
     }
 
-    res.render("sellerChat.ejs", { isLogged: true, senders:response.contacts, myAccount: userId,myUsername:response.userName});
+    res.render("sellerChat.ejs", { isLogged: true, senders:response.contacts, myAccount: userId,myUsername:response.userName,backendURL: process.env.BACKEND_URL});
 })

@@ -12,30 +12,33 @@
 <body>
   <div class="card">
     <div class="login">
-      <div class="head" style="font-size: larger; margin-top: 20px">
-        <h1>Admin Login</h1>
+      <div class="head" style="font-size: 18px; margin-top: 20px; font-weight: 400;">
+        <h1 style="font-weight: 400;">Admin Login</h1>
       </div>
+
       <div class="form">
-        <form id="login-form">
+        <form id="login-form" style="gap: 25px;">
           <div class="email">
-            <label for="email">Email</label>
             <input type="email" name="email" id="email" placeholder="Email ID" required />
           </div>
+
           <div class="confirm-password">
-            <label for="confirm-password">Password</label>
             <input type="password" name="password" id="login-password" placeholder="Password" required />
-            <div class="error" id="incorrect-password" style="display: none">
+            <div class="error" id="incorrect-password">
               *Incorrect Email or Password
             </div>
           </div>
+
           <button type="submit" id="login-btn">Login</button>
         </form>
+
         <div class="bar">
           <span class="line"></span>
           <span>or</span>
           <span class="line"></span>
         </div>
       </div>
+
       <div class="OAuth-options">
         <div class="google-OAuth option-box">
           <div class="platform-logo">
@@ -57,38 +60,40 @@
 
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("login-password").value;
+
       if (!email.includes("@")) {
         alert("Please enter a valid email address.");
         return;
       }
+
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (!emailRegex.test(email)) {
         alert("Invalid Email");
         return;
       }
+
       if (password === "") {
         alert("Password is required.");
         return;
       }
 
-      try {        
+      try {
         console.log('Calling this');
-        
         const response = await fetch("http://localhost:3001/auth/admin/login", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
-        const result = await response.json()
-        console.log('response : ',result);
-        if(response.ok) {
+
+        const result = await response.json();
+        console.log('response : ', result);
+
+        if (response.ok) {
           console.log("Admin Login Successful");
           window.location.href = "/admin";
         } else {
           console.log("Login Failed:", result.error);
-          incErr.style.display = "block";
+          incErr.style.display = "flex";
         }
       } catch (error) {
         console.error("Login Error:", error);

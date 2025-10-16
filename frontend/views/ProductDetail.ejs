@@ -21,10 +21,10 @@
                   <div class="image_container">
                     <div class="card_list">
                       <% for(let i=0; product.images[i] !==undefined; i++) { %>
-                        <img src="http://localhost:3000/<%= product.images[i] %>" alt="image" class="card_container">
+                        <img src="<%= backendURL %><%= product.images[i] %>" alt="image" class="card_container">
                         <% } %>
                     </div>
-                    <img class="big_card" src="http://localhost:3000/<%= product.images[0] %>" alt="bigImage">
+                    <img class="big_card" src="<%= backendURL %><%= product.images[0] %>" alt="bigImage">
                   </div>
                   <% if(isLogged){ %>
                     <!-- isLogged: loggedIn+role = buyer so showing add to whishlist-->
@@ -38,7 +38,11 @@
                     <h2 class="item_title">
                       <%= product.name %>
                     </h2>
+                    <% if(!product.isRental){ %>
                     <h2 class="item_price">₹<%= product.price %>/-</h2>
+                    <% }else{ %>
+                    <h2 class="item_price">₹<%= product.price %>/- per day</h2>
+                    <% } %>
                   </div>
                   <div>
                     <h2 class="item_address">
@@ -176,7 +180,7 @@
       }
 
       try {
-        const response = await fetch(`http://localhost:3000/buyer/rent/${ppid}`, {
+        const response = await fetch(`<%= backendURL %>buyer/rent/${ppid}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -233,7 +237,7 @@
     verifyProductButton?.addEventListener("click", async (e) => {
       const productId = verifyProductButton.getAttribute("data-id");
       // console.log(productId);
-      const response = await fetch("http://localhost:3000/manager/verify", {
+      const response = await fetch("<%= backendURL %>manager/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -258,7 +262,7 @@
 
     deleteProductBtn?.addEventListener("click", async (e) => {
       const productId = deleteProductBtn.getAttribute("data-id");
-      const response = await fetch(`http://localhost:3000/seller/deleteProduct/${productId}`, {
+      const response = await fetch(`<%= backendURL %>seller/deleteProduct/${productId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json"
@@ -271,7 +275,7 @@
     });
 
     async function handleMakeAvailable(productId) {
-      let request = await fetch(`http://localhost:3000/seller/makeAvailable/${productId}`, {
+      let request = await fetch(`<%= backendURL %>seller/makeAvailable/${productId}`, {
         method: 'POST',
         headers: {
           "content-type": "application/json"

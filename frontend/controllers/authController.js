@@ -10,7 +10,7 @@ export const buyerLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const response = await fetch("http://localhost:3000/auth/buyer/login", {
+    const response = await fetch(`${process.env.BACKEND_URL}auth/buyer/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -45,7 +45,7 @@ export const buyerSignup = async (req, res) => {
 
     // console.log("hehe");
 
-    const response = await fetch("http://localhost:3000/auth/buyer/signup", {
+    const response = await fetch(`${process.env.BACKEND_URL}auth/buyer/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -76,7 +76,7 @@ export const sellerLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const response = await fetch("http://localhost:3000/auth/seller/login", {
+    const response = await fetch(`${process.env.BACKEND_URL}auth/seller/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -106,7 +106,7 @@ export const sellerSignup = async (req, res) => {
   try {
     const { username, contact, email, password } = req.body;
 
-    const response = await fetch("http://localhost:3000/auth/seller/signup", {
+    const response = await fetch(`${process.env.BACKEND_URL}auth/seller/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -136,7 +136,7 @@ export const adminLogin = async (req, res) => {
     // console.log("Hii");
     const { email, password } = req.body;
    
-    const response = await fetch("http://localhost:3000/auth/admin/login", {
+    const response = await fetch(`${process.env.BACKEND_URL}auth/admin/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json", 

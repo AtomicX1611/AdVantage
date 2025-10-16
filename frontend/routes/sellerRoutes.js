@@ -31,7 +31,7 @@ sellerRouter.use("/chats", chatRoutes);
 sellerRouter.get("/", sellerMiddleware, async (req, res) => {
   console.log(req.user);
   let products;
-  let request = await fetch('http://localhost:3000/seller/products', {
+  let request = await fetch(`${process.env.BACKEND_URL}seller/products`, {
     method: 'GET',
     credentials: 'include',
     headers: {
@@ -41,8 +41,8 @@ sellerRouter.get("/", sellerMiddleware, async (req, res) => {
 
   });
   let data = await request.json();
-  console.log("data: ", data);
-  res.render("SellerDashBoard.ejs", { products: data.products, message: 0 });
+  console.log("data: ",data);
+  res.render("SellerDashBoard.ejs", { products:data.products,message:0,backendURL: process.env.BACKEND_URL});
 });
 
 export default sellerRouter;
@@ -80,13 +80,13 @@ export default sellerRouter;
 
 // const upload = multer({ storage });
 
-sellerRouter.get('/requestsPage/:productId', sellerMiddleware, (req, res) => {
-  const { productId } = req.params;
-  res.render('viewRequests.ejs', { productId });
+sellerRouter.get('/requestsPage/:productId',sellerMiddleware,(req,res)=> {
+  const { productId }=req.params;
+  res.render('viewRequests.ejs',{productId,backendURL: process.env.BACKEND_URL});
 })
 
 sellerRouter.get('/addProductForm', sellerMiddleware, (req, res) => {
-  res.render('AddproductForm');
+  res.render('AddproductForm',{backendURL: process.env.BACKEND_URL});
 });
 sellerRouter.post('/addProduct', sellerMiddleware, insertProduct);
 
@@ -96,20 +96,20 @@ sellerRouter.get('/remove/:sellerEmail', requireRole("admin"), async (req, res) 
 });
 
 sellerRouter.get('/deleteProduct/:productId', sellerMiddleware, async (req, res) => {
-  const { productId } = req.params;
-  let request = await fetch(`http://localhost:3000/seller/deleteProduct/${productId}`, {
-    method: 'DELETE',
-    credentials: 'include',
-    headers: {
-      "Content-Type": "application/json",
-      cookie: req.headers.cookie || "",
-    },
-  })
+  const { productId } = req.params; 
+   let request = await fetch(`${process.env.BACKEND_URL}seller/deleteProduct/${productId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        "Content-Type": "application/json",
+        cookie: req.headers.cookie || "",
+      },
+    })
 });
 
 // Password update routes 
 sellerRouter.get('/updatePassword', (req, res) => {
-  res.render('sellerUpdatePassword');
+  res.render('sellerUpdatePassword',{backendURL: process.env.BACKEND_URL});
 });
 sellerRouter.post('/updatePassword', async (req, res) => {
   const { newPassword, confirmNewPassword, oldPassword } = req.body;
@@ -120,7 +120,7 @@ sellerRouter.post('/updatePassword', async (req, res) => {
     });
 
   } else {
-    let request = await fetch('http://localhost:3000/seller/update/password', {
+    let request = await fetch(`${process.env.BACKEND_URL}seller/update/password`, {
       method: 'PUT',
       credentials: 'include',
       headers: {
@@ -158,7 +158,7 @@ sellerRouter.get('/reject/:productId', requireRole('seller'), async (req, res) =
 
 // subscriptioin route
 sellerRouter.get("/subscriptions", sellerMiddleware, async (req, res) => {
-  let request = await fetch('http://localhost:3000/seller/subscriptionStatus', {
+  let request = await fetch(`${process.env.BACKEND_URL}seller/subscriptionStatus`, {
     method: 'GET',
     headers: {
       "Content-Type": "application/json",
@@ -168,7 +168,7 @@ sellerRouter.get("/subscriptions", sellerMiddleware, async (req, res) => {
   let data = await request.json();
   if (data.success) {
     let currentPlan = data.subscription
-    return res.render("sellerSubscription.ejs", { currentPlan: currentPlan });
+    return res.render("sellerSubscription.ejs", { currentPlan: currentPlan,backendURL: process.env.BACKEND_URL });
   }
   console.log("error: ", data);
 })
@@ -183,7 +183,7 @@ sellerRouter.get("/subscription/vip", sellerMiddleware, (req, res) => {
   const yyyy = date.getFullYear();
 
   const validTill = `${dd}-${mm}-${yyyy}`;
-  res.render("paymentPage.ejs", { mail: req.user.email, type: "VIP", Price: "100 Rs", duration: "1 Month", validTill: validTill });
+  res.render("paymentPage.ejs", { mail: req.user.email, type: "VIP", Price: "100 Rs", duration: "1 Month",backendURL: process.env.BACKEND_URL ,validTill:validTill});
 })
 
 sellerRouter.get("/subscription/premium", sellerMiddleware, (req, res) => {
@@ -195,15 +195,17 @@ sellerRouter.get("/subscription/premium", sellerMiddleware, (req, res) => {
   const yyyy = date.getFullYear();
 
   const validTill = `${dd}-${mm}-${yyyy}`;
-  res.render("paymentPage.ejs", { mail: req.user.email, type: "Premium", Price: "1299 Rs", duration: "1 Year",validTill:validTill });
-});
+
+  res.render("paymentPage.ejs", { mail: req.user.email, type: "Premium", Price: "1299 Rs", duration: "1 Year",backendURL: process.env.BACKEND_URL ,validTill:validTill});
+})
+
 
 // payment route
 sellerRouter.post("/payment", sellerMiddleware, async (req, res) => {
   let type = req.body.type;
   let subsNum = type === "Premium" ? 2 : 1;
 
-  let request = await fetch('http://localhost:3000/seller/update/subscription', {
+  let request = await fetch(`${process.env.BACKEND_URL}seller/update/subscription`, {
     method: 'PUT',
     credentials: 'include',
     headers: {

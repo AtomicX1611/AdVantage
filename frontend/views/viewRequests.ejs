@@ -53,7 +53,7 @@
                 rejectBtn.textContent = "Reject";
 
                 acceptBtn.addEventListener("click", async () => {
-                    let response = await fetch(`http://localhost:3000/seller/acceptRequest/${productId}/${item.userId}`, {
+                    let response = await fetch(`<%= backendURL %>seller/acceptRequest/${productId}/${item.userId}`, {
                         method: 'DELETE',
                         headers: { "content-type": "application/json" },
                         credentials: "include"
@@ -69,7 +69,7 @@
                 });
 
                 rejectBtn.addEventListener("click", async () => {
-                    let response = await fetch(`http://localhost:3000/seller/rejectRequest/${productId}/${item.userId}`, {
+                    let response = await fetch(`<%= backendURL %>seller/rejectRequest/${productId}/${item.userId}`, {
                         method: 'DELETE',
                         headers: { "content-type": "application/json" },
                         credentials: "include"
@@ -122,7 +122,7 @@
         //         // rejectBtn.onclick = () => alert(`Rejected ${item.from}`);
 
         //         acceptBtn.addEventListener("click", async () => {
-        //             let response = await fetch(`http://localhost:3000/seller/acceptRequest/${productId}/${item.userId}`, {
+        //             let response = await fetch(`<%= backendURL %>seller/acceptRequest/${productId}/${item.userId}`, {
         //                 method: 'DELETE',
         //                 headers: {
         //                     "content-type": "application/json"
@@ -142,7 +142,7 @@
         //         });
 
         //         rejectBtn.addEventListener("click", async () => {
-        //             let response = await fetch(`http://localhost:3000/seller/rejectRequest/${productId}/${item.userId}`, {
+        //             let response = await fetch(`<%= backendURL %>seller/rejectRequest/${productId}/${item.userId}`, {
         //                 method: 'DELETE',
         //                 headers: {
         //                     "content-type": "application/json"
@@ -177,7 +177,7 @@
 
         // Simulate API call
         async function fetchRequests() {
-            const response = await fetch(`http://localhost:3000/anyone/products/${productId}`);
+            const response = await fetch(`<%= backendURL %>anyone/products/${productId}`);
             // console.log(response.status);
             let data = await response.json();
             let condition = false;

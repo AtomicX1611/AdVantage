@@ -48,7 +48,7 @@
 
     </main>
     <script>
-        const socket = io('http://localhost:3000');
+        const socket = io('<%= backendURL %>');
         let myAccount = "<%=myAccount  %>";  // this is _id
         let sender="";
         const regData= {
@@ -59,7 +59,7 @@
 
         async function fetchConvo(otherId) {
             console.log("id in fetchConvo: ",otherId);
-            let data = await fetch(`http://localhost:3000/chat/messages/${otherId}`, {
+            let data = await fetch(`<%= backendURL %>chat/messages/${otherId}`, {
                 method: 'GET',
                 headers: {
                     "Content-type": "application/json"
@@ -169,7 +169,7 @@
                 sender:myAccount,
                 message:message
             }
-            let save=fetch(`http://localhost:3000/chat/message/${sender}`,{
+            let save=fetch(`<%= backendURL %>chat/message/${sender}`,{
                 method:'POST',
                 headers: {
                     "Content-type": "application/json"

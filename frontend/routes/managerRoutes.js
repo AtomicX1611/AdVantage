@@ -6,7 +6,7 @@ import { authorize, checkToken, serializeUser } from "../../backend/src/middlewa
 const managerRouter = express.Router();
 
 managerRouter.get("/login", (req, res) => {
-  res.render("ManagerLogin.ejs");
+  res.render("ManagerLogin.ejs",{backendURL: process.env.BACKEND_URL});
 });
 
 managerRouter.post("/login",managerLogin)
