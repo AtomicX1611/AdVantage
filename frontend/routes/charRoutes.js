@@ -1,16 +1,6 @@
 import express from "express";
-import { conversation } from "../models/Conversation.js";
 import { fetchConversations } from "../models/MongoUser.js";
-import { senderList } from "../models/MongoUser.js";
-import { buyerList } from "../models/MongoUser.js";
-import { findUserByEmail } from "../models/MongoUser.js";
-import { findSendersForEmail } from "../models/MongoUser.js";
-import { findSellerByEmail } from "../models/MongoUser.js";
-import { createContact } from "../models/MongoUser.js";
-import { findMessages } from "../models/MongoUser.js";
 import { saveMessage } from "../models/MongoUser.js";
-import { findSendersForSeller } from "../models/MongoUser.js";
-import { requireRole } from "../middleware/roleMiddleware.js";
 import { buyerMiddleWare, sellerMiddleware } from "../middleware/roleMiddleware.js";
 export const chatRoutes = express();
 

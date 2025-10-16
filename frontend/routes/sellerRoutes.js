@@ -186,7 +186,6 @@ sellerRouter.get("/subscription/premium", sellerMiddleware, (req, res) => {
 sellerRouter.post("/payment", sellerMiddleware, async (req, res) => {
   let type = req.body.type;
   let subsNum = type === "Premium" ? 2 : 1;
-
   let request = await fetch('http://localhost:3000/seller/update/subscription', {
     method: 'PUT',
     credentials: 'include',
