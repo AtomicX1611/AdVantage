@@ -42,3 +42,12 @@ sellersSchema.pre("findOneAndDelete", async function (next) {
 });
 
 export default mongoose.model("Sellers",sellersSchema);
+
+
+// - Create and validate *Buyer Login* and *Signup Forms*.  
+// - Implement *Search Filters* with dynamic display of results using *DOM Manipulation*.  
+// - Handle *Rent Request Management* with *AJAX* for accept/reject actions.  
+// - Backend: *Validation, **Authentication with Passport, **Route Protection using Middleware, **MVC Design, **Logout Logic*.  
+// - Frontend: *Admin Dashboard, **Seller Dashboard, **Your Orders Page, **Update Password Form*.  
+// - Database: *Sellers* schema.  
+
