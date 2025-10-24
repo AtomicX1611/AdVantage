@@ -13,6 +13,7 @@ import {
     makeAvailableController,
     deleteProduct,
 } from "../controllers/seller.controller.js";
+import { dummyProducts,moreDummyProducts } from "../../data.js";
 
 export const router = express.Router();
 
