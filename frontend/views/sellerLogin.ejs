@@ -203,7 +203,7 @@
         let result = await response.json();
         console.log(result);
 
-        if (response.status === 400) {
+        if (response.status === 409) {
             idExist.style.display = "flex";
             return;
         }
@@ -213,7 +213,7 @@
             return;
         }
 
-        if (response.status === 200) {
+        if (response.ok) {
             window.location.href = "/seller/";
         }
 

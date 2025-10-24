@@ -327,7 +327,7 @@
              <div style="position: relative; text-align: center;">
                     <span style="font-size: 18px; position: absolute; top: 5px; right: 5px; cursor: pointer;">❤️</span>
                 <div style="text-align: center;">
-                    <img src="http://localhost:3000/${product.Images[0]}" alt="${product.name}" style="width: 100px; height: 100px; margin-bottom: 10px;">
+                    <img src="<%= backendURL %>${product.Images[0]}" alt="${product.name}" style="width: 100px; height: 100px; margin-bottom: 10px;">
                     <p><strong>${product.name}</strong></p>
                     <p>${product.price}</p>
                 </div>
@@ -366,7 +366,7 @@
                 comparisonDiv.innerHTML = `
                     <div class="carousel">
                         <button class="prev" onclick="changeImage(${index}, -1)" style>❮</button>
-                        <img id="img-${index}" src="http://localhost:3000/${product.Images[0]}" alt="${product.name}" style="width:200px; height:200px; margin: 0 10px;"/>
+                        <img id="img-${index}" src="<%= backendURL %>${product.Images[0]}" alt="${product.name}" style="width:200px; height:200px; margin: 0 10px;"/>
                         <button class="next" onclick="changeImage(${index}, 1)">❯</button>
                     </div>
                     <h3>${product.name}</h3>
@@ -402,7 +402,7 @@
             let currentSrc = imgElement.src.split("/").pop();
             let currentIndex = images.findIndex(img => img.includes(currentSrc));
             let newIndex = (currentIndex + direction + images.length) % images.length;
-            imgElement.src = `http://localhost:3000/${images[newIndex]}`;
+            imgElement.src = `<%= backendURL %>${images[newIndex]}`;
         }
 
         loadProducts();

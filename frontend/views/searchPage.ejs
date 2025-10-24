@@ -30,7 +30,7 @@
               <input type="checkbox" id="verifiedCheckbox"><b>Only verified</b>
             </div>
             <div id="rentedwrapper">
-              <input type="checkbox" id="rentedCheckbox"><b>Only Rented</b>
+              <input type="checkbox" id="rentedCheckbox"><b>Only Rental</b>
             </div>
             <!-- <b id="priceRange">category</b>
                         <div id="category">
@@ -41,15 +41,15 @@
           </div>
           <div id="mainSection">
             <% if(products.length==0) { %>
-              <h3 style="margin-top: 30vh; margin-left: 30vw">
+              <h3 style="margin-top: 30vh; margin-left: 30vw ; color: black;">
                 No products found in Search
               </h3>
               <% } %>
                 <% for(let i=0;i < products.length; i++) { %>
                   <a href="/search/product/<%= products[i]._id %>">
                     <div class="products">
-                      <img src="http://localhost:3000/<%= products[i].images[0] %>" alt="image" class="images" />
-                      <h4 style=" font-size: 18px ; color: black; font-weight: 400; padding: 1rem 0.5rem;">
+                      <img src="<%= backendURL %><%= products[i].images[0] %>" alt="image" class="images" />
+                      <h4 style="margin-left: 20px; font-size: 15px ; color: black; font-weight: 400; text-align: center; margin-top: 10px;">
                         <%= products[i].name %>
                       </h4>
                       <h3 style="font-size: 20px;margin-left: 0px; color: black ; text-align: right; margin-right: 5px; font-weight: 600;">Rs. <%= products[i].price %>/-</h3>
@@ -81,8 +81,8 @@ const products = <%- JSON.stringify(products) %>;
         ((!rentedCheckbox.checked) || (products[i].isRental === true))) {
           html = `<a href="/search/product/${products[i]._id}">
                               <div class="products">
-                                  <img src="http://localhost:3000/${products[i].images[0]}" alt="image" class="images">
-                                  <h4 style="margin-left: 20px; font-size: 15px; color: black">
+                                  <img src="<%= backendURL %>${products[i].images[0]}" alt="image" class="images">
+                                  <h4 style="margin-left: 20px; font-size: 15px; color: black;">
                                       ${products[i].name}
                                   </h4>
                                   <h3 style="margin-left: 0px; color: black"> Rs. ${products[i].price}/- </h3>
@@ -92,7 +92,7 @@ const products = <%- JSON.stringify(products) %>;
         }
       }
       if (mainSection.innerHTML === '') {
-        mainSection.innerHTML = '<h3 style="margin-top: 30vh;margin-left:30vw;">No products found in the specified filter</h3>';
+        mainSection.innerHTML = '<h3 style="margin-top: 30vh;margin-left:30vw; color: black;">No products found in the specified filter</h3>';
       }
     }
     const mainSection = document.getElementById('mainSection');
@@ -102,6 +102,7 @@ const products = <%- JSON.stringify(products) %>;
     const verifiedCheckbox = document.getElementById('verifiedCheckbox');
     apply.addEventListener('click', filterApplier);
     verifiedCheckbox.addEventListener('input',filterApplier);
+    rentedCheckbox.addEventListener('change',filterApplier);
   </script>
 </body>
 

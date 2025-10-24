@@ -24,6 +24,8 @@ export const updateBuyerProfileService = async (buyerId, updateData, file) => {
         }
     }
 
+    console.log(file);
+
     if (Object.keys(filteredData).length === 0 && file === undefined) {
         return {
             success: false,
@@ -153,4 +155,22 @@ export const getYourProductsService = async (buyerId) => {
 
 export const rentService=async (buyerId,productId,from,to) => {
     return await rentDao(buyerId,productId,from,to);
+}
+
+export const getYouProfileService=async (buyerId) => {
+    const buyer = await getBuyerById(buyerId);
+    if(!buyer){
+        return {
+            success:false,
+            message: "buyer not found",
+            status: 404,
+        }
+    }
+    buyer.password="You fool do you think iam Dumb to give you password";
+    return {
+        success:true,
+        message: "profile fetched successfully",
+        status: 200,
+        buyer: buyer,
+    }
 }

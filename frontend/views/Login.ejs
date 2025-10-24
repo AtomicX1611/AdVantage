@@ -173,6 +173,10 @@
             alert("Username cannot be empty!");
             return;
         }
+        if(username.trim().length <3) {
+            alert("Username should be atleast 3 characters long");
+            return ;
+        }
         if (true) {
             for (let i = 0; i < username.length; i++) {
                 let ch = username.charAt(i);
@@ -190,10 +194,12 @@
             alert("Please enter a valid 10-digit mobile number or 11-digit landline number.");
             return;
         }
+
         if (pwd === "" || cnfpwd === "") {
             alert("Password is required.");
             return;
         }
+        
         if (pwd.trim().length < 8) {
             alert("password length should be atleast 8");
             return;
@@ -202,6 +208,7 @@
             alert("Passwords do not match.");
             return;
         }
+        
         let response = await fetch("/auth/buyer/signup", {
             method: 'POST',
             headers: {

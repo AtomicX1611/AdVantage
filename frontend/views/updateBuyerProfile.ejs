@@ -1,0 +1,112 @@
+<%- include('HomeHeader.ejs') %>
+  <link rel="stylesheet" href="/updateBuyerProfile.css">
+
+  <body>
+    <div class="container">
+      <h2>Update Profile</h2>
+
+      <div class="profile-section">
+        <div>
+          <h4>Previous Profile Picture</h4>
+          <img id="prevPic" src="" alt="No profile picture">
+        </div>
+        <div>
+          <h4>New Profile Picture</h4>
+          <input type="file" id="newProfilePic">
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Previous Username</label>
+        <div class="previous" id="prevUsername">Loading...</div>
+        <label>New Username</label>
+        <input type="text" id="newUsername" placeholder="Enter new username">
+      </div>
+
+      <div class="input-group">
+        <label>Previous Contact</label>
+        <div class="previous" id="prevEmail">Loading...</div>
+        <label>New Contact</label>
+        <input type="email" id="newEmail" placeholder="Enter new contact">
+      </div>
+
+      <button id="updateBtn">Update Profile</button>
+    </div>
+
+    <script>
+      const backendURL = "<%= backendURL %>";
+      const updateURL = `${backendURL}buyer/update/profile`;
+
+      // Fetch existing user data
+      async function fetchProfile() {
+        try {
+          // console.log(backendURL);
+          const response = await fetch(backendURL + "buyer/getYourProfile", {
+            method: "GET",
+            credentials: "include",
+          });
+          const data = await response.json();
+          // console.log(data);
+
+          if (data.success && data.buyer) {
+            const buyer = data.buyer;
+
+            document.getElementById('prevUsername').textContent = buyer.username || "No username";
+            document.getElementById('prevEmail').textContent = buyer.contact || "No Contact";
+
+            const prevPic = document.getElementById('prevPic');
+            if (buyer.profilePicPath) {
+              prevPic.src = backendURL + buyer.profilePicPath;
+            } else {
+              prevPic.src = "https://via.placeholder.com/100?text=No+Pic";
+            }
+          } else {
+            alert("Failed to load profile data");
+          }
+        } catch (error) {
+          console.error(error);
+          alert("Error fetching profile");
+        }
+      }
+
+      document.getElementById("updateBtn").addEventListener("click", async () => {
+        const newUsername = document.getElementById("newUsername").value;
+        const newContact = document.getElementById("newEmail").value;
+        const newProfilePic = document.getElementById("newProfilePic").files[0];
+
+        const formData = new FormData();
+        if (newUsername != "") {
+          formData.append("username", newUsername);
+        }
+        const phoneRegex = /^(\+91[-\s]?|0)?[6-9]\d{9}$/;
+        if (phoneRegex.test(newContact)) {
+          formData.append("contact", newContact);
+        }
+        if (newProfilePic) formData.append("profilePic", newProfilePic);
+
+        try {
+          const response = await fetch(updateURL, {
+            method: "PUT",
+            body: formData,
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            console.log("Update success:", result);
+            alert("Profile updated successfully!");
+            window.location.reload();
+          } else {
+            alert("Update failed");
+          }
+        } catch (error) {
+          console.error(error);
+          alert("Error updating profile");
+        }
+      });
+
+      fetchProfile();
+    </script>
+  </body>
+
+  </html>

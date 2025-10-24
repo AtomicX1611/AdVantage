@@ -26,10 +26,10 @@
                   <div class="image_container">
                     <div class="card_list">
                       <% for(let i=0; product.images[i] !==undefined; i++) { %>
-                        <img src="http://localhost:3000/<%= product.images[i] %>" alt="image" class="card_container">
+                        <img src="<%= backendURL %><%= product.images[i] %>" alt="image" class="card_container">
                         <% } %>
                     </div>
-                    <img class="big_card" src="http://localhost:3000/<%= product.images[0] %>" alt="bigImage">
+                    <img class="big_card" src="<%= backendURL %><%= product.images[0] %>" alt="bigImage">
                   </div>
 
                   <!-- Right: Product Details -->
@@ -39,7 +39,11 @@
                         <h2 class="item_headertitle">
                           <%= product.name %>
                         </h2>
-                        <h2 class="item_price">₹<%= product.price %>/-</h2>
+                        <% if(product.isRental) { %> 
+                        <h2 class="item_price">₹<%= product.price %>/- per day</h2>
+                          <% } else { %>
+                            <h2 class="item_price">₹<%= product.price %>/-</h2>
+                            <% } %>
                       </div>
 
                       <div class="item_location">
@@ -56,7 +60,7 @@
                       </div>
 
                       <% if(product.verified) { %>
-                        <h4 id="verified">✅ Verified Product</h4>
+                        <h4 id="verified" style="color: black; width: 100%; text-align: right;">✅ Verified Product</h4>
                         <% } %>
 
 
@@ -144,6 +148,7 @@
       notifMessage.textContent = message;
       notification.style.display = "block";
       notification.style.opacity = "1";
+      notification.style.color = "white";
       setTimeout(() => hideNotification(), 1000);
     }
 
@@ -176,7 +181,7 @@
       if (new Date(fromDate) < today) return alert("The 'From' date cannot be in the past.");
 
       try {
-        const response = await fetch(`http://localhost:3000/buyer/rent/${ppid}`, {
+        const response = await fetch(`<%= backendURL %>buyer/rent/${ppid}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -221,7 +226,8 @@
     const verifyProductButton = document.getElementById("verifyButton");
     verifyProductButton?.addEventListener("click", async () => {
       const productId = verifyProductButton.getAttribute("data-id");
-      const response = await fetch("http://localhost:3000/manager/verify", {
+      // console.log(productId);
+      const response = await fetch("<%= backendURL %>manager/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pid: productId }),
@@ -239,7 +245,7 @@
     const deleteProductBtn = document.getElementById('deleteProduct');
     deleteProductBtn?.addEventListener("click", async () => {
       const productId = deleteProductBtn.getAttribute("data-id");
-      const response = await fetch(`http://localhost:3000/seller/deleteProduct/${productId}`, {
+      const response = await fetch(`<%= backendURL %>seller/deleteProduct/${productId}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -250,7 +256,7 @@
     });
 
     async function handleMakeAvailable(productId) {
-      let request = await fetch(`http://localhost:3000/seller/makeAvailable/${productId}`, {
+      let request = await fetch(`<%= backendURL %>seller/makeAvailable/${productId}`, {
         method: 'POST',
         headers: { "content-type": "application/json" },
         credentials: "include",

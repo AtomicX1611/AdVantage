@@ -8,10 +8,10 @@
   <div class="main-container">
     <div class="header">
       <div class="back-icon">
-        <a href="/"><i class="bx bx-left-arrow-alt"></i></a>
+        <a href="/"><i class="bx bx-left-arrow-alt" style="color: black;"></i></a>
       </div>
       <div class="header-text">
-        <h1>Your Orders</h1>
+        <h1 style="color: black;">Your Orders</h1>
       </div>
     </div>
     <div class="product_list">
@@ -20,7 +20,11 @@
       <a href="/search/product/<%= product._id %>">
         <div class="product_card">
           <% if(product.images[0]) { %>
-          <img src="http://localhost:3000/<%= product.images[0] %>" alt="Product Image" />
+          <img src="<%= backendURL %><%= product.images[0] %>" alt="Product Image" style="height: 35vh; object-fit: cover;" />
+          <h4 style="margin-left: 20px; font-size: 15px ; color: black; font-weight: 400; text-align: center; margin-top: 20px; padding: 0.5rem;">
+                        <%= product.name %>
+                      </h4>
+                      <h3 style="font-size: 20px;margin-left: 0px; color: black ; text-align: right; margin-right: 5px; font-weight: 600; padding: 0.5rem;">Rs. <%= product.price %>/-</h3>
           <% } %>
         </div>
       </a>

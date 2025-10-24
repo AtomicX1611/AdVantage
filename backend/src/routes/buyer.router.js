@@ -13,7 +13,8 @@ import {
     updateBuyerPassword,
     getWishlistProducts,
     getYourProducts,
-    rentProductController
+    rentProductController,
+    getYourProfile,
 } from "../controllers/buyer.controller.js";
 
 export const router = express.Router();
@@ -34,5 +35,6 @@ router.put("/update/password",updateBuyerPassword);
 router.put("/update/profile", upload.single("profilePic"), updateBuyerProfile);
 
 router.get("/yourProducts",getYourProducts);
+router.get("/getYourProfile",getYourProfile);
 
 export default router;

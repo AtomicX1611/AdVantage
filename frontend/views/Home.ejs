@@ -35,7 +35,7 @@
             <h3>Clothes</h3>
           </div>
         </a>
-        <a href="/search/product/category/Electronics">
+        <a href="/search/product/category/Mobiles">
           <div class="icon" id="mobile">
             <img src="/Assets/categories/image (3).png" alt="" />
           </div>
@@ -117,28 +117,24 @@
       </div>
 
       <div class="product_list">
-        <% if (featuredProducts && featuredProducts.length> 0) { %>
-          <% for(let i=0; i < featuredProducts.length; i++) { %>
-            <% let product=featuredProducts[i]; %>
-              <a href="/search/product/<%= product._id %>">
-                <div class="product_card">
-                  <% if(product.images && product.images[0]) { %>
-                    <img src="http://localhost:3000/<%= product.images[0] %>" alt="Product Image" style="border-radius: 10px; height: 250vh;"/>
-                    <h4 style=" font-size: 18px ; color: black; font-weight: 400; padding: 1rem 0.5rem;">
-                      <%= product.name %>
-                    </h4>
-                    <h3
-                      style="font-size: 20px;margin-left: 0px; color: black ; text-align: right; margin-right: 5px; font-weight: 600;">
-                      Rs. <%= product.price %>/-</h3>
-                    <% } %>
-                </div>
-              </a>
+        <% console.log(featuredProducts); %>
+        <% for(let i = 0; i < featuredProducts.length; i++) { %>
+          <% let product = featuredProducts[i]; %>
+          <a href="/search/product/<%= product._id %>">
+            <div class="product_card">
+              <% if(product.images[0]) { %>
+                <img src="<%= backendURL %><%= product.images[0] %>" alt="Product Image" style="width: 100%; height: 35vh;"/>
+                <h4 style="margin-left: 20px; font-size: 15px ; color: black; font-weight: 400; text-align: center; margin-top: 20px;">
+                        <%= product.name %>
+                      </h4>
+                      <h3 style="font-size: 20px;margin-left: 0px; color: black ; text-align: right; margin-right: 5px; font-weight: 600;">Rs. <%= product.price %>/-</h3>
               <% } %>
-                <% } else { %>
-                  <div class="no-products">
-                    <p>No products available...</p>
-                  </div>
-                  <% } %>
+              <div class="productName">
+                
+              </div>
+            </div>
+          </a>
+        <% } %>
       </div>
     </div>
   </section>
@@ -150,28 +146,21 @@
       </div>
 
       <div class="product_list">
-        <% if (freshProducts && freshProducts.length> 0) { %>
-          <% for(let i=0; i < freshProducts.length; i++) { %>
-            <% let product=freshProducts[i]; %>
-              <a href="/search/product/<%= product._id %>">
-                <div class="product_card">
-                  <% if(product.images && product.images[0]) { %>
-                    <img src="http://localhost:3000/<%= product.images[0] %>" alt="Product Image" />
-                    <h4 style=" font-size: 18px ; color: black; font-weight: 400; padding: 1rem 0.5rem;">
-                      <%= product.name %>
-                    </h4>
-                    <h3
-                      style="font-size: 20px;margin-left: 0px; color: black ; text-align: right; margin-right: 5px; font-weight: 600;">
-                      Rs. <%= product.price %>/-</h3>
-                    <% } %>
-                </div>
-              </a>
+        <% for(let i = 0; i < freshProducts.length; i++) { %>
+          <% let product = freshProducts[i]; %>
+          <a href="/search/product/<%= product._id %>">
+            <div class="product_card">
+              <% if(product.images[0]) { %>
+                <img src="<%= backendURL %><%= product.images[0] %>" alt="Product Image" style="width: 100%; height: 35vh;"/>
+                <h4 style="margin-left: 20px; font-size: 15px ; color: black; font-weight: 400; text-align: center; margin-top: 20px;">
+                        <%= product.name %>
+                      </h4>
+                      <h3 style="font-size: 20px;margin-left: 0px; color: black ; text-align: right; margin-right: 5px; font-weight: 600;">Rs. <%= product.price %>/-</h3>
               <% } %>
-                <% } else { %>
-                  <div class="no-products">
-                    <p>No products available...</p>
-                  </div>
-                  <% } %>
+              
+            </div>
+          </a>
+        <% } %>
       </div>
     </div>
   </section>

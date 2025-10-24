@@ -23,7 +23,7 @@
               <% if(products[i].requests.length !=0 && !products[i].isRental){ found=true; %>
                 <a href="/search/product/<%= products[i]._id %>">
                   <div class="card">
-                    <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                    <img src="<%= backendURL %><%= products[i].images[0]%>" alt="<%= products[i].name %>">
                   </div>
                 </a>
                 <% } %>
@@ -43,7 +43,11 @@
               <% if(products[i].requests.length !=0 && products[i].isRental && !products[i].soldTo){ found=true; %>
                 <a href="/search/product/<%= products[i]._id %>">
                   <div class="card">
-                    <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                    <% if(products[i].images[0].includes("http")) { %>
+                    <img src="<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                    <% }else{ %>
+                    <img src="<%= backendURL %><%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                    <% } %>
                   </div>
                 </a>
                 <% } %>
@@ -63,7 +67,7 @@
               <% if(products[i].requests.length==0 && !products[i].soldTo && !products[i].isRental){ found=true; %>
                 <a href="/search/product/<%= products[i]._id %>">
                   <div class="card">
-                    <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                    <img src="<%= backendURL %><%= products[i].images[0]%>" alt="<%= products[i].name %>">
                   </div>
                 </a>
                 <% } %>
@@ -83,7 +87,7 @@
               <% if(products[i].requests.length==0 && !products[i].soldTo && products[i].isRental){ found=true; %>
                 <a href="/search/product/<%= products[i]._id %>">
                   <div class="card">
-                    <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                    <img src="<%= backendURL %><%= products[i].images[0]%>" alt="<%= products[i].name %>">
                   </div>
                 </a>
                 <% } %>
@@ -103,7 +107,7 @@
               <% if(products[i].soldTo && products[i].isRental){ found=true; %>
                 <a href="/search/product/<%= products[i]._id %>">
                   <div class="card">
-                    <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                    <img src="<%= backendURL %><%= products[i].images[0]%>" alt="<%= products[i].name %>">
                   </div>
                 </a>
                 <% } %>
@@ -123,7 +127,7 @@
               <% if(products[i].soldTo && !products[i].isRental){ found=true; %>
                 <a href="/search/product/<%= products[i]._id %>">
                   <div class="card">
-                    <img src="http://localhost:3000/<%= products[i].images[0]%>" alt="<%= products[i].name %>">
+                    <img src="<%= backendURL %><%= products[i].images[0]%>" alt="<%= products[i].name %>">
                   </div>
                 </a>
                 <% } %>
