@@ -24,9 +24,9 @@
                         <i class='bx bx-search-alt magnifier'></i>
                         <input type="search" name="search" id="search-products" placeholder="Search" name="searchValue">
                     </div>
-                    <button id="search-btn" type="submit">
+                    <!-- <button id="search-btn" type="submit">
                         Search
-                    </button>
+                    </button> -->
                 </form>
                 <% if(isLogged){ %>
                     <div class="sellbtn hover-btn">
@@ -57,13 +57,13 @@
                 
                             <div class="box2">
                                 <div class="hover chaticon box2-icons">
-                                    <a href="/buyer/chats/buyerInbox"><img src="/Assets/Comment.svg" alt=""></a>
+                                    <a href="/buyer/chats/buyerInbox"><img src="/Assets/Commentblack.png" alt=""></a>
                                 </div>
                                 <div class="hover alert box2-icons">
-                                    <a href=""><img src="/Assets/Alarm.svg" alt=""></a>
+                                    <a href=""><img src="/Assets/Alarmblack.png" alt=""></a>
                                 </div>
-                                <div class="hover mode box2-icons">
-                                    <a href=""><img src="/Assets/Icon.svg" alt=""></a>
+                                <div class="hover toggle box2-icons">
+                                    <a href=""><img src="/Assets/Toggleblack.png" alt=""></a>
                                 </div>
                             </div>
                             <div class="box3">
@@ -71,7 +71,7 @@
                                     <a href="/buyer/wishlist"><i class='bx bx-heart'></i></a>
                                 </div>
                                 <div class="hover box2-icons notifications alert" id="notification-icon">
-                                    <a href="#"><img src="/Assets/notification.png" alt="" height="35px"></i></a>
+                                    <a href="#"><img src="/Assets/Notificationblacl.png" alt="" height="35px"></i></a>
                                 </div>
                                 <% const profilePic = data?.buyer?.profilePicPath; %>
                                 <div class="hover box2-icons profile">

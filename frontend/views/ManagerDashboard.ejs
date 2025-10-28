@@ -9,7 +9,7 @@
 
   <body>
     <div class="dashboard">
-      <img class="sidebar" src="/Assets/AdminSidebar.png" />
+      <!-- <img class="sidebar" src="/Assets/AdminSidebar.png" /> -->
 
       <div class="scroll_container">
         <table>
@@ -18,7 +18,7 @@
               <th>Seller Mail</th>
               <th>Product Name</th>
               <th>Posting Date</th>
-              <th>Invoice</th>
+              <th id="Invoice">Invoice</th>
               <th></th>
             </tr>
           </thead>
@@ -33,10 +33,10 @@
               <% } %>
               <td><%= products[i].name %></td>
               <td><%= products[i].postingDate %></td>
-              <% if(products[i].invoice){ %>
-              <td><a href="<%= backendURL %><%= products[i].invoice %>">Invoice</a></td>
-              <% }else{ %>
-                No invoice
+              <% if (products[i].invoice) { %>
+              <td ><a href="<%= backendURL %><%= products[i].invoice %>">Invoice</a></td>
+              <% } else { %>
+              <td>No invoice available</td>
               <% } %>
               <td>
                 <a

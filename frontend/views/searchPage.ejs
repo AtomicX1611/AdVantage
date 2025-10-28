@@ -41,7 +41,7 @@
           </div>
           <div id="mainSection">
             <% if(products.length==0) { %>
-              <h3 style="margin-top: 30vh; margin-left: 30vw">
+              <h3 style="margin-top: 30vh; margin-left: 30vw ; color: black;">
                 No products found in Search
               </h3>
               <% } %>
@@ -49,10 +49,10 @@
                   <a href="/search/product/<%= products[i]._id %>">
                     <div class="products">
                       <img src="<%= backendURL %><%= products[i].images[0] %>" alt="image" class="images" />
-                      <h4 style="margin-left: 20px; font-size: 15px">
+                      <h4 style="margin-left: 20px; font-size: 15px ; color: black; font-weight: 400; text-align: center; margin-top: 10px;">
                         <%= products[i].name %>
                       </h4>
-                      <h3 style="margin-left: 0px">Rs. <%= products[i].price %>/-</h3>
+                      <h3 style="font-size: 20px;margin-left: 0px; color: black ; text-align: right; margin-right: 5px; font-weight: 600;">Rs. <%= products[i].price %>/-</h3>
                     </div>
                   </a>
                   <% }%>
@@ -82,17 +82,17 @@ const products = <%- JSON.stringify(products) %>;
           html = `<a href="/search/product/${products[i]._id}">
                               <div class="products">
                                   <img src="<%= backendURL %>${products[i].images[0]}" alt="image" class="images">
-                                  <h4 style="margin-left: 20px; font-size: 15px;">
+                                  <h4 style="margin-left: 20px; font-size: 15px; color: black;">
                                       ${products[i].name}
                                   </h4>
-                                  <h3 style="margin-left: 0px"> Rs. ${products[i].price}/- </h3>
+                                  <h3 style="margin-left: 0px; color: black"> Rs. ${products[i].price}/- </h3>
                               </div>
                           </a>`;
           mainSection.insertAdjacentHTML("beforeend", html);
         }
       }
       if (mainSection.innerHTML === '') {
-        mainSection.innerHTML = '<h3 style="margin-top: 30vh;margin-left:30vw;">No products found in the specified filter</h3>';
+        mainSection.innerHTML = '<h3 style="margin-top: 30vh;margin-left:30vw; color: black;">No products found in the specified filter</h3>';
       }
     }
     const mainSection = document.getElementById('mainSection');

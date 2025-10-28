@@ -1,15 +1,17 @@
+
+
 .window{
-    background-image: url("/Assets/Backgrounds/Bluemoon.jpg");
-    background-size: cover;
-    background-repeat: no-repeat;
+    /* background-image: url("/Assets/Backgrounds/Bluemoon.jpg"); */
+    /* background-size: cover; */
+    /* background-repeat: no-repeat; */
     /* background-position: center -150px; */
-    background-repeat: no-repeat;    
+    /* background-repeat: no-repeat;     */
 }
 
 .main-container {
     min-height: 90vh;
     width: 100vw;
-    background-color: #24242400;
+    background-color: #F8f6ff;
     display: flex;
     flex-direction: column;   
 }
@@ -20,17 +22,27 @@
     display: flex;
     align-items: center;
     gap: 20px;
-    color: white;
-    margin-top: 0%;
-    padding-top: 0%;
+    color: rgb(0, 0, 0);
+    padding-top: 30px;
+}
+
+.header h1 {
+    font-weight: 400;
+
+}
+
+.header-text {
+    font-weight: 300;
+   
 }
 .bx-left-arrow-alt {
     margin-left: 30px;
     font-size: 28px;
-    color: white;
-    border: 1px solid white;
+    color: rgb(0, 0, 0);
+    border: 1px solid rgb(0, 0, 0);
     border-radius: 100%;
 }
+
 .user-data {
     margin-top: 3vh;
     display: flex;
@@ -64,7 +76,7 @@
     width: 400px;
     background-color: rgba(217, 217, 217, 0);
     border-radius: 10px;
-    border: white 2px solid;
+    border: rgb(0, 0, 0) 2px solid;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -74,14 +86,14 @@
 }
 
 .section-text {
-    color: white;
+    color: rgb(0, 0, 0);
     margin-left: 20px;
     width: 80%;
     height: inherit;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 22px;
+    font-weight: 400;
     animation: animate 1.2s ease;
 }
 

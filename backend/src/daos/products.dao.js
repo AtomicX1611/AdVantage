@@ -163,6 +163,7 @@ export const getFreshProductsDao = async () => {
 };
 
 export const getFeaturedProductsDao = async () => {
+    const productss = await Products.find();    
     const products = await Products.aggregate([
         {
             $match: { soldTo: null }
@@ -184,7 +185,6 @@ export const getFeaturedProductsDao = async () => {
         },
         { $limit: 20 },
     ]);
-
     return products;
 };
 

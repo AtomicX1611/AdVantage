@@ -14,6 +14,7 @@ import { chatRouter } from "./src/routes/chat.routes.js";
 import { Server } from "socket.io";
 import { socketActions } from "./src/controllers/socket.contoller.js";
 import { managerRouter } from "./src/routes/manager.router.js";
+import { seedData } from "./data.js";
 
 const app=express();
 await connectDB();
@@ -21,7 +22,7 @@ await connectDB();
 // body Parsing middleware
 app.use(cookieParser());
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "http://localhost:3001",
   credentials:true
 }));
 app.use(express.json({ limit: "500mb" }));
@@ -38,12 +39,13 @@ app.use("/anyone",anyoneRouter);
 app.use("/chat",chatRouter);
 
 const server=app.listen(process.env.PORT,()=>{
-    console.log("Server listening on ://localhost:"+process.env.PORT);
+    // seedData();
+    console.log("Server listening on http://localhost:"+process.env.PORT);
 });
 
 export const io=new Server(server,{
   cors: {
-    origin:"http://10.237.50.129:3001",
+    origin:"http://localhost:3001",
     methods:['GET','POST'],
     credentials:true
   }

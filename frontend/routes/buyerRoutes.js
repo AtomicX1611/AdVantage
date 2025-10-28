@@ -33,6 +33,8 @@ buyerRoutes.get("/home", softBuyer, async (req, res) => {
   try {
     const apiResponse = await fetch(`${process.env.BACKEND_URL}anyone/HomeRequirements`);
     const response = await apiResponse.json();
+    console.log("freshProducts: ",response.freshProducts.length);
+    console.log("featuredProducts: ",response.featuredProducts.length);
 
     res.render("Home.ejs", {
       isLogged: req.isLogged,
@@ -42,6 +44,7 @@ buyerRoutes.get("/home", softBuyer, async (req, res) => {
       data: req.data,
     });
   } catch (error) {
+    console.log("Error fetching home requirements:", error);
     res.render("Home.ejs", {
       isLogged: req.isLogged,
       freshProducts: [],
@@ -257,7 +260,7 @@ buyerRoutes.get("/buy/:productId", buyerMiddleWare, async (req, res) => {
   }
 });
 
-buyerRoutes.get("/yourProducts", async (req, res) => {
+buyerRoutes.get("/yourProducts", softBuyer,async (req, res) => {
   try {
     // call backend API with cookies forwarded
     const backendRes = await fetch(`${process.env.BACKEND_URL}buyer/yourProducts`, {
@@ -275,15 +278,17 @@ buyerRoutes.get("/yourProducts", async (req, res) => {
         userProducts: [],
         error: data.message || "Failed to load your products",
         backendURL: process.env.BACKEND_URL,
+        data:req.data,
       });
     }
     if (backendRes.ok && data.products != null && data.products.length == 0) {
-      return res.render("ErrorPage.ejs", { account: "buyer", error: "You haven't purchased anything yet", url: "/", isLogged: true });
+      return res.render("ErrorPage.ejs", { account: "buyer", error: "You haven't purchased anything yet", url: "/", isLogged: true,data:req.data, backendURL: process.env.BACKEND_URL});
     }
     res.render("yourproducts.ejs", {
       isLogged: !!req.cookies?.token,
       userProducts: data.products || [],
       backendURL: process.env.BACKEND_URL,
+      data:req.data,
     });
   } catch (err) {
     console.error("Proxy error (/yourProducts):", err);
@@ -292,6 +297,7 @@ buyerRoutes.get("/yourProducts", async (req, res) => {
       userProducts: [],
       error: "Internal server error (proxy)",
       backendURL: process.env.BACKEND_URL,
+      data:req.data,
     });
   }
 });
