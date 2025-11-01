@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // src/App.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
@@ -15,11 +16,26 @@ const subsData = [
     price: "$79.99",
   }
 ]
+=======
+import { useState } from 'react'
+import './App.css'
+import AppRoutes from "./routes/AppRoutes"
+import Navbar from './components/NavBar'
+>>>>>>> 9b3a78ad1387b060512bdef27a90be8c7f9ba197
 
 const App = () => {
   return (
+<<<<<<< HEAD
     <Routes>
       <Route path="/subscription" element={<SubscriptionPage />} />
+=======
+   <>
+     <Navbar/>
+   <AppRoutes/>
+   </>
+  )
+}
+>>>>>>> 9b3a78ad1387b060512bdef27a90be8c7f9ba197
 
       <Route path="/seller/subscription/vip" element={<PaymentPage type={subsData[0].type} duration={subsData[0].duration} Price={subsData[0].price} validTill={new Date(
         new Date().setMonth(new Date().getMonth() + 1)

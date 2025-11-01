@@ -1,4 +1,4 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import {Navigate, Route, BrowserRouter as Router,Routes} from "react-router-dom";
 import Home from "../pages/Home";
 import ProductDetail from '../pages/ProductDetail';
 import Register from "../pages/Register";
@@ -7,6 +7,13 @@ import Manager from "../pages/Manager";
 import SubscriptionPage from "../pages/Subscription.page";
 import PaymentPage from "../pages/Payment.page";
 import Login from "../pages/Login";
+import { useSelector } from "react-redux";
+
+const ProtectedRoute = ({ element }) => {
+  const { isAuth } = useSelector((state) => state.auth);
+  return isAuth ? element : <Navigate to="/login" replace />;
+};
+
 
 const subsData = [
   {

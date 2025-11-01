@@ -9,7 +9,7 @@ import {
 
 export const buyerSignup = async (req, res) => {
     try {
-        // console.log("in backend buyersignup");
+        console.log("in backend buyersignup");
         const { username, contact, email, password } = req.body;
         if (!username || !contact || !email || !password) {
             return res.status(400).json({
@@ -25,7 +25,8 @@ export const buyerSignup = async (req, res) => {
                 success: false,
             });
         }
-
+        console.log("logging here with response sucess");
+        
         res.cookie("token", response.token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000
