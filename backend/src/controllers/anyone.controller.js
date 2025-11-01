@@ -57,6 +57,8 @@ export const getProductDetails = async (req,res) => {
 }
 
 export const getProducts = async (req,res) => {
+    console.log("backend got request here for search products");
+    
     try{
         const products = await getProductsService(req.query);
         // console.log(" sdkjf ");

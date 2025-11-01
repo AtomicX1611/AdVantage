@@ -14,9 +14,9 @@ const ProductInfo = ({ product }) => {
 
       <div className={styles.item_location}>
         <h2 style={{ fontWeight: 500, fontSize: "1.7rem" }}>Address:</h2>
-        <h2 className={styles.item_address}>{product.address.state}</h2>
-        <h3 className={styles.item_address}>{product.address.district}</h3>
-        <h4 className={styles.item_address}>{product.address.city}</h4>
+        <h2 className={styles.item_address}>{product.address?.state || product.state}</h2>
+        <h3 className={styles.item_address}>{product.address?.district || product.district}</h3>
+        <h4 className={styles.item_address}>{product.address?.city || product.city}</h4>
       </div>
 
       {product.verified && (

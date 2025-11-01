@@ -25,7 +25,11 @@ app.use(cookieParser());
 // ⭐ FIXED CORS HERE — only this line changed ⭐
 app.use(cors({
   origin: "http://localhost:5173",
+<<<<<<< HEAD
   credentials: true
+=======
+  credentials:true
+>>>>>>> 8d8f579c0611e751e84c98a1acf805a341760e02
 }));
 
 app.use(express.json({ limit: "500mb" }));
@@ -58,9 +62,15 @@ const server = app.listen(process.env.PORT, () => {
 // ⭐ FIXED SOCKET.IO CORS ALSO ⭐
 export const io = new Server(server, {
   cors: {
+<<<<<<< HEAD
     origin: "http://localhost:5173",
     methods: ['GET', 'POST'],
     credentials: true
+=======
+    origin:"http://localhost:5173",
+    methods:['GET','POST'],
+    credentials:true
+>>>>>>> 8d8f579c0611e751e84c98a1acf805a341760e02
   }
 });
 

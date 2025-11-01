@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import ImageGallery from "../components/ImageGallery";
 import ProductInfo from "../components/ProductInfo";
 import ActionButtons from "../components/ActionButtons";
@@ -8,31 +9,40 @@ import Notification from "../components/NotificationCard";
 import styles from "../styles/productdetails.module.css";
 
 const ProductDetailPage = () => {
+  
+  const { pid } = useParams();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [showRentForm, setShowRentForm] = useState(false);
   const [notification, setNotification] = useState("");
   const [showNotif, setShowNotif] = useState(false);
 
-  // Dummy product data
-  const product = {
-    id: "123",
-    name: "Canon DSLR Camera",
-    price: 25000,
-    isRental: true,
-    verified: true,
-    soldTo: null,
-    description:
-      "A professional DSLR camera with excellent low-light performance and lens compatibility.",
-    images: [
-      "/assets/products/cam1.jpg",
-      "/assets/products/cam2.jpg",
-      "/assets/products/cam3.jpg",
-    ],
-    address: {
-      state: "Andhra Pradesh",
-      district: "Chittoor",
-      city: "Sri City",
-    },
-  };
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:3000/anyone/products/${pid}`
+        );
+
+        const data = await res.json();
+        if (!data.success) {
+          setError(data.message || "Failed to load product");
+          setLoading(false);
+          return;
+        }
+
+        console.log("Product laoded: ", data.product);
+        setProduct(data.product);
+      } catch (err) {
+        console.error("Error fetching product:", err);
+        setError("Something went wrong while fetching product.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [pid]);
 
   const handleAddToWishlist = () => {
     setNotification("Added to Wishlist!");
@@ -49,22 +59,52 @@ const ProductDetailPage = () => {
     setShowRentForm(false);
   };
 
+  if (loading) {
+    return <h2 style={{ textAlign: "center", marginTop: "120px" }}>Loading...</h2>;
+  }
+
+  if (error) {
+    return (
+      <h2 style={{ textAlign: "center", marginTop: "120px", color: "red" }}>
+        {error}
+      </h2>
+    );
+  }
+
+  if (!product) {
+    return <h2 style={{ textAlign: "center", marginTop: "120px" }}>Product not found</h2>;
+  }
+
+  
+  const productImages = product.images || [
+    product.Image1Src,
+    product.Image2Src,
+    product.Image3Src
+  ].filter(Boolean);
+
   return (
-    <div className={styles['BG']}>
+    <div className={styles["BG"]}>
       {showNotif && (
-        <Notification message={notification} onClose={() => setShowNotif(false)} />
+        <Notification
+          message={notification}
+          onClose={() => setShowNotif(false)}
+        />
       )}
-      <div className={styles['main_container']}>
-        <div className={styles['product_display']}>
-          <ImageGallery images={product.images} />
-          <div className={styles['product_details']}>
+
+      <div className={styles["main_container"]}>
+        <div className={styles["product_display"]}>
+          <ImageGallery images={productImages} />
+
+          <div className={styles["product_details"]}>
             <ProductInfo product={product} />
+
             <ActionButtons
               isRental={product.isRental}
               soldTo={product.soldTo}
               onAddToWishlist={handleAddToWishlist}
               onRentNow={handleRentNow}
             />
+
             <SellerOptions verified={product.verified} />
           </div>
         </div>

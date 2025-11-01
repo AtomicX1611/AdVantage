@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import MessageBubble from "./MessageBubble";
 import styles from "../styles/buyerchat.module.css";
 
-const ChatBox = ({ selectedSender, messages, onSendMessage }) => {
+const ChatBox = ({ currentUser, selectedSender, messages, onSendMessage }) => {
   const [text, setText] = useState("");
 
   const handleSend = () => {
@@ -22,18 +22,18 @@ const ChatBox = ({ selectedSender, messages, onSendMessage }) => {
 
       <div className={styles.messages}>
         {messages.map((msg, index) => (
-          <MessageBubble key={index} msg={msg} selectedSender={selectedSender} />
+          <MessageBubble key={index} msg={msg} selectedSender={selectedSender} currentUser={currentUser} />
         ))}
       </div>
 
-      <div className={styles.type}>
+      <div className={styles['type']}>
         <textarea
-          id="text-box"
+          className={styles['text-box']}
           placeholder="Type a message"
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
-        <div className={styles.sendBtn} onClick={handleSend}>
+        <div className={styles['send-btn']} onClick={handleSend}>
           Send <i className="bx bx-send"></i>
         </div>
       </div>

@@ -1,4 +1,3 @@
-// src/pages/ChatPage.jsx
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import ChatSidebar from "../components/ChatSidebar";
@@ -7,38 +6,74 @@ import styles from "../styles/buyerchat.module.css";
 
 
 const ChatPage = () => {
-  // Temporary mock user data
-  const myUsername = "John";
-  const myAccount = "user123";
-  const backendURL = "https://your-backend-url.com/";
+  // store username here
+  const [myUsername, setMyusername] = useState("");
+  const [myAccount, setMyAccount] = useState("");
+  const backendURL = "http://localhost:3000/";
 
-  // State
   const [socket, setSocket] = useState(null);
-  const [senders, setSenders] = useState([
+  const [senders, setSenders] = useState([  // set this with fetch request to get contacts
     { _id: "seller1", username: "Alice" },
     { _id: "seller2", username: "Bob" },
     { _id: "seller3", username: "Charlie" },
   ]);
+
   const [selectedSender, setSelectedSender] = useState(null);
   const [messages, setMessages] = useState([]);
 
-  // Connect socket and listen for messages
+  // 1. Fetch Contacts useEffect
   useEffect(() => {
-    const newSocket = io(backendURL, { withCredentials: true });
-    setSocket(newSocket);
+    async function fetchContacts() {
+      console.log("1. Running fetch contacts...");
+      try {
+        const response = await fetch(`${backendURL}chat/contacts`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
 
-    newSocket.emit("buyer-register", { _id: myAccount });
+        const data = await response.json();
+        console.log("2. Fetch :", data);
 
-    newSocket.on("newMessage", (data) => {
-      if (data.sender === selectedSender?._id) {
-        setMessages((prev) => [...prev, { sender: data.sender, message: data.message }]);
+        if (data.success) {
+          setSenders(data.contacts);
+          setMyusername(data.userName);
+          setMyAccount(data.myAccount);
+        }
+      } catch (error) {
+        console.error("FAILED to fetch contacts:", error);
       }
+    }
+    fetchContacts();
+  }, []); // Run once on mount
+
+  // 2. Socket Connecting useEffect
+  // If myAccount is not set then show some error page 
+  useEffect(() => {
+    if (!myAccount) {
+      console.log("Waiting for user account data before connecting socket...");
+      return;
+    }
+
+    console.log("Initiating Socket connection for:", myAccount);
+
+    const newSocket = io("http://localhost:3000", {
+      withCredentials: true,
     });
 
-    return () => newSocket.disconnect();
-  }, [backendURL, myAccount, selectedSender]);
+    setSocket(newSocket);
 
-  // Fetch messages for a selected contact
+    // Register immediately upon connection
+    newSocket.on("connect", () => {
+      console.log("Socket Connected! ID:", newSocket.id);
+      newSocket.emit("buyer-register", { _id: myAccount });
+    });
+
+    // Cleanup
+    return () => newSocket.disconnect();
+
+  }, [myAccount]); // This Effect now waits for 'myAccount' to change
+
   async function fetchConversation(otherId) {
     try {
       const res = await fetch(`${backendURL}chat/messages/${otherId}`, {
@@ -54,13 +89,26 @@ const ChatPage = () => {
     }
   }
 
-  // Handle selecting a contact
-  const handleSelectSender = async (sender) => {
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleIncomingMessage = (data) => {
+      console.log("Received Message from Server:", data);
+      if (selectedSender && data.sender === selectedSender._id) {
+        setMessages((prev) => [...prev, data]);
+      }
+    };
+    socket.on("newMessage", handleIncomingMessage);
+    return () => {
+      socket.off("newMessage", handleIncomingMessage);
+    };
+  }, [socket, selectedSender]);
+
+  const handleSelectSender = (sender) => {
     setSelectedSender(sender);
-    await fetchConversation(sender._id);
+    setMessages([]);
   };
 
-  // Handle sending a new message
   const handleSendMessage = async (msg) => {
     if (!msg.trim() || !selectedSender) return;
 
@@ -70,26 +118,29 @@ const ChatPage = () => {
       message: msg.trim(),
     };
 
+    console.log("messageData: ", messageData);
+
     setMessages((prev) => [...prev, messageData]);
     socket.emit("send", messageData);
 
-    await fetch(`${backendURL}chat/message/${selectedSender._id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ newMessage: { sender: myAccount, message: msg } }),
-    });
+    // await fetch(`${backendURL}chat/message/${selectedSender._id}`, {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   credentials: "include",
+    //   body: JSON.stringify({ newMessage: { sender: myAccount, message: msg } }),
+    // });
   };
 
   return (
     <div className={styles.bodyWrapper}>
       <h1 id="myName">Welcome, {myUsername}</h1>
-      <main className={styles.main}>
+      <main className={styles.mainContent}>
         <ChatSidebar senders={senders} onSelectSender={handleSelectSender} />
         <ChatBox
           selectedSender={selectedSender}
           messages={messages}
           onSendMessage={handleSendMessage}
+          currentUser={myAccount}
         />
       </main>
     </div>
