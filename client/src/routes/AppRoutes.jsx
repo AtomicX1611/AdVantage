@@ -8,6 +8,9 @@ import SubscriptionPage from "../pages/Subscription.page";
 import PaymentPage from "../pages/Payment.page";
 import Login from "../pages/Login";
 import { useSelector } from "react-redux";
+import YourOrders from "../pages/YourOrders.page";
+import ChatPage from "../pages/ChatPage";
+import Profile from '../pages/Profile.jsx'
 
 const ProtectedRoute = ({ element }) => {
   const { isAuth } = useSelector((state) => state.auth);
@@ -34,12 +37,12 @@ const AppRoutes = () => {
     <Router>
       <Routes>
         <Route path='/' element={<Home />} />
-        <Route path="/profile" element={<h1>Profile page</h1>} />
-        <Route path="/chat" element={<h1>Chat page</h1>} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/chat" element={<ChatPage />} />
         <Route path="/wishlist" element={<h1>Wish list page</h1>} />
         <Route path="/search" element={<h1>Search page</h1>} />
         {/* Basic route to navigte , use search query and params as required*/}
-        <Route path="/my-orders" element={<h1>Your orders page</h1>} />
+        <Route path="/my-orders" element={<YourOrders />} />
 
         <Route path="/add-new-product" element={<h1>Add product form</h1>} />
 
