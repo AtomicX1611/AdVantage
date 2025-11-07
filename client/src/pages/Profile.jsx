@@ -1,0 +1,48 @@
+import React, { useState } from "react";
+// import HomeHeader from "../components/HomeHeader";
+import ProfileHeader from "../components/ProfileHeader";
+import ProfileOptionsList from "../components/ProfileOptionList";
+import styles from "../styles/profile.module.css";
+
+const Profile = () => {
+  // dummy options data
+  const [options] = useState([
+    {
+      title: "Login and Security",
+      icon: "bxs-lock",
+      link: "/buyer/updatePassword",
+    },
+    {
+      title: "Your Orders",
+      icon: "bx-package",
+      link: "/buyer/yourProducts",
+    },
+    {
+      title: "Change/Add your profile",
+      icon: "",
+      link: "/buyer/updateProfile",
+    },
+    {
+      title: "Logout",
+      icon: "",
+      link: "/logout",
+    },
+    {
+      title: "Contact Us",
+      icon: "bx-support",
+      link: "/buyer/contact",
+    },
+  ]);
+
+  return (
+    <div className={styles.window}>
+      {/* <HomeHeader /> */}
+      <div className={styles.mainContainer}>
+        <ProfileHeader />
+        <ProfileOptionsList options={options} />
+      </div>
+    </div>
+  );
+};
+
+export default Profile;
