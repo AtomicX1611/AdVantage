@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Products from "./Products.js";
 
 const buyersSchema = new mongoose.Schema({
     username: {
@@ -12,7 +13,7 @@ const buyersSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique : true
+        unique: true
     },
     password: {
         type: String,
@@ -21,6 +22,11 @@ const buyersSchema = new mongoose.Schema({
     profilePicPath: {
         type: String,
         default: null,
+    },
+    subscription: {
+        type: Number,
+        default: 0,
+        required: true,
     },
     wishlistProducts: [
         {
@@ -32,4 +38,16 @@ const buyersSchema = new mongoose.Schema({
     ],
 });
 
-export default mongoose.model("Buyers",buyersSchema);
+buyersSchema.pre("findOneAndDelete", async function (next) {
+    const seller = await this.model.findOne(this.getQuery());
+    if (!seller) return next();
+
+    await Products.deleteMany({
+        seller: seller._id,
+        soldTo: null,
+    });
+
+    next();
+});
+
+export default mongoose.model("Buyers", buyersSchema);

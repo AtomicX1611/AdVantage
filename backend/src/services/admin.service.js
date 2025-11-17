@@ -1,23 +1,28 @@
-import { getBuyers, getProducts, getSellers, removeSellerById } from "../daos/admins.dao.js";
+import {
+  getBuyers,
+  getProducts,
+  // getSellers,
+  removeUserById,
+} from "../daos/admins.dao.js";
 
-export const findSellersForAdmin = async () => {
-  try {
-    const result = await getSellers();
+// export const findSellersForAdmin = async () => {
+//   try {
+//     const result = await getSellers();
 
-    if (!result.success) {
-      return result;
-    }
+//     if (!result.success) {
+//       return result;
+//     }
 
-    return {
-      success: true,
-      sellers: result.sellers
-    };
+//     return {
+//       success: true,
+//       sellers: result.sellers
+//     };
 
-  } catch (error) {
-    console.error("Error in findSellersForAdmin service:", error);
-    return { success: false, message: "Error fetching sellers from service", sellers: [] };
-  }
-};
+//   } catch (error) {
+//     console.error("Error in findSellersForAdmin service:", error);
+//     return { success: false, message: "Error fetching sellers from service", sellers: [] };
+//   }
+// };
 
 
 export const findUsersForAdmin = async () => {
@@ -25,7 +30,7 @@ export const findUsersForAdmin = async () => {
     const result = await getBuyers();
 
     if (!result.success) {
-      return result; 
+      return result;
     }
 
     return {
@@ -41,16 +46,16 @@ export const findUsersForAdmin = async () => {
 
 
 export const getProductsForAdmin = async () => {
-    return getProducts()
+  return getProducts()
 }
 
-export const removeSeller = async (userId) => {
+export const removeUser = async (userId) => {
   try {
     if (!userId) {
       return { success: false, message: "userId is required" };
     }
 
-    const result = await removeSellerById(userId);
+    const result = await removeUserById(userId);
 
     if (!result.success) {
       return result;

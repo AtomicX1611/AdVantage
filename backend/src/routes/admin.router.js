@@ -5,12 +5,12 @@ import {getGraphData,getUsersData,takeDownSeller} from "../controllers/admin.con
 const adminRouter = express.Router();
 //Admin Login in authRoutes.
 
-adminRouter.use(checkToken)
-adminRouter.use(serializeUser)
-adminRouter.use(authorize('admin'))
+adminRouter.use(checkToken);
+adminRouter.use(serializeUser);
+adminRouter.use(authorize('admin'));
 
-adminRouter.get('/',getUsersData)
-adminRouter.get('/grahpData', getGraphData)
-adminRouter.get('/remove/:sellerId',takeDownSeller)
+adminRouter.get('/',getUsersData);
+adminRouter.get('/grahpData', getGraphData);
+adminRouter.get('/remove/:sellerId',takeDownSeller);
 
 export default adminRouter

@@ -2,8 +2,8 @@ import {
     addProductService,
     acceptProductRequestService,
     rejectProductRequestService,
-    updateSellerProfileService,
-    updateSellerPasswordService,
+    // updateSellerProfileService,
+    // updateSellerPasswordService,
     updateSellerSubscriptionService,
     sellerProdRetriveService,
     sellerSubsRetService,
@@ -28,48 +28,48 @@ export const addProduct = async (req, res) => {
     }
 };
 
-export const updateSellerProfile = async (req, res) => {
-    try {
-        console.log(req.user);
-        const sellerId = req.user._id;
-        const updateData = req.body;
+// export const updateSellerProfile = async (req, res) => {
+//     try {
+//         console.log(req.user);
+//         const sellerId = req.user._id;
+//         const updateData = req.body;
 
-        if (!sellerId) {
-            return res.status(400).json({
-                success: false,
-                message: "Seller ID is missing",
-            });
-        }
+//         if (!sellerId) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Seller ID is missing",
+//             });
+//         }
 
-        if (!updateData || Object.keys(updateData).length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: "No update fields provided",
-            });
-        }
+//         if (!updateData || Object.keys(updateData).length === 0) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "No update fields provided",
+//             });
+//         }
 
-        const response = await updateSellerProfileService(sellerId, updateData, req.file);
+//         const response = await updateSellerProfileService(sellerId, updateData, req.file);
 
-        if (!response.success) {
-            return res.status(response.status).json({
-                success: false,
-                message: response.message,
-            });
-        }
+//         if (!response.success) {
+//             return res.status(response.status).json({
+//                 success: false,
+//                 message: response.message,
+//             });
+//         }
 
-        return res.status(200).json({
-            success: true,
-            message: "Profile updated successfully",
-            updatedSeller: response.updatedSeller,
-        });
+//         return res.status(200).json({
+//             success: true,
+//             message: "Profile updated successfully",
+//             updatedSeller: response.updatedSeller,
+//         });
 
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        });
-    }
-};
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message: error.message || "Internal server error",
+//         });
+//     }
+// };
 
 export const updateSellerSubscription = async (req, res) => {
     try {
@@ -178,38 +178,38 @@ export const rejectRequest = async (req, res) => {
     }
 };
 
-export const updateSellerPassword = async (req, res) => {
-    try {
-        const { oldPassword, newPassword } = req.body;
-        const userId = req.user._id;
+// export const updateSellerPassword = async (req, res) => {
+//     try {
+//         const { oldPassword, newPassword } = req.body;
+//         const userId = req.user._id;
 
-        if (!oldPassword || !newPassword) {
-            return res.status(400).json({
-                success: false,
-                message: "Both oldPassword and newPassword are required",
-            });
-        }
+//         if (!oldPassword || !newPassword) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Both oldPassword and newPassword are required",
+//             });
+//         }
 
-        const response = await updateSellerPasswordService(oldPassword, newPassword, userId);
-        // console.log(response);
-        if (!response.success) {
-            return res.status(response.status).json({
-                success: false,
-                message: response.message || "something went wrong",
-            });
-        }
+//         const response = await updateSellerPasswordService(oldPassword, newPassword, userId);
+//         // console.log(response);
+//         if (!response.success) {
+//             return res.status(response.status).json({
+//                 success: false,
+//                 message: response.message || "something went wrong",
+//             });
+//         }
 
-        return res.status(200).json({
-            success: true,
-            message: "Password updated successfully",
-        });
+//         return res.status(200).json({
+//             success: true,
+//             message: "Password updated successfully",
+//         });
 
-    } catch (error) {
-        return res.status(500).json({
-            message: error.message || "Internal server error"
-        });
-    }
-};
+//     } catch (error) {
+//         return res.status(500).json({
+//             message: error.message || "Internal server error"
+//         });
+//     }
+// };
 
 export const findSellerProducts = async (req, res) => {
     const userId = req.user._id;

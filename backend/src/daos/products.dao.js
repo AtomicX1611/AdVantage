@@ -268,3 +268,20 @@ export const makeAvailableDao = async (sellerId, productId) => {
 export const deleteProductDao = async (productId) => {
     return await Products.findByIdAndDelete(productId);
 };
+
+export const findProductsForSeller = async (id) => {
+    try {
+        const products = await Products.find({ seller: id })
+            .populate("seller"); 
+        return {
+            success:true,
+            products:products
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            success:false,
+            message:"Database error"
+        }
+    }
+};
