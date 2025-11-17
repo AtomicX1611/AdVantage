@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import classes from '../styles/header.module.css';
 import NotificationSidebar from './NotificationSidebar';
+import { Outlet } from 'react-router-dom';
 
 // Removed unused icon URLs
 const LOGO_URL = '/Assets/ADVANTAGE.png';
@@ -108,6 +109,8 @@ const Header = ({ isLogged, data, backendURL }) => {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
+
+      <Outlet />
     </>
   );
 };
