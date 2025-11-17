@@ -16,6 +16,7 @@ import ProductDetailPage from '../pages/ProductDetailPage.jsx'
 import HomeHeader from "../components/Header.jsx";
 import AddProductForm from "../pages/AddProductForm.jsx";
 import SearchPage from "../pages/SearchPage.jsx";
+import ViewRequest from "../pages/ViewRequest.jsx"
 
 
 const ProtectedRoute = ({ element }) => {
@@ -68,7 +69,7 @@ const AppRoutes = () => {
             />}
         />
 
-        <Route path="/product-requests" element={<h1>View Requests page</h1>}/>
+        <Route path="/product-requests" element={<ViewRequest />}/>
         <Route path="/pending-payment/:id" element={<h1>New page pipeline to be decided yet</h1>}/>
         <Route path='/product/:pid' element={<ProductDetailPage/>} />
         <Route path='/register' element={<Register />} />
