@@ -1,0 +1,488 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+.main_container {
+  min-height: 100%;
+  width: 100%;
+  margin: 0 0;
+  margin-bottom: 120px;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f6ff;
+}
+
+/* .BG {
+  position: relative;
+  background-image: url("Assets/Backgrounds/Proudcts_Bg.png");
+  background-repeat: no-repeat;
+  background-position: right bottom;
+}
+
+.BG::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-image: url("Assets/Backgrounds/Proudcts_Bg.png");
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: cover;
+  opacity: 0.2; 
+  pointer-events: none; 
+  z-index: 0;
+}
+
+.BG > * {
+  position: relative;
+  z-index: 1;
+} */
+
+.title {
+  color: rgb(0, 0, 0);
+  margin: 0;
+  padding: 0;
+  margin-top: 10px;
+}
+
+body {
+  background-color: black;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+}
+
+.product_display {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 50px;
+}
+
+.card_container {
+  border-radius: 12px;
+  margin-top: 15px;
+  width: 128px;
+  height: 128px;
+  margin-left: 100px;
+  background-color: rgba(255, 255, 255, 0);
+  overflow: hidden;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.card_list {
+  margin-top: 110px;
+  margin-bottom: 20px;
+  width: 10vw;
+  float: left;
+}
+
+img.card_container:hover {
+  transform: scale(1.1, 1.1);
+  border: solid 3px rgb(34, 87, 122);
+}
+
+.card_title {
+  padding: 5px;
+  padding-left: 10px;
+}
+
+.big_card {
+  border-radius: 20px;
+  background-color: transparent;
+  width: 500px;
+  height: 570px;
+  margin-top: 50px;
+  margin-left: 100px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.product_details {
+  flex: 1;
+  margin-top: 50px;
+  height: 50vh;
+  /* width: 30vw; */
+  background-color: transparent;
+  /* margin-left: 140px; */
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: 5%;
+  padding: 50px;
+  justify-content: space-between;
+  gap: 6rem;
+  /* box-shadow:  0 0 10px rgba(0, 0, 0, 0.1); */
+}
+
+.item_headertitle {
+  font-size: 2rem;
+  font-weight: 400;
+}
+
+.sellerOptions {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+}
+
+.details_header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.5rem 3rem;
+  border-radius: 20px;
+  padding-left: 3rem;
+  gap: 10px;
+  box-shadow: inset 0 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.item_header {
+  padding-bottom: 10px;
+}
+
+.item_title {
+  color: rgb(0, 0, 0);
+  /* width: 20vw; <-- REMOVE this */
+  word-spacing: 5px;
+  word-break: break-word;
+  letter-spacing: 1px;
+  overflow-wrap: break-word; /* Ensures long words wrap */
+  white-space: normal; /* Allows multi-line wrapping */
+  /* font-size: 1.8rem; */
+  font-weight: 400;
+}
+
+.item_address {
+  color: #000000;
+  font-size: 1.2rem;
+  font-weight: 300;
+}
+
+.item_price {
+  color: #000000;
+  font-size: 1.8rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.item_title {
+  color: rgb(0, 0, 0);
+}
+
+.description {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 90%;
+  margin-top: 20px;
+  padding: 2rem 2.3rem;
+  border-radius: 20px;
+  box-shadow: inset 0 0px 10px rgba(0, 0, 0, 0.1);
+  gap: 10px;
+  margin-left: 6rem;
+}
+
+.description h2 {
+  color: rgb(0, 0, 0);
+  margin-bottom: 10px;
+}
+
+.description h3 {
+  color: rgb(0, 0, 0);
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+
+.item_desc {
+  color: rgb(0, 0, 0);
+  margin: 0;
+  padding: 0;
+}
+#addToWishlist {
+  padding: 5px 3px;
+  border-radius: 3px;
+}
+#addToWishlist:hover {
+  cursor: pointer;
+  background-color: #000000;
+}
+
+#notification {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #000000;
+  color: rgb(0, 0, 0);
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+#close-btn {
+  background: none;
+  border: none;
+  color: rgb(0, 0, 0);
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.options {
+  margin-top: 2vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2vw;
+  flex-wrap: wrap; /* allows wrapping on smaller screens */
+}
+
+.btn {
+  flex: 1; /* makes all buttons grow equally */
+  text-align: center;
+  padding: 15px;
+  border: 2px solid black;
+  border-radius: 8px;
+  color: black;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 180px; /* sets a minimum size */
+  max-width: 200px; /* optional: keeps consistent width */
+  font-weight: 500;
+}
+
+.btn:hover {
+  background-color: black;
+  color: white;
+}
+#verified {
+  color: white;
+}
+#deleteProduct {
+  font-size: 15px;
+  color: rgb(0, 0, 0);
+  background-color: transparent;
+  padding: 15px 65px;
+  border-radius: 5px;
+  box-shadow:  0 0px 5px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+#deleteProduct:hover {
+  cursor: pointer;
+  border: none;
+  border: 2px solid rgb(255, 0, 0);
+  background-color: rgb(255, 0, 0);
+  color: white;
+}
+
+
+#sold {
+  font-size: 15px;
+  color: rgb(0, 0, 0);
+  background-color: transparent;
+  padding: 15px 65px;
+  border-radius: 5px;
+  box-shadow:  0 0px 5px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  border: 2px solid rgb(0, 0, 0);
+}
+
+
+#sold:hover {
+  cursor: pointer;
+  border: none;
+  border: 2px solid rgb(0, 0, 0);
+  background-color: rgb(0, 0, 0);
+  color: white;
+}
+
+#verifyButton{
+    font-size: 16px;
+  color: #2b6ad1;
+  background-color: transparent;
+  padding: 15px 80px;
+  border-radius: 5px;
+  box-shadow:  0 0px 5px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  border: 2px solid #2b6ad1;
+}
+
+#verifyButton:hover {
+  cursor: pointer;
+  border: none;
+  border: 2px solid #2b6ad1;
+  background-color: #2b6ad1;
+  color: white;
+}
+.wishlist_button_container {
+  width: 6vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  /* width: 20vw; */
+  /* margin-left: 15vw; */
+  /* margin-right: 7vw */
+}
+
+#addToWishlist.btn {
+  width: 5vw;
+  border: 2px solid rgb(0, 0, 0);
+  border-radius: 8px;
+  color: rgb(1, 1, 1);
+  background-color: transparent;
+  cursor: pointer;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+#addToWishlist.btn:hover {
+  background-color: rgb(0, 0, 0);
+  color: white ;
+}
+
+.big_container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 5vh;
+}
+
+.image_container {
+  width: 50vw;
+}
+
+.decision-btn {
+  width: 100%;
+  text-align: center;
+  padding: 15px;
+  border: 2px solid white;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  box-sizing: border-box;
+  min-width: 150px;
+  text-decoration: none; /* to remove underline from links */
+  display: inline-block;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+
+.decision-btn:hover {
+  background-color: white;
+  color: black;
+}
+
+/* #sold {
+  margin-top: 2vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+} */
+
+
+#rentRequestForm {
+  display: none; /* default hidden */
+  background-color: #F8F6FF;
+  border: 1px solid #000;
+  border-radius: 12px;
+  padding: 20px 25px;
+  width: 320px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  font-family: "Poppins", sans-serif;
+  color: #000;
+}
+
+#rentRequestForm label {
+  display: block;
+  font-weight: 500;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  color: #000;
+}
+
+#rentRequestForm input[type="date"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #000;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #000;
+  outline: none;
+  transition: border 0.2s ease;
+  font-family: inherit;
+}
+
+#rentRequestForm input[type="date"]:focus {
+  border-color: #333;
+}
+
+#submitBtnRent {
+  margin-top: 15px;
+  width: 100%;
+  padding: 10px 0;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+#submitBtnRent:hover {
+  background-color: #333;
+}
+
+#xBtn {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  transition: background-color 0.2s ease;
+}
+
+#xBtn:hover {
+  background-color: red;
+}

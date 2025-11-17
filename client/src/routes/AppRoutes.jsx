@@ -10,7 +10,14 @@ import Login from "../pages/Login";
 import { useSelector } from "react-redux";
 import YourOrders from "../pages/YourOrders.page";
 import ChatPage from "../pages/ChatPage";
+import WishList from '../pages/WishlistPage.jsx'
 import Profile from '../pages/Profile.jsx'
+import ProductDetailPage from '../pages/ProductDetailPage.jsx'
+import HomeHeader from "../components/Header.jsx";
+import AddProductForm from "../pages/AddProductForm.jsx";
+import SearchPage from "../pages/SearchPage.jsx";
+import ViewRequest from "../pages/ViewRequest.jsx"
+
 
 const ProtectedRoute = ({ element }) => {
   const { isAuth } = useSelector((state) => state.auth);
@@ -36,15 +43,15 @@ const AppRoutes = () => {
   return (
     <Router>
       <Routes>
-        <Route path='/' element={<Home />} />
+        <Route path='/' element={<HomeHeader />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/chat" element={<ChatPage />} />
-        <Route path="/wishlist" element={<h1>Wish list page</h1>} />
-        <Route path="/search" element={<h1>Search page</h1>} />
+        <Route path="/wishlist" element={<WishList />} />
+        <Route path="/search" element={<SearchPage />} />
         {/* Basic route to navigte , use search query and params as required*/}
         <Route path="/my-orders" element={<YourOrders />} />
 
-        <Route path="/add-new-product" element={<h1>Add product form</h1>} />
+        <Route path="/add-new-product" element={<AddProductForm />} />
 
         <Route path="/subscription" element={<SubscriptionPage />} />
         <Route path="/seller/subscription/vip"
@@ -62,9 +69,9 @@ const AppRoutes = () => {
             />}
         />
 
-        <Route path="/product-requests" element={<h1>View Requests page</h1>}/>
+        <Route path="/product-requests" element={<ViewRequest />}/>
         <Route path="/pending-payment/:id" element={<h1>New page pipeline to be decided yet</h1>}/>
-        <Route path='/product/:pid' element={<ProductDetail />} />
+        <Route path='/product/:pid' element={<ProductDetailPage/>} />
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
         <Route path='/admin' element={<Admin />} />
