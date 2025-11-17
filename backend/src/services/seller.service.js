@@ -5,32 +5,34 @@ import {
     acceptProductRequestDao,
     rejectProductRequestDao,
     makeAvailableDao,
-    findProducts,
+    // findProducts,
     countProductsDao,
 } from "../daos/products.dao.js";
 import {
     getSellerById,
-    updateSellerById,
-    updateSellerPassById,
+    // updateSellerById,
+    // updateSellerPassById,
     // updateSellerSubscriptionDao
-    findProductsForSeller,
     findSellerSubsDao,
 } from "../daos/sellers.dao.js";
+import {
+    findProductsForSeller,
+} from "../daos/products.dao.js";
 
 export const addProductService = async (req) => {
 
     async function isAllowed(sellerId) {
-        const arr=[15,50,100];
+        const arr = [15, 50, 100];
         const oneMonthAgo = new Date();
         oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        const filters={
-            seller:sellerId,
+        const filters = {
+            seller: sellerId,
             postingDate: { $gte: oneMonthAgo },
         }
-        const count=await countProductsDao(filters);
-        const subscription=(await findSellerSubsDao(sellerId)).subscription;
-        console.log("subscription : "+subscription+" count : "+count);
-        return (count<arr[subscription]);
+        const count = await countProductsDao(filters);
+        const subscription = (await findSellerSubsDao(sellerId)).subscription;
+        console.log("subscription : " + subscription + " count : " + count);
+        return (count < arr[subscription]);
     }
 
 
@@ -48,7 +50,7 @@ export const addProductService = async (req) => {
     // console.log(req.body);
 
     const allowed = await isAllowed(req.user._id);
-    if(!allowed){
+    if (!allowed) {
         throw new Error("You exceeded your plan's limit per month");
     }
     if (!req.files?.productImages || req.files.productImages.length === 0) {
@@ -121,45 +123,45 @@ export const deleteProductService = async (sellerId, productId) => {
 };
 
 
-export const updateSellerProfileService = async (sellerId, updateData, file) => {
-    const allowedFields = ["username", "contact"];
-    const filteredData = {};
+// export const updateSellerProfileService = async (sellerId, updateData, file) => {
+//     const allowedFields = ["username", "contact"];
+//     const filteredData = {};
 
-    for (const key of allowedFields) {
-        if (updateData[key] !== undefined) {
-            filteredData[key] = updateData[key];
-        }
-    }
+//     for (const key of allowedFields) {
+//         if (updateData[key] !== undefined) {
+//             filteredData[key] = updateData[key];
+//         }
+//     }
 
-    if (Object.keys(filteredData).length === 0 && file === undefined) {
-        return {
-            success: false,
-            status: 400,
-            message: "No valid fields to update",
-        };
-    }
+//     if (Object.keys(filteredData).length === 0 && file === undefined) {
+//         return {
+//             success: false,
+//             status: 400,
+//             message: "No valid fields to update",
+//         };
+//     }
 
-    if (file !== undefined) {
-        filteredData.profilePicPath = file.path;
-    }
+//     if (file !== undefined) {
+//         filteredData.profilePicPath = file.path;
+//     }
 
-    const updatedSeller = await updateSellerById(sellerId, filteredData);
+//     const updatedSeller = await updateSellerById(sellerId, filteredData);
 
-    if (!updatedSeller) {
-        return {
-            success: false,
-            status: 404,
-            message: "Seller not found",
-        };
-    }
-    const plainSeller = updatedSeller.toObject();
-    delete plainSeller.password;
+//     if (!updatedSeller) {
+//         return {
+//             success: false,
+//             status: 404,
+//             message: "Seller not found",
+//         };
+//     }
+//     const plainSeller = updatedSeller.toObject();
+//     delete plainSeller.password;
 
-    return {
-        success: true,
-        updatedSeller: plainSeller,
-    };
-};
+//     return {
+//         success: true,
+//         updatedSeller: plainSeller,
+//     };
+// };
 
 export const updateSellerSubscriptionService = async (sellerId, subscription) => {
     const seller = await getSellerById(sellerId);
@@ -207,30 +209,30 @@ export const rejectProductRequestService = async (productId, buyerId) => {
     return { success: true, message: "Request rejected successfully" };
 };
 
-export const updateSellerPasswordService = async (oldPassword, newPassword, userId) => {
-    const seller = await getSellerById(userId);
-    if (!seller) {
-        return {
-            success: false,
-            status: 404,
-            message: "Seller not found",
-        };
-    }
+// export const updateSellerPasswordService = async (oldPassword, newPassword, userId) => {
+//     const seller = await getSellerById(userId);
+//     if (!seller) {
+//         return {
+//             success: false,
+//             status: 404,
+//             message: "Seller not found",
+//         };
+//     }
 
-    if (seller.password !== oldPassword) {
-        return {
-            success: false,
-            status: 401,
-            message: "Old password is incorrect",
-        };
-    }
+//     if (seller.password !== oldPassword) {
+//         return {
+//             success: false,
+//             status: 401,
+//             message: "Old password is incorrect",
+//         };
+//     }
 
-    await updateSellerPassById(userId, newPassword);
+//     await updateSellerPassById(userId, newPassword);
 
-    return {
-        success: true,
-    };
-};
+//     return {
+//         success: true,
+//     };
+// };
 
 export const sellerProdRetriveService = async (id) => {
     return await findProductsForSeller(id);

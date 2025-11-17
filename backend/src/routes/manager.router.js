@@ -17,5 +17,3 @@ managerRouter.use(authorize("manager"));
  
 managerRouter.get("/d",dashboardController);
 managerRouter.post("/verify",verifyController);
-
-

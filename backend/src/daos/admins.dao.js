@@ -1,5 +1,4 @@
 import Admins from "../models/Admins.js";
-import sellers from "../models/Sellers.js";
 import buyers from "../models/Buyers.js";
 import products from "../models/Products.js";
 
@@ -11,40 +10,40 @@ export const findAdminByEmail = async (email) => {
     return await Admins.findOne({ email });
 };
 
-export const getSellers = async () => {
-  try {
-    const result = await sellers.aggregate([
-      {
-        $lookup: {
-          from: "products",
-          localField: "_id",
-          foreignField: "seller",
-          as: "products",
-        },
-      },
-      {
-        $project: {
-          username: 1,
-          contact: 1,
-          email: 1,
-          password: 1,
-          subscription: 1,
-          numberOfProducts: { $size: "$products" }
-        },
-      },
-    ]);
+// export const getSellers = async () => {
+//   try {
+//     const result = await sellers.aggregate([
+//       {
+//         $lookup: {
+//           from: "products",
+//           localField: "_id",
+//           foreignField: "seller",
+//           as: "products",
+//         },
+//       },
+//       {
+//         $project: {
+//           username: 1,
+//           contact: 1,
+//           email: 1,
+//           password: 1,
+//           subscription: 1,
+//           numberOfProducts: { $size: "$products" }
+//         },
+//       },
+//     ]);
 
-    if (!result || result.length === 0) {
-      return { success: false, message: "No sellers found", sellers: [] };
-    }
+//     if (!result || result.length === 0) {
+//       return { success: false, message: "No sellers found", sellers: [] };
+//     }
 
-    return { success: true, sellers: result };
+//     return { success: true, sellers: result };
 
-  } catch (error) {
-    console.error("Error in getSellers DAO:", error);
-    return { success: false, message: "Database error while fetching sellers", sellers: [] };
-  }
-};
+//   } catch (error) {
+//     console.error("Error in getSellers DAO:", error);
+//     return { success: false, message: "Database error while fetching sellers", sellers: [] };
+//   }
+// };
 
 
 export const getBuyers = async () => {
@@ -91,14 +90,14 @@ export const getProducts = async () => {
       ]);
 }
 
-export const removeSellerById = async (userId) => {
+export const removeUserById = async (userId) => {
   try {
     if (!userId) {
       return { success: false, message: "Seller ID is required" };
     }
     console.log("id in backend : ",userId);
     
-    const seller = await sellers.findOneAndDelete({ _id: userId });
+    const seller = await buyers.findOneAndDelete({ _id: userId });
 
     if (!seller) {
       return { success: false, message: "Seller not found" };
