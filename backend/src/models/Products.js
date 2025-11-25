@@ -24,7 +24,7 @@ const productsSchema = new mongoose.Schema({
     },
     seller: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Buyers",
+        ref: "Users",
         required: true,
         index: true,
     },
@@ -80,7 +80,7 @@ const productsSchema = new mongoose.Schema({
             buyer: {
                 required: true,
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "Buyers",
+                ref: "Users",
             },
             from:{
                 type: mongoose.Schema.Types.Date,
@@ -92,7 +92,7 @@ const productsSchema = new mongoose.Schema({
     ],
     soldTo: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Buyers",
+        ref: "Users",
         default: null,
         // required: true,
     },

@@ -1,7 +1,7 @@
-import { Contacts } from "../models/Contact.js"
-import Buyers from '../models/Buyers.js'
+import { Contacts } from "../models/Contact.js" // why the hell chat.dao is accessing models directly?
+import Buyers from '../models/Users.js' // why the hell chat.dao is accessing models directly?
 import { Messages } from '../models/Messages.js'
-import Sellers from '../models/Sellers.js'
+import Sellers from '../models/Sellers.js' // why the hell chat.dao is accessing models directly?
 
 export const generateChatId = (user1, user2) => {
     return [user1, user2].sort().join('_');

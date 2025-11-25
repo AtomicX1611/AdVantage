@@ -8,13 +8,17 @@ import {
     // findProducts,
     countProductsDao,
 } from "../daos/products.dao.js";
-import {
-    getSellerById,
+// import {
+    // getSellerById,
     // updateSellerById,
     // updateSellerPassById,
     // updateSellerSubscriptionDao
+    // findSellerSubsDao,
+// } from "../daos/sellers.dao.js";
+import {
+    getBuyerById,
     findSellerSubsDao,
-} from "../daos/sellers.dao.js";
+} from "../daos/users.dao.js"
 import {
     findProductsForSeller,
 } from "../daos/products.dao.js";
@@ -164,7 +168,7 @@ export const deleteProductService = async (sellerId, productId) => {
 // };
 
 export const updateSellerSubscriptionService = async (sellerId, subscription) => {
-    const seller = await getSellerById(sellerId);
+    const seller = await getBuyerById(sellerId);
     if (seller.subscription >= subscription) {
         return {
             success: false,

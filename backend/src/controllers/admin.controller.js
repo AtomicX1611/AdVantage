@@ -5,7 +5,7 @@ import {
 } from "../services/admin.service.js";
 
 
-export const getGraphData = async () => {
+export const getGraphData = async (req,res) => {
   try {
     const result = await getProductsForAdmin()
     const graphData = result.map((item, index) => ({
@@ -13,7 +13,10 @@ export const getGraphData = async () => {
       y: item.productCount
     }));
 
-    return graphData;
+    return res.status(200).json({
+      success: true,
+      graphData
+    });
   } catch (err) {
     return res.status(500).json({
       success: false,
@@ -48,10 +51,10 @@ export const getUsersData = async (req, res) => {
 };
 
 
-export const takeDownSeller = async (req, res) => {
+export const takeDownUser = async (req, res) => {
   try {
     const adminId = req.user && req.user._id;
-    const sellerId = req.params.sellerId || req.body.sellerId;
+    const userId = req.params.userId || req.body.userId;
 
     if (!adminId) {
       return res.status(401).json({
@@ -60,21 +63,21 @@ export const takeDownSeller = async (req, res) => {
       });
     }
 
-    if (!sellerId) {
+    if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "Seller id required"
+        message: "User id required"
       });
     }
     console.log("admin id : ", adminId);
-    console.log("selelr id : ", sellerId);
+    console.log("user id : ", userId);
 
 
-    const result = await removeUser(sellerId);
+    const result = await removeUser(userId);
     return res.status(result.success ? 200 : 404).json(result);
 
   } catch (error) {
-    console.error("Error in takeDownSeller controller:", error);
+    console.error("Error in takeDownUser controller:", error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error"

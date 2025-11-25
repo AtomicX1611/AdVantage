@@ -63,12 +63,12 @@ export const removeUser = async (userId) => {
 
     return {
       success: true,
-      message: "Seller and associated products removed successfully",
-      seller: result.seller
+      message: "User and associated products removed successfully",
+      user: result.user
     };
 
   } catch (error) {
-    console.error("Error in removeSeller service:", error);
-    return { success: false, message: "Error removing seller" };
+    console.error("Error in removeUser service:", error);
+    return { success: false, message: "Error removing user" };
   }
 };
