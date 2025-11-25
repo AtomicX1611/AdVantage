@@ -283,8 +283,6 @@ export const createContactDao = async (userId, otherId) => {
     }
 };
 
-
-
 export const inboxDao = async (userId, otherId) => {
     try {
         let buyer = Buyers.findById(otherId);
