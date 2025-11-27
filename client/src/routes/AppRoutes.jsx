@@ -11,7 +11,7 @@ import PaymentPage from "../pages/Payment.page";
 import Login from "../pages/Login";
 import YourOrders from "../pages/YourOrders.page";
 import ChatPage from "../pages/ChatPage";
-import WishList from '../pages/WishlistPage.jsx';r
+import WishList from '../pages/WishlistPage.jsx';
 import Profile from '../pages/Profile.jsx';
 import AddProductForm from "../pages/AddProductForm.jsx";
 import SearchPage from "../pages/SearchPage.jsx";
