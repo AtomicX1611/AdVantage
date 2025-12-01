@@ -21,6 +21,7 @@ import SellerDashboardLayout from "../pages/SellerDashboard.jsx";
 import SellerItems from "../components/SellerHome/SellerItems";
 import SellerRequests from "../components/SellerHome/SellerRequests";
 import SellerHeaderLayout from "../components/SellerHome/SellerHeaderLayout.jsx"
+import LoginPage from "../components/TempLogin.jsx";
 
 const ProtectedRoute = ({ element }) => {
   // const { isAuth } = useSelector((state) => state.auth);
@@ -51,7 +52,7 @@ const AppRoutes = () => {
           <Route path="search" element={<SearchPage />} />
           <Route path="product/:pid" element={<ProductDetailPage />} />
           <Route path="register" element={<Register />} />
-          <Route path="login" element={<Login />} />
+          <Route path="login" element={<LoginPage/>} />
           <Route path="subscription" element={<SubscriptionPage />} />
 
           {/* Protected User Routes */}

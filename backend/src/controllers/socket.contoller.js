@@ -5,7 +5,8 @@ import { io } from "../../app.js";
 let activeUsers=[];
 
 export const socketActions=(socket)=>{
-    socket.on("connect",()=>{console.log(socket.id)});
+    socket.on("connect",()=>{console.log("connected id",socket.id)});
+
     socket.on("buyer-register",(data)=>{
         let user={
             _id:data._id,
@@ -16,15 +17,15 @@ export const socketActions=(socket)=>{
         console.log("updated active users: ",activeUsers);
     });
 
-    socket.on("seller-register",(data)=>{
-        let seller={
-            _id:data._id,
-            role:"seller",
-            socketId:socket.id
-        }
-        activeUsers.push(seller);
-        console.log("updated active users: ",activeUsers);
-    });
+    // socket.on("seller-register",(data)=>{
+    //     let seller={
+    //         _id:data._id,
+    //         role:"seller",
+    //         socketId:socket.id
+    //     }
+    //     activeUsers.push(seller);
+    //     console.log("updated active users: ",activeUsers);
+    // });
 
     socket.on("send",(data)=>{
         console.log("data in send event: ",data);

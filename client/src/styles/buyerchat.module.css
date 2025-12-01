@@ -185,7 +185,7 @@ body {
     padding: 10px 5px;
 }
 
-#text-box {
+.text-box {
     resize:none;
     width: 30vw;
     height: 35px;

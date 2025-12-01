@@ -118,9 +118,7 @@ export const generateChatId = (user1, user2) => {
 
 export const fetchContacts = async (_id) => {
     try {
-        console.log("_id in fetch contacts: ", _id);
         let user = await Contacts.findOne({ user: _id }); // returns array of _ids
-        console.log("user: ", user)
         let contacts;
 
         if (!user) {
@@ -132,7 +130,7 @@ export const fetchContacts = async (_id) => {
 
         let userName;
         const buyer = await Buyers.findById(_id);  //username of current user
-        console.log("Buyer: ", buyer);
+
         if (!buyer) {
             return {
                 success: false,
@@ -142,11 +140,11 @@ export const fetchContacts = async (_id) => {
 
         userName = buyer.username;
         contacts = await Buyers.find({ _id: { $in: user.contacts } }); // Know what you want from here
-        console.log("Contacts in fetchContacts: ", contacts);
         return {
             success: true,
             contacts,
-            userName
+            userName,
+            myAccount:_id
         };
 
     } catch (error) {

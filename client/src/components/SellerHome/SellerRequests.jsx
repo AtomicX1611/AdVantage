@@ -10,7 +10,7 @@ const SellerRequests = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await fetch('http://localhost:3000/buyer/products',{
+        const response = await fetch('http://localhost:3000/user/products',{
           method: "GET",
           headers: {
             "Content-Type": "application/json",
