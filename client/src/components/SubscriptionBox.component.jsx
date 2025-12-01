@@ -44,8 +44,6 @@ const SubscriptionBox = ({ plan, currentPlan }) => {
           );
         })}
       </div>
-
-      {/* ✅ Use React Router Link instead of <a> */}
       {canSubscribe && plan.link && (
         <Link to={plan.link}>
           <div className={classes["payment-btn"]}>

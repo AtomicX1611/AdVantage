@@ -1,29 +1,27 @@
 import mongoose from "mongoose";
 
-const paymentSchema=new mongoose.Schema({
-    userId:{
-        type:String,
-        required:true,
+const paymentSchema = new mongoose.Schema({
+    userId: {
+        type: String,
+        required: true,
     },
     paidTo: {
-        type:String,
-        required:true
+        type: String,
+        required: true
     },
-    paymnetType: {
-        type:String,
-        required:true,
-        enum:[
-            "purchase",
-            "subscription"
-        ]
+    paymentType: {
+        type: String,
+        required: true,
+        enum: ["purchase", "subscription"]
     },
-    price:{
-        type:Number,
-        required:true,
+    price: {
+        type: String,
+        required: true,
     },
-    date:{
-        default:Date.now
+    date: {
+        type: Date,
+        default: Date.now
     }
 });
 
-export default mongoose.model("Payment",paymentSchema);
+export default mongoose.model("Payment", paymentSchema);

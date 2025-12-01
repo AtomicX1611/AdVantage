@@ -10,6 +10,7 @@ export const paymentRetrievalController = async (req, res) => {
             return res.status(401).json({ success: false, message: "Unauthorized" });
         }
         const serviceCall = await paymentRetrievalService();
+
         if (serviceCall.success) {
             return res.status(200).json({
                 success: true,
@@ -36,12 +37,14 @@ export const paymentProcessingController = async (req, res) => {
             return res.status(401).json({ success: false, message: "Unauthorized" });
         }
         const { payTo, paymentType, price } = req.body;
+        console.log("req.body: ",req.body);
         const processingServiceCall = await paymentProcessingService({
-            userId: req.user.userId,
+            userId: req.user._id,
             payTo,
             paymentType,
             price
         });
+
         if (processingServiceCall.success) {
             return res.status(200).json({
                 success: true,

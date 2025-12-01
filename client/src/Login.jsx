@@ -3,73 +3,65 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginStart, loginSuccess, loginFailure } from "../redux/authSlice";
 import { useNavigate } from "react-router-dom";
 
-export default function Signup() {
-  const [username, setUsername] = useState("");
-  const [contact, setContact] = useState("");
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.auth);
 
-  const handleSignup = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     dispatch(loginStart());
 
     try {
-      const res = await fetch("http://localhost:3000/auth/buyer/signup", {
+      const res = await fetch("http://localhost:3001/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // ensures cookies (like token) are stored
+        credentials: "include",
         body: JSON.stringify({
-          username,
-          contact,
           email,
           password,
         }),
       });
 
       const data = await res.json();
-      console.log("logging here after data",data);
-      
+      console.log("login response data:", data);
 
-      if (!res.ok) throw new Error(data.message || "Signup failed");
-      
+      if (!res.ok) {
+        if (res.status >= 500) {
+          navigate("/error", {
+            state: {
+              from: "/login",
+              message: data.message || "Server error while logging in",
+            },
+          });
+        }
+        throw new Error(data.message || "Login failed");
+      }
+
       dispatch(loginSuccess(data));
       navigate("/");
     } catch (err) {
+      console.error(err);
       dispatch(loginFailure(err.message));
     }
   };
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>Buyer Signup</h2>
-      <form onSubmit={handleSignup}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        /><br />
+      <h2>Buyer Login</h2>
 
-        <input
-          type="text"
-          placeholder="Contact"
-          value={contact}
-          onChange={(e) => setContact(e.target.value)}
-          required
-        /><br />
-
+      <form onSubmit={handleLogin}>
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-        /><br />
+        />
+        <br />
 
         <input
           type="password"
@@ -77,10 +69,11 @@ export default function Signup() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-        /><br />
+        />
+        <br />
 
         <button type="submit" disabled={loading}>
-          {loading ? "Signing up..." : "Sign Up"}
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
 
