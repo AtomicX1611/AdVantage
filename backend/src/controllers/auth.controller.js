@@ -17,6 +17,7 @@ export const buyerSignup = async (req, res) => {
                 message: "username, contact, email, password something is missing",
             });
         }
+
         const response = await signupBuyerService(username, contact, email, password);
         if (!response.success) {
             console.log(response.message);
@@ -25,8 +26,8 @@ export const buyerSignup = async (req, res) => {
                 success: false,
             });
         }
+
         console.log("logging here with response sucess");
-        
         res.cookie("token", response.token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000
@@ -89,12 +90,14 @@ export const buyerLogin = async (req, res) => {
     try {
         console.log("request rcvd: ",req.body);
         const { email, password } = req.body;
+        
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
                 message: "email,password both are required",
             });
         }
+
         const response = await buyerLoginService(email, password);
         if (!response.success) {
             console.log(response.message);
@@ -103,6 +106,7 @@ export const buyerLogin = async (req, res) => {
                 message: response.message,
             });
         }
+
         res.cookie("token", response.token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
