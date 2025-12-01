@@ -57,7 +57,7 @@ const Home = () => {
   };
 
   const handleProductClick = (productId) => {
-    navigate(`/search/product/${productId}`);
+    navigate(`/product/${productId}`);
   };
 
   return (

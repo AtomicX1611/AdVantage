@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import styles from "../styles/productdetails.module.css";
 
 const ImageGallery = ({ images }) => {
-  const [bigImage, setBigImage] = useState(images[0]);
+  const imageList = images && images.length > 0 ? images : ['/Assets/placeholder.png'];
+  const [bigImage, setBigImage] = useState(imageList[0]);
 
   return (
     <div className={styles.image_container}>
       <div className={styles.card_list}>
-        {images.map((img, idx) => (
+        {imageList.map((img, idx) => (
           <img
             key={idx}
             src={img}

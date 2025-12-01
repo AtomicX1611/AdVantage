@@ -9,12 +9,11 @@ import Notification from "../components/NotificationCard";
 import styles from "../styles/productdetails.module.css";
 
 const ProductDetailPage = () => {
+  
   const { pid } = useParams();
-
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [showRentForm, setShowRentForm] = useState(false);
   const [notification, setNotification] = useState("");
   const [showNotif, setShowNotif] = useState(false);
@@ -27,21 +26,21 @@ const ProductDetailPage = () => {
         );
 
         const data = await res.json();
-
         if (!data.success) {
           setError(data.message || "Failed to load product");
           setLoading(false);
           return;
         }
 
+        console.log("Product laoded: ", data.product);
         setProduct(data.product);
       } catch (err) {
+        console.error("Error fetching product:", err);
         setError("Something went wrong while fetching product.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchProduct();
   }, [pid]);
 
@@ -72,6 +71,17 @@ const ProductDetailPage = () => {
     );
   }
 
+  if (!product) {
+    return <h2 style={{ textAlign: "center", marginTop: "120px" }}>Product not found</h2>;
+  }
+
+  
+  const productImages = product.images || [
+    product.Image1Src,
+    product.Image2Src,
+    product.Image3Src
+  ].filter(Boolean);
+
   return (
     <div className={styles["BG"]}>
       {showNotif && (
@@ -83,7 +93,7 @@ const ProductDetailPage = () => {
 
       <div className={styles["main_container"]}>
         <div className={styles["product_display"]}>
-          <ImageGallery images={product.images} />
+          <ImageGallery images={productImages} />
 
           <div className={styles["product_details"]}>
             <ProductInfo product={product} />

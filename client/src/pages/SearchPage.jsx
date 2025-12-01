@@ -34,14 +34,17 @@ const SearchPage = () => {
         if (filters.max) queryParams.append('maxPrice', filters.max);
         if (filters.verifiedOnly) queryParams.append('verified', 'true');
         
-        const url = `http://localhost:5000/anyone/products/filtered?${queryParams.toString()}`;
+        const url = `${backendURL}/anyone/products/filtered?${queryParams.toString()}`;
         console.log('Fetching from:', url);
         const response = await fetch(url);
         
         if (response.ok) {
           const data = await response.json();
+          console.log('Backend response:', data);
+          console.log('Products received:', data.products);
           setProducts(data.products || []);
         } else {
+          console.error('Response not OK:', response.status);
           setProducts([]);
         }
       } catch (error) {
