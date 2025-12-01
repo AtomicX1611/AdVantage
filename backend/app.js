@@ -23,14 +23,10 @@ await connectDB();
 // body Parsing middleware
 app.use(cookieParser());
 
-// ⭐ FIXED CORS HERE — only this line changed ⭐
+//  FIXED CORS HERE — only this line changed 
 app.use(cors({
   origin: "http://localhost:5173",
-<<<<<<< HEAD
-  credentials: true
-=======
   credentials:true
->>>>>>> 8d8f579c0611e751e84c98a1acf805a341760e02
 }));
 
 app.use(express.json({ limit: "500mb" }));
@@ -41,19 +37,10 @@ app.use("/uploads", express.static(path.join("./", "uploads")));
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 // app.use("/seller",sellerRouter);
-<<<<<<< HEAD
-app.use('/manager',managerRouter);
-app.use("/admin",adminRouter);
-app.use("/anyone",anyoneRouter);
-app.use("/chat",chatRouter);
-app.use("/payment",router)
-
-=======
 app.use('/manager', managerRouter);
 app.use("/admin", adminRouter);
 app.use("/anyone", anyoneRouter);
 app.use("/chat", chatRouter);
->>>>>>> cfe7678a57a4f00c0f2db1d6c7087ac2b64ceff9
 
 //need to remove this later
 app.get('/shutdown', (req, res) => {
@@ -69,18 +56,12 @@ const server = app.listen(process.env.PORT, () => {
   console.log("Server listening on http://localhost:" + process.env.PORT);
 });
 
-// ⭐ FIXED SOCKET.IO CORS ALSO ⭐
+//  FIXED SOCKET.IO CORS ALSO 
 export const io = new Server(server, {
   cors: {
-<<<<<<< HEAD
-    origin: "http://localhost:5173",
-    methods: ['GET', 'POST'],
-    credentials: true
-=======
     origin:"http://localhost:5173",
     methods:['GET','POST'],
     credentials:true
->>>>>>> 8d8f579c0611e751e84c98a1acf805a341760e02
   }
 });
 

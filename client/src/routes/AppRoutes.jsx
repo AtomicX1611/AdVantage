@@ -7,7 +7,7 @@ import ProductDetailPage from '../pages/ProductDetailPage.jsx';
 import Register from "../pages/Register";
 // import LoginPage from "../pages/LoginPage.jsx";
 // import Admin from "../pages/Admin.jsx";
-// import Admin from "../pages/AdminPage.jsx";
+import Admin from "../pages/AdminPage.jsx";
 import SubscriptionPage from "../pages/Subscription.page.jsx";
 import PaymentPage from "../pages/Payment.page.jsx";
 // import Login from "../pages/Login.jsx";
@@ -105,7 +105,7 @@ const AppRoutes = () => {
           />
         </Route>
 
-        {/* <Route path="/admin" element={<Admin />} /> */}
+        <Route path="/admin" element={<Admin />} />
         <Route path="/manager" element={<ManagerDashboard />} />
         <Route path="/error" element={<ErrorPage />} />
 

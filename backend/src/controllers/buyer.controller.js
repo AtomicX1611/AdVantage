@@ -8,6 +8,8 @@ import {
     getYourProductsService,
     rentService,
     getYouProfileService,
+    paymentDoneService,
+    notInterestedService,
 } from "../services/buyer.service.js";
 
 export const updateBuyerProfile = async (req, res) => {
@@ -158,6 +160,65 @@ export const requestProduct = async (req, res) => {
         });
 
     } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error"
+        });
+    }
+};
+
+export const paymentDone = async (req, res) => {
+    try {
+        const buyerId = req.user._id;
+        const productId = req.params.productId;
+        if (!buyerId || !productId) {
+            return res.status(404).json({ message: "Missing buyerId or productId" });
+        }
+        const response = await paymentDoneService(buyerId, productId);
+
+        if (!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: response.message
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error"
+        });
+    }
+};
+
+export const notInterested = async (req, res) => {
+    try {
+        const buyerId = req.user._id;
+        const productId = req.params.productId;
+
+        if (!buyerId || !productId) {
+            return res.status(404).json({ message: "Missing buyerId or productId" });
+        }
+        const response = await notInterestedService(buyerId, productId);
+
+        if (!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: response.message
+        });
+    } catch (error) {
+        console.log(error);
         return res.status(500).json({
             success: false,
             message: error.message || "Internal server error"

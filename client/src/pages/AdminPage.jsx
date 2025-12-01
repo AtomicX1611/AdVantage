@@ -27,7 +27,7 @@ export default function AdminPage() {
   // Fetch users data
   const fetchUsersData = async () => {
     try {
-      const url = `${backendURL}${API_CONFIG.API_ENDPOINTS.ADMIN_USERS}`;
+      const url = `${backendURL}/${API_CONFIG.API_ENDPOINTS.ADMIN_USERS}`;
       console.log('Fetching from:', url);
       
       const response = await fetch(url, {
@@ -103,7 +103,7 @@ export default function AdminPage() {
   // Fetch graph data
   const fetchGraphData = async () => {
     try {
-      const url = `${backendURL}${API_CONFIG.API_ENDPOINTS.ADMIN_GRAPH_DATA}`;
+      const url = `${backendURL}/${API_CONFIG.API_ENDPOINTS.ADMIN_GRAPH_DATA}`;
       console.log('Fetching graph data from:', url);
       
       const response = await fetch(url, {

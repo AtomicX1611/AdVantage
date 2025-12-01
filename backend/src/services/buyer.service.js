@@ -11,6 +11,8 @@ import {
     addProductRequestDao,
     getYourProductsDao,
     rentDao,
+    paymentDoneDao,
+    notInterestedDao,
 } from "../daos/products.dao.js";
 
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
@@ -104,8 +106,8 @@ export const removeFromWishlistService = async (userId, productId) => {
     return { success: true, message: "Product removed from wishlist" };
 };
 
-export const requestProductService = async (productId, buyerId,biddingPrice) => {
-    const result = await addProductRequestDao(productId, buyerId,biddingPrice);
+export const requestProductService = async (productId, buyerId, biddingPrice) => {
+    const result = await addProductRequestDao(productId, buyerId, biddingPrice);
 
     if (!result.success) {
         const messages = {
@@ -118,6 +120,35 @@ export const requestProductService = async (productId, buyerId,biddingPrice) => 
     }
 
     return { success: true, message: "Request sent successfully" };
+};
+
+export const paymentDoneService = async (buyerId, productId) => {
+    const result = await paymentDoneDao(buyerId, productId);
+    if (!result.success) {
+        const messages = {
+            not_found: { status: 404, message: "Product not found" },
+            not_accepted_buyer: { status: 400, message: "You are not the accepted buyer for this product" },
+            already_sold: { status: 400, message: "Product is already sold" }
+        };
+        return { success: false, ...messages[result.reason] };
+    }
+
+    return { success: true, message: "Payment confirmed successfully" };
+};
+
+export const notInterestedService = async (buyerId, productId) => {
+    const result = await notInterestedDao(buyerId, productId);
+
+    if (!result.success) {
+        const messages = {
+            not_found: { status: 404, message: "Product not found" },
+            already_sold: { status: 400, message: "Product is already sold" },
+            
+        };
+        return { success: false, ...messages[result.reason] };
+    }
+
+    return { success: true, message: "Marked as not interested successfully" };
 };
 
 export const updateBuyerPasswordService = async (oldPassword, newPassword, userId) => {
@@ -153,22 +184,22 @@ export const getYourProductsService = async (buyerId) => {
     };
 }
 
-export const rentService=async (buyerId,productId,from,to) => {
-    return await rentDao(buyerId,productId,from,to);
+export const rentService = async (buyerId, productId, from, to) => {
+    return await rentDao(buyerId, productId, from, to);
 }
 
-export const getYouProfileService=async (buyerId) => {
+export const getYouProfileService = async (buyerId) => {
     const buyer = await getBuyerById(buyerId);
-    if(!buyer){
+    if (!buyer) {
         return {
-            success:false,
+            success: false,
             message: "buyer not found",
             status: 404,
         }
     }
-    buyer.password="You fool do you think iam Dumb to give you password";
+    buyer.password = "You fool do you think iam Dumb to give you password";
     return {
-        success:true,
+        success: true,
         message: "profile fetched successfully",
         status: 200,
         buyer: buyer,

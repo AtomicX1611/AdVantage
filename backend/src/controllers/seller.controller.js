@@ -9,6 +9,7 @@ import {
     sellerSubsRetService,
     makeAvailableService,
     deleteProductService,
+    revokeAcceptedRequestService,
 } from "../services/seller.service.js";
 
 export const addProduct = async (req, res) => {
@@ -144,6 +145,31 @@ export const acceptRequest = async (req, res) => {
         });
 
     } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error"
+        });
+    }
+};
+
+export const revokeAcceptedRequest = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const response = await revokeAcceptedRequestService(productId);
+        console.log(response);
+        if (!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: response.message
+        });
+
+    } catch (error) {
+        console.log(error);
         return res.status(500).json({
             success: false,
             message: error.message || "Internal server error"

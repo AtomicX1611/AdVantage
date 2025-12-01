@@ -94,6 +94,11 @@ const productsSchema = new mongoose.Schema({
             },
         }
     ],
+    sellerAcceptedTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Users",
+        default: null,
+    },
     soldTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Users",

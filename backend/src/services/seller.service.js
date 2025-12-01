@@ -7,6 +7,7 @@ import {
     makeAvailableDao,
     // findProducts,
     countProductsDao,
+    revokeAcceptedRequestDao,
 } from "../daos/products.dao.js";
 // import {
     // getSellerById,
@@ -191,12 +192,27 @@ export const acceptProductRequestService = async (productId, buyerId) => {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
             already_sold: { status: 400, message: "Product already sold" },
-            no_request: { status: 400, message: "No request from this buyer" }
+            no_request: { status: 400, message: "No request from this buyer" },
+            already_accepted: { status: 400, message: "A request has already been accepted for this product" }
         };
         return { success: false, ...messages[result.reason] };
     }
 
-    return { success: true, message: "Request accepted and product marked as sold" };
+    return { success: true, message: "Request accepted and notification sent to the buyer" };
+};
+
+export const revokeAcceptedRequestService = async (productId) => {
+    const result = await revokeAcceptedRequestDao(productId);
+    if (!result.success) {
+        const messages = {
+            not_found: { status: 404, message: "Product not found" },
+            already_sold: { status: 400, message: "Product already sold" },
+            no_accepted_request: { status: 400, message: "No accepted request to revoke" }
+        };
+        return { success: false, ...messages[result.reason] };
+    }
+
+    return { success: true, message: "Accepted request revoked successfully" };
 };
 
 export const rejectProductRequestService = async (productId, buyerId) => {

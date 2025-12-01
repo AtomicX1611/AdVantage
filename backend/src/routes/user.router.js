@@ -15,6 +15,8 @@ import {
     getYourProducts,
     rentProductController,
     getYourProfile,
+    paymentDone,
+    notInterested,
 } from "../controllers/buyer.controller.js";
 import {
     addProduct,
@@ -25,6 +27,7 @@ import {
     findSellerSubscription,
     makeAvailableController,
     deleteProduct,
+    revokeAcceptedRequest,
 } from "../controllers/seller.controller.js";
 
 export const router = express.Router();
@@ -34,6 +37,8 @@ router.use(serializeUser);
 router.use(authorize("user"));
 
 router.post("/request/:productId",requestProduct);
+router.post("/paymentDone/:productId",paymentDone);
+router.post("/notInterested/:productId",notInterested);
 router.put("/rent/:productId",rentProductController);
 
 router.put("/wishlist/add/:productId", addToWishlist); 
@@ -59,7 +64,8 @@ router.post("/addProduct", upload.fields([
 router.delete("/deleteProduct/:productId",deleteProduct); // Working
 
 router.delete("/rejectRequest/:productId/:buyerId/", rejectRequest);
-router.delete("/acceptRequest/:productId/:buyerId", acceptRequest);
+router.post("/acceptRequest/:productId/:buyerId", acceptRequest);
+router.patch("/revokeAccepted/:productId",revokeAcceptedRequest);
 
 router.post("/makeAvailable/:productId",makeAvailableController);
 
