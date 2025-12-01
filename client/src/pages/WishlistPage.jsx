@@ -48,22 +48,66 @@ const dummyProducts = [
 export default function WishlistPage() {
   const [selectedProducts, setSelectedProducts] = useState([]);
 
+  const addToWishlistBackend = async (productId) => {
+    try {
+      const res = await fetch("http://localhost:3000/user/wishlist/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ productId }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to add to wishlist");
+      }
+
+      console.log("Added to wishlist backend");
+    } catch (err) {
+      console.error("Wishlist add error:", err);
+    }
+  };
+
+  const removeFromWishlistBackend = async (productId) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3001/user/wishlist/remove/${productId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to remove from wishlist");
+      }
+
+      console.log("Removed from wishlist backend");
+    } catch (err) {
+      console.error("Wishlist remove error:", err);
+    }
+  };
+
   const addToCompare = (product) => {
     if (selectedProducts.find((p) => p.id === product.id)) return;
+
     if (selectedProducts.length >= 3) {
       alert("You can only compare up to 3 products.");
       return;
     }
+
     setSelectedProducts([...selectedProducts, product]);
+    addToWishlistBackend(product.id);
   };
 
   const removeFromCompare = (id) => {
     setSelectedProducts(selectedProducts.filter((p) => p.id !== id));
+    removeFromWishlistBackend(id);
   };
 
   return (
     <div className={styles.container}>
       <WishlistSidebar products={dummyProducts} addToCompare={addToCompare} />
+
       <ComparisonSection
         products={selectedProducts}
         removeFromCompare={removeFromCompare}

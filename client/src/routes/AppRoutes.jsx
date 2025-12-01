@@ -24,6 +24,8 @@ import SellerItems from "../components/SellerHome/SellerItems";
 import SellerRequests from "../components/SellerHome/SellerRequests";
 import SellerHeaderLayout from "../components/SellerHome/SellerHeaderLayout.jsx"
 import LoginPage from "../components/TempLogin.jsx";
+import ErrorPage from "../pages/ErrorPage.jsx";
+
 
 const ProtectedRoute = ({ element }) => {
   // const { isAuth } = useSelector((state) => state.auth);
@@ -103,6 +105,8 @@ const AppRoutes = () => {
 
         {/* <Route path="/admin" element={<Admin />} /> */}
         <Route path="/manager" element={<ManagerDashboard />} />
+        <Route path="/error" element={<ErrorPage />} />
+
 
       </Routes>
     </Router>
