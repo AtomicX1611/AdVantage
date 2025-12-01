@@ -28,9 +28,9 @@ const Profile = () => {
       link: "/logout",
     },
     {
-      title: "Contact Us",
-      icon: "bx-support",
-      link: "/contact",
+      title: "Your Seller Account",
+      icon: "",
+      link: "/seller/dashboard",
     },
   ]);
 

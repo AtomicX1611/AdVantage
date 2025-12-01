@@ -2,7 +2,7 @@
 import React from 'react';
 import styles from '../../styles/manager.module.css';
 
-const VerifyCard = ({ productPhoto, sellerName, postingDate, category, type, price,onVerify }) => {
+const VerifyCard = ({ productPhoto, sellerName, postingDate, category, type, price, onVerify, onViewDetails }) => {
   return (
     <div className={styles.verifyCard}>
       <img src={productPhoto} alt="Product" className={styles.productPhoto} />
@@ -15,7 +15,7 @@ const VerifyCard = ({ productPhoto, sellerName, postingDate, category, type, pri
       </div>
       <div className={styles.actions}>
         <button className={styles.verifyButton} onClick={onVerify}>Verify</button>
-        <button className={styles.viewDetailsButton}>View Details</button>
+        <button className={styles.viewDetailsButton} onClick={onViewDetails}>View Details</button>
       </div>
     </div>
   );

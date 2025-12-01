@@ -30,9 +30,7 @@ const Home = () => {
       try {
         setLoading(true);
         
-        const response = await fetch(`${backendURL}${API_CONFIG.API_ENDPOINTS.FEATURED_PRODUCTS}`);
-
-        console.log("FUCH HERE");
+        const response = await fetch(`${backendURL}${API_CONFIG.API_ENDPOINTS.FEATURED_PRODUCTS}`)
         
         if (response.ok) {
           const data = await response.json();

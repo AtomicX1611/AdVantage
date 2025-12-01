@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "../styles/productdetails.module.css";
 
-const ActionButtons = ({ isRental, soldTo, onAddToWishlist, onRentNow }) => {
+const ActionButtons = ({ isRental, soldTo, onAddToWishlist, onRentNow, onBuyNow }) => {
   return (
     <div className={styles.options}>
       <button id="addToWishlist" className={styles.btn} onClick={onAddToWishlist}>
@@ -11,7 +11,7 @@ const ActionButtons = ({ isRental, soldTo, onAddToWishlist, onRentNow }) => {
       <button className={styles.btn}>Chat with Seller</button>
 
       {!soldTo && !isRental && (
-        <button className={styles.btn}>Buy Now</button>
+        <button className={styles.btn} onClick={onBuyNow}>Buy Now</button>
       )}
 
       {!soldTo && isRental && (
