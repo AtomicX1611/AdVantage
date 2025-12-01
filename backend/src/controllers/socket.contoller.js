@@ -1,4 +1,4 @@
-import Buyers from "../models/Buyers.js";
+import Buyers from "../models/Users.js";
 import Sellers from "../models/Sellers.js";
 import { io } from "../../app.js";
 

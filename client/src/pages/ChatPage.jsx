@@ -78,7 +78,7 @@ const ChatPage = () => {
   return (
     <div className={styles.bodyWrapper}>
       <h1 id="myName">Welcome, {myUsername}</h1>
-      <main className={styles.main}>
+      <main className={styles.mainContent}>
         <ChatSidebar senders={senders} onSelectSender={handleSelectSender} />
         <ChatBox
           selectedSender={selectedSender}

@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import styles from "../../styles/Addproductform.module.css";
 
-const InvoiceUploader = () => {
+const InvoiceUploader = ({ handleInvoiceChange }) => {
   const [file, setFile] = useState(null);
+
+  const handleChange = (e) => {
+    const selected = e.target.files[0];
+    setFile(selected);
+    handleInvoiceChange(selected); // LIFT TO PARENT
+  };
 
   return (
     <div className={`${styles.griditem} ${styles.div5}`}>
@@ -12,7 +18,7 @@ const InvoiceUploader = () => {
         id="proof"
         name="invoice"
         style={{ display: "none" }}
-        onChange={(e) => setFile(e.target.files[0])}
+        onChange={handleChange}
       />
       <div id="demoName">
         {file && (

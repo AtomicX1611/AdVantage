@@ -6,7 +6,7 @@ import { connectDB } from "./src/config/mongo.config.js";
 import cookieParser from "cookie-parser";
 import path from "node:path";
 import authRouter from "./src/routes/auth.router.js";
-import buyerRouter from "./src/routes/buyer.router.js";
+import userRouter from "./src/routes/user.router.js";
 // import sellerRouter from "./src/routes/seller.router.js";
 import adminRouter from "./src/routes/admin.router.js";
 import anyoneRouter from "./src/routes/anyone.router.js";
@@ -31,12 +31,22 @@ app.use(express.urlencoded({ extended: true, limit: "500mb" }));
 app.use("/uploads", express.static(path.join("./", "uploads")));
 
 app.use("/auth",authRouter);
-app.use("/buyer",buyerRouter);
+app.use("/user",userRouter);
 // app.use("/seller",sellerRouter);
 app.use('/manager',managerRouter);
 app.use("/admin",adminRouter);
 app.use("/anyone",anyoneRouter);
 app.use("/chat",chatRouter);
+
+
+//need to remove this later
+app.get('/shutdown', (req, res) => {
+    res.send('Server is shutting down...');
+    server.close(() => {
+        console.log('Server successfully closed.');
+        process.exit(0); 
+    });
+});
 
 const server=app.listen(process.env.PORT,()=>{
     // seedData();

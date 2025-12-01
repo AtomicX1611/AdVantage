@@ -31,34 +31,34 @@ export const router = express.Router();
 
 router.use(checkToken);
 router.use(serializeUser);
-router.use(authorize("buyer"));
+router.use(authorize("user"));
 
 router.post("/request/:productId",requestProduct);
 router.put("/rent/:productId",rentProductController);
 
 
 router.put("/wishlist/add/:productId", addToWishlist);
-router.get("/wishlist", getWishlistProducts);
+router.get("/wishlist", getWishlistProducts); // Working
 
 router.delete("/wishlist/remove/:productId", removeFromWishlist);
-router.put("/update/password",updateBuyerPassword); 
-router.put("/update/profile", upload.single("profilePic"), updateBuyerProfile);
+router.patch("/update/password",updateBuyerPassword); // Working
+router.put("/update/profile", upload.single("profilePic"), updateBuyerProfile); // Working
 
-router.get("/yourProducts",getYourProducts);
+router.get("/yourProducts",getYourProducts); 
 router.get("/getYourProfile",getYourProfile);
 
 
 // buyer as a seller
-router.get("/products",findSellerProducts);
-router.get("/subscriptionStatus",findSellerSubscription);
-router.put("/update/subscription",updateSellerSubscription);
+router.get("/products",findSellerProducts); // Working
+router.get("/subscriptionStatus",findSellerSubscription); // Working
+router.put("/update/subscription",updateSellerSubscription); // Working
 
 router.post("/addProduct", upload.fields([
     { name: "productImages", maxCount: 10 },
     { name: "invoice", maxCount: 1 }
-]), addProduct);
+]), addProduct); // Working
 
-router.delete("/deleteProduct/:productId",deleteProduct);
+router.delete("/deleteProduct/:productId",deleteProduct); // Working
 
 router.delete("/rejectRequest/:productId/:buyerId/", rejectRequest);
 router.delete("/acceptRequest/:productId/:buyerId", acceptRequest);

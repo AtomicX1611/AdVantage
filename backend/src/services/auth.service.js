@@ -2,11 +2,11 @@ import jwt from "jsonwebtoken";
 import {
     createBuyer,
     findBuyerByEmail,
-} from "../daos/buyers.dao.js";
-import {
-    createSeller,
-    findSellerByEmail,
-} from "../daos/sellers.dao.js";
+} from "../daos/users.dao.js";
+// import {
+//     createSeller,
+//     findSellerByEmail,
+// } from "../daos/sellers.dao.js";
 import { findAdminByEmail } from "../daos/admins.dao.js";
 import { findManagerByEmail } from "../daos/managers.dao.js";
 
@@ -32,7 +32,7 @@ export const signupBuyerService = async (username, contact, email, password) => 
     });
 
     const token = jwt.sign(
-        { _id: newBuyer._id, role: "buyer" },
+        { _id: newBuyer._id, role: "user" },
         process.env.JWT_SECRET,
         { expiresIn: "7d" }
     );
@@ -44,37 +44,38 @@ export const signupBuyerService = async (username, contact, email, password) => 
     };
 };
 
-export const signupSellerService = async (username, contact, email, password) => {
-    const existingSeller = await findSellerByEmail(email);
-    if (existingSeller) {
-        return {
-            success: false,
-            message: "email already exists",
-            status: 409,
-        };
-    }
+// export const signupSellerService = async (username, contact, email, password) => {
+//     const existingSeller = await findBuyerByEmail(email);
+//     if (existingSeller) {
+//         return {
+//             success: false,
+//             message: "email already exists",
+//             status: 409,
+//         };
+//     }
 
-    const newSeller = await createSeller({
-        username,
-        contact,
-        email,
-        password,
-        subscription: 0,
-        profilePicPath: null,
-    });
+//     const newSeller = await createBuyer({
+//         username,
+//         contact,
+//         email,
+//         password,
+//         wishlistProducts: [],
+//         subscription: 0,
+//         profilePicPath: null,
+//     });
 
-    const token = jwt.sign(
-        { _id: newSeller._id, role: "seller" },
-        process.env.JWT_SECRET,
-        { expiresIn: "7d" }
-    );
+//     const token = jwt.sign(
+//         { _id: newSeller._id, role: "seller" },
+//         process.env.JWT_SECRET,
+//         { expiresIn: "7d" }
+//     );
 
-    return {
-        newSeller,
-        success: true,
-        token,
-    };
-};
+//     return {
+//         newSeller,
+//         success: true,
+//         token,
+//     };
+// };
 
 export const buyerLoginService = async (email, password) => {
     const buyer = await findBuyerByEmail(email);
@@ -93,7 +94,7 @@ export const buyerLoginService = async (email, password) => {
         }
     }
     const token = jwt.sign(
-        { _id: buyer._id, role: "buyer" },
+        { _id: buyer._id, role: "user" },
         process.env.JWT_SECRET,
         { expiresIn: "7d" }
     );
@@ -104,37 +105,37 @@ export const buyerLoginService = async (email, password) => {
     }
 }
 
-export const sellerLoginService = async (email, password) => {
-    const seller = await findSellerByEmail(email);
+// export const sellerLoginService = async (email, password) => {
+//     const seller = await findBuyerByEmail(email);
 
-    if (!seller) {
-        return {
-            success: false,
-            status: 404,
-            message: "no seller with that email",
-        };
-    }
+//     if (!seller) {
+//         return {
+//             success: false,
+//             status: 404,
+//             message: "no seller with that email",
+//         };
+//     }
 
-    if (seller.password !== password) {
-        return {
-            success: false,
-            status: 401,
-            message: "email or password is incorrect",
-        };
-    }
+//     if (seller.password !== password) {
+//         return {
+//             success: false,
+//             status: 401,
+//             message: "email or password is incorrect",
+//         };
+//     }
 
-    const token = jwt.sign(
-        { _id: seller._id, role: "seller" },
-        process.env.JWT_SECRET,
-        { expiresIn: "7d" }
-    );
+//     const token = jwt.sign(
+//         { _id: seller._id, role: "seller" },
+//         process.env.JWT_SECRET,
+//         { expiresIn: "7d" }
+//     );
 
-    return {
-        success: true,
-        token,
-        seller,
-    };
-};
+//     return {
+//         success: true,
+//         token,
+//         seller,
+//     };
+// };
 
 export const adminLoginService = async (email, password) => {
     

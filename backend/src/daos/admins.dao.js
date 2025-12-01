@@ -1,5 +1,5 @@
 import Admins from "../models/Admins.js";
-import buyers from "../models/Buyers.js";
+import buyers from "../models/Users.js";
 import products from "../models/Products.js";
 
 export const getAdminById= async (id)=>{
@@ -71,7 +71,7 @@ export const getProducts = async () => {
         },
         {
           $lookup: {
-            from: "sellers",
+            from: "users",
             localField: "_id",
             foreignField: "_id",
             as: "sellerInfo"

@@ -5,7 +5,7 @@ import {
     getBuyerById,
     updateBuyerPassById,
     getWishlistProductsDao,
-} from "../daos/buyers.dao.js";
+} from "../daos/users.dao.js";
 
 import {
     addProductRequestDao,

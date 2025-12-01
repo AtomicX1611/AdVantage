@@ -1,19 +1,19 @@
-import Buyers from "../models/Buyers.js";
+import Users from "../models/Users.js";
 
 export const getBuyerById = async (id) => {
-    return await Buyers.findById(id);
+    return await Users.findById(id);
 }
 
 export const createBuyer = async (buyerData) => {
-    return await Buyers.create(buyerData);
+    return await Users.create(buyerData);
 };
 
 export const findBuyerByEmail = async (email) => {
-    return await Buyers.findOne({ email });
+    return await Users.findOne({ email });
 };
 
 export const addToWishlistDao = async (userId, productId) => {
-    const buyer = await Buyers.findById(userId);
+    const buyer = await Users.findById(userId);
 
     if (!buyer) return { success: false, reason: "not_found" };
 
@@ -28,7 +28,7 @@ export const addToWishlistDao = async (userId, productId) => {
 };
 
 export const getWishlistProductsDao = async (userId) => {
-    const buyer = await Buyers.findById(userId).populate('wishlistProducts');
+    const buyer = await Users.findById(userId).populate('wishlistProducts');
     if (!buyer) return { success: false, reason: "not_found" };
     console.log(buyer);
     return {
@@ -39,7 +39,7 @@ export const getWishlistProductsDao = async (userId) => {
 }
 
 export const removeFromWishlistDao = async (userId, productId) => {
-    const buyer = await Buyers.findById(userId);
+    const buyer = await Users.findById(userId);
 
     if (!buyer) return { success: false, reason: "not_found" };
 
@@ -55,7 +55,7 @@ export const removeFromWishlistDao = async (userId, productId) => {
 };
 
 export const updateBuyerById = async (buyerId, updateData) => {
-    return await Buyers.findByIdAndUpdate(
+    return await Users.findByIdAndUpdate(
         buyerId,
         { $set: updateData },
         { new: true }
@@ -63,7 +63,7 @@ export const updateBuyerById = async (buyerId, updateData) => {
 };
 
 export const updateBuyerPassById = async (buyerId, newPassword) => {
-    return await Buyers.findByIdAndUpdate(
+    return await Users.findByIdAndUpdate(
         buyerId,
         { $set: { password: newPassword } },
         { new: true }
@@ -73,7 +73,7 @@ export const updateBuyerPassById = async (buyerId, newPassword) => {
 // user as a seller
 export const findSellerSubsDao = async (userId) => {
     try {
-        const seller = await Buyers.findById(userId).select("subscription");
+        const seller = await Users.findById(userId).select("subscription");// this one changed in users dao accepted incoming
         
         if (!seller) {
             return {

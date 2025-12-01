@@ -9,8 +9,8 @@ import {
 export const router = express.Router();
 
 //buyer
-router.post('/buyer/signup', buyerSignup);
-router.post('/buyer/login', buyerLogin);
+router.post('/signup', buyerSignup);
+router.post('/login', buyerLogin);
 
 // //seller
 // router.post('/seller/signup', sellerSignup);

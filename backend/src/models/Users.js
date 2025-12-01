@@ -50,4 +50,4 @@ buyersSchema.pre("findOneAndDelete", async function (next) {
     next();
 });
 
-export default mongoose.model("Buyers", buyersSchema);
+export default mongoose.model("Users", buyersSchema);
