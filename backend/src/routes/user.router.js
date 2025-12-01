@@ -36,8 +36,7 @@ router.use(authorize("user"));
 router.post("/request/:productId",requestProduct);
 router.put("/rent/:productId",rentProductController);
 
-
-router.put("/wishlist/add/:productId", addToWishlist);
+router.put("/wishlist/add/:productId", addToWishlist); 
 router.get("/wishlist", getWishlistProducts); // Working
 
 router.delete("/wishlist/remove/:productId", removeFromWishlist);
@@ -46,7 +45,6 @@ router.put("/update/profile", upload.single("profilePic"), updateBuyerProfile); 
 
 router.get("/yourProducts",getYourProducts); 
 router.get("/getYourProfile",getYourProfile);
-
 
 // buyer as a seller
 router.get("/products",findSellerProducts); // Working
