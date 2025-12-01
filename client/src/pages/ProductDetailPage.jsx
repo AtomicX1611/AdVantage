@@ -5,6 +5,7 @@ import ProductInfo from "../components/ProductInfo";
 import ActionButtons from "../components/ActionButtons";
 import SellerOptions from "../components/SellerOptions";
 import RentForm from "../components/RentForm";
+import BidModal from "../components/BidModal";
 import Notification from "../components/NotificationCard";
 import styles from "../styles/productdetails.module.css";
 
@@ -15,6 +16,7 @@ const ProductDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showRentForm, setShowRentForm] = useState(false);
+  const [showBidModal, setShowBidModal] = useState(false);
   const [notification, setNotification] = useState("");
   const [showNotif, setShowNotif] = useState(false);
 
@@ -31,7 +33,6 @@ const ProductDetailPage = () => {
           setLoading(false);
           return;
         }
-
         console.log("Product laoded: ", data.product);
         setProduct(data.product);
       } catch (err) {
@@ -44,14 +45,64 @@ const ProductDetailPage = () => {
     fetchProduct();
   }, [pid]);
 
-  const handleAddToWishlist = () => {
-    setNotification("Added to Wishlist!");
-    setShowNotif(true);
-    setTimeout(() => setShowNotif(false), 1000);
+  const handleAddToWishlist = async () => {
+    try {
+      const url = `http://localhost:3000/user/wishlist/add/${pid}`;
+      const response = await fetch(url, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      
+      if(data.success) {
+        alert("Added to Wishlist!");
+      } else {
+        alert(data.message || "Failed to add to wishlist");
+      }
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+      alert("Error adding to wishlist");
+    }
   };
 
   const handleRentNow = () => {
     setShowRentForm(true);
+  };
+
+  const handleBuyNow = () => {
+    setShowBidModal(true);
+  };
+
+  const handleSubmitBid = async (bidAmount) => {
+    try {
+      
+       const response = await fetch(`http://localhost:3000/user/request/${pid}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          biddingPrice: parseInt(bidAmount),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`Bid of ₹${bidAmount} submitted successfully!`);
+        setShowBidModal(false);
+      } else {
+        alert(data.message || "Failed to submit bid");
+      }
+    } catch (error) {
+      console.error("Error submitting bid:", error);
+      alert("An error occurred while submitting your bid");
+    }
   };
 
   const handleSubmitRent = (fromDate, toDate) => {
@@ -103,6 +154,7 @@ const ProductDetailPage = () => {
               soldTo={product.soldTo}
               onAddToWishlist={handleAddToWishlist}
               onRentNow={handleRentNow}
+              onBuyNow={handleBuyNow}
             />
 
             <SellerOptions verified={product.verified} />
@@ -118,6 +170,14 @@ const ProductDetailPage = () => {
           <RentForm
             onClose={() => setShowRentForm(false)}
             onSubmit={handleSubmitRent}
+          />
+        )}
+
+        {showBidModal && (
+          <BidModal
+            onClose={() => setShowBidModal(false)}
+            onSubmit={handleSubmitBid}
+            productPrice={product.price}
           />
         )}
       </div>

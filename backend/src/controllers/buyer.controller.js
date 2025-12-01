@@ -67,7 +67,7 @@ export const addToWishlist = async (req, res) => {
                 message: response.message
             });
         }
-
+    console.log("gettiasdadang wishlist in backend"); 
         return res.status(200).json({
             success: true,
             message: response.message

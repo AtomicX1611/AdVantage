@@ -8,9 +8,9 @@ import Register from "../pages/Register";
 // import LoginPage from "../pages/LoginPage.jsx";
 // import Admin from "../pages/Admin.jsx";
 // import Admin from "../pages/AdminPage.jsx";
-import SubscriptionPage from "../pages/Subscription.page";
-import PaymentPage from "../pages/Payment.page";
-import Login from "../pages/Login";
+import SubscriptionPage from "../pages/Subscription.page.jsx";
+import PaymentPage from "../pages/Payment.page.jsx";
+// import Login from "../pages/Login.jsx";
 import YourOrders from "../pages/YourOrders.page";
 import ChatPage from "../pages/ChatPage";
 import WishList from '../pages/WishlistPage.jsx';
@@ -25,6 +25,8 @@ import SellerItems from "../components/SellerHome/SellerItems";
 import SellerRequests from "../components/SellerHome/SellerRequests";
 import SellerHeaderLayout from "../components/SellerHome/SellerHeaderLayout.jsx"
 import LoginPage from "../components/TempLogin.jsx";
+import ErrorPage from "../pages/ErrorPage.jsx";
+
 
 const ProtectedRoute = ({ element }) => {
   // const { isAuth } = useSelector((state) => state.auth);
@@ -36,12 +38,12 @@ const subsData = [
   {
     type: "vip",
     duration: "6 Months",
-    price: "$29.99",
+    price: "100",
   },
   {
     type: "premium",
     duration: "1 year",
-    price: "$79.99",
+    price: "1299",
   }
 ];
 
@@ -54,8 +56,7 @@ const AppRoutes = () => {
           <Route path="search" element={<SearchPage />} />
           <Route path="product/:pid" element={<ProductDetailPage />} />
           <Route path="register" element={<Register />} />
-          <Route path="login" element={<LoginPage/>} />
-          <Route path="subscription" element={<SubscriptionPage />} />
+          <Route path="login" element={<LoginPage />} />
           {/* Protected User Routes */}
           <Route path="profile" element={<ProtectedRoute element={<Profile />} />} />
           <Route path="updateProfile" element={<ProtectedRoute element={<UserUpdateProfile />} />} />
@@ -64,26 +65,6 @@ const AppRoutes = () => {
           <Route path="yourProducts" element={<ProtectedRoute element={<YourOrders />} />} />
           <Route path="product-requests" element={<ProtectedRoute element={<ViewRequest />} />} />
           <Route path="pending-payment/:id" element={<h1>New page pipeline to be decided yet</h1>} />
-          <Route path="seller/subscription/vip"
-            element={
-              <PaymentPage
-                type={subsData[0].type}
-                duration={subsData[0].duration}
-                Price={subsData[0].price}
-                validTill={new Date(new Date().setMonth(new Date().getMonth() + 1)).toDateString()}
-              />
-            }
-          />
-          <Route path="seller/subscription/premium"
-            element={
-              <PaymentPage
-                type={subsData[1].type}
-                duration={subsData[1].duration}
-                Price={subsData[1].price}
-                validTill={new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toDateString()}
-              />
-            }
-          />
         </Route>
         {/* for seller Dashboard */}
         <Route path="/seller/dashboard" element={<ProtectedRoute element={<SellerDashboardLayout />} />}>
@@ -96,14 +77,38 @@ const AppRoutes = () => {
         </Route>
 
         <Route path="/seller" element={<SellerHeaderLayout />}>
-            {/* add routes for add product form , inbox, and /seller/dashboard with root elemetn as SellerLayout*/}
-             <Route path="add-new-product" element={<ProtectedRoute element={<AddProductForm />} />} />
-             <Route path="chat" element={<ProtectedRoute element={<ChatPage />} />} />
-             <Route path="dashboard" element={<ProtectedRoute element={<SellerDashboardLayout />} />} />
+          {/* add routes for add product form , inbox, and /seller/dashboard with root elemetn as SellerLayout*/}
+          <Route path="add-new-product" element={<ProtectedRoute element={<AddProductForm />} />} />
+          <Route path="chat" element={<ProtectedRoute element={<ChatPage />} />} />
+          <Route path="subscription" element={<SubscriptionPage />} />
+          <Route path="dashboard" element={<ProtectedRoute element={<SellerDashboardLayout />} />} />
+
+          <Route path="subscription/vip"
+            element={
+              <PaymentPage
+                type={subsData[0].type}
+                duration={subsData[0].duration}
+                Price={subsData[0].price}
+                validTill={new Date(new Date().setMonth(new Date().getMonth() + 1)).toDateString()}
+              />
+            }
+          />
+          <Route path="subscription/premium"
+            element={
+              <PaymentPage
+                type={subsData[1].type}
+                duration={subsData[1].duration}
+                Price={subsData[1].price}
+                validTill={new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toDateString()}
+              />
+            }
+          />
         </Route>
 
         {/* <Route path="/admin" element={<Admin />} /> */}
         <Route path="/manager" element={<ManagerDashboard />} />
+        <Route path="/error" element={<ErrorPage />} />
+
 
       </Routes>
     </Router>

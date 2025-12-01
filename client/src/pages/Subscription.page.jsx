@@ -2,9 +2,29 @@
 import React from "react";
 import classes from "../styles/sellerSubscription.module.css";
 import SubscriptionBox from "../components/SubscriptionBox.component.jsx";
+import { useEffect,useState } from "react";
 
 const SubscriptionPage = () => {
-  const currentPlan = 0; // Example: fetched from backend (0 = Basic, 1 = VIP, 2 = Premium)
+  const [currentPlan, setCurrentPlan] = useState(0);  
+  // Example: fetched from backend (0 = Basic, 1 = VIP, 2 = Premium)
+
+  useEffect(() => {
+    async function fetchCurrentPlan() {
+      const response = await fetch('http://localhost:3000/user/subscriptionStatus', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include' 
+      });
+      const data = await response.json();
+      console.log("data: ",data);
+      if(data.success) {
+        setCurrentPlan(data.subscription);
+      }
+    }
+    fetchCurrentPlan();
+  }, []);
 
   const plans = [
     {

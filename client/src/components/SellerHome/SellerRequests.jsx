@@ -51,13 +51,15 @@ const SellerRequests = () => {
   const handleAccept = async (productId, requestId) => {
     setError(null);
     try {
-      const response = await fetch('http://localhost:5000/api/request/accept', {
-        method: 'POST',
+      const response = await fetch(`http://localhost:3000/user/acceptRequest/${productId}/${requestId}`, {
+        method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
         body: JSON.stringify({ productId, requestId })
       });
 
       const data = await response.json();
+      console.log("data in accept: ",data);
 
       if (data.success) {
         setProductsWithRequests((prevProducts) => 
@@ -74,17 +76,20 @@ const SellerRequests = () => {
       setError("Network error while accepting request.");
     }
   };
+
   const handleReject = async (productId, requestId) => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/request/reject', {
-        method: 'POST',
+      const response = await fetch(`http://localhost:3000/user/rejectRequest/${productId}/${requestId}`, {
+        method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
         body: JSON.stringify({ productId, requestId })
       });
 
       const data = await response.json();
+      console.log("data in reject: ",data);
 
       if (data.success) {
         const updatedRequests = selectedProduct.requests.filter(

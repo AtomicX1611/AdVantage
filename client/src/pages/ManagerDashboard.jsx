@@ -1,16 +1,18 @@
 // src/pages/ManagerDashboard.jsx
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import VerifyCard from '../components/Manager/VerifyCard.jsx';
 import styles from '../styles/manager.module.css';
 
 const ManagerDashboard = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchData = async () => {
     try {
-      const res = await fetch('http://localhost:5000/manager/d', {
+      const res = await fetch('http://localhost:3000/manager/d', {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -40,7 +42,7 @@ const ManagerDashboard = () => {
     try {
       console.log("initaing verify");
       
-      const res = await fetch("http://localhost:5000/manager/verify", {
+      const res = await fetch("http://localhost:3000/manager/verify", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -63,6 +65,10 @@ const ManagerDashboard = () => {
       console.error("Verify error:", err);
       alert("Server Error verifying product.");
     }
+  };
+
+  const handleViewDetails = (productId) => {
+    navigate(`/product/${productId}`);
   };
 
   useEffect(() => {
@@ -90,7 +96,8 @@ const ManagerDashboard = () => {
             category={item.category}
             type={item.isRental ? 'Rental' : 'Sale'}
             price={item.price}
-            onVerify={() => handleVerify(item._id)}  
+            onVerify={() => handleVerify(item._id)}
+            onViewDetails={() => handleViewDetails(item._id)}
           />
         ))}
       </div>

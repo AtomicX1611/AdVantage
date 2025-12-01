@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import styles from "../styles/paymentpage.module.css";
+import { act } from "react";
+import { useNavigate } from "react-router-dom";
 
-const PaymentInputs = ({ type }) => {
+const PaymentInputs = ({ type , price }) => {
   const [activeMethod, setActiveMethod] = useState(null);
   const [cardDetails, setCardDetails] = useState({
     cardNumber: "",
     cardHolder: "",
     cvv: "",
   });
+
+  const navigate = useNavigate();
 
   const handlePayment = async (payMethod) => {
     if (payMethod === "card") {
@@ -32,17 +36,19 @@ const PaymentInputs = ({ type }) => {
       }
     }
 
-    const res = await fetch("/seller/payment", {
+    const res = await fetch("http://localhost:3000/payment/processPayment", {
       method: "POST",
       headers: { "Content-type": "application/json" },
-      body: JSON.stringify({ type }),
+      credentials: "include",
+      body: JSON.stringify({ payTo: "Admin", paymentType: "subscription", price: price }),
     });
 
-    if (res.status === 200) {
+    const data=await res.json();
+    console.log("data: ",data);
+
+    if(data.success) {
       alert("Payment Done successfully");
-      window.location.href = "/seller";
-    } else {
-      alert("Something went wrong");
+      navigate("/seller/dashboard");
     }
   };
 

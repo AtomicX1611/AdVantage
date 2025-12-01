@@ -2,6 +2,7 @@ import React from 'react';
 import classes from '../styles/header.module.css';
 
 const NotificationCard = ({ notification, onDelete }) => {
+  
   return (
     <div className={`${classes.notificationCard} ${notification.unread ? classes.unread : ''}`}>
       <span className={classes.icon}>{notification.icon}</span>
@@ -17,6 +18,7 @@ const NotificationCard = ({ notification, onDelete }) => {
       </button>
     </div>
   );
+
 };
 
 export default NotificationCard;
