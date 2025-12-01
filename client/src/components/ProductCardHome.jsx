@@ -2,11 +2,11 @@ import React from 'react';
 import styles from '../styles/home.module.css';
 
 const ProductCardHome = ({ product, backendURL, onClick }) => {
-  // Handle both images array format and Image1Src format
   const imageUrl = product.images && product.images[0] 
-    ? `${backendURL}${product.images[0]}`
+    ? `${backendURL}/${product.images[0]}`
     : product.Image1Src || '/Assets/placeholder.png';
-
+  console.log("loggin imageurl",imageUrl);
+  
   return (
     <div onClick={onClick} style={{ cursor: 'pointer' }}>
       <div className={styles.productCard}>

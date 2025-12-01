@@ -29,8 +29,9 @@ const Home = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${backendURL}/anyone/HomeRequirements`);
         
+        const response = await fetch(`${backendURL}${API_CONFIG.API_ENDPOINTS.FEATURED_PRODUCTS}`);
+                
         if (response.ok) {
           const data = await response.json();
           console.log("Full response data:", data);
@@ -41,9 +42,13 @@ const Home = () => {
           setFreshProducts(data.freshProducts || []);
         } else {
           console.error("Response not OK:", response.status);
+          setFeaturedProducts([]);
+          setFreshProducts([]);
         }
       } catch (error) {
         console.error('Error fetching products:', error);
+        setFeaturedProducts([]);
+        setFreshProducts([]);
       } finally {
         setLoading(false);
       }
