@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import path from "node:path";
 import authRouter from "./src/routes/auth.router.js";
 import buyerRouter from "./src/routes/buyer.router.js";
-import sellerRouter from "./src/routes/seller.router.js";
+// import sellerRouter from "./src/routes/seller.router.js";
 import adminRouter from "./src/routes/admin.router.js";
 import anyoneRouter from "./src/routes/anyone.router.js";
 import { chatRouter } from "./src/routes/chat.routes.js";
@@ -22,7 +22,7 @@ await connectDB();
 // body Parsing middleware
 app.use(cookieParser());
 app.use(cors({
-  origin: "http://localhost:3001",
+  origin: "http://localhost:5173",
   credentials:true
 }));
 app.use(express.json({ limit: "500mb" }));
@@ -32,7 +32,7 @@ app.use("/uploads", express.static(path.join("./", "uploads")));
 
 app.use("/auth",authRouter);
 app.use("/buyer",buyerRouter);
-app.use("/seller",sellerRouter);
+// app.use("/seller",sellerRouter);
 app.use('/manager',managerRouter);
 app.use("/admin",adminRouter);
 app.use("/anyone",anyoneRouter);

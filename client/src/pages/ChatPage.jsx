@@ -7,12 +7,10 @@ import styles from "../styles/buyerchat.module.css";
 
 
 const ChatPage = () => {
-  // Temporary mock user data
   const myUsername = "John";
   const myAccount = "user123";
-  const backendURL = "https://your-backend-url.com/";
+  const backendURL = "https://localhost:3000";
 
-  // State
   const [socket, setSocket] = useState(null);
   const [senders, setSenders] = useState([
     { _id: "seller1", username: "Alice" },
@@ -22,7 +20,6 @@ const ChatPage = () => {
   const [selectedSender, setSelectedSender] = useState(null);
   const [messages, setMessages] = useState([]);
 
-  // Connect socket and listen for messages
   useEffect(() => {
     const newSocket = io(backendURL, { withCredentials: true });
     setSocket(newSocket);
@@ -38,7 +35,6 @@ const ChatPage = () => {
     return () => newSocket.disconnect();
   }, [backendURL, myAccount, selectedSender]);
 
-  // Fetch messages for a selected contact
   async function fetchConversation(otherId) {
     try {
       const res = await fetch(`${backendURL}chat/messages/${otherId}`, {
@@ -54,13 +50,11 @@ const ChatPage = () => {
     }
   }
 
-  // Handle selecting a contact
   const handleSelectSender = async (sender) => {
     setSelectedSender(sender);
     await fetchConversation(sender._id);
   };
 
-  // Handle sending a new message
   const handleSendMessage = async (msg) => {
     if (!msg.trim() || !selectedSender) return;
 

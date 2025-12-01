@@ -73,7 +73,7 @@ export const updateBuyerPassById = async (buyerId, newPassword) => {
 // user as a seller
 export const findSellerSubsDao = async (userId) => {
     try {
-        const seller = await Sellers.findById(userId).select("subscription");
+        const seller = await Buyers.findById(userId).select("subscription");
         
         if (!seller) {
             return {

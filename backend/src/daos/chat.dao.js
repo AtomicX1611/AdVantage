@@ -118,9 +118,8 @@ export const generateChatId = (user1, user2) => {
 
 export const fetchContacts = async (_id) => {
     try {
-        // returns List of _ids
         console.log("_id in fetch contacts: ", _id);
-        let user = await Contacts.findOne({ user: _id });
+        let user = await Contacts.findOne({ user: _id }); // returns array of _ids
         console.log("user: ", user)
         let contacts;
 
@@ -132,54 +131,24 @@ export const fetchContacts = async (_id) => {
         }
 
         let userName;
-        const buyer = await Buyers.findById(_id);  // To check if present in buyer
+        const buyer = await Buyers.findById(_id);  //username of current user
         console.log("Buyer: ", buyer);
-        const seller = await Sellers.findById(_id);  // To check if present in Seller
-        console.log("seller: ", seller);
-        if (!buyer && !seller) {
+        if (!buyer) {
             return {
                 success: false,
-                message: "No record found please check your account status"
+                message: "No record found ,please try logging in"
             }
         }
 
-        if (buyer) {
-            userName = buyer.username;
-            contacts = await Sellers.find({ _id: { $in: user.contacts } });
-            console.log("Contacts in fetchContacts: ",contacts);
-            return {
-                success: true,
-                contacts,
-                userName
-            };
-        } else if (seller) {
-            userName = seller.username;
-            contacts = await Buyers.find({ _id: { $in: user.contacts } });
-            console.log("Contacts in fetchContacts: ",contacts);
-            return {
-                success: true,
-                contacts,
-                userName
-            };
-        }
+        userName = buyer.username;
+        contacts = await Buyers.find({ _id: { $in: user.contacts } }); // Know what you want from here
+        console.log("Contacts in fetchContacts: ", contacts);
+        return {
+            success: true,
+            contacts,
+            userName
+        };
 
-        // To retrive userName
-        // if (!buyer) {
-        //     seller = await Sellers.findById(_id);
-        //     userName = seller.username;
-        //     contacts = await Buyers.find({ _id: { $in: user.contacts } })  // To get complete document of contacts
-        // }
-        // else {
-        //     userName = buyer.username
-        //     contacts = await Sellers.find({ _id: { $in: user.contacts } }) // To get Complete document of contacts
-        // }
-
-
-        // return {
-        //     success: true,
-        //     contacts: contacts,
-        //     userName: userName
-        // }
     } catch (error) {
         console.log(error);
         return {
@@ -191,26 +160,14 @@ export const fetchContacts = async (_id) => {
 
 export const createContactDao = async (userId, otherId) => {
     try {
-        let userDoc = await Buyers.findById(userId);
-        if (!userDoc) {
-            userDoc = await Sellers.findById(userId);
-            if (!userDoc) {
-                return {
-                    success: false,
-                    message: "User ID not found"
-                };
-            }
-        }
+        const userDoc = await Buyers.findById(userId);
+        const otherDoc = await Buyers.findById(otherId);
 
-        let otherDoc = await Buyers.findById(otherId);
-        if (!otherDoc) {
-            otherDoc = await Sellers.findById(otherId);
-            if (!otherDoc) {
-                return {
-                    success: false,
-                    message: "Other ID not found"
-                };
-            }
+        if (!userDoc || !otherDoc) {
+            return {
+                success: false,
+                message: "One or both users not found"
+            };
         }
 
         let userContacts = await Contacts.findOne({ user: userId });
@@ -224,23 +181,15 @@ export const createContactDao = async (userId, otherId) => {
                 chatId
             });
 
-            await Contacts.create({
-                user: otherId,
-                contacts: [userId],
-                chatId
-            });
-
-            return {
-                success: true,
-                message: "Contact created (first time)"
-            };
+            userContacts = await Contacts.findOne({ user: userId });
         }
 
-        const alreadyExists = userContacts.contacts.some(
+        // Check if already exists
+        const exists = userContacts.contacts.some(
             id => id.toString() === otherId.toString()
         );
 
-        if (!alreadyExists) {
+        if (!exists) {
             userContacts.contacts.push(otherId);
             await userContacts.save();
         } else {
@@ -256,43 +205,44 @@ export const createContactDao = async (userId, otherId) => {
             await Contacts.create({
                 user: otherId,
                 contacts: [userId],
-                chatId: userContacts.chatId // use same chatId
+                chatId: userContacts.chatId // shared chatId
             });
-        } else {
-            const existsReverse = otherContacts.contacts.some(
-                id => id.toString() === userId.toString()
-            );
 
-            if (!existsReverse) {
-                otherContacts.contacts.push(userId);
-                await otherContacts.save();
-            }
+            otherContacts = await Contacts.findOne({ user: otherId });
+        }
+
+        // Reverse check
+        const reverseExists = otherContacts.contacts.some(
+            id => id.toString() === userId.toString()
+        );
+
+        if (!reverseExists) {
+            otherContacts.contacts.push(userId);
+            await otherContacts.save();
         }
 
         return {
             success: true,
-            message: "Contact added both ways"
+            message: "Contact created successfully in both directions"
         };
 
     } catch (error) {
         console.error(error);
-        return {
-            success: false,
-            message: "Database error"
-        };
+        return { success: false, message: "Database error" };
     }
 };
 
+
 export const inboxDao = async (userId, otherId) => {
     try {
-        let buyer = Buyers.findById(otherId);
-        let seller = Sellers.findById(otherId);
+        let u1 = await Buyers.findById(userId);
+        let u2 = await Buyers.findById(otherId);
 
-        if (!buyer && !seller) {
+        if (!u1 || !u2) {
             return {
                 success: false,
                 status: 404,
-                message: "User not found with given Id"
+                message: "one or both users not found"
             }
         }
 
@@ -315,14 +265,14 @@ export const inboxDao = async (userId, otherId) => {
 
 export const saveDao = async (userId, otherId, newMessage) => {
     try {
-        let buyer = Buyers.findById(otherId);
-        let seller = Sellers.findById(otherId);
+        let u1 = await Buyers.findById(userId);
+        let u2 = await Buyers.findById(otherId);
 
-        if (!buyer && !seller) {
+        if (!u1 || !u2) {
             return {
                 success: false,
                 status: 404,
-                message: "User not found with given Id"
+                message: "one or both users not found"
             }
         }
 

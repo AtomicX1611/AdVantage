@@ -20,7 +20,7 @@ export const getContacts = async (req, res) => {
         }
         let response = await getContactsService(userId);  // Error is here
         console.log("response: ",response);
-        console.log("response.success",response.success);
+
         if (!response.success) return res.status(500).json({
             success: false,
             message: response.message
@@ -50,6 +50,7 @@ export const createContact = async (req, res) => {
         })
         let response = await createContactService(userId, otherUserId);
         console.log("response: ", response);
+        
         if (!response.success) {
             return res.status(500).json({
                 success: false,
