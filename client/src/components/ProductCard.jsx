@@ -5,7 +5,7 @@ import styles from "../styles/myorders.module.css";
 
 const ProductCard = ({ product, backendURL }) => {
   if (!product.images || !product.images[0]) return null;
-
+  
   return (
     <Link to={`/search/product/${product._id}`}>
       <div className={styles['product_card']}>

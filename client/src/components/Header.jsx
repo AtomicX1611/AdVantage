@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
 import classes from '../styles/header.module.css';
 import NotificationSidebar from './NotificationSidebar';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 // Removed unused icon URLs
 const LOGO_URL = '/Assets/ADVANTAGE.png';
 
 const Header = ({ isLogged, data, backendURL }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
 
   const profilePic = data?.buyer?.profilePicPath;
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const searchValue = e.target.search.value.trim();
+    if (searchValue) {
+      navigate(`/search?query=${encodeURIComponent(searchValue)}`);
+    }
+  };
 
   return (
     <>
@@ -23,7 +32,7 @@ const Header = ({ isLogged, data, backendURL }) => {
               </a>
             </div>
 
-            <form className={classes.searchBox} action="/search/noFilter" method="get">
+            <form className={classes.searchBox} onSubmit={handleSearchSubmit}>
               <div className={classes.searchInput}>
                 <i className={`bx bx-search-alt ${classes.magnifier}`}></i>
                 <input
@@ -55,7 +64,7 @@ const Header = ({ isLogged, data, backendURL }) => {
             <div className={classes.box2}>
               {/* UPDATED: Changed from <img> to text */}
               <div className={`${classes.hover} ${classes.chaticon} ${classes.box2Icons}`}>
-                <a href="/buyer/chats/buyerInbox">Chats</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); navigate('/chat'); }}>Chats</a>
               </div>
               {/* UPDATED: Changed from <img> to text */}
               <div className={`${classes.hover} ${classes.alert} ${classes.box2Icons}`}>
@@ -82,7 +91,7 @@ const Header = ({ isLogged, data, backendURL }) => {
               </div>
               <div className={`${classes.hover} ${classes.box2Icons} ${classes.profile}`}>
                 {profilePic ? (
-                  <a href="/buyer/profile">
+                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/profile'); }}>
                     <img
                       src={`${backendURL}${profilePic}`}
                       alt="your profile pic"
@@ -92,7 +101,7 @@ const Header = ({ isLogged, data, backendURL }) => {
                     />
                   </a>
                 ) : (
-                  <a href="/buyer/profile"><i className='bx bxs-user-circle'></i></a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/profile'); }}><i className='bx bxs-user-circle'></i></a>
                 )}
               </div>
             </div>

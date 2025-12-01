@@ -1,0 +1,275 @@
+/* --- Global & Layout --- */
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #334155; /* Slate-700 */
+  background-color: #f1f5f9; /* Slightly darker slate bg for contrast against white cards */
+}
+
+/* --- Header --- */
+.header {
+  height: 70px;
+  background-color: #0f172a; /* Dark Slate/Black */
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.brand {
+  font-size: 1.4rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  letter-spacing: 0.5px;
+}
+
+.menuBtn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.6rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.menuBtn:hover {
+  color: #ffffff;
+}
+
+.navActions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+/* --- Buttons --- */
+.btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: "Segoe UI", sans-serif;
+  transition: all 0.2s ease-in-out;
+  background-color: transparent;
+  color: #cbd5e1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn:hover {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.btnAdd {
+  background-color: #000000; /* Black */
+  color: white;
+  border: 2px solid transparent; /* Reserve space for border to prevent jumping */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.btnAdd:hover {
+  background-color: #ffffff; /* White */
+  color: #000000; /* Black Text */
+  border: 2px solid #000000; /* Black Border */
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.2);
+}
+
+.btnLogout {
+  background-color: #ef4444; /* Red */
+  color: white;
+}
+
+.btnLogout:hover {
+  background-color: #dc2626;
+}
+
+/* --- Main Body --- */
+.mainBody {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  width: 280px;
+  background-color: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding-top: 20px;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.02);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar.closed {
+  width: 0;
+  padding-top: 20px; /* Keep padding to prevent jumpiness */
+  border: none;
+}
+
+.sidebarLink {
+  padding: 16px 25px;
+  text-decoration: none;
+  color: #64748b;
+  font-size: 1rem;
+  font-weight: 500;
+  border-left: 4px solid transparent;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.sidebarLink:hover {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+.activeLink {
+  background-color: #e2e8f0; /* Light Gray/Silver background */
+  color: #000000; /* Black text */
+  border-left-color: #000000; /* Black accent bar */
+  font-weight: 700;
+}
+/* --- Content Area --- */
+/* --- Content Area --- */
+.content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto; /* Keeps the scroll capability */
+  background-color: transparent; /* Removes the white box */
+  box-shadow: none; /* Removes the shadow */
+  border: none; /* Removes any borders */
+}
+
+.content h2 {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 25px;
+  font-size: 1.8rem;
+  /* Optional: Add a text shadow or adjust color since background is now gray */
+}
+/* --- Product Grid & Cards (UPDATED) --- */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+  justify-content: flex-start; /* Align cards to the left */
+  width: 100%;
+}
+.card {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 300px;
+  padding-bottom: 10px;
+  flex: 0 0 auto; 
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15);
+  border-color: #cbd5e1;
+}
+
+.cardImageContainer {
+  height: 140px; 
+  width: 100%;
+  background-color: #e2e8f0;
+  position: relative;
+  flex-shrink: 0; 
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+}
+
+.cardDetails {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.card h3 {
+  margin: 0 0 10px 0;
+  color: #1e293b;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.card p {
+  margin: 5px 0;
+  color: #64748b;
+}
+
+.status {
+  display: inline-block;
+  font-weight: 600;
+  color: #059669; /* Emerald Green */
+  background-color: #ecfdf5;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  margin-top: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* --- Request List Rows --- */
+.requestRow {
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: border-color 0.2s;
+}
+
+.requestRow:hover {
+  border-color: #94a3b8;
+}
+
+.requestRow strong {
+  display: block;
+  font-size: 1.1rem;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.requestRow p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
