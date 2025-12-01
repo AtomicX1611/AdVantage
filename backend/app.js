@@ -14,6 +14,7 @@ import { chatRouter } from "./src/routes/chat.routes.js";
 import { Server } from "socket.io";
 import { socketActions } from "./src/controllers/socket.contoller.js";
 import { managerRouter } from "./src/routes/manager.router.js";
+import { router } from "./src/routes/payment.router.js";
 import { seedData } from "./data.js";
 
 const app=express();
@@ -38,6 +39,7 @@ app.use('/manager',managerRouter);
 app.use("/admin",adminRouter);
 app.use("/anyone",anyoneRouter);
 app.use("/chat",chatRouter);
+app.use("/payment",router)
 
 
 //need to remove this later

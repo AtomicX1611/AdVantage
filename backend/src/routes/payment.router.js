@@ -10,7 +10,7 @@ import {
     serializeUser
 } from '../middlewares/protect.js'
 
-const router = express.Router();
+export const router = express.Router();
 
 router.get('/getAllPayments',checkToken, serializeUser, authorize('admin'), paymentRetrievalController);
 

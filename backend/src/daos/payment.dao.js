@@ -1,5 +1,5 @@
 import payments from '../models/Payment.js'
-import User from '../models/User.js'
+import User from '../models/Users.js'
 
 export const getAllPayments= async ()=> {
     try {
