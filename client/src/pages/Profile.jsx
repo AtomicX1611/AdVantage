@@ -10,17 +10,17 @@ const Profile = () => {
     {
       title: "Login and Security",
       icon: "bxs-lock",
-      link: "/buyer/updatePassword",
+      link: "/updatePassword",
     },
     {
       title: "Your Orders",
       icon: "bx-package",
-      link: "/buyer/yourProducts",
+      link: "/yourProducts",
     },
     {
       title: "Change/Add your profile",
       icon: "",
-      link: "/buyer/updateProfile",
+      link: "/updateProfile",
     },
     {
       title: "Logout",
@@ -30,7 +30,7 @@ const Profile = () => {
     {
       title: "Contact Us",
       icon: "bx-support",
-      link: "/buyer/contact",
+      link: "/contact",
     },
   ]);
 

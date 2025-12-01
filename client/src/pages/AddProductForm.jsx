@@ -7,6 +7,7 @@ import PriceSection from "../components/AddProduct/PriceSection";
 import styles from "../styles/Addproductform.module.css";
 
 const AddProductForm = () => {
+  
   const [formData, setFormData] = useState({
     name: "",
     description: "",

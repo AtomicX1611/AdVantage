@@ -66,6 +66,7 @@ a {
   position: relative;
   display: flex;
   align-items: center;
+  margin-top: 17px;
 }
 
 /* UPDATED: Fix for search bar text/icon overlap */
@@ -74,6 +75,7 @@ a {
   width: 32vw;
   padding: 0px;
   background-color: #F8F6FF;
+  box-shadow: 0px 0px 5px #242424;
   border: none;
   border-radius: 22px;
   /* Add space for the icon */
@@ -120,8 +122,11 @@ button {
 
 .userActions {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
+  gap: 1.5vw;
+  margin-right: 2%;
+  flex: 1;
 }
 .sellbtn {
   font-size: medium;
@@ -147,6 +152,11 @@ button {
 .bx {
   cursor: pointer;
 }
+
+.bx-search-alt{
+  color: rgb(0, 0, 0);
+  margin-bottom: 10px;
+}
 .loginBtn {
   font-size: medium;
   display: flex;
@@ -167,7 +177,7 @@ button {
   font-weight: 400;
 }
 .box2 {
-  width: 13vw;
+  width: auto;
   display: flex;
   justify-content: center;
   gap: 2vw;
@@ -178,21 +188,34 @@ button {
   font-size: medium;
   display: flex;
   align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+}
+
+.box2Icons a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: rgb(0, 0, 0);
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .box2Icons .bx {
-  font-size: 37px;
+  font-size: 28px;
 }
 
 .box3 {
-  width: 15vw;
+  width: auto;
   border-bottom-left-radius: 100px;
   background-color: transparent;
   height: max(9.765625vh, 40px);
   display: flex;
-  justify-self: center;
+  justify-content: center;
   align-items: center;
-  gap: 2.5vw;
+  gap: 1vw;
   padding-left: 0vw;
 }
 .burger {
@@ -201,11 +224,19 @@ button {
 }
 .bx-heart {
   color: rgb(0, 0, 0);
-  /* font-size handled by .box2Icons .bx */
+  font-size: 32px;
 }
-.bxs-user-circle {
-  color: rgb(0, 0, 0);
-  font-size: 40px;
+.profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile img {
+  height: 50px;
+  width: 50px;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .hoverBtn {

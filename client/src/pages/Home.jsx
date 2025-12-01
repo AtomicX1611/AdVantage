@@ -26,39 +26,43 @@ const Home = () => {
   const backendURL = API_CONFIG.BACKEND_URL;
 
   useEffect(() => {
-    // Fetch featured and fresh products
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        // Fetch featured products
-        const featuredResponse = await fetch(`${backendURL}${API_CONFIG.API_ENDPOINTS.FEATURED_PRODUCTS}`);
-        const freshResponse = await fetch(`${backendURL}${API_CONFIG.API_ENDPOINTS.FRESH_PRODUCTS}`);
         
-        if (featuredResponse.ok) {
-          const featuredData = await featuredResponse.json();
-          setFeaturedProducts(featuredData);
-        }
-        
-        if (freshResponse.ok) {
-          const freshData = await freshResponse.json();
-          setFreshProducts(freshData);
+        const response = await fetch(`${backendURL}${API_CONFIG.API_ENDPOINTS.FEATURED_PRODUCTS}`);
+                
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Full response data:", data);
+          console.log("Featured products:", data.featuredProducts);
+          console.log("Fresh products:", data.freshProducts);
+          
+          setFeaturedProducts(data.featuredProducts || []);
+          setFreshProducts(data.freshProducts || []);
+        } else {
+          console.error("Response not OK:", response.status);
+          setFeaturedProducts([]);
+          setFreshProducts([]);
         }
       } catch (error) {
         console.error('Error fetching products:', error);
+        setFeaturedProducts([]);
+        setFreshProducts([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, []);
+  }, [backendURL]);
 
   const handleCategoryClick = (categoryPath) => {
-    navigate(`/search/product/category/${categoryPath}`);
+    navigate(`/search?category=${categoryPath}`);
   };
 
   const handleProductClick = (productId) => {
-    navigate(`/search/product/${productId}`);
+    navigate(`/product/${productId}`);
   };
 
   return (

@@ -2,15 +2,16 @@ import React from 'react';
 import styles from '../styles/home.module.css';
 
 const ProductCardHome = ({ product, backendURL, onClick }) => {
-  if (!product.images || !product.images[0]) {
-    return null;
-  }
-
+  const imageUrl = product.images && product.images[0] 
+    ? `${backendURL}/${product.images[0]}`
+    : product.Image1Src || '/Assets/placeholder.png';
+  console.log("loggin imageurl",imageUrl);
+  
   return (
     <div onClick={onClick} style={{ cursor: 'pointer' }}>
       <div className={styles.productCard}>
         <img 
-          src={`${backendURL}${product.images[0]}`} 
+          src={imageUrl} 
           alt={product.name} 
           style={{ width: '100%', height: '35vh' }}
         />
