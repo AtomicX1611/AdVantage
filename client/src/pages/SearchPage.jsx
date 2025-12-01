@@ -33,6 +33,7 @@ const SearchPage = () => {
         if (filters.min) queryParams.append('minPrice', filters.min);
         if (filters.max) queryParams.append('maxPrice', filters.max);
         if (filters.verifiedOnly) queryParams.append('verified', 'true');
+        if( filters.rentalOnly) queryParams.append('isRental', 'true');
         
         const url = `${backendURL}/anyone/products/filtered?${queryParams.toString()}`;
         console.log('Fetching from:', url);

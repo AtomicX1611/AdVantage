@@ -1,0 +1,188 @@
+.window {
+  width: 100vw;
+  min-height: 100vh;
+  background-color: #f8f6ff;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 500;
+  margin-bottom: 40px;
+  color: #333;
+}
+
+.profileSection {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 40px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.imageSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.imageSection h4 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #555;
+  margin: 0;
+}
+
+.profileImage {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.placeholderImage {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 14px;
+  border: 3px solid #ddd;
+  text-align: center;
+  padding: 10px;
+}
+
+.fileInput {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+.fileInput:hover {
+  border-color: #888;
+}
+
+.inputGroup {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 8px;
+  margin-top: 15px;
+}
+
+.label:first-child {
+  margin-top: 0;
+}
+
+.previous {
+  padding: 12px 15px;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  color: #666;
+  font-size: 15px;
+  margin-bottom: 15px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+}
+
+.input::placeholder {
+  color: #aaa;
+}
+
+.updateBtn {
+  width: 100%;
+  padding: 15px 30px;
+  background-color: #6c63ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.updateBtn:hover {
+  background-color: #5a52d5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+}
+
+.updateBtn:active {
+  transform: translateY(0);
+}
+
+.updateBtn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    padding: 20px 15px;
+  }
+
+  .title {
+    font-size: 24px;
+    margin-bottom: 30px;
+  }
+
+  .profileSection {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+
+  .profileImage,
+  .placeholderImage {
+    width: 120px;
+    height: 120px;
+  }
+
+  .inputGroup {
+    padding: 15px;
+  }
+}

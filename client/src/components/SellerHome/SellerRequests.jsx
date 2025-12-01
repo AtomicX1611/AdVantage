@@ -134,6 +134,7 @@ const SellerRequests = () => {
             // If backend only sends ID, you won't see a name here.
             const buyerName = req.buyer?.name || "Interested Buyer"; 
             const buyerId = req.buyer?._id || req._id; // Fallback for ID
+            const biddingPrice = req.biddingPrice;
 
             return (
               <div key={req._id || index} className={styles.requestRow}>
@@ -156,6 +157,12 @@ const SellerRequests = () => {
                       </p>
                     ) : (
                       <p>Wants to buy this item</p>
+                    )}
+                    
+                    {biddingPrice && (
+                      <p style={{ fontSize: '0.9rem', color: '#16a34a', fontWeight: 'bold', marginTop: '5px' }}>
+                        Bidding Price: ${biddingPrice}
+                      </p>
                     )}
                   </div>
                 </div>

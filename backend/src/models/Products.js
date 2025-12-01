@@ -82,6 +82,10 @@ const productsSchema = new mongoose.Schema({
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Users",
             },
+            biddingPrice: {
+                type: mongoose.Schema.Types.Number,
+                required: true,
+            },
             from:{
                 type: mongoose.Schema.Types.Date,
             },

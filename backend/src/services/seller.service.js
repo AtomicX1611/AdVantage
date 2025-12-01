@@ -64,7 +64,7 @@ export const addProductService = async (req) => {
     const images = req.files.productImages.map(file => file.path);
     const invoicePath = req.files.invoice?.[0]?.path || null;
 
-    const isRental1 = (isRental !== undefined) ? true : false;
+    const isRental1 = (isRental == 'true' || isRental == true) ? true : false;
 
     const productData = {
         name,

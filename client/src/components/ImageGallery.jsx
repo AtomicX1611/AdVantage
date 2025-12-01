@@ -8,17 +8,20 @@ const ImageGallery = ({ images }) => {
   return (
     <div className={styles.image_container}>
       <div className={styles.card_list}>
-        {imageList.map((img, idx) => (
-          <img
-            key={idx}
-            src={img}
-            alt={`Thumbnail ${idx}`}
-            className={styles.card_container}
-            onMouseOver={() => setBigImage(img)}
-          />
-        ))}
+        {imageList.map((img, idx) => {
+          // console.log(img);
+          return (
+            <img
+              key={idx}
+              src={import.meta.env.VITE_BACKEND_URL + "/" + img}
+              alt={`Thumbnail ${idx}`}
+              className={styles.card_container}
+              onMouseOver={() => setBigImage(img)}
+            />
+          );
+        })}
       </div>
-      <img src={bigImage} alt="Main" className={styles.big_card} />
+      <img src={import.meta.env.VITE_BACKEND_URL + "/" + bigImage} alt="Main" className={styles.big_card} />
     </div>
   );
 };

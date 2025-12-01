@@ -138,8 +138,12 @@ export const requestProduct = async (req, res) => {
     try {
         const buyerId = req.user._id;
         const productId = req.params.productId;
+        const { biddingPrice } = req.body;
 
-        const response = await requestProductService(productId, buyerId);
+        if (!buyerId || !productId || !biddingPrice) {
+            return res.status(404).json({ message: "Missing buyerId or productId or biddingPrice" });
+        }
+        const response = await requestProductService(productId, buyerId, biddingPrice);
 
         if (!response.success) {
             return res.status(response.status).json({
@@ -215,13 +219,13 @@ export const getYourProducts = async (req, res) => {
 export const rentProductController = async (req, res) => {
     const buyerId = req.user._id;
     const productId = req.params.productId;
-    const { from, to } = req.body;
+    const { from, to, biddingPrice } = req.body;
 
-    if (!buyerId || !productId || !from || !to) {
-        return res.status(404).json({ message: "Missing buyerId or productId or from or to" });
+    if (!buyerId || !productId || !from || !to || !biddingPrice) {
+        return res.status(404).json({ message: "Missing buyerId or productId or from or to or biddingPrice" });
     }
 
-    let respose = await rentService(buyerId, productId, from, to);
+    let respose = await rentService(buyerId, productId, from, to, biddingPrice);
 
     return res.status(respose.status).json({ success: respose.success, message: respose.message });
 }

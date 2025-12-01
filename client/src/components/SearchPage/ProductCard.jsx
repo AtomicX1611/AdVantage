@@ -3,11 +3,11 @@ import styles from "../../styles/searchpage.module.css";
 
 const ProductCard = ({ product, backendURL }) => {
   const imageUrl = product.images && product.images.length > 0 
-    ? `${backendURL}${product.images[0]}` 
+    ? `${backendURL}/${product.images[0]}` 
     : '/Assets/placeholder.png';
     
   return (
-    <a href={`/search/product/${product._id}`} style={{ color: "black" }}>
+    <a href={`/product/${product._id}`} style={{ color: "black" }}>
       <div className={styles.products}>
         <img
           src={imageUrl}

@@ -44,6 +44,10 @@ export const getProductsService = async (query) => {
         filters.name = { $regex: query.name, $options: "i" };
     }
 
+    if (query.isRental) {
+        filters.isRental = query.isRental === "true";
+    }
+
     if (query.category) {
         filters.category = query.category;
     }

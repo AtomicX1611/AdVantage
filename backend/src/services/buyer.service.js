@@ -104,8 +104,8 @@ export const removeFromWishlistService = async (userId, productId) => {
     return { success: true, message: "Product removed from wishlist" };
 };
 
-export const requestProductService = async (productId, buyerId) => {
-    const result = await addProductRequestDao(productId, buyerId);
+export const requestProductService = async (productId, buyerId,biddingPrice) => {
+    const result = await addProductRequestDao(productId, buyerId,biddingPrice);
 
     if (!result.success) {
         const messages = {

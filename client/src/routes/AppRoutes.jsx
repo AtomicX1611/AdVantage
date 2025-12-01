@@ -15,6 +15,7 @@ import YourOrders from "../pages/YourOrders.page";
 import ChatPage from "../pages/ChatPage";
 import WishList from '../pages/WishlistPage.jsx';
 import Profile from '../pages/Profile.jsx';
+import UserUpdateProfile from '../pages/userUpdateProfile.jsx';
 import AddProductForm from "../pages/AddProductForm.jsx";
 import SearchPage from "../pages/SearchPage.jsx";
 import ViewRequest from "../pages/ViewRequest.jsx";
@@ -57,6 +58,7 @@ const AppRoutes = () => {
           <Route path="subscription" element={<SubscriptionPage />} />
           {/* Protected User Routes */}
           <Route path="profile" element={<ProtectedRoute element={<Profile />} />} />
+          <Route path="updateProfile" element={<ProtectedRoute element={<UserUpdateProfile />} />} />
           <Route path="chat" element={<ProtectedRoute element={<ChatPage />} />} />
           <Route path="wishlist" element={<ProtectedRoute element={<WishList />} />} />
           <Route path="yourProducts" element={<ProtectedRoute element={<YourOrders />} />} />
