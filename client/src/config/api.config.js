@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-  BACKEND_URL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000',
+  BACKEND_URL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000',
   API_ENDPOINTS: {
     FEATURED_PRODUCTS: '/anyone/HomeRequirements',
     FRESH_PRODUCTS: '/anyone/HomeRequirements',

@@ -19,7 +19,6 @@ export const getContacts = async (req, res) => {
             })
         }
         let response = await getContactsService(userId);  // Error is here
-        console.log("response: ",response);
 
         if (!response.success) return res.status(500).json({
             success: false,
@@ -28,7 +27,8 @@ export const getContacts = async (req, res) => {
         return res.status(200).json({
             success: true,
             contacts: response.contacts,
-            userName: response.userName
+            userName: response.userName,
+            myAccount: response.myAccount
         })
     } catch (error) {
         console.log(error);

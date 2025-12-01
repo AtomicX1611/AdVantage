@@ -10,8 +10,6 @@ const LoginPage = () => {
     setMessage(null);
 
     try {
-        console.log("Initiating request : ");
-        
       const resp = await fetch('http://localhost:3000/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

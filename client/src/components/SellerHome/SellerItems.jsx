@@ -46,16 +46,16 @@ const DUMMY_PRODUCTS = [
 ];
 
 function productFilter(filterType,products) {
-  if(filterType==="sale") return products.filter(item=>item.isRental===false && item.isSold===false);
-  if(filterType==="rent") return products.filter(item=>item.isRental===true && item.isRentedOut===false);
-  if(filterType==="sold") return products.filter(item=>item.isSold===true);
-  if(filterType==="rented") return products.filter(item=>item.isRentedOut===true);
+  if(filterType==="sale") return products.filter(item=>item.isRental===false && item.soldTo===null);
+  if(filterType==="rent") return products.filter(item=>item.isRental===true && item.soldTo===null);
+  if(filterType==="sold") return products.filter(item=>item.isRental===false && item.soldTo!==null);
+  if(filterType==="rented") return products.filter(item=>item.isRental===true && item.soldTo!==null);
 } 
 
 const SellerItems = ({ filterType }) => {
   const [products,setProducts]=useState([]);
-  // const items = productFilter(filterType, products);
-  const items=DUMMY_PRODUCTS.filter(item=>item.type===filterType);
+  const items = productFilter(filterType, products);
+  // const items=DUMMY_PRODUCTS.filter(item=>item.type===filterType);
   const titles = {
     sale: 'Items For Sale',
     rent: 'Items For Rent',
@@ -66,7 +66,7 @@ const SellerItems = ({ filterType }) => {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch("http://localhost:3000/buyer/products",{
+        const response = await fetch("http://localhost:3000/user/products",{
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -74,13 +74,12 @@ const SellerItems = ({ filterType }) => {
           credentials: "include",
         });
         const data = await response.json();
-        console.log(data);
         setProducts(data.products);
       } catch (error) {
         console.error('Error fetching products:', error);
       }
     }
-    // fetchProducts();
+    fetchProducts();
   }, [filterType]);
 
   return (
@@ -91,7 +90,7 @@ const SellerItems = ({ filterType }) => {
           items.map((item) => (
             <div key={item.id} className={styles.card}>
               <div className={styles.cardImageContainer}>
-                <img src={item.image} alt={item.name} className={styles.cardImage} />
+                <img src={item.images[0]} alt={item.name} className={styles.cardImage} />
               </div>
           
               <div className={styles.cardDetails}>

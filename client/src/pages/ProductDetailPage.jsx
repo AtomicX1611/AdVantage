@@ -22,7 +22,7 @@ const ProductDetailPage = () => {
     const fetchProduct = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/anyone/products/${pid}`
+          `http://localhost:3000/anyone/products/${pid}`
         );
 
         const data = await res.json();

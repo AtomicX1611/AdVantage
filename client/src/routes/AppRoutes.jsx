@@ -5,7 +5,7 @@ import HomeHeader from "../components/Header.jsx";
 import ProductDetail from '../pages/ProductDetail';
 import ProductDetailPage from '../pages/ProductDetailPage.jsx';
 import Register from "../pages/Register";
-import LoginPage from "../pages/LoginPage.jsx";
+// import LoginPage from "../pages/LoginPage.jsx";
 // import Admin from "../pages/Admin.jsx";
 // import Admin from "../pages/AdminPage.jsx";
 import SubscriptionPage from "../pages/Subscription.page";
@@ -23,6 +23,7 @@ import SellerDashboardLayout from "../pages/SellerDashboard.jsx";
 import SellerItems from "../components/SellerHome/SellerItems";
 import SellerRequests from "../components/SellerHome/SellerRequests";
 import SellerHeaderLayout from "../components/SellerHome/SellerHeaderLayout.jsx"
+import LoginPage from "../components/TempLogin.jsx";
 
 const ProtectedRoute = ({ element }) => {
   // const { isAuth } = useSelector((state) => state.auth);
@@ -52,7 +53,7 @@ const AppRoutes = () => {
           <Route path="search" element={<SearchPage />} />
           <Route path="product/:pid" element={<ProductDetailPage />} />
           <Route path="register" element={<Register />} />
-          <Route path="login" element={<LoginPage />} />
+          <Route path="login" element={<LoginPage/>} />
           <Route path="subscription" element={<SubscriptionPage />} />
           {/* Protected User Routes */}
           <Route path="profile" element={<ProtectedRoute element={<Profile />} />} />
