@@ -5,6 +5,7 @@ import HomeHeader from "../components/Header.jsx";
 import ProductDetail from '../pages/ProductDetail'; 
 import ProductDetailPage from '../pages/ProductDetailPage.jsx';
 import Register from "../pages/Register";
+import LoginPage from "../pages/LoginPage.jsx";
 import Admin from "../pages/Admin";
 import SubscriptionPage from "../pages/Subscription.page";
 import PaymentPage from "../pages/Payment.page";
@@ -41,24 +42,20 @@ const AppRoutes = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomeHeader />}>
-          
+          <Route path="/" element={<HomeHeader />}>
           <Route index element={<Home />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="product/:pid" element={<ProductDetailPage />} />
           <Route path="register" element={<Register />} />
-          <Route path="login" element={<Login />} />
+          <Route path="login" element={<LoginPage />} />
           <Route path="subscription" element={<SubscriptionPage />} />
-          
           {/* Protected User Routes */}
           <Route path="profile" element={<ProtectedRoute element={<Profile />} />} />
           <Route path="chat" element={<ProtectedRoute element={<ChatPage />} />} />
           <Route path="wishlist" element={<ProtectedRoute element={<WishList />} />} />
           <Route path="my-orders" element={<ProtectedRoute element={<YourOrders />} />} />
-
           <Route path="add-new-product" element={<ProtectedRoute element={<AddProductForm />} />} />
           <Route path="product-requests" element={<ProtectedRoute element={<ViewRequest />} />} />
-
           <Route path="pending-payment/:id" element={<h1>New page pipeline to be decided yet</h1>} />
           <Route path="seller/subscription/vip"
             element={
