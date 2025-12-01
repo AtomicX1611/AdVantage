@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import styles from "../styles/searchpage.module.css";
 import FilterPanel from "../components/SearchPage/FilterPanel";
 import ProductGrid from "../components/SearchPage/ProductGrid";
+import { useSearchParams } from "react-router-dom";
 
 const SearchPage = () => {
   const backendURL = "https://dummybackend.com/";
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('query') || '';
 
   const [products] = useState([
     {
@@ -48,8 +51,12 @@ const SearchPage = () => {
     const price = parseFloat(p.price);
     const min = filters.min ? parseFloat(filters.min) : 0;
     const max = filters.max ? parseFloat(filters.max) : Infinity;
+    
+    // Filter by search query (case-insensitive)
+    const matchesSearch = !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase());
 
     return (
+      matchesSearch &&
       price >= min &&
       price <= max &&
       (!filters.verifiedOnly || p.verified) &&
@@ -59,9 +66,9 @@ const SearchPage = () => {
 
   return (
     <div className={styles.searchpage_window}>
-      <main>
+      <main className={styles.mainContent}>
         <div id={styles.up}>
-          <b id={styles.filters}>FILTERS</b>
+          <b id={styles.filters}>FILTERS {searchQuery && `- Results for "${searchQuery}"`}</b>
         </div>
 
         <div id={styles.bottom}>

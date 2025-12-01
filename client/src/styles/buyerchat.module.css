@@ -3,7 +3,7 @@
     padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-main {
+.mainContent {
     height: 80vh;
     width:94vw;
     margin-top: 2vh;
@@ -11,7 +11,7 @@ main {
     margin-right: 3vw;
     border-radius: 20px;
     background-color: rgb(245, 245, 255);
-    box-shadow: 0px 0px 20px black;
+    /* box-shadow: 0px 0px 20px black; */
     color: #000;
     display: flex;
 }
