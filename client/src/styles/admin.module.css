@@ -1,0 +1,89 @@
+/* Layout */
+.adminContainer {
+  padding: 28px;
+  font-family: Inter, Arial, sans-serif;
+  color: #1b1b1b;
+}
+
+.adminTitle {
+  font-size: 32px;
+  margin-bottom: 25px;
+  font-weight: 700;
+}
+
+/* Rows */
+.statsRow,
+.chartsRow,
+.listsRow {
+  display: flex;
+  gap: 22px;
+  margin-bottom: 30px;
+}
+
+/* Cards */
+.statCard,
+.chartBox,
+.listBox,
+.paymentBox {
+  background: white;
+  padding: 18px;
+  border-radius: 12px;
+  flex: 1;
+  box-shadow: 0 2px 6px #00000015;
+}
+
+.statCard h3 {
+  font-size: 18px;
+}
+.statCard p {
+  font-size: 26px;
+  font-weight: bold;
+}
+
+/* Pie chart wrapper */
+.miniPie {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+/* List Box */
+.listBox ul {
+  list-style: none;
+  padding: 0;
+}
+
+.userItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tag {
+  background: #1976d2;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* Table (Payment History) */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  border-bottom: 1px solid #ededed;
+  text-align: left;
+}
+
+.table th {
+  background: #f8f8f8;
+  font-weight: 600;
+}

@@ -18,6 +18,10 @@ const SellerHeader = ({ toggleSidebar }) => {
           Dashboard
         </Link>
 
+        <Link className={styles.btn} to="/seller/subscription">
+          Subscriptions
+        </Link>
+
         <Link className={styles.btn} to="/seller/chat">
           Inbox
         </Link>
