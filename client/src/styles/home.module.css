@@ -430,18 +430,3 @@ section {
   height: 15vh;
   /* box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1); */
 }
-
-/* Additional camelCase class names */
-.headerPoster {
-  /* Add any specific styles if needed */
-}
-
-.featuredCategories,
-.featuredProducts,
-.fresh {
-  /* Inherits section styles */
-}
-
-.featuredIcons {
-  /* Inherits from iconsBox */
-}
