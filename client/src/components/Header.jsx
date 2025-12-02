@@ -44,17 +44,21 @@ const Header = ({ isLogged, data, backendURL }) => {
               </div>
             </form>
 
-            <div className={`${classes.sellbtn} ${classes.hoverBtn}`}>
-              <a href="/seller">Seller Account</a>
+            <div 
+              className={`${classes.sellbtn} ${classes.hoverBtn}`}
+              onClick={() => navigate('/seller/dashboard')}
+              style={{ cursor: 'pointer' }}
+            >
+              <span>Seller Account</span>
             </div>
 
             {isLogged ? (
               <div className={`${classes.loginBtn} ${classes.hoverBtn}`} style={{ display: 'none' }}>
-                <a href="/login">Login</a>
+                <span onClick={() => navigate('/login')} style={{ cursor: 'pointer' }}>Login</span>
               </div>
             ) : (
               <div className={`${classes.loginBtn} ${classes.hoverBtn}`}>
-                <a href="/login">Login</a>
+                <span onClick={() => navigate('/signup')} style={{ cursor: 'pointer' }}>Login</span>
               </div>
             )}
           </div>
@@ -118,7 +122,6 @@ const Header = ({ isLogged, data, backendURL }) => {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
-
       <Outlet />
     </>
   );
