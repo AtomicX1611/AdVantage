@@ -14,7 +14,7 @@ import { chatRouter } from "./src/routes/chat.routes.js";
 import { Server } from "socket.io";
 import { socketActions } from "./src/controllers/socket.contoller.js";
 import { managerRouter } from "./src/routes/manager.router.js";
-import { router } from "./src/routes/payment.router.js";
+// import { router } from "./src/routes/payment.router.js";
 import { seedData } from "./data.js";
 
 const app = express();
