@@ -10,6 +10,14 @@ export const findAdminByEmail = async (email) => {
     return await Admins.findOne({ email });
 };
 
+export const getAllAdmins = async () => {
+    return await Admins.find().lean();
+};
+
+export const countAdmins = async () => {
+    return await Admins.countDocuments();
+};
+
 // export const getSellers = async () => {
 //   try {
 //     const result = await sellers.aggregate([

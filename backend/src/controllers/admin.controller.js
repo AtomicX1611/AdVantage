@@ -2,6 +2,7 @@ import {
   findUsersForAdmin,
   getProductsForAdmin,
   removeUser,
+  getAllDataService,
 } from "../services/admin.service.js";
 
 
@@ -25,30 +26,34 @@ export const getGraphData = async (req,res) => {
   }
 };
 
-export const getUsersData = async (req, res) => {
+export const getAllData = async (req, res) => {
   try {
-    const usersResult = await findUsersForAdmin();
+    const result = await getAllDataService();
 
-    if (!usersResult.success) {
-      return res.status(404).json({
+    if (!result.success) {
+      return res.status(500).json({
         success: false,
-        message: "Could not fetch complete data",
-        users: [],
+        message: result.message || "Failed to fetch all data",
+        error: result.error
       });
     }
 
     return res.status(200).json({
       success: true,
-      users: usersResult.users,
+      message: "All data fetched successfully",
+      data: result.data,
+      counts: result.counts
     });
 
   } catch (error) {
+    console.error("Error in getAllData controller:", error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error"
     });
   }
 };
+
 
 
 export const takeDownUser = async (req, res) => {

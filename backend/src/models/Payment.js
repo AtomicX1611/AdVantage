@@ -1,26 +1,48 @@
 import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema({
-    userId: {
+    from: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        refPath: 'fromModel'
+    },
+    fromModel: {
         type: String,
         required: true,
+        enum: ['Users','Admin','Managers']
     },
-    paidTo: {
+    to: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        refPath: 'toModel'
+    },
+    toModel: {
         type: String,
-        required: true
+        required: true,
+        enum: ['Users','Admin','Managers']
     },
     paymentType: {
         type: String,
         required: true,
-        enum: ["purchase", "subscription"]
+        enum: ["purchase", "subscription","other"]
+    },
+    relatedEntityId: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: null
+    },
+    relatedEntityType: {
+        type: String,
+        enum: ['Products'],
+        default: null
     },
     price: {
-        type: String,
+        type: mongoose.Schema.Types.Number,
         required: true,
     },
     date: {
         type: Date,
-        default: Date.now
+        default: Date.now,
+        required: true,
     }
 });
 
