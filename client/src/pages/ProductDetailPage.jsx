@@ -70,6 +70,7 @@ const ProductDetailPage = () => {
   };
 
   const handleRentNow = () => {
+    console.log("clicked..");
     setShowRentForm(true);
   };
 
@@ -106,9 +107,39 @@ const ProductDetailPage = () => {
     }
   };
 
-  const handleSubmitRent = (fromDate, toDate) => {
-    alert(`Rent request submitted: ${fromDate} → ${toDate}`);
-    setShowRentForm(false);
+  const handleSubmitRent = async (fromDate, toDate, pricePerDay) => {
+    try {
+      // Calculate number of days
+      const from = new Date(fromDate);
+      const to = new Date(toDate);
+      const diffTime = Math.abs(to - from);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const totalPrice = diffDays * pricePerDay;
+
+      // TODO: Replace with actual API call
+      const response = await fetch(`http://localhost:3000/user/rent/${pid}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          from:fromDate,
+          to:toDate,
+          biddingPrice:pricePerDay,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.message || "Failed to submit rent request");
+        return;
+      }
+      alert(`Rent request submitted:\nFrom: ${fromDate}\nTo: ${toDate}\nPrice per day: ₹${pricePerDay}\nTotal: ₹${totalPrice} (${diffDays} days)`);
+      setShowRentForm(false);
+    } catch (error) {
+      console.error("Error submitting rent request:", error);
+      alert("An error occurred while submitting your rent request");
+    }
   };
 
   if (loading) {
@@ -171,6 +202,7 @@ const ProductDetailPage = () => {
           <RentForm
             onClose={() => setShowRentForm(false)}
             onSubmit={handleSubmitRent}
+            productPrice={product.price}
           />
         )}
 

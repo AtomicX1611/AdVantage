@@ -23,6 +23,8 @@ import {
 import {
     findProductsForSeller,
 } from "../daos/products.dao.js";
+import { createPayment } from "../daos/payment.dao.js";
+import { getAdminById, getAllAdmins } from "../daos/admins.dao.js";
 
 export const addProductService = async (req) => {
 
@@ -169,21 +171,71 @@ export const deleteProductService = async (sellerId, productId) => {
 // };
 
 export const updateSellerSubscriptionService = async (sellerId, subscription) => {
-    const seller = await getBuyerById(sellerId);
-    if (seller.subscription >= subscription) {
+    try {
+        const seller = await getBuyerById(sellerId);
+        
+        if (!seller) {
+            return {
+                success: false,
+                message: "Seller not found",
+            };
+        }
+
+        if (seller.subscription >= subscription) {
+            return {
+                success: false,
+                message: "Seller already has a better or equal plan than the chosen one",
+            };
+        }
+
+        // Determine subscription price
+        const subscriptionPrices = {
+            1: 100,  // Basic subscription
+            2: 500   // Premium subscription
+        };
+
+        const price = subscriptionPrices[subscription] || 0;
+
+        if (price === 0) {
+            return {
+                success: false,
+                message: "Invalid subscription level",
+            };
+        }
+
+        // Update seller subscription
+        seller.subscription = subscription;
+        await seller.save();
+
+        const admin = await getAllAdmins();
+        const adminId = admin[0]._id;
+
+        // Create payment record
+        await createPayment({
+            from: sellerId,
+            fromModel: 'Users',
+            to: adminId,
+            toModel: 'Admin',
+            paymentType: 'subscription',
+            price: price,
+            relatedEntityId: null,
+            relatedEntityType: null,
+        });
+
+        return {
+            success: true,
+            message: "Subscription updated successfully",
+            updatedSeller: seller,
+        };
+
+    } catch (error) {
+        console.error("Error in updateSellerSubscriptionService:", error);
         return {
             success: false,
-            message: "Seller already have better or Equal plan than the choosen one",
+            message: "Internal server error while updating subscription",
         };
     }
-    seller.subscription = subscription;
-    await seller.save();
-    // const response = await updateSellerSubscriptionDao(sellerId,subscription);
-    return {
-        success: true,
-        updatedSeller: seller,
-    }
-}
+};
 
 export const acceptProductRequestService = async (productId, buyerId) => {
     const result = await acceptProductRequestDao(productId, buyerId);
