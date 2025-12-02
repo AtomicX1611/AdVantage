@@ -74,12 +74,13 @@ const ProductDetailPage = () => {
   };
 
   const handleBuyNow = () => {
+    console.log("clicked..")
     setShowBidModal(true);
   };
 
   const handleSubmitBid = async (bidAmount) => {
     try {
-      
+      // keep bid amount > product.price for safety
        const response = await fetch(`http://localhost:3000/user/request/${pid}`, {
         method: "POST",
         headers: {
@@ -92,7 +93,7 @@ const ProductDetailPage = () => {
       });
 
       const data = await response.json();
-
+      console.log("data: ",data);
       if (response.ok) {
         alert(`Bid of ₹${bidAmount} submitted successfully!`);
         setShowBidModal(false);

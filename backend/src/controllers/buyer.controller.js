@@ -161,9 +161,9 @@ export const requestProduct = async (req, res) => {
             return res.status(404).json({ message: "Missing buyerId or productId or biddingPrice" });
         }
         const response = await requestProductService(productId, buyerId, biddingPrice);
-
+        console.log("response in contr: ",response);
         if (!response.success) {
-            return res.status(response.status).json({
+            return res.status(response.status || 400).json({
                 success: false,
                 message: response.message
             });

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import OrderHeader from "../components/OrderHeader.component";
 import PendingTransactionCard from "../components/PendingTransactionCard";
 import API_CONFIG from "../config/api.config";
@@ -9,6 +10,7 @@ const PendingTxsPage = () => {
 	const [pending, setPending] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		const fetchPending = async () => {
@@ -43,9 +45,37 @@ const PendingTxsPage = () => {
 	}, [backendURL]);
 
 	// Placeholder for the handlePay logic (this was missing in your snippet)
-	const handlePay = (item) => {
+	const handlePay = async (item) => {
 		console.log("Pay clicked for:", item);
-		// Add your payment redirection or modal logic here
+		let response=await fetch(`http://localhost:3000/user/paymentDone/${item._id}`,{
+			method:"POST",
+			credentials:"include",
+			headers: { "Content-Type": "application/json" },	
+		});
+		let data=await response.json();
+		if(data.success){
+			alert("Payment Successful");
+			navigate('/yourProducts'); // working
+		}else {
+			alert("Payment Failed");
+		}
+	};
+
+	const handleNotInterested = async (item) => {
+		console.log("Not Interested clicked for:", item);
+		let response=await fetch(`http://localhost:3000/user/notInterested/${item._id}`,{
+			method:"POST",
+			credentials:"include",
+			headers: { "Content-Type": "application/json" },
+		});
+		let data=await response.json();
+
+		if(data.success){
+			alert("Marked as Not Interested");
+			setPending(prevPending => prevPending.filter(p => p._id !== item._id));
+		}else {
+			alert("Failed to mark as Not Interested");
+		}
 	};
 
 	return (
@@ -73,6 +103,7 @@ const PendingTxsPage = () => {
 									item={item}
 									backendURL={backendURL}
 									onPay={handlePay}
+									onNotInterested={handleNotInterested}
 								/>
 							))
 						)}

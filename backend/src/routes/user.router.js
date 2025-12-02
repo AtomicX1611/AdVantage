@@ -38,7 +38,7 @@ router.use(serializeUser);
 router.use(authorize("user"));
 
 router.post("/request/:productId",requestProduct);
-router.post("/paymentDone/:productId",paymentDone);
+router.post("/paymentDone/:productId",paymentDone);//working
 router.post("/notInterested/:productId",notInterested);
 router.put("/rent/:productId",rentProductController);
 

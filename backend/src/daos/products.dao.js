@@ -67,7 +67,7 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
     if (product.sellerAcceptedTo) {
         return { success: false, reason: "already_accepted" };
     }
-
+    console.log("requsst: ",product.requests);
     const isRequested = product.requests.some(
         req => req.buyer.toString() === buyerId.toString()
     );

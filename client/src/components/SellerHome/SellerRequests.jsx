@@ -6,6 +6,8 @@ const SellerRequests = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [myAccount, setMyAccount] = useState("");
+  const backendURL = "http://localhost:3000/";
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -40,6 +42,30 @@ const SellerRequests = () => {
 
     fetchRequests();
   }, []);
+
+  // useEffect(() => {
+  //     async function fetchContacts() {
+  //       console.log("1. Running fetch contacts...");
+  //       try {
+  //         const response = await fetch(`${backendURL}chat/contacts`, {
+  //           method: "GET",
+  //           headers: { "Content-Type": "application/json" },
+  //           credentials: "include",
+  //         });
+  
+  //         const data = await response.json();
+  //         console.log("2. Fetch :", data);
+  
+  //         if (data.success) {
+  //           setMyAccount(data.myAccount);
+  //         }
+  //       } catch (error) {
+  //         console.error("FAILED to fetch contacts:", error);
+  //       }
+  //     }
+  //     fetchContacts();
+  //   }, []); 
+
   const handleViewRequests = (product) => {
     setSelectedProduct(product);
   };
@@ -48,14 +74,14 @@ const SellerRequests = () => {
     setSelectedProduct(null);
   };
 
-  const handleAccept = async (productId, requestId) => {
+  const handleAccept = async (productId, buyerId) => {
     setError(null);
     try {
-      const response = await fetch(`http://localhost:3000/user/acceptRequest/${productId}/${requestId}`, {
-        method: 'DELETE',
+      const response = await fetch(`http://localhost:3000/user/acceptRequest/${productId}/${buyerId}`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
-        body: JSON.stringify({ productId, requestId })
+        body: JSON.stringify({ productId})
       });
 
       const data = await response.json();
@@ -77,15 +103,16 @@ const SellerRequests = () => {
     }
   };
 
-  const handleReject = async (productId, requestId) => {
+  const handleReject = async (productId,buyerId) => {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:3000/user/rejectRequest/${productId}/${requestId}`, {
+      // set buyer id from request 
+      const response = await fetch(`http://localhost:3000/user/rejectRequest/${productId}/${buyerId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
-        body: JSON.stringify({ productId, requestId })
+        body: JSON.stringify({ productId})
       });
 
       const data = await response.json();
@@ -93,7 +120,7 @@ const SellerRequests = () => {
 
       if (data.success) {
         const updatedRequests = selectedProduct.requests.filter(
-          (req) => req._id !== requestId
+          (req) => req.buyer !== buyerId
         );
         const updatedProduct = { ...selectedProduct, requests: updatedRequests };
 
@@ -101,7 +128,7 @@ const SellerRequests = () => {
           setProductsWithRequests((prev) => 
             prev.filter(p => p._id !== productId)
           );
-          setSelectedProduct(null); 
+          setSelectedProduct(null);
         } else {
           setSelectedProduct(updatedProduct);
           setProductsWithRequests((prev) => 
@@ -176,13 +203,13 @@ const SellerRequests = () => {
                    <button 
                      className={`${styles.btn} ${styles.btnAdd}`} 
                      style={{ marginRight: '10px' }}
-                     onClick={() => handleAccept(selectedProduct._id, req._id)}
+                     onClick={() => handleAccept(selectedProduct._id,req.buyer)}
                    >
                      Accept
                    </button>
                    <button 
                      className={`${styles.btn} ${styles.btnLogout}`}
-                     onClick={() => handleReject(selectedProduct._id, req._id)}
+                     onClick={() => handleReject(selectedProduct._id,req.buyer)}
                    >
                      Reject
                    </button>
