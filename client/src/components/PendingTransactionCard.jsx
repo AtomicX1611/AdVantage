@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "../styles/pendingtxs.module.css";
 
-const PendingTransactionCard = ({ item, backendURL, onPay }) => {
+const PendingTransactionCard = ({ item, backendURL, onPay, onNotInterested }) => {
 	const imageSrc = item?.images?.[0]
 		? `${backendURL}/${item.images[0]}`
 		: "/Assets/placeholder.png";
@@ -74,6 +74,12 @@ const PendingTransactionCard = ({ item, backendURL, onPay }) => {
 					onClick={() => onPay(item)}
 				>
 					Pay Now
+				</button>
+				<button 
+					className={styles.payBtn} 
+					onClick={() => onNotInterested(item)}
+				>
+					Not Interested
 				</button>
 			</div>
 		</div>

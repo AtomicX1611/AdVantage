@@ -97,6 +97,16 @@
   background-color: #dc2626;
 }
 
+.btnDel {
+  background-color: #ef4444; /* Red */
+  color: white;
+  margin-top: 10px;
+}
+.btnDel:hover {
+  background-color: #dc2626;
+  color: white;
+  margin-top: 10px;
+}
 /* --- Main Body --- */
 .mainBody {
   display: flex;

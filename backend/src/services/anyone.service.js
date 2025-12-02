@@ -9,8 +9,6 @@ import {
 export const getFeaturedFreshProductsService = async () => {
     const featuredProducts = await getFeaturedProductsDao();
     const freshProducts = await getFreshProductsDao();
-    console.log("featuredProducts: ",featuredProducts);
-    console.log("freshProducts: ",freshProducts);
     return {
         success: true,
         featuredProducts,

@@ -105,8 +105,8 @@ const AddProductForm = () => {
     Object.keys(formData).forEach((key) => {
       formDataToSend.append(key, formData[key]);
     });
-
-    productImages.forEach((file) => {
+    console.log(Array.from(productImages));
+    Array.from(productImages).forEach((file) => {
       formDataToSend.append("productImages", file);
     });
 

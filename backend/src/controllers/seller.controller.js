@@ -129,7 +129,9 @@ export const deleteProduct = async (req, res) => {
 export const acceptRequest = async (req, res) => {
     try {
         const { productId, buyerId } = req.params;
-
+        console.log("product id: ",productId);
+        console.log("buyerId: ",buyerId);
+        
         const response = await acceptProductRequestService(productId, buyerId);
 
         if (!response.success) {

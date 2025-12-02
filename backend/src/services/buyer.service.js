@@ -126,7 +126,7 @@ export const removeFromWishlistService = async (userId, productId) => {
 
 export const requestProductService = async (productId, buyerId, biddingPrice) => {
     const result = await addProductRequestDao(productId, buyerId, biddingPrice);
-
+    console.log("result in req prod serv",result);
     if (!result.success) {
         const messages = {
             not_found: { status: 404, message: "Product not found" },

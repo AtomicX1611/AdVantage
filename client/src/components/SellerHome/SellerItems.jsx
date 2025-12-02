@@ -53,6 +53,7 @@ function productFilter(filterType, products) {
   if (filterType === "rented") return products.filter(item => item.isRental === true && item.soldTo !== null);
 }
 
+
 const SellerItems = ({ filterType }) => {
   const [products, setProducts] = useState([]);
   const items = productFilter(filterType, products);
@@ -84,6 +85,25 @@ const SellerItems = ({ filterType }) => {
     fetchProducts();
   }, [filterType]);
 
+  async function handleDeleteProduct(productId) {
+    let response = await fetch(`http://localhost:3000/user/deleteProduct/${productId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    let data = await response.json();
+    console.log("data in delete:", data);
+    if (data.success) {
+      alert("Product deleted successfully");
+      setProducts(prevProducts => prevProducts.filter(item => item._id !== productId));
+    } else {
+      alert("Error deleting product");
+    }
+  }
+
   return (
     <div>
       <h2>{titles[filterType]}</h2>
@@ -92,7 +112,7 @@ const SellerItems = ({ filterType }) => {
           items.map((item) => (
             <div key={item._id} className={styles.card}>
               <div className={styles.cardImageContainer}>
-                <img src={ item.images && item.images.length > 0 ? `http://localhost:3000/${item.images[0].replace(/\\/g, '/')}` : 'https://placehold.co/400x300?text=No+Image'} alt={item.name} className={styles.cardImage} />
+                <img src={item.images && item.images.length > 0 ? `http://localhost:3000/${item.images[0].replace(/\\/g, '/')}` : 'https://placehold.co/400x300?text=No+Image'} alt={item.name} className={styles.cardImage} />
               </div>
 
               <div className={styles.cardDetails}>
@@ -101,7 +121,8 @@ const SellerItems = ({ filterType }) => {
                   <p style={{ fontWeight: 'bold', color: '#334155' }}>Price: {item.price}</p>
                   {item.status && <span className={styles.status}>{item.status}</span>}
                 </div>
-                <div style={{ marginTop: '20px' }}>
+
+                <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <Link to={`/product/${item._id}`} style={{ textDecoration: "none" }}>
                     <button
                       className={`${styles.btn} ${styles.btnAdd}`}
@@ -110,6 +131,14 @@ const SellerItems = ({ filterType }) => {
                       View Details
                     </button>
                   </Link>
+                  {item.soldTo === null &&
+                      <button
+                        className={`${styles.btn} ${styles.btnDel}`}
+                        style={{ width: "100%" }}
+                        onClick={() => handleDeleteProduct(item._id)}
+                      >
+                        Delete Product
+                      </button>}
                 </div>
               </div>
             </div>
