@@ -13,6 +13,7 @@ import {
     rentDao,
     paymentDoneDao,
     notInterestedDao,
+    getProductsSellerAccepted,
 } from "../daos/products.dao.js";
 
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
@@ -88,6 +89,23 @@ export const getWishlistProductsService = async (userId) => {
         success: true,
         message: result.message,
         products: result.products,
+    };
+}
+
+export const getPendingRequestsService = async (buyerId) => {
+    const pendingRequests = await getProductsSellerAccepted(buyerId); 
+    if (!pendingRequests) {
+        return {
+            success: false,
+            status: 404,
+            message: "No pending requests found",
+        };
+    }
+    return {
+        status: 200,
+        success: true,
+        message: "Pending requests fetched successfully",
+        products: pendingRequests,
     };
 }
 

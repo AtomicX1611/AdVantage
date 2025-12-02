@@ -211,6 +211,13 @@ export const getYourProductsDao = async (buyerId) => {
     return products;
 };
 
+export const getProductsSellerAccepted = async (buyerId) => {
+    const products = await Products.find({ sellerAcceptedTo: buyerId })
+        .populate('seller', 'username')
+        .populate('requests.buyer', 'username');
+    return products;
+}
+
 
 export const getFreshProductsDao = async () => {
     const products = await Products.find({ soldTo: null })

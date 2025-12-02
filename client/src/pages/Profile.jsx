@@ -13,6 +13,11 @@ const Profile = () => {
       link: "/updatePassword",
     },
     {
+      title: "Pending Transactions",
+      icon: "bxs-hourglass-top",
+      link: "/pending-transactions",
+    },
+    {
       title: "Your Orders",
       icon: "bx-package",
       link: "/yourProducts",

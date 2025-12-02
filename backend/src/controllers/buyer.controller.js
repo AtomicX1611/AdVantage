@@ -10,6 +10,7 @@ import {
     getYouProfileService,
     paymentDoneService,
     notInterestedService,
+    getPendingRequestsService,
 } from "../services/buyer.service.js";
 
 export const updateBuyerProfile = async (req, res) => {
@@ -76,6 +77,20 @@ export const addToWishlist = async (req, res) => {
         });
 
     } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error"
+        });
+    }
+};
+
+export const getPendingRequests = async (req, res) => {
+    try {
+        const buyerId = req.user._id;
+        const response = await getPendingRequestsService(buyerId);
+        return res.status(response.status).json(response);
+    } catch (error) {
+        console.log(error);
         return res.status(500).json({
             success: false,
             message: error.message || "Internal server error"

@@ -17,6 +17,7 @@ import {
     getYourProfile,
     paymentDone,
     notInterested,
+    getPendingRequests,
 } from "../controllers/buyer.controller.js";
 import {
     addProduct,
@@ -43,6 +44,7 @@ router.put("/rent/:productId",rentProductController);
 
 router.put("/wishlist/add/:productId", addToWishlist); 
 router.get("/wishlist", getWishlistProducts); // Working
+router.get("/pendingRequests",getPendingRequests);
 
 router.delete("/wishlist/remove/:productId", removeFromWishlist);
 router.patch("/update/password",updateBuyerPassword); // Working

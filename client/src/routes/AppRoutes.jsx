@@ -19,10 +19,12 @@ import UserUpdateProfile from '../pages/userUpdateProfile.jsx';
 import AddProductForm from "../pages/AddProductForm.jsx";
 import SearchPage from "../pages/SearchPage.jsx";
 import ViewRequest from "../pages/ViewRequest.jsx";
+import PendingTxsPage from "../pages/PendingTxsPage.jsx";
 import ManagerDashboard from '../pages/ManagerDashboard.jsx';
 import SellerDashboardLayout from "../pages/SellerDashboard.jsx";
 import SellerItems from "../components/SellerHome/SellerItems";
 import SellerRequests from "../components/SellerHome/SellerRequests";
+import AcceptedProducts from "../components/SellerHome/AcceptedProducts";
 import SellerHeaderLayout from "../components/SellerHome/SellerHeaderLayout.jsx"
 import LoginPage from "../components/TempLogin.jsx";
 import ErrorPage from "../pages/ErrorPage.jsx";
@@ -64,6 +66,7 @@ const AppRoutes = () => {
           <Route path="wishlist" element={<ProtectedRoute element={<WishList />} />} />
           <Route path="yourProducts" element={<ProtectedRoute element={<YourOrders />} />} />
           <Route path="product-requests" element={<ProtectedRoute element={<ViewRequest />} />} />
+          <Route path="pending-transactions" element={<ProtectedRoute element={<PendingTxsPage />} />} />
           <Route path="pending-payment/:id" element={<h1>New page pipeline to be decided yet</h1>} />
         </Route>
         {/* for seller Dashboard */}
@@ -74,6 +77,7 @@ const AppRoutes = () => {
           <Route path="sold" element={<SellerItems filterType="sold" />} />
           <Route path="rented-out" element={<SellerItems filterType="rented" />} />
           <Route path="requests" element={<SellerRequests />} />
+          <Route path="accepted-pending" element={<AcceptedProducts />} />
         </Route>
 
         <Route path="/seller" element={<SellerHeaderLayout />}>

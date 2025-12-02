@@ -205,7 +205,7 @@ const SellerRequests = () => {
               
               <div className={styles.cardImageContainer}>
                 <img 
-                  src={item.images && item.images.length > 0 ? item.images[0] : 'https://placehold.co/300x300?text=No+Image'} 
+                  src={item.images && item.images.length > 0 ? `http://localhost:3000/${item.images[0].replace(/\\/g, '/')}` : 'https://placehold.co/300x300?text=No+Image'} 
                   alt={item.name} 
                   className={styles.cardImage} 
                 />

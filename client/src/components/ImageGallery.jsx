@@ -4,7 +4,7 @@ import styles from "../styles/productdetails.module.css";
 const ImageGallery = ({ images }) => {
   const imageList = images && images.length > 0 ? images : ['/Assets/placeholder.png'];
   const [bigImage, setBigImage] = useState(imageList[0]);
-
+  // console.log(images);
   return (
     <div className={styles.image_container}>
       <div className={styles.card_list}>

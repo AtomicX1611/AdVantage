@@ -92,7 +92,7 @@ const SellerItems = ({ filterType }) => {
           items.map((item) => (
             <div key={item._id} className={styles.card}>
               <div className={styles.cardImageContainer}>
-                <img src={item.images[0]} alt={item.name} className={styles.cardImage} />
+                <img src={ item.images && item.images.length > 0 ? `http://localhost:3000/${item.images[0].replace(/\\/g, '/')}` : 'https://placehold.co/400x300?text=No+Image'} alt={item.name} className={styles.cardImage} />
               </div>
 
               <div className={styles.cardDetails}>
