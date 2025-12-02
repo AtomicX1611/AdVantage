@@ -22,6 +22,7 @@ const PendingTxsPage = () => {
 				});
 
 				const data = await res.json();
+				console.log(data);
 				if (!res.ok || data.success === false) {
 					setPending([]);
 					setError(data.message || "Failed to load pending requests");

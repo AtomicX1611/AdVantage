@@ -314,14 +314,35 @@ button {
   border-radius: 5px;
 }
 
+/* Notification Badge - Red circle with unread count */
 .notificationBadge {
-  background: blue;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #dc3545;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 6px;
+  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+/* Unread badge in sidebar header */
+.unreadBadge {
+  background: #dc3545;
   color: white;
   font-size: 14px;
-  padding: 3px 8px;
-  border-radius: 50%;
-  margin-left: 5px;
-  display: none;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  font-weight: 600;
 }
 
 .sidebar {
@@ -356,41 +377,211 @@ button {
 .notificationList {
   max-height: 80vh;
   overflow-y: auto;
+  padding-right: 5px;
+}
+
+.notificationList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notificationList::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.notificationList::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.notificationList::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .notificationCard {
   display: flex;
-  align-items: center;
-  background: #f8f9fa;
-  padding: 10px;
+  align-items: flex-start;
+  background: #fff;
+  padding: 12px;
   margin-bottom: 10px;
-  border-radius: 5px;
+  border-radius: 8px;
   position: relative;
+  border: 1px solid #e0e0e0;
+  transition: all 0.2s ease;
+}
+
+.notificationCard:hover {
+  background: #f8f9fa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateX(-2px);
 }
 
 .unread {
-  background: #007bff6f;
-  border-radius: 10px;
+  background: #e3f2fd;
+  border-left: 4px solid #2196F3;
+  font-weight: 500;
 }
 
 .icon {
   font-size: 24px;
-  margin-right: 10px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notificationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.content h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  color: #212529;
+  line-height: 1.4;
+}
+
+.messagePreview {
+  font-size: 13px;
+  color: #6c757d;
+  margin: 6px 0;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.notificationFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.timestamp {
+  font-size: 11px;
+  color: #999;
+}
+
+.sender {
+  font-size: 11px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Priority Badges */
+.priorityBadge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.priorityHigh {
+  background-color: #fee;
+  color: #c00;
+  border: 1px solid #fcc;
+}
+
+.priorityMedium {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.priorityLow {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
 }
 
 .view-btn,
 .deleteBtn {
-  background: #007bff;
+  background: #dc3545;
   color: white;
   border: none;
-  padding: 5px 10px;
+  padding: 6px 10px;
   cursor: pointer;
-  margin-left: auto;
+  border-radius: 4px;
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
 }
 
-.deleteBtn {
-  background: red;
-  margin-left: 5px;
+.deleteBtn:hover {
+  background: #c82333;
+}
+
+.clearReadBtn {
+  background-color: #6c757d;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  border: none;
+  transition: background 0.2s ease;
+}
+
+.clearReadBtn:hover {
+  background-color: #5a6268;
+}
+
+.clearReadBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Filter Tabs */
+.filterTabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 5px;
+}
+
+.filterTab {
+  background: transparent;
+  border: none;
+  color: #6c757d;
+  font-size: 13px;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px 4px 0 0;
+  transition: all 0.2s ease;
+}
+
+.filterTab:hover {
+  background: #f8f9fa;
+  color: #495057;
+}
+
+.activeFilter {
+  color: #007bff;
+  font-weight: 600;
+  border-bottom: 2px solid #007bff;
+}
+
+/* Loading and Empty States */
+.loadingContainer,
+.emptyNotifications {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #6c757d;
+  font-size: 14px;
 }
 
 .modal {

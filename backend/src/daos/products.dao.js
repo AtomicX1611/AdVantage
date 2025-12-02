@@ -31,7 +31,7 @@ export const addProductRequestDao = async (productId, buyerId, biddingPrice) => 
         return { success: false, reason: "self_request" };
     }
 
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
 
@@ -60,7 +60,7 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
         return { success: false, reason: "not_found" };
     }
 
-    if (product.soldTo && product.soldTo.buyer) { // i think there is a mistake in the logic
+    if (product.soldTo) { // i think there is a mistake in the logic
         return { success: false, reason: "already_sold" };
     }
 
@@ -91,7 +91,7 @@ export const revokeAcceptedRequestDao = async (productId) => {
     if (!product) {
         return { success: false, reason: "not_found" };
     }
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
     if (product.sellerAcceptedTo === null) {
@@ -111,7 +111,8 @@ export const paymentDoneDao = async (buyerId, productId) => {
     if (product.sellerAcceptedTo.toString() !== buyerId.toString()) {
         return { success: false, reason: "not_accepted_buyer" };
     }
-    if (product.soldTo && product.soldTo.buyer) {
+    console.log(product);
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
 
@@ -127,7 +128,7 @@ export const notInterestedDao = async (buyerId, productId) => {
     if (!product) {
         return { success: false, reason: "not_found" };
     }
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
     if (product.sellerAcceptedTo && product.sellerAcceptedTo.toString() === buyerId.toString()) {
@@ -212,7 +213,7 @@ export const getYourProductsDao = async (buyerId) => {
 };
 
 export const getProductsSellerAccepted = async (buyerId) => {
-    const products = await Products.find({ sellerAcceptedTo: buyerId })
+    const products = await Products.find({ sellerAcceptedTo: buyerId,soldTo: null })
         .populate('seller', 'username')
         .populate('requests.buyer', 'username');
     return products;

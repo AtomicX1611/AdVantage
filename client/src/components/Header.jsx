@@ -1,16 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import classes from '../styles/header.module.css';
 import NotificationSidebar from './NotificationSidebar';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { notificationAPI } from '../services/notificationService';
+import { setNotifications, setUnreadCount } from '../redux/notificationSlice';
 
 // Removed unused icon URLs
 const LOGO_URL = '/Assets/ADVANTAGE.png';
 
+// Polling interval in milliseconds (30 seconds)
+const POLLING_INTERVAL = 30000;
+
 const Header = ({ isLogged, data, backendURL }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { unreadCount } = useSelector((state) => state.notifications);
+  const { isAuth } = useSelector((state) => state.auth);
 
   const profilePic = data?.buyer?.profilePicPath;
+
+  // Fetch notifications count on mount and set up polling
+  useEffect(() => {
+    if (isAuth) {
+      // Fetch immediately
+      fetchNotificationCount();
+
+      // Set up polling interval
+      const pollInterval = setInterval(() => {
+        fetchNotificationCount();
+      }, POLLING_INTERVAL);
+
+      // Cleanup interval on unmount
+      return () => clearInterval(pollInterval);
+    }
+  }, [isAuth]);
+
+  const fetchNotificationCount = async () => {
+    try {
+      const response = await notificationAPI.getNotificationCount();
+      if (response.success) {
+        dispatch(setUnreadCount(response.unreadCount));
+      }
+    } catch (error) {
+      console.error('Failed to fetch notification count:', error);
+      // Silently fail - don't show errors for background polling
+    }
+  };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -18,6 +55,11 @@ const Header = ({ isLogged, data, backendURL }) => {
     if (searchValue) {
       navigate(`/search?query=${encodeURIComponent(searchValue)}`);
     }
+  };
+
+  const handleNotificationClick = (e) => {
+    e.preventDefault();
+    setIsSidebarOpen(true);
   };
 
   return (
@@ -82,12 +124,17 @@ const Header = ({ isLogged, data, backendURL }) => {
               </div>
               <div
                 className={`${classes.hover} ${classes.box2Icons} ${classes.notifications} ${classes.alert}`}
-                onClick={() => setIsSidebarOpen(true)}
+                onClick={handleNotificationClick}
+                style={{ position: 'relative', cursor: 'pointer' }}
               >
-                {/* UPDATED: Changed from <img> to text */}
                 <a href="#" onClick={(e) => e.preventDefault()}>
-                  Notifications
+                  <i className='bx bx-bell'></i>
                 </a>
+                {unreadCount > 0 && (
+                  <span className={classes.notificationBadge}>
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </div>
               <div className={`${classes.hover} ${classes.box2Icons} ${classes.profile}`}>
                 {profilePic ? (

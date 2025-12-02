@@ -23,6 +23,7 @@ import {
 import {
     findProductsForSeller,
 } from "../daos/products.dao.js";
+import { createNotification, notificationTemplates } from "../utils/notificationHelper.js";
 
 export const addProductService = async (req) => {
 
@@ -198,6 +199,24 @@ export const acceptProductRequestService = async (productId, buyerId) => {
         return { success: false, ...messages[result.reason] };
     }
 
+    // Send notification to buyer
+    const product = await getProductById(productId);
+    if (product) {
+        const notifData = notificationTemplates.REQUEST_ACCEPTED(product.name);
+        await createNotification({
+            fromId: product.seller._id,
+            fromModel: 'Users',
+            toId: buyerId,
+            toModel: 'Users',
+            type: notifData.type,
+            title: notifData.title,
+            description: notifData.description,
+            relatedEntityId: productId,
+            relatedEntityType: 'Product',
+            priority: notifData.priority
+        });
+    }
+
     return { success: true, message: "Request accepted and notification sent to the buyer" };
 };
 
@@ -224,6 +243,24 @@ export const rejectProductRequestService = async (productId, buyerId) => {
             no_request: { status: 400, message: "No request from this buyer" }
         };
         return { success: false, ...messages[result.reason] };
+    }
+
+    // Send notification to buyer
+    const product = await getProductById(productId);
+    if (product) {
+        const notifData = notificationTemplates.REQUEST_REJECTED(product.name);
+        await createNotification({
+            fromId: product.seller._id,
+            fromModel: 'Users',
+            toId: buyerId,
+            toModel: 'Users',
+            type: notifData.type,
+            title: notifData.title,
+            description: notifData.description,
+            relatedEntityId: productId,
+            relatedEntityType: 'Product',
+            priority: notifData.priority
+        });
     }
 
     return { success: true, message: "Request rejected successfully" };

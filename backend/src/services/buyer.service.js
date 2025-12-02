@@ -14,7 +14,9 @@ import {
     paymentDoneDao,
     notInterestedDao,
     getProductsSellerAccepted,
+    getProductById,
 } from "../daos/products.dao.js";
+import { createNotification, notificationTemplates } from "../utils/notificationHelper.js";
 
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
 
@@ -137,11 +139,31 @@ export const requestProductService = async (productId, buyerId, biddingPrice) =>
         return { success: false, ...messages[result.reason] };
     }
 
+    // Send notification to seller
+    const product = await getProductById(productId);
+    const buyer = await getBuyerById(buyerId);
+    if (product && buyer) {
+        const notifData = notificationTemplates.ORDER_PLACED(buyer.username, product.name);
+        await createNotification({
+            fromId: buyerId,
+            fromModel: 'Users',
+            toId: product.seller._id,
+            toModel: 'Users',
+            type: notifData.type,
+            title: notifData.title,
+            description: notifData.description,
+            relatedEntityId: productId,
+            relatedEntityType: 'Product',
+            priority: notifData.priority
+        });
+    }
+
     return { success: true, message: "Request sent successfully" };
 };
 
 export const paymentDoneService = async (buyerId, productId) => {
     const result = await paymentDoneDao(buyerId, productId);
+    console.log(result);
     if (!result.success) {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
@@ -149,6 +171,25 @@ export const paymentDoneService = async (buyerId, productId) => {
             already_sold: { status: 400, message: "Product is already sold" }
         };
         return { success: false, ...messages[result.reason] };
+    }
+
+    // Send notification to seller
+    const product = await getProductById(productId);
+    const buyer = await getBuyerById(buyerId);
+    if (product && buyer) {
+        const notifData = notificationTemplates.PAYMENT_RECEIVED(product.price, buyer.username);
+        await createNotification({
+            fromId: buyerId,
+            fromModel: 'Users',
+            toId: product.seller._id,
+            toModel: 'Users',
+            type: notifData.type,
+            title: notifData.title,
+            description: notifData.description,
+            relatedEntityId: productId,
+            relatedEntityType: 'Product',
+            priority: notifData.priority
+        });
     }
 
     return { success: true, message: "Payment confirmed successfully" };
