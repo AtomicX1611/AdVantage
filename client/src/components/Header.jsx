@@ -50,11 +50,11 @@ const Header = ({ isLogged, data, backendURL }) => {
 
             {isLogged ? (
               <div className={`${classes.loginBtn} ${classes.hoverBtn}`} style={{ display: 'none' }}>
-                <a href="/auth/buyer">Login</a>
+                <a href="/login">Login</a>
               </div>
             ) : (
               <div className={`${classes.loginBtn} ${classes.hoverBtn}`}>
-                <a href="/auth/buyer">Login</a>
+                <a href="/login">Login</a>
               </div>
             )}
           </div>

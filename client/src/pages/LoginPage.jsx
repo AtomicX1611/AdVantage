@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState(null);
@@ -10,8 +12,7 @@ const LoginPage = () => {
     setMessage(null);
 
     try {
-        console.log("Initiating request : ");
-        
+      console.log("Initiating request : ");  
       const resp = await fetch('http://localhost:3000/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -35,6 +36,7 @@ const LoginPage = () => {
   return (
     <div>
       <h2>LoginPage (Login test)</h2>
+      <button onClick={() => navigate('/auth/login')} style={{ marginBottom: '20px', padding: '10px 20px', fontSize: '16px', cursor: 'pointer' }}>Go to Login Page</button>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Email:</label>
