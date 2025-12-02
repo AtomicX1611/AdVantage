@@ -29,12 +29,29 @@ import SellerHeaderLayout from "../components/SellerHome/SellerHeaderLayout.jsx"
 import LoginPage from "../components/TempLogin.jsx";
 import AuthLogin from "../pages/AuthLogin.jsx";
 import AuthSignup from "../pages/AuthSignup.jsx";
+import UpdatePassword from "../pages/UpdatePassword.jsx";
 import ErrorPage from "../pages/ErrorPage.jsx";
 
 
-const ProtectedRoute = ({ element }) => {
-  // const { isAuth } = useSelector((state) => state.auth);
-  // return isAuth ? element : <Navigate to="/login" replace />;
+const ProtectedRoute = ({ element, allowedRoles }) => {
+  const { isAuth, user } = useSelector((state) => state.auth);
+  
+  // If not authenticated, redirect to login
+  if (!isAuth) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  // If allowedRoles is specified, check if user's role is allowed
+  if (allowedRoles && allowedRoles.length > 0) {
+    const userRole = user?.role || 'user';
+    if (!allowedRoles.includes(userRole)) {
+      // Redirect to appropriate dashboard based on their role
+      if (userRole === 'admin') return <Navigate to="/admin" replace />;
+      if (userRole === 'manager') return <Navigate to="/manager" replace />;
+      return <Navigate to="/" replace />;
+    }
+  }
+  
   return element;
 };
 
@@ -62,18 +79,19 @@ const AppRoutes = () => {
           <Route path="register" element={<Register />} />
           <Route path="login" element={<AuthLogin />} />
           <Route path="signup" element={<AuthSignup />} />
-          {/* Protected User Routes */}
-          <Route path="profile" element={<ProtectedRoute element={<Profile />} />} />
-          <Route path="updateProfile" element={<ProtectedRoute element={<UserUpdateProfile />} />} />
-          <Route path="chat" element={<ProtectedRoute element={<ChatPage />} />} />
-          <Route path="wishlist" element={<ProtectedRoute element={<WishList />} />} />
-          <Route path="yourProducts" element={<ProtectedRoute element={<YourOrders />} />} />
-          <Route path="product-requests" element={<ProtectedRoute element={<ViewRequest />} />} />
-          <Route path="pending-transactions" element={<ProtectedRoute element={<PendingTxsPage />} />} />
+          {/* Protected User Routes - only normal users */}
+          <Route path="updatePassword" element={<ProtectedRoute element={<UpdatePassword />} allowedRoles={['user']} />} />
+          <Route path="profile" element={<ProtectedRoute element={<Profile />} allowedRoles={['user']} />} />
+          <Route path="updateProfile" element={<ProtectedRoute element={<UserUpdateProfile />} allowedRoles={['user']} />} />
+          <Route path="chat" element={<ProtectedRoute element={<ChatPage />} allowedRoles={['user']} />} />
+          <Route path="wishlist" element={<ProtectedRoute element={<WishList />} allowedRoles={['user']} />} />
+          <Route path="yourProducts" element={<ProtectedRoute element={<YourOrders />} allowedRoles={['user']} />} />
+          <Route path="product-requests" element={<ProtectedRoute element={<ViewRequest />} allowedRoles={['user']} />} />
+          <Route path="pending-transactions" element={<ProtectedRoute element={<PendingTxsPage />} allowedRoles={['user']} />} />
           <Route path="pending-payment/:id" element={<h1>New page pipeline to be decided yet</h1>} />
         </Route>
-        {/* for seller Dashboard */}
-        <Route path="/seller/dashboard" element={<ProtectedRoute element={<SellerDashboardLayout />} />}>
+        {/* Seller Routes - only sellers/users */}
+        <Route path="/seller/dashboard" element={<ProtectedRoute element={<SellerDashboardLayout />} allowedRoles={['user']} />}>
           <Route index element={<Navigate to="for-sale" replace />} />
           <Route path="for-sale" element={<SellerItems filterType="sale" />} />
           <Route path="for-rent" element={<SellerItems filterType="rent" />} />
@@ -83,12 +101,12 @@ const AppRoutes = () => {
           <Route path="accepted-pending" element={<AcceptedProducts />} />
         </Route>
 
-        <Route path="/seller" element={<SellerHeaderLayout />}>
+        <Route path="/seller" element={<ProtectedRoute element={<SellerHeaderLayout />} allowedRoles={['user']} />}>
           {/* add routes for add product form , inbox, and /seller/dashboard with root elemetn as SellerLayout*/}
-          <Route path="add-new-product" element={<ProtectedRoute element={<AddProductForm />} />} />
-          <Route path="chat" element={<ProtectedRoute element={<ChatPage />} />} />
-          <Route path="subscription" element={<SubscriptionPage />} />
-          <Route path="dashboard" element={<ProtectedRoute element={<SellerDashboardLayout />} />} />
+          <Route path="add-new-product" element={<ProtectedRoute element={<AddProductForm />} allowedRoles={['user']} />} />
+          <Route path="chat" element={<ProtectedRoute element={<ChatPage />} allowedRoles={['user']} />} />
+          <Route path="subscription" element={<ProtectedRoute element={<SubscriptionPage />} allowedRoles={['user']} />} />
+          <Route path="dashboard" element={<ProtectedRoute element={<SellerDashboardLayout />} allowedRoles={['user']} />} />
 
           <Route path="subscription/vip"
             element={
@@ -111,12 +129,10 @@ const AppRoutes = () => {
             }
           />
         </Route>
-
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/manager" element={<ManagerDashboard />} />
+        {/* Admin and Manager Routes - role specific */}
+        <Route path="/admin" element={<ProtectedRoute element={<Admin />} allowedRoles={['admin']} />} />
+        <Route path="/manager" element={<ProtectedRoute element={<ManagerDashboard />} allowedRoles={['manager']} />} />
         <Route path="/error" element={<ErrorPage />} />
-
-
       </Routes>
     </Router>
   );
