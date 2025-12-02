@@ -115,11 +115,16 @@ export const paymentDoneDao = async (buyerId, productId) => {
     if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
-
+    const hisRequest = product.requests.find(
+        req => req.buyer.toString() === buyerId.toString()
+    );
+    if (!product.isRental) {
+        product.price = hisRequest.biddingPrice;
+    }
     product.requests = [];
     product.soldTo = buyerId;
     await product.save();
-    return { success: true };
+    return { success: true, hisRequest };
 }
 
 export const notInterestedDao = async (buyerId, productId) => {
@@ -213,7 +218,7 @@ export const getYourProductsDao = async (buyerId) => {
 };
 
 export const getProductsSellerAccepted = async (buyerId) => {
-    const products = await Products.find({ sellerAcceptedTo: buyerId,soldTo: null })
+    const products = await Products.find({ sellerAcceptedTo: buyerId, soldTo: null })
         .populate('seller', 'username')
         .populate('requests.buyer', 'username');
     return products;
@@ -317,7 +322,7 @@ export const makeAvailableDao = async (sellerId, productId) => {
     try {
         const product = await Products.findOneAndUpdate(
             { _id: productId, seller: sellerId, isRental: true },
-            { $set: { soldTo: null,sellerAcceptedTo: null } },
+            { $set: { soldTo: null, sellerAcceptedTo: null } },
             { new: true }
         );
 

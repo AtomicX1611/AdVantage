@@ -43,7 +43,6 @@ export const createNotification = async ({
 export const getUserModel = (role) => {
     const modelMap = {
         'user': 'Users',
-        'seller': 'Sellers',
         'admin': 'Admins',
         'manager': 'Managers'
     };

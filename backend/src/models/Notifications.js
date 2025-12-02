@@ -9,7 +9,7 @@ const notificationSchema = new mongoose.Schema({
     fromModel: {
         type: String,
         required: true,
-        enum: ['Users', 'Sellers', 'Admins', 'Managers']
+        enum: ['Users', 'Admins', 'Managers']
     },
     to: {
         type: mongoose.Schema.Types.ObjectId,
@@ -19,7 +19,7 @@ const notificationSchema = new mongoose.Schema({
     toModel: {
         type: String,
         required: true,
-        enum: ['Users', 'Sellers', 'Admins', 'Managers']
+        enum: ['Users', 'Admins', 'Managers']
     },
     type: {
         type: String,
@@ -58,7 +58,7 @@ const notificationSchema = new mongoose.Schema({
     },
     relatedEntityType: {
         type: String,
-        enum: ['Product', 'Order', 'Payment', 'Message', null],
+        enum: ['Product', 'Order', 'Payment', null],
         default: null
     },
     isRead: {

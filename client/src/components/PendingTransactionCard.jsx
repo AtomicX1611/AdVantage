@@ -13,7 +13,6 @@ const PendingTransactionCard = ({ item, backendURL, onPay }) => {
 		.filter(Boolean)
 		.join(", ") || "N/A";
 	
-	// Get the buyer request info if available
 
 	const buyerRequest = item?.requests?.find(request => request.buyer?._id === item?.sellerAcceptedTo);
     // console.log(buyerRequest);
