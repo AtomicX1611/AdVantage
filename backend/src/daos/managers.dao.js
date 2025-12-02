@@ -9,3 +9,11 @@ export const findManagerByEmail = async (email) => {
     // console.log(await Managers.find());
     return await Managers.findOne({ email });
 };
+
+export const getAllManagers = async () => {
+    return await Managers.find().lean();
+};
+
+export const countManagers = async () => {
+    return await Managers.countDocuments();
+};

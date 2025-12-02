@@ -5,6 +5,11 @@ export const API_CONFIG = {
     FRESH_PRODUCTS: '/anyone/HomeRequirements',
     PRODUCT_DETAIL: '/api/products',
     CATEGORY_PRODUCTS: '/search/product/category',
+    ADMIN_USERS: 'admin',
+    ADMIN_GRAPH_DATA: 'admin/graphData',
+    WISHLIST_GET: '/user/wishlist',
+    WISHLIST_ADD: '/user/wishlist/add',
+    WISHLIST_REMOVE: '/user/wishlist/remove',
   }
 };
 

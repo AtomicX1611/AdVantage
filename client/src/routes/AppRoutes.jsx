@@ -27,6 +27,8 @@ import SellerRequests from "../components/SellerHome/SellerRequests";
 import AcceptedProducts from "../components/SellerHome/AcceptedProducts";
 import SellerHeaderLayout from "../components/SellerHome/SellerHeaderLayout.jsx"
 import LoginPage from "../components/TempLogin.jsx";
+import AuthLogin from "../pages/AuthLogin.jsx";
+import AuthSignup from "../pages/AuthSignup.jsx";
 import ErrorPage from "../pages/ErrorPage.jsx";
 
 
@@ -58,7 +60,8 @@ const AppRoutes = () => {
           <Route path="search" element={<SearchPage />} />
           <Route path="product/:pid" element={<ProductDetailPage />} />
           <Route path="register" element={<Register />} />
-          <Route path="login" element={<LoginPage />} />
+          <Route path="login" element={<AuthLogin />} />
+          <Route path="signup" element={<AuthSignup />} />
           {/* Protected User Routes */}
           <Route path="profile" element={<ProtectedRoute element={<Profile />} />} />
           <Route path="updateProfile" element={<ProtectedRoute element={<UserUpdateProfile />} />} />

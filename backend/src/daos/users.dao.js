@@ -94,3 +94,11 @@ export const findSellerSubsDao = async (userId) => {
         };
     }
 };
+
+export const getAllUsers = async () => {
+    return await Users.find().lean();
+};
+
+export const countUsers = async () => {
+    return await Users.countDocuments();
+};

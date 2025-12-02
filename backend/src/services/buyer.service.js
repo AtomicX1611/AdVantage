@@ -15,6 +15,7 @@ import {
     notInterestedDao,
     getProductsSellerAccepted,
 } from "../daos/products.dao.js";
+import { createPayment } from "../daos/payment.dao.js";
 
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
 
@@ -151,7 +152,21 @@ export const paymentDoneService = async (buyerId, productId) => {
         return { success: false, ...messages[result.reason] };
     }
 
-    return { success: true, message: "Payment confirmed successfully" };
+   //here create payment record
+   const paymentData = {
+        from: buyerId,
+        fromModel: 'Users',
+        to: result.sellerId,
+        toModel: 'Users',
+        paymentType: "purchase",
+        relatedEntityId: productId,
+        relatedEntityType: "Products",
+        price: result.price,
+    };
+
+    const payment = await createPayment(paymentData);
+
+    return { success: true, message: "Payment confirmed successfully",payment: payment  };
 };
 
 export const notInterestedService = async (buyerId, productId) => {

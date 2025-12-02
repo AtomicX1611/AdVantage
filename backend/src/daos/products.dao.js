@@ -118,7 +118,7 @@ export const paymentDoneDao = async (buyerId, productId) => {
     product.requests = [];
     product.soldTo = buyerId;
     await product.save();
-    return { success: true };
+    return { success: true, sellerId: product.seller, price: product.price };
 }
 
 export const notInterestedDao = async (buyerId, productId) => {
@@ -350,4 +350,14 @@ export const findProductsForSeller = async (id) => {
             message: "Database error"
         }
     }
+};
+
+export const getAllProducts = async () => {
+    return await Products.find()
+        .populate('seller', 'username')
+        .lean();
+};
+
+export const countAllProducts = async () => {
+    return await Products.countDocuments();
 };
