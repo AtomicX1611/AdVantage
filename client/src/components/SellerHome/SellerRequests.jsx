@@ -21,6 +21,8 @@ const SellerRequests = () => {
         });
         const data = await response.json();
 
+        console.log("data: ",data.products)
+
         if (data.success) {
           const activeRequests = data.products.filter((product) => {
             const hasRequests = product.requests && product.requests.length > 0;
@@ -164,10 +166,10 @@ const SellerRequests = () => {
           {selectedProduct.requests.map((req, index) => {
             // Note: We assume backend .populate('requests.buyer') so we have name/email
             // If backend only sends ID, you won't see a name here.
-            const buyerName = req.buyer?.name || "Interested Buyer"; 
+            const buyerName = req.buyer?.username || "Interested Buyer"; 
             const buyerId = req.buyer?._id || req._id; // Fallback for ID
             const biddingPrice = req.biddingPrice;
-
+            console.log("Request buyer: ",buyerName, buyerId);
             return (
               <div key={req._id || index} className={styles.requestRow}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>

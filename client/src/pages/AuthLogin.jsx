@@ -84,10 +84,11 @@ const AuthLogin = () => {
       console.log('Login response:', resp, data);
       
       if (data && data.success) {
-        // Store both email and id in Redux
+        // Store email, id, and role in Redux
         dispatch(loginSuccess({ 
           email: data.email, 
-          id: data.buyerId 
+          id: data.buyerId,
+          role: role
         }));
         
         setMessage('Login successful!');

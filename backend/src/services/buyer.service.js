@@ -217,8 +217,8 @@ export const getYourProductsService = async (buyerId) => {
     };
 }
 
-export const rentService = async (buyerId, productId, from, to) => {
-    return await rentDao(buyerId, productId, from, to);
+export const rentService = async (buyerId, productId, from, to,biddingPrice) => {
+    return await rentDao(buyerId, productId, from, to,biddingPrice);
 }
 
 export const getYouProfileService = async (buyerId) => {

@@ -263,7 +263,7 @@ export const countProductsDao = async (filters) => {
     return count;
 };
 
-export const rentDao = async (buyerId, productId, from, to) => {
+export const rentDao = async (buyerId, productId, from, to,biddingPrice) => {
     try {
         let prod = await Products.findById(productId);
         if (!prod) {
@@ -291,10 +291,12 @@ export const rentDao = async (buyerId, productId, from, to) => {
                 status: 400,
             };
         }
+        console.log("required data: ",buyerId,from,to,biddingPrice)
         prod.requests.push({
             buyer: buyerId,
             from: from,
             to: to,
+            biddingPrice: biddingPrice
         });
         await prod.save();
         return {
@@ -338,7 +340,11 @@ export const deleteProductDao = async (productId) => {
 export const findProductsForSeller = async (id) => {
     try {
         const products = await Products.find({ seller: id })
-            .populate("seller");
+            .populate("seller")
+            .populate({
+                path: "requests.buyer",
+                select: "username email profilePic" 
+            });
         return {
             success: true,
             products: products
