@@ -43,6 +43,8 @@ export const createContact = async (req, res) => {
     try {
         const userId = req.user._id;
         const otherUserId = req.params.id;
+        console.log(otherUserId)
+        console.log("hitting createcontact: ",userId);
 
         if (!userId || !otherUserId) return res.status(400).json({
             sucess: false,

@@ -153,6 +153,7 @@ const ProductDetailPage = () => {
             <ActionButtons
               isRental={product.isRental}
               soldTo={product.soldTo}
+              sellerId={product.seller}
               onAddToWishlist={handleAddToWishlist}
               onRentNow={handleRentNow}
               onBuyNow={handleBuyNow}

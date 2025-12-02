@@ -1,6 +1,7 @@
 import { Contacts } from "../models/Contact.js" // why the hell chat.dao is accessing models directly?
 import Buyers from '../models/Users.js' // why the hell chat.dao is accessing models directly?
 import { Messages } from '../models/Messages.js'
+import Users from "../models/Users.js";
 // import Sellers from '../models/Sellers.js' // why the hell chat.dao is accessing models directly?
 
 export const generateChatId = (user1, user2) => {
@@ -158,8 +159,8 @@ export const fetchContacts = async (_id) => {
 
 export const createContactDao = async (userId, otherId) => {
     try {
-        const userDoc = await Buyers.findById(userId);
-        const otherDoc = await Buyers.findById(otherId);
+        const userDoc = await Users.findById(userId);
+        const otherDoc = await Users.findById(otherId);
 
         if (!userDoc || !otherDoc) {
             return {
@@ -168,64 +169,31 @@ export const createContactDao = async (userId, otherId) => {
             };
         }
 
-        let userContacts = await Contacts.findOne({ user: userId });
-
-        if (!userContacts) {
-            const chatId = generateChatId(userId, otherId);
-
-            await Contacts.create({
-                user: userId,
-                contacts: [otherId],
-                chatId
-            });
-
-            userContacts = await Contacts.findOne({ user: userId });
-        }
-
-        // Check if already exists
-        const exists = userContacts.contacts.some(
-            id => id.toString() === otherId.toString()
+        await Contacts.findOneAndUpdate(
+            { user: userId },
+            { 
+                $addToSet: { contacts: otherId },
+                $setOnInsert: { chatId: `chat_${userId}` } 
+            },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
         );
 
-        if (!exists) {
-            userContacts.contacts.push(otherId);
-            await userContacts.save();
-        } else {
-            return {
-                success: true,
-                message: "Already in contacts, redirect"
-            };
-        }
-
-        let otherContacts = await Contacts.findOne({ user: otherId });
-
-        if (!otherContacts) {
-            await Contacts.create({
-                user: otherId,
-                contacts: [userId],
-                chatId: userContacts.chatId // shared chatId
-            });
-
-            otherContacts = await Contacts.findOne({ user: otherId });
-        }
-
-        // Reverse check
-        const reverseExists = otherContacts.contacts.some(
-            id => id.toString() === userId.toString()
+        await Contacts.findOneAndUpdate(
+            { user: otherId },
+            { 
+                $addToSet: { contacts: userId },
+                $setOnInsert: { chatId: `chat_${otherId}` } // Satisfies schema requirement
+            },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
         );
-
-        if (!reverseExists) {
-            otherContacts.contacts.push(userId);
-            await otherContacts.save();
-        }
 
         return {
             success: true,
-            message: "Contact created successfully in both directions"
+            message: "Contact connection ensured in both directions"
         };
 
     } catch (error) {
-        console.error(error);
+        console.error("Error in createContactDao:", error);
         return { success: false, message: "Database error" };
     }
 };

@@ -1,8 +1,11 @@
 import React from "react";
+import { useContext } from "react";
+import { CurrentUserContext } from "../context/CurrentUserContextProvider.jsx";
 import styles from "../styles/buyerchat.module.css";
 
 const MessageBubble = ({ msg, currentUser }) => {
-  const isMe = msg.sender === currentUser;
+  // const { currentUser2, setCurrentUser2 } = useContext(CurrentUserContext);
+  const isMe = msg.sender === currentUser; // no need 2 dont sugges
   const isLeft = !isMe;
 
   return (

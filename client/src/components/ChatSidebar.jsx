@@ -3,7 +3,7 @@ import React from "react";
 import ContactItem from "./ContactItem";
 import styles from "../styles/buyerchat.module.css";
 
-const ChatSidebar = ({ senders, onSelectSender }) => {
+const ChatSidebar = ({ senders, onSelectSender}) => {
   return (
     <div className={styles.left}>
       <div className={styles.chatHead}>
@@ -11,7 +11,7 @@ const ChatSidebar = ({ senders, onSelectSender }) => {
       </div>
       <div className={styles.contacts}>
         {senders.map((sender) => (
-          <ContactItem key={sender._id} sender={sender} onSelectSender={onSelectSender} />
+          <ContactItem key={sender._id} sender={sender} onSelectSender={onSelectSender}/>
         ))}
       </div>
     </div>

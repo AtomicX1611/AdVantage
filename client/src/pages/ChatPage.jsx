@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef, use } from "react";
 import io from "socket.io-client";
 import ChatSidebar from "../components/ChatSidebar";
 import ChatBox from "../components/ChatBox";
 import styles from "../styles/buyerchat.module.css";
-
+import { useContext } from "react";
+import { CurrentUserContext } from "../context/CurrentUserContextProvider.jsx";
 
 const ChatPage = () => {
   // store username here
   const [myUsername, setMyusername] = useState("");
   const [myAccount, setMyAccount] = useState("");
   const backendURL = "http://localhost:3000/";
+  // const { currentUser2, setCurrentUser2 } = useContext(CurrentUserContext);
 
   const [socket, setSocket] = useState(null);
   const [senders, setSenders] = useState([  // set this with fetch request to get contacts
@@ -21,10 +23,26 @@ const ChatPage = () => {
   const [selectedSender, setSelectedSender] = useState(null);
   const [messages, setMessages] = useState([]);
 
-  // 1. Fetch Contacts useEffect
+  
+  async function fetchConversation(otherId) {
+    try {
+      const res = await fetch(`${backendURL}chat/messages/${otherId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      const data = await res.json();
+      console.log("messages fetched: ",data.messages);
+
+      if (data.success) setMessages(data.messages);
+      else setMessages([]);
+    } catch (err) {
+      console.error("Error fetching messages:", err);
+    }
+  }
+  
   useEffect(() => {
     async function fetchContacts() {
-      console.log("1. Running fetch contacts...");
       try {
         const response = await fetch(`${backendURL}chat/contacts`, {
           method: "GET",
@@ -33,12 +51,12 @@ const ChatPage = () => {
         });
 
         const data = await response.json();
-        console.log("2. Fetch :", data);
 
         if (data.success) {
           setSenders(data.contacts);
           setMyusername(data.userName);
           setMyAccount(data.myAccount);
+          // setCurrentUser(data.myAccount);
         }
       } catch (error) {
         console.error("FAILED to fetch contacts:", error);
@@ -47,8 +65,6 @@ const ChatPage = () => {
     fetchContacts();
   }, []); // Run once on mount
 
-  // 2. Socket Connecting useEffect
-  // If myAccount is not set then show some error page 
   useEffect(() => {
     if (!myAccount) {
       console.log("Waiting for user account data before connecting socket...");
@@ -62,8 +78,6 @@ const ChatPage = () => {
     });
 
     setSocket(newSocket);
-
-    // Register immediately upon connection
     newSocket.on("connect", () => {
       console.log("Socket Connected! ID:", newSocket.id);
       newSocket.emit("buyer-register", { _id: myAccount });
@@ -72,22 +86,15 @@ const ChatPage = () => {
     // Cleanup
     return () => newSocket.disconnect();
 
-  }, [myAccount]); // This Effect now waits for 'myAccount' to change
+  }, [myAccount]); 
 
-  async function fetchConversation(otherId) {
-    try {
-      const res = await fetch(`${backendURL}chat/messages/${otherId}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (data.success) setMessages(data.messages);
-      else setMessages([]);
-    } catch (err) {
-      console.error("Error fetching messages:", err);
+  useEffect(() => {
+    if (selectedSender) {
+      fetchConversation(selectedSender._id);
+    } else {
+      console.log("No sender selected, skipping conversation fetch.");
     }
-  }
+  }, [selectedSender]);
 
   useEffect(() => {
     if (!socket) return;
@@ -123,12 +130,12 @@ const ChatPage = () => {
     setMessages((prev) => [...prev, messageData]);
     socket.emit("send", messageData);
 
-    // await fetch(`${backendURL}chat/message/${selectedSender._id}`, {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   credentials: "include",
-    //   body: JSON.stringify({ newMessage: { sender: myAccount, message: msg } }),
-    // });
+    await fetch(`http://localhost:3000/chat/message/${selectedSender._id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ newMessage: { sender: myAccount, message: msg } }),
+    });
   };
 
   return (
