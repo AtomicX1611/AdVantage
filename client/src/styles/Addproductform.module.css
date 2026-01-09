@@ -166,7 +166,7 @@ button[type="submit"] {
   border: 0px;
   padding: 7px 5px;
   border-radius: 5px;
-  margin-left: 5vw;
+  margin-left: 0vw;
 }
 button[type="submit"]:hover {
   background-color: #ddeafeb6;
