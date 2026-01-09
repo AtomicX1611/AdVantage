@@ -33,11 +33,15 @@ import UpdatePassword from "../pages/UpdatePassword.jsx";
 import ErrorPage from "../pages/ErrorPage.jsx";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { loginSuccess } from '../redux/authSlice';
+import { loginSuccess,logout } from '../redux/authSlice';
 
 
 const ProtectedRoute = ({ element, allowedRoles }) => {
-  const { isAuth, user } = useSelector((state) => state.auth);
+  const { isAuth, user, loading } = useSelector((state) => state.auth);
+
+  if (loading) {
+    return <div>Loading...</div>; // or spinner
+  }
 
   // If not authenticated, redirect to login
   if (!isAuth) {
@@ -84,11 +88,10 @@ const AppRoutes = () => {
         }
       );
 
-      if (!res.ok) return;
-
       const data = await res.json();
-      
-      
+      if (!data.success) {
+        dispatch(logout());
+      }
 
       dispatch(
         loginSuccess({
@@ -127,7 +130,7 @@ const AppRoutes = () => {
 
 
         <Route path="seller" element={<ProtectedRoute element={<SellerHeaderLayout />} allowedRoles={['user']} />}>
-        
+
           <Route index element={<Navigate to="dashboard" replace />} />
           {/* add routes for add product form , inbox, and /seller/dashboard with root elemetn as SellerLayout*/}
           <Route path="add-new-product" element={<ProtectedRoute element={<AddProductForm />} allowedRoles={['user']} />} />
