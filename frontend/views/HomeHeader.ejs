@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/HomeHeader.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="box1">
+                <div class="logo-img-wrapper">
+                    <a href="/">
+                        <img src="/Assets/ADVANTAGE.png" alt="Logo" class="logo-img" draggable="false">
+                    </a>
+                </div>
+
+                <form class="search-box" action="/search/noFilter" method="get">
+                    <div class="search-input">
+                        <i class='bx bx-search-alt magnifier'></i>
+                        <input type="search" name="search" id="search-products" placeholder="Search" name="searchValue">
+                    </div>
+                    <!-- <button id="search-btn" type="submit">
+                        Search
+                    </button> -->
+                </form>
+                <% if(isLogged){ %>
+                    <div class="sellbtn hover-btn">
+
+                        <a href="/seller">
+                            Seller Account
+                        </a>
+                    </div>
+                    <% }else{ %>
+                        <div class="sellbtn hover-btn">
+                            <a href="/seller">
+                                Seller Account
+                            </a>
+                        </div>
+                        <% } %>
+
+                        <% if(isLogged) { %>
+                            <div class="login-btn hover-btn" style="display: none;">
+                                <a href="/auth/buyer">Login</a>
+                            </div>
+                            <%} else {%>
+                                <div class="login-btn hover-btn">
+                                    <a href="/auth/buyer">Login</a>
+                                </div>
+                                <%}%>
+            </div>
+            <div class="user-actions">
+                
+                            <div class="box2">
+                                <div class="hover chaticon box2-icons">
+                                    <a href="/buyer/chats/buyerInbox"><img src="/Assets/Commentblack.png" alt=""></a>
+                                </div>
+                                <div class="hover alert box2-icons">
+                                    <a href=""><img src="/Assets/Alarmblack.png" alt=""></a>
+                                </div>
+                                <div class="hover toggle box2-icons">
+                                    <a href=""><img src="/Assets/Toggleblack.png" alt=""></a>
+                                </div>
+                            </div>
+                            <div class="box3">
+                                <div class="hover box2-icons heart">
+                                    <a href="/buyer/wishlist"><i class='bx bx-heart'></i></a>
+                                </div>
+                                <div class="hover box2-icons notifications alert" id="notification-icon">
+                                    <a href="#"><img src="/Assets/Notificationblacl.png" alt="" height="35px"></i></a>
+                                </div>
+                                <% const profilePic = data?.buyer?.profilePicPath; %>
+                                <div class="hover box2-icons profile">
+                                  <% if(profilePic){ %>
+                                    <a href="/buyer/profile"><img src="<%= backendURL %><%= data.buyer.profilePicPath %>" alt="your profile pic" height="50px" width="50px" style="border-radius: 50%;"></a>
+                                  <% }else{ %>
+                                    <a href="/buyer/profile"><i class='bx bxs-user-circle'></i></a>
+                                  <% } %>
+                                </div>
+                            </div>
+            </div>
+            <div id="burger">
+                <i class='bx bx-menu'></i>
+            </div>
+        </nav>
+    </header>
+    <div id="sidebar">
+        <div class="header1">
+          <h2>Notifications</h2>
+          <div style="display: flex; justify-content: space-between;margin: 10px;">
+          <button id="mark-all-read">Mark All as Read</button>
+          <button id="close-sidebar">x</button>
+        </div>
+        </div>
+        <div class="notification-list">
+          <div class="notification-card unread">
+            <span class="icon">💬</span>
+            <div class="content">
+              <h3>New Message from John</h3>
+              <p class="message-preview">
+                "Hi, I can offer $500 for the iPhone 14."
+              </p>
+              <span class="timestamp">2 hours ago</span>
+            </div>
+            <!-- <button class="view-btn">View</button> -->
+            <button class="delete-btn">Delete</button>
+          </div>
+          <div class="notification-card unread">
+            <span class="icon">⚡</span>
+            <div class="content">
+              <h3>Price Drop Alert</h3>
+              <p class="message-preview">
+                "The iPhone 14 price dropped by $100."
+              </p>
+              <span class="timestamp">5 hours ago</span>
+            </div>
+            <!-- <button class="view-btn">View</button> -->
+            <button class="delete-btn">Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="overlay"></div>
+        <script>
+      document
+        .getElementById("notification-icon")
+        .addEventListener("click", function () {
+          document.getElementById("sidebar").classList.toggle("open");
+        });
+
+      document
+        .getElementById("close-sidebar")
+        .addEventListener("click", function () {
+          document.getElementById("sidebar").classList.remove("open");
+        });
+
+      document.querySelector("#mark-all-read").addEventListener("click", () => {
+        document.querySelectorAll(".notification-card").forEach((card) => {
+          card.classList.remove("unread");
+        });
+      });
+      
+      document.addEventListener("DOMContentLoaded", function () {
+        const deleteButtons = document.querySelectorAll(".delete-btn");
+
+        deleteButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            console.log("delete clicked");
+            const notificationCard = this.closest(".notification-card");
+            notificationCard.remove();
+          });
+        });
+      });
+    </script>
+</body>
+
+</html>

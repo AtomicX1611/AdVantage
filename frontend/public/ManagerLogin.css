@@ -1,0 +1,187 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #F8f6ff;
+  background-size: cover;
+  background-position: center;
+}
+
+.card {
+  height: 550px;
+  width: 430px;
+  background-color: #fff;
+  color: #000;
+  border-radius: 15px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+  box-shadow: 0px 0px 10px #242424;
+}
+
+.ff, .bf {
+  height: inherit;
+  width: inherit;
+  background-color: inherit;
+  border-radius: inherit;
+  backface-visibility: hidden;
+  position: absolute;
+  box-shadow: 0px 0px 5px white;
+}
+
+.login {
+  height: inherit;
+  width: inherit;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#login-form {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
+}
+
+input {
+  height: 50px;
+  width: 340px;
+  background-color: transparent;
+  opacity: 0.6;
+  padding-left: 10px;
+  color: black;
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  box-shadow: inset 0px 0px 5px #242424;
+}
+
+input::placeholder {
+  color: black;
+  font-weight: 400;
+  font-size: medium;
+}
+
+.email {
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.confirm-password {
+  width: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.error {
+  height: fit-content;
+  width: fit-content;
+  color: tomato;
+  font-size: 14px;
+  display: none;
+  text-align: left;
+  margin-right: auto;
+  margin-top: 5px;
+}
+
+button {
+  height: 50px;
+  width: 150px;
+  font-size: large;
+  border-radius: 10px;
+  cursor: pointer;
+  color: white;
+  background-color: rgb(34, 87, 122);
+  border: none;
+  outline: none;
+}
+
+.bar {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  font-size: larger;
+}
+
+.line {
+  height: 1px;
+  width: 160px;
+  background-color: #242424;
+}
+
+.OAuth-options {
+  width: 280px;
+  height: fit-content;
+  padding: 10px 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.option-box {
+  width: fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-size: medium;
+  border: 2px solid #242424;
+  padding: 15px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.option {
+  font-weight: 500;
+}
+
+.bxl-google {
+  font-size: larger;
+  display: flex;
+}
+
+#login-btn {
+  margin-top: 6vh;
+  font-weight: 400;
+}
+
+/* Remove Chrome autofill background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  box-shadow: inset 0px 0px 5px #242424, 0 0 0px 1000px transparent inset !important;
+  -webkit-box-shadow: inset 0px 0px 5px #242424, 0 0 0px 1000px transparent inset !important;
+  -webkit-text-fill-color: #000 !important;
+  transition: background-color 5000s ease-in-out 0s;
+  background-color: transparent !important;
+}

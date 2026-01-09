@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advantage</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/SearchPage.css" />
+</head>
+
+<body>
+  <div class="searchpage_window">
+    <%- include("HomeHeader.ejs") %>
+      <main>
+        <div id="up">
+          <b id="filters">FILTERS</b>
+        </div>
+        <!-- <div class="fog" id="fog1"></div>
+            <div class="fog" id="fog2"></div> -->
+        <div id="bottom">
+          <div id="filterContainer">
+            <b id="priceRange">Price Range</b>
+            <div id="minAndMax">
+              <input type="number" placeholder="min" id="min" />
+              <input type="number" placeholder="max" id="max" />
+              <button id="filterApply"><b>Apply</b></button>
+            </div>
+            <div id="verifiedWrapper">
+              <input type="checkbox" id="verifiedCheckbox"><b>Only verified</b>
+            </div>
+            <div id="rentedwrapper">
+              <input type="checkbox" id="rentedCheckbox"><b>Only Rental</b>
+            </div>
+            <!-- <b id="priceRange">category</b>
+                        <div id="category">
+                            <select id="selection">
+                                <option value=""></option>
+                            </select>
+                        </div> -->
+          </div>
+          <div id="mainSection">
+            <% if(products.length==0) { %>
+              <h3 style="margin-top: 30vh; margin-left: 30vw ; color: black;">
+                No products found in Search
+              </h3>
+              <% } %>
+                <% for(let i=0;i < products.length; i++) { %>
+                  <a href="/search/product/<%= products[i]._id %>">
+                    <div class="products">
+                      <img src="<%= backendURL %><%= products[i].images[0] %>" alt="image" class="images" />
+                      <h4 style="margin-left: 20px; font-size: 15px ; color: black; font-weight: 400; text-align: center; margin-top: 10px;">
+                        <%= products[i].name %>
+                      </h4>
+                      <h3 style="font-size: 20px;margin-left: 0px; color: black ; text-align: right; margin-right: 5px; font-weight: 600;">Rs. <%= products[i].price %>/-</h3>
+                    </div>
+                  </a>
+                  <% }%>
+          </div>
+        </div>
+      </main>
+  </div>
+  <script>
+const products = <%- JSON.stringify(products) %>;
+      const rentedCheckbox = document.getElementById('rentedCheckbox');
+    // console.log(products);
+    const filterApplier = (e) => {
+      let maxValue = parseFloat(max.value);
+      let minValue = parseFloat(min.value);
+      if (isNaN(maxValue)) {
+        maxValue = Infinity;
+      }
+      if (isNaN(minValue)) {
+        minValue = 0;
+      }
+      mainSection.innerHTML = '';
+      let html, price;
+      for (let i = 0; i < products.length; i++) {
+        price = parseFloat(products[i].price);
+       if (  (price >= minValue) && (price <= maxValue) && ((!verifiedCheckbox.checked) || (products[i].verified === true)) && 
+        ((!rentedCheckbox.checked) || (products[i].isRental === true))) {
+          html = `<a href="/search/product/${products[i]._id}">
+                              <div class="products">
+                                  <img src="<%= backendURL %>${products[i].images[0]}" alt="image" class="images">
+                                  <h4 style="margin-left: 20px; font-size: 15px; color: black;">
+                                      ${products[i].name}
+                                  </h4>
+                                  <h3 style="margin-left: 0px; color: black"> Rs. ${products[i].price}/- </h3>
+                              </div>
+                          </a>`;
+          mainSection.insertAdjacentHTML("beforeend", html);
+        }
+      }
+      if (mainSection.innerHTML === '') {
+        mainSection.innerHTML = '<h3 style="margin-top: 30vh;margin-left:30vw; color: black;">No products found in the specified filter</h3>';
+      }
+    }
+    const mainSection = document.getElementById('mainSection');
+    const min = document.getElementById('min');
+    const max = document.getElementById('max');
+    const apply = document.getElementById('filterApply');
+    const verifiedCheckbox = document.getElementById('verifiedCheckbox');
+    apply.addEventListener('click', filterApplier);
+    verifiedCheckbox.addEventListener('input',filterApplier);
+    rentedCheckbox.addEventListener('change',filterApplier);
+  </script>
+</body>
+
+</html>

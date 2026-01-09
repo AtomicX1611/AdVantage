@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manager Login</title>
+  <link rel="stylesheet" href="/ManagerLogin.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+  <div class="card">
+    <div class="login">
+      <div class="head" style="font-size: 18px; margin-top: 20px; font-weight: 400;">
+        <h1 style="font-weight: 400;">Manager Login</h1>
+      </div>
+      <div class="form">
+        <form id="login-form" method="post" style="gap: 25px;">
+          <div class="email">
+            <input type="email" name="email" id="email" placeholder="Email ID" required>
+          </div>
+          <div class="confirm-password">
+            <input type="password" name="password" id="login-password" placeholder="Password" required>
+            <div class="error" id="incorrect-password">
+              *Incorrect Email or Password
+            </div>
+          </div>
+          <button type="submit" id="login-btn">Login</button>
+        </form>
+        <div class="bar">
+          <span class="line"></span>
+          <span>or</span>
+          <span class="line"></span>
+        </div>
+      </div>
+      <div class="OAuth-options">
+        <div class="google-OAuth option-box">
+          <div class="platform-logo">
+            <i class='bx bxl-google'></i>
+          </div>
+          <div class="option">
+            Continue With Google
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", (event) => {
+      const loginForm = document.getElementById("login-form");
+      loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const incErr = document.getElementById("incorrect-password");
+        incErr.style.display = "none";
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("login-password").value;
+
+        if (!email.includes('@')) {
+          alert("Enter a valid email missing @.");
+          return;
+        }
+
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+          alert("Please enter a valid Email");
+          return;
+        }
+
+        if (password === "") {
+          alert("Password is required.");
+          return;
+        }
+
+        try {
+          const response = await fetch("http://localhost:3001/manager/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, password })
+          });
+
+          if (response.ok) {
+            console.log("managerLogin Successful");
+            window.location.href = "/manager/dashboard";
+          } else {
+            incErr.style.display = "flex";
+          }
+        } catch (error) {
+          console.error("Login Error:", error);
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
