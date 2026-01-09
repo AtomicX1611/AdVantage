@@ -1,6 +1,6 @@
 // src/pages/ViewRequest.jsx
 import React from 'react';
-import RequestCard from '../Components/ViewRequest/RequestCard.jsx';
+import RequestCard from '../components/ViewRequest/RequestCard.jsx';
 import styles from '../styles/viewrequest.module.css';
 
 const dummyRequests = [

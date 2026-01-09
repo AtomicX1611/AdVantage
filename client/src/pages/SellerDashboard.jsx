@@ -13,7 +13,7 @@ const SellerLayout = () => {
 
   return (
     <div className={styles.container}>
-      <SellerHeader toggleSidebar={toggleSidebar} />
+      {/* <SellerHeader toggleSidebar={toggleSidebar} /> */}
 
       <div className={styles.mainBody}>
         <SellerSidebar isOpen={isSidebarOpen} />

@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import {
+    getBuyerById,
     createBuyer,
     findBuyerByEmail,
 } from "../daos/users.dao.js";
@@ -7,8 +8,8 @@ import {
 //     createSeller,
 //     findSellerByEmail,
 // } from "../daos/sellers.dao.js";
-import { findAdminByEmail } from "../daos/admins.dao.js";
-import { findManagerByEmail } from "../daos/managers.dao.js";
+import { findAdminByEmail,getAdminById } from "../daos/admins.dao.js";
+import { findManagerByEmail,getManagerById } from "../daos/managers.dao.js";
 
 export const signupBuyerService = async (username, contact, email, password) => {
 
@@ -138,9 +139,9 @@ export const buyerLoginService = async (email, password) => {
 // };
 
 export const adminLoginService = async (email, password) => {
-    
+
     const admin = await findAdminByEmail(email);
-    if (!admin){
+    if (!admin) {
         return {
             success: false,
             status: 404,
@@ -148,9 +149,9 @@ export const adminLoginService = async (email, password) => {
         };
     }
 
-    console.log('Log with admin ,',admin,email,password);
-    
-    
+    console.log('Log with admin ,', admin, email, password);
+
+
     if (admin.password !== password) {
         return {
             success: false,
@@ -158,7 +159,7 @@ export const adminLoginService = async (email, password) => {
             message: "email or password is incorrect",
         };
     }
-    
+
     const token = jwt.sign(
         { _id: admin._id, role: "admin" },
         process.env.JWT_SECRET,
@@ -203,3 +204,68 @@ export const managerLoginService = async (email, password) => {
         manager,
     };
 };
+
+export const getMyInfoService = async (id, role) => {
+    if (role === "user") {
+        const user = await getBuyerById(id);
+        if (!user) {
+            return {
+                status: 404,
+                success: false,
+                message: "User not found"
+            };
+        }
+        const plainUser = user.toObject();
+        delete plainUser.password;
+        delete plainUser.wishlistProducts;
+        plainUser.role="user";
+
+        return {
+            status: 200,
+            success: true,
+            info: plainUser
+        };
+    }
+    if(role==="admin"){
+        const admin = await getAdminById(id);
+        if (!admin) {
+            return {
+                status: 404,
+                success: false,
+                message: "Admin not found"
+            };
+        }
+        const plainAdmin = admin.toObject();
+        delete plainAdmin.password;
+        plainAdmin.role="admin";
+        return {
+            status: 200,
+            success: true,
+            info: plainAdmin,
+        };
+    }
+    if(role==="manager"){
+        const manager = await getManagerById(id);
+        if (!manager) {
+            return {
+                status: 404,
+                success: false,
+                message: "Manager not found"
+            };
+        }
+        const plainManager = manager.toObject();
+        delete plainManager.password;
+        plainManager.role="manager";
+
+        return {
+            status: 200,
+            success: true,
+            info: plainManager
+        };
+    }
+    return {
+        status: 400,
+        success: false,
+        message: "Invalid role"
+    };
+}

@@ -2,15 +2,19 @@ import React, { useState } from 'react';
 import classes from '../styles/header.module.css';
 import NotificationSidebar from './NotificationSidebar';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 // Removed unused icon URLs
 const LOGO_URL = '/Assets/ADVANTAGE.png';
 
-const Header = ({ isLogged, data, backendURL }) => {
+const Header = () => {
+  const { isAuth, user } = useSelector((state) => state.auth);
+  const backendURL = import.meta.env.VITE_BACKEND_URL;
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
-  const profilePic = data?.buyer?.profilePicPath;
+  const profilePic = user?.profilePicPath;
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -52,7 +56,7 @@ const Header = ({ isLogged, data, backendURL }) => {
               <span>Seller Account</span>
             </div>
 
-            {isLogged ? (
+            {isAuth ? (
               <div className={`${classes.loginBtn} ${classes.hoverBtn}`} style={{ display: 'none' }}>
                 <span onClick={() => navigate('/login')} style={{ cursor: 'pointer' }}>Login</span>
               </div>
@@ -82,7 +86,7 @@ const Header = ({ isLogged, data, backendURL }) => {
 
             <div className={classes.box3}>
               <div className={`${classes.hover} ${classes.box2Icons} ${classes.heart}`}>
-                <a href="/buyer/wishlist"><i className='bx bx-heart'></i></a>
+                <a href="/wishlist"><i className='bx bx-heart'></i></a>
               </div>
               <div
                 className={`${classes.hover} ${classes.box2Icons} ${classes.notifications} ${classes.alert}`}

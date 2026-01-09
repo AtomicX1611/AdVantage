@@ -16,7 +16,7 @@ const authSlice = createSlice({
       state.error = null;
     },
     loginSuccess: (state, action) => {
-      console.log("Action payload : ",action.payload);
+      console.log("Action payload : ",action);
       //After login , this will be called user will be set
       state.loading = false;
       state.isAuth = true;

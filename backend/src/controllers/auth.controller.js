@@ -5,6 +5,7 @@ import {
     // sellerLoginService,
     adminLoginService,
     managerLoginService,
+    getMyInfoService,
 } from "../services/auth.service.js";
 
 export const buyerSignup = async (req, res) => {
@@ -241,5 +242,33 @@ export const managerLogin = async (req, res) => {
         res.status(500).json({
             message: error.message || "Internal server error",
         });
+    }
+};
+
+export const getMyInfo = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const role = req.user.role;
+        // console.log(role);
+        if (!userId || !role) {
+            return res.status(400).json({ message: "userId not found" });
+        };
+        let response = await getMyInfoService(userId, role);
+        if (!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message
+            })
+        }
+        return res.status(response.status).json({
+            success: true,
+            info: response.info,
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
     }
 };
