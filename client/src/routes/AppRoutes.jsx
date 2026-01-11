@@ -34,6 +34,7 @@ import ErrorPage from "../pages/ErrorPage.jsx";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from '../redux/authSlice';
+import TestLogin from "../testLogin.jsx";
 
 
 const ProtectedRoute = ({ element, allowedRoles }) => {
@@ -108,6 +109,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<HomeHeader />}>
           <Route index element={<Home />} />
+          <Route path="test" element={<TestLogin/>}/>
           <Route path="search" element={<SearchPage />} />
           <Route path="product/:pid" element={<ProductDetailPage />} />
           <Route path="register" element={<Register />} />

@@ -1,4 +1,6 @@
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
+import crypto from "crypto";
 import {
     getBuyerById,
     createBuyer,
@@ -87,6 +89,10 @@ export const buyerLoginService = async (email, password) => {
             message: "no buyer with that email",
         }
     }
+    console.log("Logging with password of both : ",
+        password , buyer.password
+    );
+    
     if (buyer.password !== password) {
         return {
             success: false,
@@ -269,3 +275,69 @@ export const getMyInfoService = async (id, role) => {
         message: "Invalid role"
     };
 }
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+export const googleSignInService = async (idToken) => {
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+
+        if (!payload) {
+            return {
+                success: false,
+                status: 401,
+                message: "Invalid id token payload",
+            };
+        }
+
+        if (payload.email_verified === false) {
+            return {
+                success: false,
+                status: 401,
+                message: "Google email is not verified",
+            };
+        }
+
+        let user = await findBuyerByEmail(payload.email);
+        
+        if (!user) {           
+            const username = payload.name || payload.email.split("@")[0];
+            const contact = "0000000000";
+            const randomPassword = crypto.randomBytes(16).toString("hex");
+
+            user = await createBuyer({
+                username,
+                contact,
+                email: payload.email,
+                password: randomPassword,
+                profilePicPath: payload.picture || null,
+                wishlistProducts: [],
+            });
+        }
+
+        const token = jwt.sign(
+            { _id: user._id, role: "user" },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+
+        return {
+            success: true,
+            status: 200,
+            token,
+            user,
+        };
+    } catch (error) {
+        console.log("Error in googleSignInService : ", error);
+        return {
+            success: false,
+            status: 401,
+            message: "Invalid id Token",
+        };
+    }
+};
