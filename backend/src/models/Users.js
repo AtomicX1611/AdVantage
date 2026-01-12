@@ -28,6 +28,13 @@ const buyersSchema = new mongoose.Schema({
         default: 0,
         required: true,
     },
+    usedPosts: {
+        type: Number,
+        default: 0
+    },
+    windowStart: {
+        type: Date,
+    },
     wishlistProducts: [
         {
             type: mongoose.Schema.Types.ObjectId,
