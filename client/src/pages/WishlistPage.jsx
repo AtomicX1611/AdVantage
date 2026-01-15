@@ -106,7 +106,7 @@ export default function WishlistPage() {
       return;
     }
     setProducts((prev) => prev.filter((p) => p._id !== productId));
-
+    
     setSelectedProducts((prev) =>
       prev.filter((p) => p._id !== productId)
     );

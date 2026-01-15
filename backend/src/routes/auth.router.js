@@ -6,8 +6,8 @@ import {
     adminLogin,
     managerLogin,
     getMyInfo,
-    userLogout
-    googelSignIn,
+    userLogout,
+    googelSignIn
 } from "../controllers/auth.controller.js";
 import {
     checkToken,
