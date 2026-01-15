@@ -1,4 +1,5 @@
 import express from "express";
+import axios from "axios";
 import {
     buyerSignup,
     buyerLogin,
@@ -6,6 +7,7 @@ import {
     managerLogin,
     getMyInfo,
     userLogout
+    googelSignIn,
 } from "../controllers/auth.controller.js";
 import {
     checkToken,
@@ -14,6 +16,10 @@ import {
 
 export const router = express.Router();
 
+//gifted-airway-483805-k5
+
+
+router.post('/google', googelSignIn)
 //buyer
 router.post('/signup', buyerSignup);
 router.post('/login', buyerLogin);

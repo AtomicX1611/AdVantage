@@ -6,7 +6,9 @@ import {
     adminLoginService,
     managerLoginService,
     getMyInfoService,
+    googleSignInService,
 } from "../services/auth.service.js";
+
 
 export const buyerSignup = async (req, res) => {
     try {
@@ -270,6 +272,43 @@ export const getMyInfo = async (req, res) => {
             success: false,
             message: "Internal server error"
         })
+    }
+};
+
+
+export const googelSignIn = async (req, res) => {
+    try {
+        const { idToken } = req.body;
+
+        if (!idToken) {
+            return res.status(400).json({ message: "idToken required" });
+        }
+
+        const response = await googleSignInService(idToken);
+
+        if (!response.success) {
+            return res.status(response.status).json({
+                message: response.message,
+                success: false,
+            });
+        }       
+
+        res.cookie("token", response.token, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
+        console.log("Logged user with google: ", response.user.email);
+
+        return res.status(200).json({
+            buyerId: response.user._id,
+            email: response.user.email,
+            success: true,
+            message: "Google login successful",
+        });
+    } catch (error) {
+        console.log("Error occurred : ", error);
+        return res.status(500).json({ message: error.message || "Internal Server Error" });
     }
 };
 
