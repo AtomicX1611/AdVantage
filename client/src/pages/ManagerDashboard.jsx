@@ -98,6 +98,7 @@ const ManagerDashboard = () => {
             price={item.price}
             onVerify={() => handleVerify(item._id)}
             onViewDetails={() => handleViewDetails(item._id)}
+            invoice={item.invoice}
           />
         ))}
       </div>

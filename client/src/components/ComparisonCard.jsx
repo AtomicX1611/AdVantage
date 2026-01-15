@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import styles from "../styles/wishlist.module.css";
 
-export default function ComparisonCard({ product, removeFromCompare }) {
+export default function ComparisonCard({ product, removeFromCompare,deleteFromWishlist }) {
   const [imgIndex, setImgIndex] = useState(0);
+  console.log(product.images);
 
   const nextImg = () =>
     setImgIndex((i) => (i + 1) % product.images.length);
@@ -14,9 +15,10 @@ export default function ComparisonCard({ product, removeFromCompare }) {
       <div className={styles.carousel}>
         <button onClick={prevImg}>❮</button>
         <img
-          src={product.images[imgIndex]}
+          src={import.meta.env.VITE_BACKEND_URL+ "/" + product.images[imgIndex]}
           alt={product.name}
           className="clickable-img"
+          height={100}
         />
         <button onClick={nextImg}>❯</button>
       </div>
@@ -31,13 +33,13 @@ export default function ComparisonCard({ product, removeFromCompare }) {
       <p><b>Zip Code:</b> {product.zipCode}</p>
       <button
         className={styles["remove-btn"]}
-        onClick={() => removeFromCompare(product.id)}
+        onClick={() => removeFromCompare(product._id)}
       >
         X
       </button>
-      <a href="#" style={{ display: "block", marginTop: "10px" }}>
+      <span style={{ display: "block", marginTop: "10px" }} onClick={deleteFromWishlist ? () => deleteFromWishlist(product._id) : null} className={styles["delete-wishlist"]}>
         Delete from Wishlist
-      </a>
+      </span>
     </div>
   );
 }

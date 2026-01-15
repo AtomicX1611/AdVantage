@@ -195,7 +195,7 @@ const SellerRequests = () => {
                     
                     {biddingPrice && (
                       <p style={{ fontSize: '0.9rem', color: '#16a34a', fontWeight: 'bold', marginTop: '5px' }}>
-                        Bidding Price: ${biddingPrice}
+                        Bidding Price: rs {biddingPrice}
                       </p>
                     )}
                   </div>
@@ -253,7 +253,7 @@ const SellerRequests = () => {
                 <div>
                   <h3>{item.name}</h3>
                   <p style={{ fontWeight: 'bold' }}>
-                    {item.isRental ? `Rent: $${item.price}/day` : `Price: $${item.price}`}
+                    {item.isRental ? `Rent: rs ${item.price}/day` : `Price: $${item.price}`}
                   </p>
                 </div>
                 

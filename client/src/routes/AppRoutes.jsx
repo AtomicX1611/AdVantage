@@ -31,16 +31,23 @@ import AuthLogin from "../pages/AuthLogin.jsx";
 import AuthSignup from "../pages/AuthSignup.jsx";
 import UpdatePassword from "../pages/UpdatePassword.jsx";
 import ErrorPage from "../pages/ErrorPage.jsx";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { loginSuccess,logout } from '../redux/authSlice';
 
 
 const ProtectedRoute = ({ element, allowedRoles }) => {
-  const { isAuth, user } = useSelector((state) => state.auth);
-  
+  const { isAuth, user, loading } = useSelector((state) => state.auth);
+
+  if (loading) {
+    return <div>Loading...</div>; // or spinner
+  }
+
   // If not authenticated, redirect to login
   if (!isAuth) {
     return <Navigate to="/login" replace />;
   }
-  
+
   // If allowedRoles is specified, check if user's role is allowed
   if (allowedRoles && allowedRoles.length > 0) {
     const userRole = user?.role || 'user';
@@ -51,7 +58,7 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
       return <Navigate to="/" replace />;
     }
   }
-  
+
   return element;
 };
 
@@ -69,6 +76,36 @@ const subsData = [
 ];
 
 const AppRoutes = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const saveUserInfoToStore = async () => {
+      const res = await fetch(
+        import.meta.env.VITE_BACKEND_URL + "/auth/me",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+
+      const data = await res.json();
+      if (!data.success) {
+        dispatch(logout());
+      }
+
+      dispatch(
+        loginSuccess({
+          email: data.info.email,
+          id: data.info._id,
+          role: data.info.role,
+          profilePicPath: data.info.profilePicPath,
+        })
+      );
+    };
+
+    saveUserInfoToStore();
+  }, [dispatch]);
+
   return (
     <Router>
       <Routes>
@@ -90,23 +127,26 @@ const AppRoutes = () => {
           <Route path="pending-transactions" element={<ProtectedRoute element={<PendingTxsPage />} allowedRoles={['user']} />} />
           <Route path="pending-payment/:id" element={<h1>New page pipeline to be decided yet</h1>} />
         </Route>
-        {/* Seller Routes - only sellers/users */}
-        <Route path="/seller/dashboard" element={<ProtectedRoute element={<SellerDashboardLayout />} allowedRoles={['user']} />}>
-          <Route index element={<Navigate to="for-sale" replace />} />
-          <Route path="for-sale" element={<SellerItems filterType="sale" />} />
-          <Route path="for-rent" element={<SellerItems filterType="rent" />} />
-          <Route path="sold" element={<SellerItems filterType="sold" />} />
-          <Route path="rented-out" element={<SellerItems filterType="rented" />} />
-          <Route path="requests" element={<SellerRequests />} />
-          <Route path="accepted-pending" element={<AcceptedProducts />} />
-        </Route>
 
-        <Route path="/seller" element={<ProtectedRoute element={<SellerHeaderLayout />} allowedRoles={['user']} />}>
+
+        <Route path="seller" element={<ProtectedRoute element={<SellerHeaderLayout />} allowedRoles={['user']} />}>
+
+          <Route index element={<Navigate to="dashboard" replace />} />
           {/* add routes for add product form , inbox, and /seller/dashboard with root elemetn as SellerLayout*/}
           <Route path="add-new-product" element={<ProtectedRoute element={<AddProductForm />} allowedRoles={['user']} />} />
           <Route path="chat" element={<ProtectedRoute element={<ChatPage />} allowedRoles={['user']} />} />
           <Route path="subscription" element={<ProtectedRoute element={<SubscriptionPage />} allowedRoles={['user']} />} />
-          <Route path="dashboard" element={<ProtectedRoute element={<SellerDashboardLayout />} allowedRoles={['user']} />} />
+          {/* <Route path="dashboard" element={<ProtectedRoute element={<SellerDashboardLayout />} allowedRoles={['user']} />} /> */}
+          {/* Seller Routes - only sellers/users */}
+          <Route path="dashboard" element={<ProtectedRoute element={<SellerDashboardLayout />} allowedRoles={['user']} />}>
+            <Route index element={<Navigate to="for-sale" replace />} />
+            <Route path="for-sale" element={<SellerItems filterType="sale" />} />
+            <Route path="for-rent" element={<SellerItems filterType="rent" />} />
+            <Route path="sold" element={<SellerItems filterType="sold" />} />
+            <Route path="rented-out" element={<SellerItems filterType="rented" />} />
+            <Route path="requests" element={<SellerRequests />} />
+            <Route path="accepted-pending" element={<AcceptedProducts />} />
+          </Route>
 
           <Route path="subscription/vip"
             element={

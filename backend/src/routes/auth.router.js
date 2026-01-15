@@ -4,7 +4,12 @@ import {
     buyerLogin,
     adminLogin,
     managerLogin,
+    getMyInfo,
 } from "../controllers/auth.controller.js";
+import {
+    checkToken,
+    serializeUser,
+} from "../middlewares/protect.js";
 
 export const router = express.Router();
 
@@ -20,5 +25,7 @@ router.post('/login', buyerLogin);
 router.post('/admin/login',adminLogin);
 //manager
 router.post('/manager/login',managerLogin);
+
+router.get("/me",checkToken,serializeUser,getMyInfo);
 
 export default router;

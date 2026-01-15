@@ -23,7 +23,6 @@ await connectDB();
 // body Parsing middleware
 app.use(cookieParser());
 
-//  FIXED CORS HERE — only this line changed 
 app.use(cors({
   origin: "http://localhost:5173",
   credentials:true
@@ -56,7 +55,6 @@ const server = app.listen(process.env.PORT, () => {
   console.log("Server listening on http://localhost:" + process.env.PORT);
 });
 
-//  FIXED SOCKET.IO CORS ALSO 
 export const io = new Server(server, {
   cors: {
     origin:"http://localhost:5173",

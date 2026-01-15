@@ -19,6 +19,8 @@ import {
 import {
     getBuyerById,
     findSellerSubsDao,
+    incrementUsedPostsDao,
+    resetUsedPostsDao,
 } from "../daos/users.dao.js"
 import {
     findProductsForSeller,
@@ -28,18 +30,30 @@ import { getAdminById, getAllAdmins } from "../daos/admins.dao.js";
 
 export const addProductService = async (req) => {
 
+    // async function isAllowed(sellerId) {
+    //     const arr = [10000, 50, 100];
+    //     const oneMonthAgo = new Date();
+    //     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    //     const filters = {
+    //         seller: sellerId,
+    //         postingDate: { $gte: oneMonthAgo },
+    //     }
+    //     const count = await countProductsDao(filters);
+    //     const subscription = (await findSellerSubsDao(sellerId)).subscription;
+    //     console.log("subscription : " + subscription + " count : " + count);
+    //     return (count < arr[subscription]);
+    // }
+
     async function isAllowed(sellerId) {
-        const arr = [15, 50, 100];
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        const filters = {
-            seller: sellerId,
-            postingDate: { $gte: oneMonthAgo },
+        const arr = [10001, 50, 100];
+        const seller = (await getBuyerById(sellerId));
+        // console.log(seller.windowStart);
+        if(!seller.windowStart || new Date(seller.windowStart).getFullYear() !== new Date().getFullYear() || new Date(seller.windowStart).getMonth() !== new Date().getMonth()){
+            await resetUsedPostsDao(sellerId);
+            seller.usedPosts = 0;
         }
-        const count = await countProductsDao(filters);
-        const subscription = (await findSellerSubsDao(sellerId)).subscription;
-        console.log("subscription : " + subscription + " count : " + count);
-        return (count < arr[subscription]);
+        // console.log("subscription : " + seller.subscription + " usedPosts : " + seller.usedPosts);
+        return (seller.usedPosts < arr[seller.subscription]);
     }
 
 
@@ -55,6 +69,8 @@ export const addProductService = async (req) => {
         isRental
     } = req.body;
     // console.log(req.body);
+
+    // console.log("fkldsj");
 
     const allowed = await isAllowed(req.user._id);
     if (!allowed) {
@@ -86,6 +102,7 @@ export const addProductService = async (req) => {
     };
     // console.log("product data: ", productData);
     const newProduct = await createProduct(productData);
+    await incrementUsedPostsDao(req.user._id);
     return newProduct;
 };
 
