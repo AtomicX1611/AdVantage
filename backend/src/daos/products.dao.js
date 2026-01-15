@@ -118,6 +118,7 @@ export const paymentDoneDao = async (buyerId, productId) => {
     product.requests = [];
     product.soldTo = buyerId;
     await product.save();
+    // delete 
     return { success: true, sellerId: product.seller, price: product.price };
 }
 
@@ -212,7 +213,7 @@ export const getYourProductsDao = async (buyerId) => {
 };
 
 export const getProductsSellerAccepted = async (buyerId) => {
-    const products = await Products.find({ sellerAcceptedTo: buyerId })
+    const products = await Products.find({ sellerAcceptedTo: buyerId ,soldTo: null})
         .populate('seller', 'username')
         .populate('requests.buyer', 'username');
     return products;

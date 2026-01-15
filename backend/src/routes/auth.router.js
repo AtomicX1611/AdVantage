@@ -5,6 +5,7 @@ import {
     adminLogin,
     managerLogin,
     getMyInfo,
+    userLogout
 } from "../controllers/auth.controller.js";
 import {
     checkToken,
@@ -16,6 +17,7 @@ export const router = express.Router();
 //buyer
 router.post('/signup', buyerSignup);
 router.post('/login', buyerLogin);
+router.delete("/logout",userLogout);
 
 // //seller
 // router.post('/seller/signup', sellerSignup);
