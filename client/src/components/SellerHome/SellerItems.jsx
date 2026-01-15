@@ -76,7 +76,7 @@ const SellerItems = ({ filterType }) => {
           credentials: "include",
         });
         const data = await response.json();
-        console.log(data.products);
+        console.log("data : ",data.products);
         setProducts(data.products);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -103,6 +103,35 @@ const SellerItems = ({ filterType }) => {
       alert("Error deleting product");
     }
   }
+
+  async function handleMakeAvailable(productId) {
+  try {
+    let response = await fetch(`http://localhost:3000/user/makeAvailable/${productId}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        "Content-type": "application/json"
+      }
+    });
+
+    let data = await response.json();
+
+    if (data.success) {
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product._id === productId ? { ...product, soldTo: null } : product
+        )
+      );
+      
+      alert("Item is now back in the available listings!");
+    } else {
+      alert(data.message || "Cannot mark available");
+    }
+  } catch (error) {
+    console.error("Error making product available:", error);
+    alert("Network error. Please try again.");
+  }
+}
 
   return (
     <div>
@@ -139,6 +168,15 @@ const SellerItems = ({ filterType }) => {
                       >
                         Delete Product
                       </button>}
+                  {(item.soldTo !== null && item.isRental) && 
+                      <button
+                        className={`${styles.btn} ${styles.btnAvl}`}
+                        style={{ width: "100%" }}
+                        onClick={() => handleMakeAvailable(item._id)}
+                      >
+                        Make Available
+                      </button>
+                  }
                 </div>
               </div>
             </div>

@@ -12,7 +12,7 @@ const SellerRequests = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await fetch('http://localhost:3000/user/products',{
+        const response = await fetch('http://localhost:3000/user/products', {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -21,15 +21,15 @@ const SellerRequests = () => {
         });
         const data = await response.json();
 
-        console.log("data: ",data.products)
+        console.log("data: ", data.products)
 
         if (data.success) {
           const activeRequests = data.products.filter((product) => {
             const hasRequests = product.requests && product.requests.length > 0;
-            const isNotSold = !product.soldTo; 
+            const isNotSold = !product.soldTo;
             return hasRequests && isNotSold;
           });
-          console.log("active requests: ",activeRequests);
+          console.log("active requests: ", activeRequests);
           setProductsWithRequests(activeRequests);
         } else {
           setError('Failed to load data');
@@ -54,10 +54,10 @@ const SellerRequests = () => {
   //           headers: { "Content-Type": "application/json" },
   //           credentials: "include",
   //         });
-  
+
   //         const data = await response.json();
   //         console.log("2. Fetch :", data);
-  
+
   //         if (data.success) {
   //           setMyAccount(data.myAccount);
   //         }
@@ -84,17 +84,17 @@ const SellerRequests = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
-        body: JSON.stringify({ productId})
+        body: JSON.stringify({ productId })
       });
 
       const data = await response.json();
-      console.log("data in accept: ",data);
+      console.log("data in accept: ", data);
 
       if (data.success) {
-        setProductsWithRequests((prevProducts) => 
+        setProductsWithRequests((prevProducts) =>
           prevProducts.filter(p => p._id !== productId)
         );
-        
+
         setSelectedProduct(null);
         alert("Request Accepted! Item moved to Sold/Rented.");
       } else {
@@ -106,94 +106,97 @@ const SellerRequests = () => {
     }
   };
 
-  const handleReject = async (productId,buyerId) => {
-    setError(null);
+  const handleReject = async (productId, buyerId) => {
+  setError(null);
 
-    try {
-      // set buyer id from request 
-      const response = await fetch(`http://localhost:3000/user/rejectRequest/${productId}/${buyerId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: "include",
-        body: JSON.stringify({ productId})
+  try {
+    const response = await fetch(`http://localhost:3000/user/rejectRequest/${productId}/${buyerId}`, {
+      method: 'DELETE',
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      const filterRequests = (requests) => 
+        requests.filter((req) => {
+          const idInRequest = req.buyer?._id || req.buyer; 
+          return idInRequest.toString() !== buyerId.toString();
+        });
+
+      setProductsWithRequests((prev) => {
+        return prev
+          .map((p) => {
+            if (p._id === productId) {
+              const newRequests = filterRequests(p.requests);
+              return { ...p, requests: newRequests };
+            }
+            return p;
+          })
+          .filter((p) => p.requests.length > 0);
+      });
+      setSelectedProduct((prev) => {
+        if (!prev) return null;
+        const newRequests = filterRequests(prev.requests);
+        return newRequests.length === 0 ? null : { ...prev, requests: newRequests };
       });
 
-      const data = await response.json();
-      console.log("data in reject: ",data);
-
-      if (data.success) {
-        const updatedRequests = selectedProduct.requests.filter(
-          (req) => req.buyer !== buyerId
-        );
-        const updatedProduct = { ...selectedProduct, requests: updatedRequests };
-
-        if (updatedRequests.length === 0) {
-          setProductsWithRequests((prev) => 
-            prev.filter(p => p._id !== productId)
-          );
-          setSelectedProduct(null);
-        } else {
-          setSelectedProduct(updatedProduct);
-          setProductsWithRequests((prev) => 
-            prev.map(p => (p._id === productId ? updatedProduct : p))
-          );
-        }
-      } else {
-        setError(data.message || "Failed to reject request.");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Network error while rejecting request.");
+    } else {
+      setError(data.message || "Failed to reject request.");
     }
-  };
+  } catch (err) {
+    console.error("Reject Error:", err);
+    setError("Network error while rejecting request.");
+  }
+};
 
   if (isLoading) return <div className={styles.content}>Loading requests...</div>;
-  if (error) return <div className={styles.content} style={{color: 'red'}}>{error}</div>;
+  if (error) return <div className={styles.content} style={{ color: 'red' }}>{error}</div>;
 
   if (selectedProduct) {
     return (
       <div>
-        <button 
-          onClick={handleBack} 
-          className={styles.btn} 
+        <button
+          onClick={handleBack}
+          className={styles.btn}
           style={{ color: '#333', paddingLeft: 0, marginBottom: '20px' }}
         >
           ← Back to All Requests
         </button>
-        
+
         <h2>Requests for: {selectedProduct.name}</h2>
-        
+
         <div style={{ marginTop: '20px' }}>
           {selectedProduct.requests.map((req, index) => {
             // Note: We assume backend .populate('requests.buyer') so we have name/email
             // If backend only sends ID, you won't see a name here.
-            const buyerName = req.buyer?.username || "Interested Buyer"; 
+            const buyerName = req.buyer?.username || "Interested Buyer";
             const buyerId = req.buyer?._id || req._id; // Fallback for ID
             const biddingPrice = req.biddingPrice;
-            console.log("Request buyer: ",buyerName, buyerId);
+            console.log("Request buyer: ", buyerName, buyerId);
             return (
               <div key={req._id || index} className={styles.requestRow}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                  <div style={{ 
-                      width: '40px', height: '40px', borderRadius: '50%', 
-                      background: '#0f172a', color: 'white', display: 'flex', 
-                      alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'
-                    }}>
+                  <div style={{
+                    width: '40px', height: '40px', borderRadius: '50%',
+                    background: '#0f172a', color: 'white', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'
+                  }}>
                     {buyerName.charAt(0).toUpperCase()}
                   </div>
-                  
+
                   <div>
                     <strong>{buyerName}</strong>
-                    
+
                     {selectedProduct.isRental && req.from && req.to ? (
                       <p style={{ fontSize: '0.9rem', color: '#666' }}>
-                        Requested Dates: <br/>
+                        Requested Dates: <br />
                         {new Date(req.from).toLocaleDateString()} - {new Date(req.to).toLocaleDateString()}
                       </p>
                     ) : (
                       <p>Wants to buy this item</p>
                     )}
-                    
+
                     {biddingPrice && (
                       <p style={{ fontSize: '0.9rem', color: '#16a34a', fontWeight: 'bold', marginTop: '5px' }}>
                         Bidding Price: rs {biddingPrice}
@@ -201,21 +204,21 @@ const SellerRequests = () => {
                     )}
                   </div>
                 </div>
-                
+
                 <div>
-                   <button 
-                     className={`${styles.btn} ${styles.btnAdd}`} 
-                     style={{ marginRight: '10px' }}
-                     onClick={() => handleAccept(selectedProduct._id,req.buyer._id)}
-                   >
-                     Accept
-                   </button>
-                   <button 
-                     className={`${styles.btn} ${styles.btnLogout}`}
-                     onClick={() => handleReject(selectedProduct._id,req.buyer._id)}
-                   >
-                     Reject
-                   </button>
+                  <button
+                    className={`${styles.btn} ${styles.btnAdd}`}
+                    style={{ marginRight: '10px' }}
+                    onClick={() => handleAccept(selectedProduct._id, req.buyer._id)}
+                  >
+                    Accept
+                  </button>
+                  <button
+                    className={`${styles.btn} ${styles.btnLogout}`}
+                    onClick={() => handleReject(selectedProduct._id, req.buyer._id)}
+                  >
+                    Reject
+                  </button>
                 </div>
               </div>
             );
@@ -232,24 +235,24 @@ const SellerRequests = () => {
         {productsWithRequests.length > 0 ? (
           productsWithRequests.map((item) => (
             <div key={item._id} className={styles.card}>
-              
+
               <div className={styles.cardImageContainer}>
-                <img 
-                  src={item.images && item.images.length > 0 ? `http://localhost:3000/${item.images[0].replace(/\\/g, '/')}` : 'https://placehold.co/300x300?text=No+Image'} 
-                  alt={item.name} 
-                  className={styles.cardImage} 
+                <img
+                  src={item.images && item.images.length > 0 ? `http://localhost:3000/${item.images[0].replace(/\\/g, '/')}` : 'https://placehold.co/300x300?text=No+Image'}
+                  alt={item.name}
+                  className={styles.cardImage}
                 />
 
                 <div style={{
-                  position: 'absolute', top: '10px', right: '10px', 
-                  background: '#333', color: 'white', padding: '5px 10px', 
+                  position: 'absolute', top: '10px', right: '10px',
+                  background: '#333', color: 'white', padding: '5px 10px',
                   borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                 }}>
                   {item.requests.length} Requests
                 </div>
               </div>
-              
+
               <div className={styles.cardDetails}>
                 <div>
                   <h3>{item.name}</h3>
@@ -257,23 +260,23 @@ const SellerRequests = () => {
                     {item.isRental ? `Rent: rs ${item.price}/day` : `Price: $${item.price}`}
                   </p>
                 </div>
-                
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: 'auto' }}>
-                  <button 
-                    className={`${styles.btn} ${styles.btnAdd}`} 
+                  <button
+                    className={`${styles.btn} ${styles.btnAdd}`}
                     style={{ width: '100%' }}
                     onClick={() => handleViewRequests(item)}
                   >
                     View Requests
                   </button>
 
-                  <button 
-                     className={styles.btn}
-                     style={{ 
-                       width: '100%', 
-                       border: '1px solid #ccc', 
-                       color: '#333' 
-                     }}
+                  <button
+                    className={styles.btn}
+                    style={{
+                      width: '100%',
+                      border: '1px solid #ccc',
+                      color: '#333'
+                    }}
                   >
                     View Details
                   </button>

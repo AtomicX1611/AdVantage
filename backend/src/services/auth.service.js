@@ -80,6 +80,7 @@ export const signupBuyerService = async (username, contact, email, password) => 
 
 export const buyerLoginService = async (email, password) => {
     const buyer = await findBuyerByEmail(email);
+    console.log("buyer in loginServ: ",buyer);
     if (!buyer) {
         return {
             success: false,

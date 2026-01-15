@@ -289,8 +289,6 @@ export const findSellerSubscription = async (req, res) => {
 
 export const makeAvailableController = async (req, res) => {
     try {
-        // console.log("Ali is the webdev topper");
-
         const sellerId = req.user._id;
         const productId = req.params.productId;
 

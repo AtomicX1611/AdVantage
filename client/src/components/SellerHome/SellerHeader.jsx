@@ -1,9 +1,12 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from '../../styles/sellerdashboard.module.css';
+import {useDispatch} from 'react-redux'
+import { logout } from '../../redux/authSlice';
 
 const SellerHeader = ({ toggleSidebar }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogout = async () => {
     try {
@@ -13,6 +16,8 @@ const SellerHeader = ({ toggleSidebar }) => {
       });
       let data = await response.json();
       if (data.success) {
+        // redux update
+        dispatch(logout());
         navigate("/");
       }
     } catch (error) {
