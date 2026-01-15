@@ -78,6 +78,7 @@ const SellerRequests = () => {
 
   const handleAccept = async (productId, buyerId) => {
     setError(null);
+    // console.log("buyerId: ",buyerId);
     try {
       const response = await fetch(`http://localhost:3000/user/acceptRequest/${productId}/${buyerId}`, {
         method: 'POST',
@@ -205,13 +206,13 @@ const SellerRequests = () => {
                    <button 
                      className={`${styles.btn} ${styles.btnAdd}`} 
                      style={{ marginRight: '10px' }}
-                     onClick={() => handleAccept(selectedProduct._id,req.buyer)}
+                     onClick={() => handleAccept(selectedProduct._id,req.buyer._id)}
                    >
                      Accept
                    </button>
                    <button 
                      className={`${styles.btn} ${styles.btnLogout}`}
-                     onClick={() => handleReject(selectedProduct._id,req.buyer)}
+                     onClick={() => handleReject(selectedProduct._id,req.buyer._id)}
                    >
                      Reject
                    </button>

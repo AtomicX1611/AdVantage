@@ -272,3 +272,25 @@ export const getMyInfo = async (req, res) => {
         })
     }
 };
+
+export const userLogout = async (req, res) => {
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,
+        });
+
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: "User logged out successfully",
+        });
+        
+    } catch (error) {
+        console.error("Logout Error:", error);
+        return res.status(500).json({
+            status: 500,
+            success: false,
+            message: "An error occurred during logout",
+        });
+    }
+};

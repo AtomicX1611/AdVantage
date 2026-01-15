@@ -14,13 +14,13 @@ const ChatPage = () => {
   // const { currentUser2, setCurrentUser2 } = useContext(CurrentUserContext);
 
   const [socket, setSocket] = useState(null);
-  const [senders, setSenders] = useState([  // set this with fetch request to get contacts
-    { _id: "seller1", username: "Alice" },
-    { _id: "seller2", username: "Bob" },
-    { _id: "seller3", username: "Charlie" },
-  ]);
+  const [senders, setSenders] = useState([]);
 
-  const [selectedSender, setSelectedSender] = useState(null);
+  /*
+    State to store who is the current chatting user
+    when updating check if newSender is already current sender
+  */ 
+  const [selectedSender, setSelectedSender] = useState(null); 
   const [messages, setMessages] = useState([]);
 
   
@@ -112,6 +112,10 @@ const ChatPage = () => {
   }, [socket, selectedSender]);
 
   const handleSelectSender = (sender) => {
+    if(selectedSender && selectedSender._id === sender._id) {
+      console.log("Already current one");
+      return;
+    }
     setSelectedSender(sender);
     setMessages([]);
   };

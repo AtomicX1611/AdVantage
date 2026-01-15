@@ -5,6 +5,22 @@ import styles from '../../styles/sellerdashboard.module.css';
 const SellerHeader = ({ toggleSidebar }) => {
   const navigate = useNavigate();
 
+  const handleLogout = async () => {
+    try {
+      let response = await fetch("http://localhost:3000/auth/logout", {
+        method: "DELETE",
+        credentials: "include",
+      });
+      let data = await response.json();
+      if (data.success) {
+        navigate("/");
+      }
+    } catch (error) {
+      alert("Logout failed. Please try again.");
+      console.error("Logout Error:", error);
+    }
+  };
+
   return (
     <header className={styles.header}>
       <div className={styles.brand}>
@@ -30,7 +46,7 @@ const SellerHeader = ({ toggleSidebar }) => {
           + Add Product
         </Link>
 
-        <button className={`${styles.btn} ${styles.btnLogout}`}>
+        <button className={`${styles.btn} ${styles.btnLogout}`} onClick={handleLogout}>
           Logout
         </button>
       </div>
