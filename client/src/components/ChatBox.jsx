@@ -1,14 +1,32 @@
 // src/components/ChatBox.jsx
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import MessageBubble from "./MessageBubble";
 import styles from "../styles/buyerchat.module.css";
 
 const ChatBox = ({ currentUser, selectedSender, messages, onSendMessage }) => {
   const [text, setText] = useState("");
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSend = () => {
-    onSendMessage(text);
-    setText("");
+    if (text.trim()) {
+      onSendMessage(text);
+      setText("");
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   return (
@@ -24,18 +42,20 @@ const ChatBox = ({ currentUser, selectedSender, messages, onSendMessage }) => {
         {messages.map((msg, index) => (
           <MessageBubble key={index} msg={msg} selectedSender={selectedSender} currentUser={currentUser} />
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
-      <div className={styles['type']}>
+      <div className={styles.type}>
         <textarea
           className={styles['text-box']}
-          placeholder="Type a message"
+          placeholder="Type a message..."
           value={text}
           onChange={(e) => setText(e.target.value)}
+          onKeyPress={handleKeyPress}
         />
-        <div className={styles['send-btn']} onClick={handleSend}>
+        <button className={styles['send-btn']} onClick={handleSend}>
           Send <i className="bx bx-send"></i>
-        </div>
+        </button>
       </div>
     </div>
   );

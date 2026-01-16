@@ -92,7 +92,9 @@ const Header = () => {
 
             <div className={classes.box3}>
               <div className={`${classes.hover} ${classes.box2Icons} ${classes.heart}`}>
-                <span onClick={() => navigate('/wishlist')}><i className='bx bx-heart'></i></span>
+                <a href="#" onClick={(e) => { e.preventDefault(); navigate('/wishlist'); }}>
+                  <img src="/Assets/heartblack.png" alt="Wishlist" style={{ width: '28px', height: '28px' }} />
+                </a>
               </div>
               <div
                 className={`${classes.hover} ${classes.box2Icons} ${classes.notifications} ${classes.alert}`}
