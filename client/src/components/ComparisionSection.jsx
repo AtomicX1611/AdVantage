@@ -2,7 +2,7 @@ import React from "react";
 import ComparisonCard from "./ComparisonCard";
 import styles from "../styles/wishlist.module.css";
 
-export default function ComparisonSection({ products, removeFromCompare }) {
+export default function ComparisonSection({ products, removeFromCompare, deleteFromWishlist }) {
   return (
     <div className={styles.main}>
       <h2>Compare Products</h2>
@@ -12,6 +12,7 @@ export default function ComparisonSection({ products, removeFromCompare }) {
             key={p.id}
             product={p}
             removeFromCompare={removeFromCompare}
+            deleteFromWishlist={deleteFromWishlist}
           />
         ))}
       </div>

@@ -12,6 +12,10 @@ const PendingTxsPage = () => {
 	const [error, setError] = useState("");
 	const navigate = useNavigate();
 
+	/*
+		UseEffect to load pending transactions from backend for the logged in user
+		Endpoint : /user/pendingRequests
+	*/
 	useEffect(() => {
 		const fetchPending = async () => {
 			try {

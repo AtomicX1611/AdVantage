@@ -10,7 +10,9 @@ const ChatSidebar = ({ senders, onSelectSender}) => {
         <h1>CHATS</h1>
       </div>
       <div className={styles.contacts}>
-        {senders.map((sender) => (
+        {senders.length === 0 ? 
+        <p>You have no contacts</p> :
+        senders.map((sender) => (
           <ContactItem key={sender._id} sender={sender} onSelectSender={onSelectSender}/>
         ))}
       </div>

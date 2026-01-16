@@ -74,7 +74,7 @@ export const updateBuyerPassById = async (buyerId, newPassword) => {
 export const findSellerSubsDao = async (userId) => {
     try {
         const seller = await Users.findById(userId).select("subscription");
-        
+
         if (!seller) {
             return {
                 success: false,
@@ -94,6 +94,20 @@ export const findSellerSubsDao = async (userId) => {
         };
     }
 };
+
+export const incrementUsedPostsDao = async (userId) => {
+    await Users.updateOne(
+        { _id: userId },
+        { $inc: { usedPosts: 1 } }
+    );
+}
+
+export const resetUsedPostsDao = async (userId) => {
+    await Users.updateOne(
+        { _id: userId },
+        { $set: { usedPosts: 0, windowStart: new Date() } }
+    );
+}
 
 export const getAllUsers = async () => {
     return await Users.find().lean();

@@ -8,7 +8,7 @@ export default function WishlistSidebar({ products, addToCompare }) {
       <h2>Wishlist</h2>
       <div id="product-list" className={styles["product-list"]}>
         {products.map((p) => (
-          <ProductItem key={p.id} product={p} addToCompare={addToCompare} />
+          <ProductItem key={p._id} product={p} addToCompare={addToCompare} />
         ))}
       </div>
     </div>
