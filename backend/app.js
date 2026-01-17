@@ -14,6 +14,7 @@ import { chatRouter } from "./src/routes/chat.routes.js";
 import { Server } from "socket.io";
 import { socketActions } from "./src/controllers/socket.contoller.js";
 import { managerRouter } from "./src/routes/manager.router.js";
+import { errorMiddleware } from "./src/middlewares/error.middleware.js";
 // import { router } from "./src/routes/payment.router.js";
 import { seedData } from "./data.js";
 
@@ -49,6 +50,8 @@ app.get('/shutdown', (req, res) => {
     process.exit(0);
   });
 });
+
+app.use(errorMiddleware);
 
 const server = app.listen(process.env.PORT, () => {
   // seedData();

@@ -13,7 +13,7 @@ import {
     getPendingRequestsService,
 } from "../services/buyer.service.js";
 
-export const updateBuyerProfile = async (req, res) => {
+export const updateBuyerProfile = async (req, res, next) => {
     try {
         const buyerId = req.user._id;
         const updateData = req.body;
@@ -50,14 +50,11 @@ export const updateBuyerProfile = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 };
 
-export const addToWishlist = async (req, res) => {
+export const addToWishlist = async (req, res, next) => {
     try {
         const userId = req.user._id;
         const productId = req.params.productId;
@@ -70,35 +67,29 @@ export const addToWishlist = async (req, res) => {
                 message: response.message
             });
         }
-    console.log("gettiasdadang wishlist in backend"); 
+        console.log("gettiasdadang wishlist in backend");
         return res.status(200).json({
             success: true,
             message: response.message
         });
 
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 };
 
-export const getPendingRequests = async (req, res) => {
+export const getPendingRequests = async (req, res, next) => {
     try {
         const buyerId = req.user._id;
         const response = await getPendingRequestsService(buyerId);
         return res.status(response.status).json(response);
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 };
 
-export const removeFromWishlist = async (req, res) => {
+export const removeFromWishlist = async (req, res, next) => {
     try {
         const userId = req.user._id;
         const productId = req.params.productId;
@@ -118,14 +109,11 @@ export const removeFromWishlist = async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 };
 
-export const getWishlistProducts = async (req, res) => {
+export const getWishlistProducts = async (req, res, next) => {
     try {
         // console.log("fdskjf");
         const userId = req.user._id;
@@ -144,14 +132,11 @@ export const getWishlistProducts = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 }
 
-export const requestProduct = async (req, res) => {
+export const requestProduct = async (req, res, next) => {
     try {
         const buyerId = req.user._id;
         const productId = req.params.productId;
@@ -161,7 +146,7 @@ export const requestProduct = async (req, res) => {
             return res.status(404).json({ message: "Missing buyerId or productId or biddingPrice" });
         }
         const response = await requestProductService(productId, buyerId, biddingPrice);
-        console.log("response in contr: ",response);
+        console.log("response in contr: ", response);
         if (!response.success) {
             return res.status(response.status || 400).json({
                 success: false,
@@ -176,14 +161,15 @@ export const requestProduct = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
+        // return res.status(500).json({
+        //     success: false,
+        //     message: error.message || "Internal server error"
+        // });
     }
 };
 
-export const paymentDone = async (req, res) => {
+export const paymentDone = async (req, res, next) => {
     try {
         const buyerId = req.user._id;
         const productId = req.params.productId;
@@ -205,14 +191,11 @@ export const paymentDone = async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 };
 
-export const notInterested = async (req, res) => {
+export const notInterested = async (req, res, next) => {
     try {
         const buyerId = req.user._id;
         const productId = req.params.productId;
@@ -234,14 +217,11 @@ export const notInterested = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 };
 
-export const updateBuyerPassword = async (req, res) => {
+export const updateBuyerPassword = async (req, res, next) => {
     try {
         // console.log("coming to buyerPassword");
         const { oldPassword, newPassword } = req.body;
@@ -264,13 +244,11 @@ export const updateBuyerPassword = async (req, res) => {
             message: "password updated successfully",
         });
     } catch (error) {
-        return res.status(500).json({
-            message: error
-        });
+        next(error);
     }
 }
 
-export const getYourProducts = async (req, res) => {
+export const getYourProducts = async (req, res, next) => {
     try {
         const userId = req.user._id;
         const response = await getYourProductsService(userId);
@@ -285,37 +263,36 @@ export const getYourProducts = async (req, res) => {
             products: response.products,
         });
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 }
 
-export const rentProductController = async (req, res) => {
-    const buyerId = req.user._id;
-    const productId = req.params.productId;
-    const { from, to, biddingPrice } = req.body;
+export const rentProductController = async (req, res, next) => {
+    try {
+        const buyerId = req.user._id;
+        const productId = req.params.productId;
+        const { from, to, biddingPrice } = req.body;
 
-    if (!buyerId || !productId || !from || !to || !biddingPrice) {
-        return res.status(404).json({ message: "Missing buyerId or productId or from or to or biddingPrice" });
+        if (!buyerId || !productId || !from || !to || !biddingPrice) {
+            return res.status(404).json({ message: "Missing buyerId or productId or from or to or biddingPrice" });
+        }
+
+        let respose = await rentService(buyerId, productId, from, to, biddingPrice);
+
+        return res.status(respose.status).json({ success: respose.success, message: respose.message });
+    } catch (error) {
+        console.log(error);
+        next(error);
     }
-
-    let respose = await rentService(buyerId, productId, from, to, biddingPrice);
-
-    return res.status(respose.status).json({ success: respose.success, message: respose.message });
 }
 
-export const getYourProfile = async (req, res) => {
+export const getYourProfile = async (req, res, next) => {
     try {
         const buyerId = req.user._id;
         const response = await getYouProfileService(buyerId);
         return res.status(response.status).json(response);
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 }
