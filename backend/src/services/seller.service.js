@@ -27,6 +27,11 @@ import {
 } from "../daos/products.dao.js";
 import { createPayment } from "../daos/payment.dao.js";
 import { getAdminById, getAllAdmins } from "../daos/admins.dao.js";
+import {
+    createRequestAcceptedNotification,
+    createRequestRejectedNotification,
+    createRequestRevokedNotification,
+} from "../helpers/notification.helper.js";
 
 export const addProductService = async (req) => {
 
@@ -266,7 +271,12 @@ export const acceptProductRequestService = async (productId, buyerId) => {
         };
         return { success: false, ...messages[result.reason] };
     }
-
+    await createRequestAcceptedNotification(
+        buyerId,
+        result.sellerId,
+        productId,
+        result.productName
+    );
     return { success: true, message: "Request accepted and notification sent to the buyer" };
 };
 
@@ -280,7 +290,12 @@ export const revokeAcceptedRequestService = async (productId) => {
         };
         return { success: false, ...messages[result.reason] };
     }
-
+    await createRequestRevokedNotification(
+        result.buyerId,
+        result.sellerId,
+        productId,
+        result.productName
+    );
     return { success: true, message: "Accepted request revoked successfully" };
 };
 
@@ -294,7 +309,12 @@ export const rejectProductRequestService = async (productId, buyerId) => {
         };
         return { success: false, ...messages[result.reason] };
     }
-
+    await createRequestRejectedNotification(
+        buyerId,
+        result.sellerId,
+        productId,
+        result.productName
+    );
     return { success: true, message: "Request rejected successfully" };
 };
 

@@ -16,6 +16,8 @@ import {
     getProductsSellerAccepted,
 } from "../daos/products.dao.js";
 import { createPayment } from "../daos/payment.dao.js";
+import { createNewRequestNotification, createProductSoldNotification } from "../helpers/notification.helper.js";
+import { getNotificationsByRecipient } from "../daos/notifications.dao.js";
 
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
 
@@ -93,6 +95,29 @@ export const getWishlistProductsService = async (userId) => {
     };
 }
 
+export const getYourNotificationsService = async (userId) => {
+    const result = await getNotificationsByRecipient(userId, 'Users', { includeRead: false, limit: 50, skip: 0 });
+
+    // console.log(result);
+
+    // if (!result.success) {
+    //     if (result.reason === "not_found") {
+    //         return { success: false, status: 404, message: "User not found" };
+    //     }
+    //     return {
+    //         success: false,
+    //         message: "Unknown error...",
+    //         status: 500,
+    //     }
+    // }
+
+    return {
+        success: true,
+        // message: result.length > 0 ? "Notifications fetched successfully" : "No new notifications",
+        notifications: result,
+    };
+}
+
 export const getPendingRequestsService = async (buyerId) => {
     const pendingRequests = await getProductsSellerAccepted(buyerId); 
     if (!pendingRequests) {
@@ -137,7 +162,13 @@ export const requestProductService = async (productId, buyerId, biddingPrice) =>
         };
         return { success: false, ...messages[result.reason] };
     }
-
+    await createNewRequestNotification(
+        result.sellerId,
+        buyerId,
+        productId,
+        result.productName,
+        biddingPrice
+    );
     return { success: true, message: "Request sent successfully" };
 };
 
@@ -165,7 +196,13 @@ export const paymentDoneService = async (buyerId, productId) => {
     };
 
     const payment = await createPayment(paymentData);
-
+    await createProductSoldNotification(
+        result.sellerId,
+        buyerId,
+        productId,
+        result.productName,
+        result.price
+    );
     return { success: true, message: "Payment confirmed successfully",payment: payment  };
 };
 

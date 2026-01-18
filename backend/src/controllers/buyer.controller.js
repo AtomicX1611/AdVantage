@@ -11,6 +11,7 @@ import {
     paymentDoneService,
     notInterestedService,
     getPendingRequestsService,
+    getYourNotificationsService,
 } from "../services/buyer.service.js";
 
 export const updateBuyerProfile = async (req, res, next) => {
@@ -140,6 +141,7 @@ export const requestProduct = async (req, res, next) => {
     try {
         const buyerId = req.user._id;
         const productId = req.params.productId;
+        console.log(req.body);
         const { biddingPrice } = req.body;
 
         if (!buyerId || !productId || !biddingPrice) {
@@ -153,14 +155,13 @@ export const requestProduct = async (req, res, next) => {
                 message: response.message
             });
         }
-
         return res.status(200).json({
             success: true,
             message: response.message
         });
 
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         next(error);
         // return res.status(500).json({
         //     success: false,
@@ -191,6 +192,33 @@ export const paymentDone = async (req, res, next) => {
         });
 
     } catch (error) {
+        next(error);
+    }
+};
+
+export const getYourNotifications = async (req, res, next) => {
+    try {
+        const buyerId = req.user._id;
+        if (!buyerId) {
+            return res.status(404).json({ message: "Missing buyerId" });
+        }
+        const response = await getYourNotificationsService(buyerId);
+
+        if (!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            notifications: response.notifications,
+            // message: response.message,
+        });
+
+    } catch (error) {
+        console.log(error);
         next(error);
     }
 };
