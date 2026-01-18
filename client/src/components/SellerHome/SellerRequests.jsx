@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import styles from '../../styles/sellerdashboard.module.css';
 
 const SellerRequests = () => {
+  const location = useLocation();
   const [productsWithRequests, setProductsWithRequests] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [myAccount, setMyAccount] = useState("");
+  const [pendingProductId, setPendingProductId] = useState(null);
   const backendURL = "http://localhost:3000/";
+
+  // Check if we navigated here with a specific product ID (from notification)
+  useEffect(() => {
+    if (location.state?.productId) {
+      setPendingProductId(location.state.productId);
+      // Clear the state so refreshing doesn't re-trigger
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -31,6 +43,15 @@ const SellerRequests = () => {
           });
           console.log("active requests: ", activeRequests);
           setProductsWithRequests(activeRequests);
+
+          // If we came from a notification, auto-open that product's requests
+          if (pendingProductId) {
+            const targetProduct = activeRequests.find(p => p._id === pendingProductId);
+            if (targetProduct) {
+              setSelectedProduct(targetProduct);
+            }
+            setPendingProductId(null);
+          }
         } else {
           setError('Failed to load data');
         }
@@ -43,7 +64,7 @@ const SellerRequests = () => {
     };
 
     fetchRequests();
-  }, []);
+  }, [pendingProductId]);
 
   // useEffect(() => {
   //     async function fetchContacts() {
