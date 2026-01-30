@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import OrderHeader from "../components/OrderHeader.component";
 import PendingTransactionCard from "../components/PendingTransactionCard";
 import API_CONFIG from "../config/api.config";
 import styles from "../styles/pendingtxs.module.css";
@@ -41,77 +40,92 @@ const PendingTxsPage = () => {
 				setError("Something went wrong while fetching pending requests");
 				setPending([]);
 			} finally {
-				setLoading(false); // Ensure loading stops regardless of success/fail
+				setLoading(false);
 			}
 		};
 
 		fetchPending();
 	}, [backendURL]);
 
-	// Placeholder for the handlePay logic (this was missing in your snippet)
 	const handlePay = async (item) => {
 		console.log("Pay clicked for:", item);
-		let response=await fetch(`http://localhost:3000/user/paymentDone/${item._id}`,{
-			method:"POST",
-			credentials:"include",
-			headers: { "Content-Type": "application/json" },	
+		let response = await fetch(`${backendURL}/user/paymentDone/${item._id}`, {
+			method: "POST",
+			credentials: "include",
+			headers: { "Content-Type": "application/json" },
 		});
-		let data=await response.json();
-		if(data.success){
+		let data = await response.json();
+		if (data.success) {
 			alert("Payment Successful");
-			navigate('/yourProducts'); // working
-		}else {
+			navigate('/yourProducts');
+		} else {
 			alert("Payment Failed");
 		}
 	};
 
 	const handleNotInterested = async (item) => {
 		console.log("Not Interested clicked for:", item);
-		let response=await fetch(`http://localhost:3000/user/notInterested/${item._id}`,{
-			method:"POST",
-			credentials:"include",
+		let response = await fetch(`${backendURL}/user/notInterested/${item._id}`, {
+			method: "POST",
+			credentials: "include",
 			headers: { "Content-Type": "application/json" },
 		});
-		let data=await response.json();
+		let data = await response.json();
 
-		if(data.success){
+		if (data.success) {
 			alert("Marked as Not Interested");
 			setPending(prevPending => prevPending.filter(p => p._id !== item._id));
-		}else {
+		} else {
 			alert("Failed to mark as Not Interested");
 		}
 	};
 
 	return (
 		<div className={styles.window}>
-			{/* <OrderHeader /> */}
 			<div className={styles["main-container"]}>
-				<div style={{ padding: "0.5rem 1rem" }}>
-					<h2>Pending Transactions</h2>
+				<div className={styles.header}>
+					<h1 className={styles.pageTitle}>Pending Transactions</h1>
 				</div>
 
-				{loading && <div className={styles.status}>Loading pending transactions...</div>}
-				
+				{loading && (
+					<div className={styles.loadingContainer}>
+						<div className={styles.loadingSpinner}></div>
+						<span className={styles.loadingText}>Loading your pending transactions...</span>
+					</div>
+				)}
+
 				{!loading && error && (
-					<div style={{ color: "red", padding: "0.5rem 1rem" }}>{error}</div>
+					<div className={styles.errorContainer}>
+						<div className={styles.errorIcon}>⚠️</div>
+						<p className={styles.errorText}>{error}</p>
+					</div>
 				)}
 
 				{!loading && !error && (
-					<div className={styles["product_list"]}>
+					<>
 						{pending.length === 0 ? (
-							<div className={styles.status}>No pending transactions.</div>
+							<div className={styles.emptyState}>
+								<div className={styles.emptyIcon}>📋</div>
+								<h3 className={styles.emptyTitle}>No Pending Transactions</h3>
+								<p className={styles.emptyText}>
+									You don't have any pending transactions at the moment. 
+									When a seller accepts your request, it will appear here.
+								</p>
+							</div>
 						) : (
-							pending.map((item) => (
-								<PendingTransactionCard
-									key={item._id}
-									item={item}
-									backendURL={backendURL}
-									onPay={handlePay}
-									onNotInterested={handleNotInterested}
-								/>
-							))
+							<div className={styles.product_list}>
+								{pending.map((item) => (
+									<PendingTransactionCard
+										key={item._id}
+										item={item}
+										backendURL={backendURL}
+										onPay={handlePay}
+										onNotInterested={handleNotInterested}
+									/>
+								))}
+							</div>
 						)}
-					</div>
+					</>
 				)}
 			</div>
 		</div>
