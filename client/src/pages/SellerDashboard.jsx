@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import SellerHeader from '../components/SellerHome/SellerHeader';
 import SellerSidebar from '../components/SellerHome/SellerSidebar.jsx';
 import styles from '../styles/sellerdashboard.module.css';
 
@@ -13,8 +12,6 @@ const SellerLayout = () => {
 
   return (
     <div className={styles.container}>
-      {/* <SellerHeader toggleSidebar={toggleSidebar} /> */}
-
       <div className={styles.mainBody}>
         <SellerSidebar isOpen={isSidebarOpen} />
         <main className={styles.content}>

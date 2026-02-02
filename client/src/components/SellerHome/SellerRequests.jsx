@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../../styles/sellerdashboard.module.css';
+import { API_CONFIG } from '../../config/api.config';
+
+const backendURL = API_CONFIG.BACKEND_URL;
 
 const SellerRequests = () => {
   const [productsWithRequests, setProductsWithRequests] = useState([]);
@@ -7,12 +10,11 @@ const SellerRequests = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [myAccount, setMyAccount] = useState("");
-  const backendURL = "http://localhost:3000/";
 
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await fetch('http://localhost:3000/user/products', {
+        const response = await fetch(`${backendURL}/user/products`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -78,9 +80,8 @@ const SellerRequests = () => {
 
   const handleAccept = async (productId, buyerId) => {
     setError(null);
-    // console.log("buyerId: ",buyerId);
     try {
-      const response = await fetch(`http://localhost:3000/user/acceptRequest/${productId}/${buyerId}`, {
+      const response = await fetch(`${backendURL}/user/acceptRequest/${productId}/${buyerId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
@@ -110,7 +111,7 @@ const SellerRequests = () => {
   setError(null);
 
   try {
-    const response = await fetch(`http://localhost:3000/user/rejectRequest/${productId}/${buyerId}`, {
+    const response = await fetch(`${backendURL}/user/rejectRequest/${productId}/${buyerId}`, {
       method: 'DELETE',
       credentials: "include",
     });
@@ -150,8 +151,24 @@ const SellerRequests = () => {
   }
 };
 
-  if (isLoading) return <div className={styles.content}>Loading requests...</div>;
-  if (error) return <div className={styles.content} style={{ color: 'red' }}>{error}</div>;
+  if (isLoading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner}></div>
+        <p className={styles.loadingText}>Loading requests...</p>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className={styles.emptyState}>
+        <span className={styles.emptyIcon}>⚠️</span>
+        <h3 className={styles.emptyTitle}>Something went wrong</h3>
+        <p className={styles.emptyText}>{error}</p>
+      </div>
+    );
+  }
 
   if (selectedProduct) {
     return (
@@ -159,7 +176,7 @@ const SellerRequests = () => {
         <button
           onClick={handleBack}
           className={styles.btn}
-          style={{ color: '#333', paddingLeft: 0, marginBottom: '20px' }}
+          style={{ color: '#12344d', paddingLeft: 0, marginBottom: '20px', fontWeight: '600' }}
         >
           ← Back to All Requests
         </button>
@@ -168,19 +185,17 @@ const SellerRequests = () => {
 
         <div style={{ marginTop: '20px' }}>
           {selectedProduct.requests.map((req, index) => {
-            // Note: We assume backend .populate('requests.buyer') so we have name/email
-            // If backend only sends ID, you won't see a name here.
             const buyerName = req.buyer?.username || "Interested Buyer";
-            const buyerId = req.buyer?._id || req._id; // Fallback for ID
+            const buyerId = req.buyer?._id || req._id;
             const biddingPrice = req.biddingPrice;
             console.log("Request buyer: ", buyerName, buyerId);
             return (
               <div key={req._id || index} className={styles.requestRow}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                   <div style={{
-                    width: '40px', height: '40px', borderRadius: '50%',
-                    background: '#0f172a', color: 'white', display: 'flex',
-                    alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'
+                    width: '44px', height: '44px', borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #12344d 0%, #1a5276 100%)', color: 'white', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.1rem'
                   }}>
                     {buyerName.charAt(0).toUpperCase()}
                   </div>
@@ -189,32 +204,30 @@ const SellerRequests = () => {
                     <strong>{buyerName}</strong>
 
                     {selectedProduct.isRental && req.from && req.to ? (
-                      <p style={{ fontSize: '0.9rem', color: '#666' }}>
-                        Requested Dates: <br />
-                        {new Date(req.from).toLocaleDateString()} - {new Date(req.to).toLocaleDateString()}
+                      <p style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '4px' }}>
+                        Requested: {new Date(req.from).toLocaleDateString()} - {new Date(req.to).toLocaleDateString()}
                       </p>
                     ) : (
-                      <p>Wants to buy this item</p>
+                      <p style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '4px' }}>Wants to buy this item</p>
                     )}
 
                     {biddingPrice && (
-                      <p style={{ fontSize: '0.9rem', color: '#16a34a', fontWeight: 'bold', marginTop: '5px' }}>
-                        Bidding Price: rs {biddingPrice}
+                      <p style={{ fontSize: '0.9rem', color: '#059669', fontWeight: 'bold', marginTop: '5px' }}>
+                        Bidding Price: ₹{biddingPrice}
                       </p>
                     )}
                   </div>
                 </div>
 
-                <div>
+                <div className={styles.requestActions}>
                   <button
-                    className={`${styles.btn} ${styles.btnAdd}`}
-                    style={{ marginRight: '10px' }}
+                    className={styles.btnAccept}
                     onClick={() => handleAccept(selectedProduct._id, req.buyer._id)}
                   >
                     Accept
                   </button>
                   <button
-                    className={`${styles.btn} ${styles.btnLogout}`}
+                    className={styles.btnReject}
                     onClick={() => handleReject(selectedProduct._id, req.buyer._id)}
                   >
                     Reject
@@ -231,65 +244,58 @@ const SellerRequests = () => {
   return (
     <div>
       <h2>Items with Active Requests</h2>
-      <div className={styles.grid}>
-        {productsWithRequests.length > 0 ? (
-          productsWithRequests.map((item) => (
+      
+      {productsWithRequests.length > 0 ? (
+        <div className={styles.grid}>
+          {productsWithRequests.map((item) => (
             <div key={item._id} className={styles.card}>
-
               <div className={styles.cardImageContainer}>
                 <img
-                  src={item.images && item.images.length > 0 ? `http://localhost:3000/${item.images[0].replace(/\\/g, '/')}` : 'https://placehold.co/300x300?text=No+Image'}
+                  src={item.images && item.images.length > 0 
+                    ? `${backendURL}/${item.images[0].replace(/\\/g, '/')}` 
+                    : 'https://placehold.co/300x300?text=No+Image'}
                   alt={item.name}
                   className={styles.cardImage}
                 />
-
-                <div style={{
-                  position: 'absolute', top: '10px', right: '10px',
-                  background: '#333', color: 'white', padding: '5px 10px',
-                  borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                <span style={{
+                  position: 'absolute', top: '12px', right: '12px',
+                  background: 'linear-gradient(135deg, #12344d 0%, #1a5276 100%)', 
+                  color: 'white', padding: '6px 12px',
+                  borderRadius: '20px', fontSize: '0.75rem', fontWeight: '600',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
                 }}>
-                  {item.requests.length} Requests
-                </div>
+                  {item.requests.length} {item.requests.length === 1 ? 'Request' : 'Requests'}
+                </span>
               </div>
 
               <div className={styles.cardDetails}>
-                <div>
-                  <h3>{item.name}</h3>
-                  <p style={{ fontWeight: 'bold' }}>
-                    {item.isRental ? `Rent: rs ${item.price}/day` : `Price: $${item.price}`}
-                  </p>
-                </div>
+                <h3>{item.name}</h3>
+                <p className={styles.cardPrice}>
+                  {item.isRental ? `₹${item.price}/day` : `₹${item.price}`}
+                </p>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: 'auto' }}>
+                <div className={styles.cardActions}>
                   <button
-                    className={`${styles.btn} ${styles.btnAdd}`}
-                    style={{ width: '100%' }}
+                    className={styles.btnAvl}
+                    style={{ flex: 1 }}
                     onClick={() => handleViewRequests(item)}
                   >
                     View Requests
                   </button>
-
-                  <button
-                    className={styles.btn}
-                    style={{
-                      width: '100%',
-                      border: '1px solid #ccc',
-                      color: '#333'
-                    }}
-                  >
-                    View Details
-                  </button>
                 </div>
               </div>
             </div>
-          ))
-        ) : (
-          <p style={{ color: '#64748b', width: '100%' }}>
-            No pending requests found.
+          ))}
+        </div>
+      ) : (
+        <div className={styles.emptyState}>
+          <span className={styles.emptyIcon}>📋</span>
+          <h3 className={styles.emptyTitle}>No pending requests</h3>
+          <p className={styles.emptyText}>
+            You don't have any buyer requests at the moment. Check back later!
           </p>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
