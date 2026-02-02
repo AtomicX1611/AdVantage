@@ -51,7 +51,11 @@ export const addProductRequestDao = async (productId, buyerId, biddingPrice) => 
     product.requests.push({ buyer: buyerId, biddingPrice: biddingPrice });
     await product.save();
 
-    return { success: true };
+    return {
+        success: true,
+        sellerId: product.seller,
+        productName: product.name
+    };
 };
 
 export const acceptProductRequestDao = async (productId, buyerId) => {
@@ -68,7 +72,7 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
     if (product.sellerAcceptedTo) {
         return { success: false, reason: "already_accepted" };
     }
-    console.log("requsst: ",product.requests);
+    console.log("requsst: ", product.requests);
     const isRequested = product.requests.some(
         req => req.buyer.toString() === buyerId.toString()
     );
@@ -83,7 +87,11 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
     // );
     await product.save();
 
-    return { success: true };
+    return {
+        success: true,
+        sellerId: product.seller,
+        productName: product.name,
+    };
 };
 
 export const revokeAcceptedRequestDao = async (productId) => {
@@ -100,7 +108,12 @@ export const revokeAcceptedRequestDao = async (productId) => {
     }
     product.sellerAcceptedTo = null;
     await product.save();
-    return { success: true };
+    return {
+        success: true,
+        buyerId: product.sellerAcceptedTo,
+        sellerId: product.seller,
+        productName: product.name,
+    };
 };
 
 /*
@@ -119,25 +132,20 @@ export const paymentDoneDao = async (buyerId, productId) => {
     if (product.soldTo && product.soldTo.buyer) {
         return { success: false, reason: "already_sold" };
     }
-
-    /*
-        find bidding price of current buyer with buyerId
-    */
-    const biddingPrice  = product.requests.find(req=> req.buyer.toString() === buyerId).price;
-    console.log("bidding price: ",biddingPrice);
-
+    const hisRequest = product.requests.find(req => req.buyer.toString() === buyerId.toString());
+    if (!product.isRental) {
+        product.price = hisRequest.biddingPrice;
+    }
     product.requests = [];
     product.soldTo = buyerId;
     await product.save();
     // delete 
-    /*
-        New change : adding product price to seller earnings 
-        After product sold , Amount ? bid given by user and accepted by seller
-    */
-
-    const sellerId = product.seller;
-    // const seller=  await Users.findById
-    return { success: true, sellerId: product.seller, price: product.price };
+    return {
+        success: true,
+        sellerId: product.seller,
+        price: hisRequest.biddingPrice,
+        productName: product.name,
+    };
 }
 
 export const notInterestedDao = async (buyerId, productId) => {
@@ -180,8 +188,11 @@ export const rejectProductRequestDao = async (productId, buyerId) => {
         req => req.buyer.toString() !== buyerId.toString()
     );
     await product.save();
-
-    return { success: true };
+    return {
+        success: true,
+        sellerId: product.seller,
+        productName: product.name,
+    };
 };
 
 export const verifyProductDao = async (productId) => {
@@ -200,7 +211,9 @@ export const verifyProductDao = async (productId) => {
         product.save();
         return {
             success: true,
-            message: "Verified Product with id"
+            message: "Verified Product with id: " + productId,
+            sellerId: product.seller,
+            productName: product.name,
         }
     } catch (error) {
         return {
@@ -231,7 +244,7 @@ export const getYourProductsDao = async (buyerId) => {
 };
 
 export const getProductsSellerAccepted = async (buyerId) => {
-    const products = await Products.find({ sellerAcceptedTo: buyerId ,soldTo: null})
+    const products = await Products.find({ sellerAcceptedTo: buyerId, soldTo: null })
         .populate('seller', 'username')
         .populate('requests.buyer', 'username');
     return products;
@@ -282,7 +295,7 @@ export const countProductsDao = async (filters) => {
     return count;
 };
 
-export const rentDao = async (buyerId, productId, from, to,biddingPrice) => {
+export const rentDao = async (buyerId, productId, from, to, biddingPrice) => {
     try {
         let prod = await Products.findById(productId);
         if (!prod) {
@@ -310,7 +323,7 @@ export const rentDao = async (buyerId, productId, from, to,biddingPrice) => {
                 status: 400,
             };
         }
-        console.log("required data: ",buyerId,from,to,biddingPrice)
+        console.log("required data: ", buyerId, from, to, biddingPrice)
         prod.requests.push({
             buyer: buyerId,
             from: from,
@@ -337,7 +350,7 @@ export const makeAvailableDao = async (sellerId, productId) => {
     try {
         const product = await Products.findOneAndUpdate(
             { _id: productId, seller: sellerId, isRental: true },
-            { $set: { soldTo: null,sellerAcceptedTo: null } },
+            { $set: { soldTo: null, sellerAcceptedTo: null } },
             { new: true }
         );
 
@@ -362,7 +375,7 @@ export const findProductsForSeller = async (id) => {
             .populate("seller")
             .populate({
                 path: "requests.buyer",
-                select: "username email profilePic" 
+                select: "username email profilePic"
             });
         return {
             success: true,
