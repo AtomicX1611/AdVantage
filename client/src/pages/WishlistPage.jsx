@@ -125,17 +125,17 @@ export default function WishlistPage() {
     }
 
     setSelectedProducts([...selectedProducts, product]);
-    addToWishlistBackend(product._id);
+    // addToWishlistBackend(product._id);
   };
 
   const removeFromCompare = (id) => {
     setSelectedProducts(selectedProducts.filter((p) => p._id !== id));
-    removeFromWishlistBackend(id);
+    // removeFromWishlistBackend(id);
   };
 
   return (
     <div className={styles.container}>
-      <WishlistSidebar products={products} addToCompare={addToCompare} deleteFromWishlist={deleteFromWishlist}/>
+      <WishlistSidebar products={products} addToCompare={addToCompare}/>
 
       <ComparisonSection
         products={selectedProducts}
