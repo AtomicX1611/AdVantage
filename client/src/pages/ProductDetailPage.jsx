@@ -190,7 +190,7 @@ const ProductDetailPage = () => {
               onBuyNow={handleBuyNow}
             />
 
-            <SellerOptions verified={product.verified} />
+            {/* <SellerOptions verified={product.verified} /> */}
           </div>
         </div>
 

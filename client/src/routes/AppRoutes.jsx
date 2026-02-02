@@ -25,6 +25,7 @@ import SellerDashboardLayout from "../pages/SellerDashboard.jsx";
 import SellerItems from "../components/SellerHome/SellerItems";
 import SellerRequests from "../components/SellerHome/SellerRequests";
 import AcceptedProducts from "../components/SellerHome/AcceptedProducts";
+import SellerAnalytics from '../components/SellerHome/SellerAnalytics.jsx'
 import SellerHeaderLayout from "../components/SellerHome/SellerHeaderLayout.jsx"
 import LoginPage from "../components/TempLogin.jsx";
 import AuthLogin from "../pages/AuthLogin.jsx";
@@ -66,12 +67,14 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
 const subsData = [
   {
     type: "vip",
+    subscription : 1,
     duration: "6 Months",
     price: "100",
   },
   {
     type: "premium",
     duration: "1 year",
+    subscription:2,
     price: "1299",
   }
 ];
@@ -141,7 +144,8 @@ const AppRoutes = () => {
           {/* <Route path="dashboard" element={<ProtectedRoute element={<SellerDashboardLayout />} allowedRoles={['user']} />} /> */}
           {/* Seller Routes - only sellers/users */}
           <Route path="dashboard" element={<ProtectedRoute element={<SellerDashboardLayout />} allowedRoles={['user']} />}>
-            <Route index element={<Navigate to="for-sale" replace />} />
+            <Route index element={<SellerAnalytics />} />
+            <Route element={<Navigate to="for-sale" replace />} />
             <Route path="for-sale" element={<SellerItems filterType="sale" />} />
             <Route path="for-rent" element={<SellerItems filterType="rent" />} />
             <Route path="sold" element={<SellerItems filterType="sold" />} />
@@ -156,6 +160,7 @@ const AppRoutes = () => {
                 type={subsData[0].type}
                 duration={subsData[0].duration}
                 Price={subsData[0].price}
+                subscription={subsData[0].subscription}
                 validTill={new Date(new Date().setMonth(new Date().getMonth() + 1)).toDateString()}
               />
             }
@@ -166,6 +171,7 @@ const AppRoutes = () => {
                 type={subsData[1].type}
                 duration={subsData[1].duration}
                 Price={subsData[1].price}
+                subscription={subsData[1].subscription}
                 validTill={new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toDateString()}
               />
             }

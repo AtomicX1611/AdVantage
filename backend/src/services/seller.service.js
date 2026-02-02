@@ -22,10 +22,13 @@ import {
     incrementUsedPostsDao,
     resetUsedPostsDao,
 } from "../daos/users.dao.js"
+
 import {
     findProductsForSeller,
 } from "../daos/products.dao.js";
+
 import { createPayment } from "../daos/payment.dao.js";
+
 import { getAdminById, getAllAdmins } from "../daos/admins.dao.js";
 
 export const addProductService = async (req) => {
@@ -357,3 +360,74 @@ export const makeAvailableService = async (sellerId, productId) => {
         };
     }
 };
+
+export const analyticsService = async(sellerId)=> {
+    try {
+        const user = await getBuyerById(sellerId);
+        if(!user) {
+            return {
+                status:404,
+                success:false,
+                message:"Seller not found"
+            }
+        }
+        const earnings = user.earnings;
+
+        const userProducts = await findProductsForSeller(sellerId);
+        if(!userProducts.success) {
+            return {
+                status:409,
+                success:false,
+                message:"Could not load products"
+            }
+        }
+        const products = userProducts.products;
+        let itemsSold = 0;
+        let activeRentals = 0;
+        let pendingRequest = 0;
+
+        let itemsForSale = 0;
+        let itemsToRent = 0;
+        
+        products.forEach(prod => {
+            pendingRequest += prod.requests?.length || 0;
+
+            if(prod.isRental) {
+                if(prod.soldTo != null) {
+                    activeRentals++;
+                }else {
+                    itemsToRent++;
+                }
+            }
+            else {
+                if(prod.soldTo != null) {
+                    itemsSold++;
+                }
+                else {
+                    itemsForSale++;
+                }
+            }
+        });
+
+        return {
+            status:200,
+            success:true,
+            message:"Analytics found",
+            data:{
+                earnings,
+                pendingRequest,
+                itemsForSale,
+                itemsSold,
+                itemsToRent,
+                activeRentals
+            }
+        }
+    } catch (error) {
+        console.log("err at analytics: ",error);
+        return {
+            status:500,
+            message:"Internal server err",
+            success:false
+        }
+    }
+}
