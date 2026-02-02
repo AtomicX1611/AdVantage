@@ -21,28 +21,32 @@ const FilterPanel = ({ filters, onChange }) => {
 
   return (
     <div id={styles.filterContainer}>
-      <b id={styles.priceRange}>Price Range</b>
-      <div id={styles.minAndMax}>
-        <input
-          type="number"
-          name="min"
-          placeholder="min"
-          value={filters.min}
-          onChange={handleInput}
-        />
-        <input
-          type="number"
-          name="max"
-          placeholder="max"
-          value={filters.max}
-          onChange={handleInput}
-        />
+      <div className={styles.filterSection}>
+        <span id={styles.priceRange}>Price Range</span>
+        <div id={styles.minAndMax}>
+          <input
+            type="number"
+            name="min"
+            placeholder="Min ₹"
+            value={filters.min}
+            onChange={handleInput}
+          />
+          <input
+            type="number"
+            name="max"
+            placeholder="Max ₹"
+            value={filters.max}
+            onChange={handleInput}
+          />
+        </div>
         <button id={styles.filterApply} onClick={handleApply}>
-          <b>Apply</b>
+          Apply Filters
         </button>
       </div>
 
-      <div id={styles.verifiedWrapper}>
+      <div className={styles.filterDivider}></div>
+
+      <label id={styles.verifiedWrapper}>
         <input
           type="checkbox"
           name="verifiedOnly"
@@ -50,10 +54,10 @@ const FilterPanel = ({ filters, onChange }) => {
           onChange={handleInput}
           id={styles.verifiedCheckbox}
         />
-        <b>Only verified</b>
-      </div>
+        <b>Verified Sellers Only</b>
+      </label>
 
-      <div id={styles.rentedwrapper}>
+      <label id={styles.rentedwrapper}>
         <input
           type="checkbox"
           name="rentalOnly"
@@ -61,8 +65,8 @@ const FilterPanel = ({ filters, onChange }) => {
           onChange={handleInput}
           id={styles.rentedCheckbox}
         />
-        <b>Only Rental</b>
-      </div>
+        <b>Rental Products Only</b>
+      </label>
     </div>
   );
 };

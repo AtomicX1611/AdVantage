@@ -1,11 +1,21 @@
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import crypto from "crypto";
+import nodemailer from 'nodemailer';
+
 import {
     getBuyerById,
     createBuyer,
     findBuyerByEmail,
 } from "../daos/users.dao.js";
+
+import { 
+    createPendingUser,
+    deletePendingUser,
+    findPendingUserByEmail
+} from "../daos/pendingUserDao.js";
+
+
 // import {
 //     createSeller,
 //     findSellerByEmail,
@@ -16,8 +26,8 @@ import { findManagerByEmail,getManagerById } from "../daos/managers.dao.js";
 export const signupBuyerService = async (username, contact, email, password) => {
 
     const existingBuyer = await findBuyerByEmail(email);
-    console.log(existingBuyer);
     if (existingBuyer) {
+        console.log("user already exists");
         return {
             success: false,
             message: "email already exists",
@@ -25,28 +35,130 @@ export const signupBuyerService = async (username, contact, email, password) => 
         };
     }
 
-    const newBuyer = await createBuyer({
-        username,
-        contact,
-        email,
-        password,
-        wishlistProducts: [],
-        profilePicPath: null,
-    });
+    // delete pending user
+    await deletePendingUser(email);
+    
+    // Generate otp 
+    const otp = crypto.randomInt(100000, 999999).toString();
 
+    // create a new one 
+    createPendingUser(username,contact,email,password,otp);
+
+    // send otp 
+    await MailService(email,otp);
+
+    return {
+        status: 201,
+        success: true,
+        message: "Email verification OTP sent",
+    }
+};
+
+const createTransporter = () => {
+    return nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.MAIL_USER,
+            pass: process.env.MAIL_PASS
+        }
+    });
+};
+
+export const MailService = async (email, otp) => {
+    try {
+        const transporter = createTransporter();
+        
+        await transporter.sendMail({
+            from: process.env.MAIL_USER,
+            to: email,
+            subject: `Verify your account - ${new Date().toLocaleTimeString()}`,
+            text: `Your OTP is ${otp}. Valid for 10 minutes.`
+        });
+    } catch (error) {
+        console.error('MailService error:', error);
+        throw new Error('Failed to send verification email');
+    }
+};
+
+const generateToken = async (id)=> {
     const token = jwt.sign(
-        { _id: newBuyer._id, role: "user" },
+        { _id: id, role: "user" },
         process.env.JWT_SECRET,
         { expiresIn: "7d" }
     );
+    return token;
+}
 
-    return {
-        newBuyer,
-        success: true,
-        token,
-    };
-};
+export const verifyEmailService = async (email,code)=> {
+    try {
+        const pendingUser = await findPendingUserByEmail(email);
 
+        if(!pendingUser) {
+            const user = await findBuyerByEmail(email);
+
+            if(user) {
+                const token = await generateToken(user._id);
+                return {
+                    status: 200,
+                    success: true,
+                    message: "Email already verified",
+                    data: token,
+                    email:user.email,
+                    buyerId : user._id
+                }
+            }
+
+            // No pending user && No user 
+            return {
+                status: 404,
+                success: false,
+                message: "Verification expired",
+                data: null
+            }
+        }
+
+        // Found a record in pending user 
+        if(pendingUser.otp === code) {
+            // Create new user
+            const buyerData =  {
+                username:pendingUser.username,
+                contact:pendingUser.contact,
+                email:pendingUser.email,
+                password : pendingUser.password
+            }
+            const user = await createBuyer(buyerData);
+            
+            
+            // delete pending user
+            deletePendingUser(pendingUser.email);
+
+            const token = await generateToken(user._id);
+
+            return {
+                status: 200,
+                success: true,
+                message: "Email verified successfully",                    
+                data: token,
+                email:user.email,
+                buyerId : user._id
+            }
+        }
+
+        // Invalid otp 
+        return {
+            status:400,
+            success:false,
+            message:"Invalid otp"
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            status:500,
+            success:false,
+            message:"Server error"
+        }
+    }
+}
 // export const signupSellerService = async (username, contact, email, password) => {
 //     const existingSeller = await findBuyerByEmail(email);
 //     if (existingSeller) {

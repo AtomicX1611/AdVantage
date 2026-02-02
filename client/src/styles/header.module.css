@@ -17,16 +17,24 @@ header {
   height: max(9.765625vh, 40px);
   width: 100vw;
   background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
 }
 
 nav {
   height: inherit;
   display: flex;
   justify-content: space-between;
-  gap: 1vw;
+  gap: 2vw;
   align-items: center;
   margin-left: 2%;
+  margin-right: 2%;
   overflow: hidden;
+  padding: 0 1%;
 }
 
 .box1 {
@@ -34,12 +42,17 @@ nav {
   align-items: center;
   justify-content: flex-start;
   width: 78vw;
-  gap: 1.5vw;
+  gap: 2vw;
 }
 
 .logoImgWrapper {
   font-size: large;
   font-weight: bolder;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logoImgWrapper:hover {
+  transform: scale(1.05);
 }
 
 .logoImg {
@@ -60,6 +73,12 @@ a {
   font-size: x-large;
   font-weight: bolder;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logo a:hover {
+  color: #242424;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .searchBox {
@@ -75,19 +94,29 @@ a {
   width: 32vw;
   padding: 0px;
   background-color: #F8F6FF;
-  box-shadow: 0px 0px 5px #242424;
-  border: none;
+  box-shadow: 0px 2px 6px rgba(36, 36, 36, 0.12);
+  border: 2px solid transparent;
   border-radius: 22px;
   /* Add space for the icon */
-  padding-left: 45px; 
+  padding-left: 50px;
+  padding-right: 15px;
   /* Restore the font size */
   font-size: large; 
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.searchProducts:focus {
+  border-color: #242424;
+  box-shadow: 0px 4px 12px rgba(36, 36, 36, 0.2);
+  background-color: #ffffff;
 }
 
 .searchProducts::placeholder {
   color: rgba(0, 0, 0, 0.37);
   font-weight: 500;
   font-size: bold;
+  transition: color 0.3s ease;
 }
 
 button {
@@ -106,6 +135,8 @@ button {
   cursor: pointer;
   font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
     "Lucida Sans", Arial, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
 }
 
 /* UPDATED: Fix for search bar icon positioning */
@@ -113,40 +144,73 @@ button {
   font-size: x-large;
   position: absolute;
   /* Position it inside the padding */
-  left: 15px; 
+  left: 18px; 
   /* Center it vertically */
   top: 50%; 
-  transform: translateY(-50%);
+  transform: translateY(calc(-50% - 8px));
   color: rgba(0, 0, 0, 0.37);
+  transition: color 0.3s ease;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.searchProducts:focus ~ .magnifier {
+  color: #242424;
 }
 
 .userActions {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 1.5vw;
-  margin-right: 2%;
+  gap: 2vw;
+  margin-right: 0;
   flex: 1;
 }
 .sellbtn {
   font-size: medium;
   display: flex;
   align-items: center;
+  justify-content: center;
   color: rgb(0, 0, 0);
   background-color: #F8F6FF;
   border: 2px solid #F8F6FF;
   height: 40px;
-  margin-left: 2vw;
-  padding: 0px 22px;
-  border-radius: 10px;
+  min-width: 140px;
+  padding: 20px 38px;
+  border-radius: 8px;
   cursor: pointer;
-  box-shadow: 0px 0px 4px #242424;
+  box-shadow: 0px 2px 6px rgba(36, 36, 36, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sellbtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.05);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sellbtn:hover::before {
+  left: 0;
+  border: none;
 }
 
 .sellbtn a {
   text-decoration: none;
   color: rgb(0, 0, 0);
-  font-weight: 400;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+  transition: color 0.3s ease;
 }
 
 .bx {
@@ -161,20 +225,44 @@ button {
   font-size: medium;
   display: flex;
   align-items: center;
+  justify-content: center;
   color: rgb(0, 0, 0);
   background-color: #F8F6FF;
   border: 2px solid #F8F6FF;
   height: 40px;
-  padding: 0px 22px;
+  min-width: 120px;
+  padding: 0px 28px;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0px 0px 4px #242424;
+  box-shadow: 0px 2px 6px rgba(36, 36, 36, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.loginBtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.05);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.loginBtn:hover::before {
+  left: 0;
 }
 
 .loginBtn a {
   text-decoration: none;
   color: rgb(0, 0, 0);
   font-weight: 400;
+  position: relative;
+  z-index: 1;
+  transition: color 0.3s ease;
 }
 .box2 {
   width: auto;
@@ -189,8 +277,13 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 40px;
-  height: 40px;
+  min-width: 48px;
+  height: 48px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.box2Icons:hover {
+  transform: translateY(-2px);
 }
 
 .box2Icons a {
@@ -199,12 +292,14 @@ button {
   justify-content: center;
   text-decoration: none;
   color: rgb(0, 0, 0);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .box2Icons .bx {
   font-size: 28px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .box3 {
@@ -215,46 +310,81 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1vw;
+  gap: 2vw;
   padding-left: 0vw;
 }
 .burger {
   font-size: max(3.6458333333333333333333333333333vh, 20px);
   display: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.burger:hover {
+  transform: scale(1.1);
+  color: #242424;
 }
 .bx-heart {
   color: rgb(0, 0, 0);
-  font-size: 32px;
+  font-size: 28px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.bx-heart:hover {
+  transform: scale(1.15);
+  color: #242424;
+}
+
+.bxs-user-circle {
+  font-size: 28px !important;
+}
+
 .profile {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: none !important;
+  min-width: auto !important;
+  height: auto !important;
+}
+
+.profile:hover {
+  transform: scale(1.08);
 }
 
 .profile img {
-  height: 50px;
-  width: 50px;
+  height: 28px;
+  width: 28px;
   object-fit: cover;
-  border-radius: 50%;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: none;
+}
+
+.profile img:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .hoverBtn {
-  transform: all 0.3s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hover {
-  transform: all 0.3s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .hover:hover {
-  scale: 1.15;
+  transform: scale(1.15);
 }
 
 .hoverBtn:hover {
   background-color: rgb(0, 0, 0);
   color: rgb(255, 255, 255);
-  transform: all 0.3s ease-in-out;
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 12px rgba(36, 36, 36, 0.25);
 }
+
 .hoverBtn:hover a {
   color: rgb(255, 255, 255);
 }
@@ -263,6 +393,8 @@ button {
   background-color: #242424;
   color: rgb(220, 213, 213);
   border: 2px solid rgb(220, 213, 213);
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 12px rgba(36, 36, 36, 0.3);
 }
 
 /* --- Responsiveness --- */
@@ -273,7 +405,11 @@ button {
     margin-right: 2vw;
     cursor: pointer;
     color: black;
-    box-shadow: 0px 0px 5px #242424;
+    box-shadow: 0px 2px 6px rgba(36, 36, 36, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .burger:hover {
+    box-shadow: 0px 4px 10px rgba(36, 36, 36, 0.25);
   }
   .userActions {
     display: none;
@@ -617,10 +753,13 @@ button {
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(2px);
   z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .overlayOpen {
   display: block;
+  opacity: 1;
 }
 
 .modal {
@@ -643,20 +782,13 @@ button {
   }
 }
 
+.markAllRead:hover {
+  background-color: #242424;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
 .chaticon img {
   display: flex;
   align-items: center;
-}
-
-.alert img {
-  display: flex;
-  align-items: center;
-}
-
-.toggle img {
-  height: 65px;
-  width: 70px;
-  display: flex;
-  align-items: center;
-  margin-top: 10px;
 }

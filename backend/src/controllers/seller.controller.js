@@ -10,6 +10,7 @@ import {
     makeAvailableService,
     deleteProductService,
     revokeAcceptedRequestService,
+    analyticsService
 } from "../services/seller.service.js";
 
 export const addProduct = async (req, res) => {
@@ -296,6 +297,27 @@ export const makeAvailableController = async (req, res) => {
         return res.status(response.status).json({
             message: response.message,
             success: response.success,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const analyticsController = async(req,res) => {
+    try {
+        const userId = req.user._id;
+
+        if (!userId) return res.status(404).json({
+            success: false,
+            message: "userId not found"
+        })
+
+        const response = await analyticsService(userId);
+        return res.status(response.status).json({
+            message: response.message,
+            success: response.success,
+            data:response.data
         });
     } catch (error) {
         console.log(error);

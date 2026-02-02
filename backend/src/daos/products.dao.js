@@ -1,4 +1,5 @@
 import Products from "../models/Products.js";
+import Users from "../models/Users.js";
 
 export const getProductById = async (productId) => {
     // console.log(productId);
@@ -115,6 +116,10 @@ export const revokeAcceptedRequestDao = async (productId) => {
     };
 };
 
+/*
+    few changes done here
+    paymentDoneDao
+*/
 export const paymentDoneDao = async (buyerId, productId) => {
     const product = await Products.findById(productId);
 

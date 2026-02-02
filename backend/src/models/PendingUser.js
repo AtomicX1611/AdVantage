@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
-import Products from "./Products.js";
 
-const buyersSchema = new mongoose.Schema({
+const pendingUsers = new mongoose.Schema({
     username: {
         type: String,
         required: true,
@@ -46,19 +45,16 @@ const buyersSchema = new mongoose.Schema({
     earnings : {
         type:Number,
         default:0
+    },
+    otp : {
+        type:String,
+        required:true
+    },
+    createdAt : {
+        type:Date,
+        required:true,
+        expires :600
     }
 });
 
-buyersSchema.pre("findOneAndDelete", async function (next) {
-    const seller = await this.model.findOne(this.getQuery());
-    if (!seller) return next();
-
-    await Products.deleteMany({
-        seller: seller._id,
-        soldTo: null,
-    });
-
-    next();
-});
-
-export default mongoose.model("Users", buyersSchema);
+export default mongoose.model("pendingUsers",pendingUsers);

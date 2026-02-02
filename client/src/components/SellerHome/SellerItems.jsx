@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../../styles/sellerdashboard.module.css';
 import { Link } from 'react-router-dom';
+import { API_CONFIG } from '../../config/api.config';
+
+const backendURL = API_CONFIG.BACKEND_URL;
 
 // Dummy Data with Placeholder Images
 const DUMMY_PRODUCTS = [
@@ -56,8 +59,9 @@ function productFilter(filterType, products) {
 
 const SellerItems = ({ filterType }) => {
   const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const items = productFilter(filterType, products);
-  // const items=DUMMY_PRODUCTS.filter(item=>item.type===filterType);
+  
   const titles = {
     sale: 'Items For Sale',
     rent: 'Items For Rent',
@@ -67,8 +71,9 @@ const SellerItems = ({ filterType }) => {
 
   useEffect(() => {
     async function fetchProducts() {
+      setIsLoading(true);
       try {
-        const response = await fetch("http://localhost:3000/user/products", {
+        const response = await fetch(`${backendURL}/user/products`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -80,13 +85,15 @@ const SellerItems = ({ filterType }) => {
         setProducts(data.products);
       } catch (error) {
         console.error('Error fetching products:', error);
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchProducts();
   }, [filterType]);
 
   async function handleDeleteProduct(productId) {
-    let response = await fetch(`http://localhost:3000/user/deleteProduct/${productId}`, {
+    let response = await fetch(`${backendURL}/user/deleteProduct/${productId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -106,7 +113,7 @@ const SellerItems = ({ filterType }) => {
 
   async function handleMakeAvailable(productId) {
   try {
-    let response = await fetch(`http://localhost:3000/user/makeAvailable/${productId}`, {
+    let response = await fetch(`${backendURL}/user/makeAvailable/${productId}`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -136,55 +143,67 @@ const SellerItems = ({ filterType }) => {
   return (
     <div>
       <h2>{titles[filterType]}</h2>
-      <div className={styles.grid}>
-        {items.length > 0 ? (
-          items.map((item) => (
+      
+      {isLoading ? (
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <p className={styles.loadingText}>Loading your products...</p>
+        </div>
+      ) : items.length > 0 ? (
+        <div className={styles.grid}>
+          {items.map((item) => (
             <div key={item._id} className={styles.card}>
               <div className={styles.cardImageContainer}>
-                <img src={item.images && item.images.length > 0 ? `http://localhost:3000/${item.images[0].replace(/\\/g, '/')}` : 'https://placehold.co/400x300?text=No+Image'} alt={item.name} className={styles.cardImage} />
+                <img 
+                  src={item.images && item.images.length > 0 
+                    ? `${backendURL}/${item.images[0].replace(/\\/g, '/')}` 
+                    : 'https://placehold.co/400x300?text=No+Image'} 
+                  alt={item.name} 
+                  className={styles.cardImage} 
+                />
               </div>
 
               <div className={styles.cardDetails}>
-                <div>
-                  <h3>{item.name}</h3>
-                  <p style={{ fontWeight: 'bold', color: '#334155' }}>Price: {item.price}</p>
-                  {item.status && <span className={styles.status}>{item.status}</span>}
-                </div>
+                <h3>{item.name}</h3>
+                <p className={styles.cardPrice}>₹{item.price}</p>
+                {item.status && <span className={styles.status}>{item.status}</span>}
 
-                <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <Link to={`/product/${item._id}`} style={{ textDecoration: "none" }}>
-                    <button
-                      className={`${styles.btn} ${styles.btnAdd}`}
-                      style={{ width: "100%" }}
-                    >
+                <div className={styles.cardActions}>
+                  <Link to={`/product/${item._id}`} style={{ textDecoration: "none", flex: 1 }}>
+                    <button className={styles.btnAvl} style={{ width: "100%" }}>
                       View Details
                     </button>
                   </Link>
-                  {item.soldTo === null &&
-                      <button
-                        className={`${styles.btn} ${styles.btnDel}`}
-                        style={{ width: "100%" }}
-                        onClick={() => handleDeleteProduct(item._id)}
-                      >
-                        Delete Product
-                      </button>}
-                  {(item.soldTo !== null && item.isRental) && 
-                      <button
-                        className={`${styles.btn} ${styles.btnAvl}`}
-                        style={{ width: "100%" }}
-                        onClick={() => handleMakeAvailable(item._id)}
-                      >
-                        Make Available
-                      </button>
-                  }
+                  {item.soldTo === null && (
+                    <button
+                      className={styles.btnDel}
+                      onClick={() => handleDeleteProduct(item._id)}
+                    >
+                      Delete
+                    </button>
+                  )}
+                  {(item.soldTo !== null && item.isRental) && (
+                    <button
+                      className={styles.btnAvl}
+                      onClick={() => handleMakeAvailable(item._id)}
+                    >
+                      Make Available
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
-          ))
-        ) : (
-          <p style={{ color: '#64748b' }}>No items found in this category.</p>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className={styles.emptyState}>
+          <span className={styles.emptyIcon}>📦</span>
+          <h3 className={styles.emptyTitle}>No items found</h3>
+          <p className={styles.emptyText}>
+            You don't have any items in this category yet. Add a new product to get started!
+          </p>
+        </div>
+      )}
     </div>
   );
 };

@@ -125,7 +125,10 @@ const UserUpdateProfile = () => {
       <div className={styles.window}>
         <ProfileHeader />
         <div className={styles.container}>
-          <p>Loading profile...</p>
+          <div className={styles.loadingContainer}>
+            <div className={styles.loadingSpinner}></div>
+            <span className={styles.loadingText}>Loading your profile...</span>
+          </div>
         </div>
       </div>
     );

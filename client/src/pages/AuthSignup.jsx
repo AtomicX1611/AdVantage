@@ -8,13 +8,22 @@ import styles from '../styles/authsignup.module.css';
 const AuthSignup = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  
   const [username, setUsername] = useState('');
   const [contact, setContact] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  
+  // UI State
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Modal State
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [verifying, setVerifying] = useState(false);
 
   const validateUsername = (value) => {
     if (!value.trim()) return 'Username is required';
@@ -65,8 +74,6 @@ const AuthSignup = () => {
     setLoading(true);
 
     try {
-      console.log("Initiating signup request...");
-      
       const resp = await fetch(`${API_CONFIG.BACKEND_URL}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -75,27 +82,58 @@ const AuthSignup = () => {
       });
 
       const data = await resp.json();
-      console.log('Signup response:', resp, data);
+      console.log('Signup response:', data);
       
       if (data && data.success) {
-        // Store both email and id in Redux
-        dispatch(loginSuccess({ 
-          email: data.email, 
-          id: data.buyerId 
-        }));
-        
-        setMessage('Signup successful!');
-        setTimeout(() => {
-          navigate('/');
-        }, 1500);
+        setLoading(false);
+        setShowOtpModal(true);
       } else {
         setMessage(data.message || 'Signup failed');
+        setLoading(false);
       }
     } catch (err) {
       console.error('Error during signup:', err);
       setMessage('Network error - Please try again');
-    } finally {
       setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setOtpError('');
+    
+    if (!otp || otp.length !== 6 || !/^\d+$/.test(otp)) {
+      setOtpError('Please enter a valid 6-digit OTP');
+      return;
+    }
+
+    setVerifying(true);
+
+    try {
+      const resp = await fetch(`${API_CONFIG.BACKEND_URL}/auth/verify-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, code:otp }),
+      });
+
+      const data = await resp.json();
+
+      if (data && data.success) {
+        dispatch(loginSuccess({
+          email: data.email,
+          id: data.buyerId // check this once 
+        }));
+        
+        setShowOtpModal(false);
+        navigate('/');
+      } else {
+        setOtpError(data.message || 'Invalid OTP. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error verifying OTP:', err);
+      setOtpError('Verification failed. Please try again.');
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -106,6 +144,8 @@ const AuthSignup = () => {
         <p className={styles.subtitle}>Join us today and start your journey</p>
         
         <form onSubmit={handleSubmit} className={styles.form}>
+          {/* ... (Existing Input Fields: Username, Contact, Email, Password) ... */}
+          
           <div className={styles.inputRow}>
             <div className={styles.inputGroup}>
               <label htmlFor="username" className={styles.label}>Username</label>
@@ -118,9 +158,7 @@ const AuthSignup = () => {
                 onChange={(e) => setUsername(e.target.value)} 
                 required 
               />
-              {errors.username && (
-                <p className={styles.errorText}>⚠ {errors.username}</p>
-              )}
+              {errors.username && <p className={styles.errorText}>⚠ {errors.username}</p>}
             </div>
 
             <div className={styles.inputGroup}>
@@ -135,9 +173,7 @@ const AuthSignup = () => {
                 maxLength="10"
                 required 
               />
-              {errors.contact && (
-                <p className={styles.errorText}>⚠ {errors.contact}</p>
-              )}
+              {errors.contact && <p className={styles.errorText}>⚠ {errors.contact}</p>}
             </div>
           </div>
           
@@ -152,9 +188,7 @@ const AuthSignup = () => {
               onChange={(e) => setEmail(e.target.value)} 
               required 
             />
-            {errors.email && (
-              <p className={styles.errorText}>⚠ {errors.email}</p>
-            )}
+            {errors.email && <p className={styles.errorText}>⚠ {errors.email}</p>}
           </div>
           
           <div className={styles.inputGroup}>
@@ -169,9 +203,7 @@ const AuthSignup = () => {
               required 
               minLength="8"
             />
-            {errors.password && (
-              <p className={styles.errorText}>⚠ {errors.password}</p>
-            )}
+            {errors.password && <p className={styles.errorText}>⚠ {errors.password}</p>}
           </div>
           
           <button 
@@ -179,7 +211,7 @@ const AuthSignup = () => {
             className={styles.submitButton}
             disabled={loading}
           >
-            {loading ? 'Creating Account...' : 'Sign Up'}
+            {loading ? 'Processing...' : 'Sign Up'}
           </button>
         </form>
         
@@ -193,6 +225,48 @@ const AuthSignup = () => {
           Already have an account? <a href="/login">Login here</a>
         </p>
       </div>
+
+      {/* --- OTP MODAL OVERLAY --- */}
+      {showOtpModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <button 
+              className={styles.closeButton} 
+              onClick={() => setShowOtpModal(false)}
+            >
+              &times;
+            </button>
+            
+            <h2 className={styles.modalTitle}>Verify Email</h2>
+            <p className={styles.modalSubtitle}>
+              Please enter the 6-digit code sent to<br/>
+              <strong>{email}</strong>
+            </p>
+
+            <div className={styles.otpInputGroup}>
+              <input
+                type="text"
+                className={styles.otpInput}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="000000"
+                maxLength="6"
+                autoFocus
+              />
+              {otpError && <p className={styles.errorText} style={{marginTop: '10px'}}>{otpError}</p>}
+            </div>
+
+            <button 
+              className={styles.verifyButton}
+              onClick={handleVerifyOtp}
+              disabled={verifying || otp.length !== 6}
+            >
+              {verifying ? 'Verifying...' : 'Verify & Proceed'}
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

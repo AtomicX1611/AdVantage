@@ -1,8 +1,11 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from '../../styles/sellerdashboard.module.css';
-import {useDispatch} from 'react-redux'
+import { useDispatch } from 'react-redux';
 import { logout } from '../../redux/authSlice';
+import { API_CONFIG } from '../../config/api.config';
+
+const backendURL = API_CONFIG.BACKEND_URL;
 
 const SellerHeader = ({ toggleSidebar }) => {
   const navigate = useNavigate();
@@ -10,13 +13,12 @@ const SellerHeader = ({ toggleSidebar }) => {
 
   const handleLogout = async () => {
     try {
-      let response = await fetch("http://localhost:3000/auth/logout", {
+      let response = await fetch(`${backendURL}/auth/logout`, {
         method: "DELETE",
         credentials: "include",
       });
       let data = await response.json();
       if (data.success) {
-        // redux update
         dispatch(logout());
         navigate("/");
       }
