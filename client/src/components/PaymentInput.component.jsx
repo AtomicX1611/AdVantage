@@ -3,7 +3,7 @@ import styles from "../styles/paymentpage.module.css";
 import { act } from "react";
 import { useNavigate } from "react-router-dom";
 
-const PaymentInputs = ({ type , price }) => {
+const PaymentInputs = ({ subscription,type , price }) => {
   const [activeMethod, setActiveMethod] = useState(null);
   const [cardDetails, setCardDetails] = useState({
     cardNumber: "",
@@ -36,11 +36,11 @@ const PaymentInputs = ({ type , price }) => {
       }
     }
 
-    const res = await fetch("http://localhost:3000/payment/processPayment", {
-      method: "POST",
+    const res = await fetch("http://localhost:3000/user/update/subscription", {
+      method: "PUT",
       headers: { "Content-type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ payTo: "Admin", paymentType: "subscription", price: price }),
+      body: JSON.stringify({subscription:subscription}),
     });
 
     const data=await res.json();

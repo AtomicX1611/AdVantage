@@ -146,7 +146,7 @@ export const paymentDoneService = async (buyerId, productId) => {
     if (!result.success) {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
-            not_accepted_buyer: { status: 400, message: "You are not the accepted buyer for this product" },
+            not_accepted_buyer: { status: 400, message: "You are not the accepted buyer for this product"},
             already_sold: { status: 400, message: "Product is already sold" }
         };
         return { success: false, ...messages[result.reason] };

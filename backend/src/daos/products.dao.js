@@ -1,4 +1,5 @@
 import Products from "../models/Products.js";
+import Users from "../models/Users.js";
 
 export const getProductById = async (productId) => {
     // console.log(productId);
@@ -102,6 +103,10 @@ export const revokeAcceptedRequestDao = async (productId) => {
     return { success: true };
 };
 
+/*
+    few changes done here
+    paymentDoneDao
+*/
 export const paymentDoneDao = async (buyerId, productId) => {
     const product = await Products.findById(productId);
 
@@ -115,10 +120,23 @@ export const paymentDoneDao = async (buyerId, productId) => {
         return { success: false, reason: "already_sold" };
     }
 
+    /*
+        find bidding price of current buyer with buyerId
+    */
+    const biddingPrice  = product.requests.find(req=> req.buyer.toString() === buyerId).price;
+    console.log("bidding price: ",biddingPrice);
+
     product.requests = [];
     product.soldTo = buyerId;
     await product.save();
     // delete 
+    /*
+        New change : adding product price to seller earnings 
+        After product sold , Amount ? bid given by user and accepted by seller
+    */
+
+    const sellerId = product.seller;
+    // const seller=  await Users.findById
     return { success: true, sellerId: product.seller, price: product.price };
 }
 

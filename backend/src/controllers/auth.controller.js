@@ -7,12 +7,12 @@ import {
     managerLoginService,
     getMyInfoService,
     googleSignInService,
+    verifyEmailService
 } from "../services/auth.service.js";
 
 
 export const buyerSignup = async (req, res) => {
     try {
-        console.log("in backend buyersignup");
         const { username, contact, email, password } = req.body;
         if (!username || !contact || !email || !password) {
             return res.status(400).json({
@@ -30,22 +30,14 @@ export const buyerSignup = async (req, res) => {
             });
         }
 
-        console.log("logging here with response sucess");
-        res.cookie("token", response.token, {
-            httpOnly: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
-
         return res.status(201).json({
             success: true,
-            message: "Buyer registered successfully",
-            buyerId: response.newBuyer._id,
-            email: response.newBuyer.email,
+            message: "OTP sent to email",
         });
     } catch (error) {
         console.log(error);
         res.status(500).json({
-            success:false,
+            success: false,
             message: error.message || "Internal server error"
         });
     }
@@ -91,9 +83,9 @@ export const buyerSignup = async (req, res) => {
 
 export const buyerLogin = async (req, res) => {
     try {
-        console.log("request rcvd: ",req.body);
+        console.log("request rcvd: ", req.body);
         const { email, password } = req.body;
-        
+
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
@@ -168,19 +160,19 @@ export const buyerLogin = async (req, res) => {
 
 export const adminLogin = async (req, res) => {
     try {
-        
+
         const { email, password } = req.body;
 
-        if (!email || !password){
+        if (!email || !password) {
             return res.status(400).json({
                 success: false,
                 message: "email, password both are required",
             });
         }
-     
+
         const response = await adminLoginService(email, password);
-      
-        
+
+
         if (!response.success) {
             return res.status(response.status).json({
                 success: false,
@@ -193,9 +185,9 @@ export const adminLogin = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
         console.log('Returning token');
-        
-        return res.status(200).json({ 
-            token : response.token,
+
+        return res.status(200).json({
+            token: response.token,
             adminId: response.admin._id,
             email: response.admin.email,
             success: true,
@@ -291,7 +283,7 @@ export const googelSignIn = async (req, res) => {
                 message: response.message,
                 success: false,
             });
-        }       
+        }
 
         res.cookie("token", response.token, {
             httpOnly: true,
@@ -323,7 +315,7 @@ export const userLogout = async (req, res) => {
             success: true,
             message: "User logged out successfully",
         });
-        
+
     } catch (error) {
         console.error("Logout Error:", error);
         return res.status(500).json({
@@ -333,3 +325,29 @@ export const userLogout = async (req, res) => {
         });
     }
 };
+
+
+/*
+    Verify email controller 
+*/
+
+export const verifyEmailController = async (req, res) => {
+    try {
+        const { email, code } = req.body;
+
+        if (!email || !code) {
+            return res.status(400).json({ message: "Email and Code are required" });
+        }
+
+        let response = await verifyEmailService(email, code);
+        console.log("response: ",response);
+
+        return res.status(response.status).json({
+            success: response.success,
+            message: response.message,
+            data: response.data
+        });
+    } catch (error) {
+        console.log("at verify email controller", error);
+    }
+}

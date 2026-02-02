@@ -29,6 +29,7 @@ import {
     makeAvailableController,
     deleteProduct,
     revokeAcceptedRequest,
+    analyticsController
 } from "../controllers/seller.controller.js";
 
 export const router = express.Router();
@@ -70,5 +71,13 @@ router.post("/acceptRequest/:productId/:buyerId", acceptRequest);
 router.patch("/revokeAccepted/:productId",revokeAcceptedRequest);
 
 router.post("/makeAvailable/:productId",makeAvailableController);
+
+
+/*
+    "/selling-analytics" for seller dashboard
+    method:GET
+*/ 
+
+router.get("/selling-analytics",analyticsController);
 
 export default router;
