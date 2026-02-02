@@ -6,7 +6,7 @@ import {
 } from "../services/admin.service.js";
 
 
-export const getGraphData = async (req,res) => {
+export const getGraphData = async (req,res,next) => {
   try {
     const result = await getProductsForAdmin()
     const graphData = result.map((item, index) => ({
@@ -19,14 +19,11 @@ export const getGraphData = async (req,res) => {
       graphData
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server error"
-    });
+    next(err);
   }
 };
 
-export const getAllData = async (req, res) => {
+export const getAllData = async (req, res, next) => {
   try {
     const result = await getAllDataService();
 
@@ -47,16 +44,13 @@ export const getAllData = async (req, res) => {
 
   } catch (error) {
     console.error("Error in getAllData controller:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error"
-    });
+    next(error);
   }
 };
 
 
 
-export const takeDownUser = async (req, res) => {
+export const takeDownUser = async (req, res, next) => {
   try {
     const adminId = req.user && req.user._id;
     const userId = req.params.userId || req.body.userId;
@@ -83,9 +77,6 @@ export const takeDownUser = async (req, res) => {
 
   } catch (error) {
     console.error("Error in takeDownUser controller:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error"
-    });
+    next(error);
   }
 };

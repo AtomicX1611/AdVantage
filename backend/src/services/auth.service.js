@@ -202,9 +202,6 @@ export const buyerLoginService = async (email, password) => {
             message: "no buyer with that email",
         }
     }
-    console.log("Logging with password of both : ",
-        password , buyer.password
-    );
     
     if (buyer.password !== password) {
         return {

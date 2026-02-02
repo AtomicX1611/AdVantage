@@ -11,7 +11,7 @@ import {
 } from "../services/auth.service.js";
 
 
-export const buyerSignup = async (req, res) => {
+export const buyerSignup = async (req, res, next) => {
     try {
         const { username, contact, email, password } = req.body;
         if (!username || !contact || !email || !password) {
@@ -36,10 +36,7 @@ export const buyerSignup = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 };
 
@@ -81,7 +78,7 @@ export const buyerSignup = async (req, res) => {
 //     }
 // };
 
-export const buyerLogin = async (req, res) => {
+export const buyerLogin = async (req, res, next) => {
     try {
         console.log("request rcvd: ", req.body);
         const { email, password } = req.body;
@@ -114,9 +111,7 @@ export const buyerLogin = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 }
 
@@ -158,7 +153,7 @@ export const buyerLogin = async (req, res) => {
 //     }
 // };
 
-export const adminLogin = async (req, res) => {
+export const adminLogin = async (req, res, next) => {
     try {
 
         const { email, password } = req.body;
@@ -194,13 +189,11 @@ export const adminLogin = async (req, res) => {
             message: "Admin login successful",
         });
     } catch (error) {
-        res.status(500).json({
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 };
 
-export const managerLogin = async (req, res) => {
+export const managerLogin = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
@@ -233,13 +226,11 @@ export const managerLogin = async (req, res) => {
             message: "Manager login successful",
         });
     } catch (error) {
-        res.status(500).json({
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 };
 
-export const getMyInfo = async (req, res) => {
+export const getMyInfo = async (req, res, next) => {
     try {
         const userId = req.user._id;
         const role = req.user.role;
@@ -260,15 +251,12 @@ export const getMyInfo = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        })
+        next(error);
     }
 };
 
 
-export const googelSignIn = async (req, res) => {
+export const googelSignIn = async (req, res, next) => {
     try {
         const { idToken } = req.body;
 
@@ -300,11 +288,11 @@ export const googelSignIn = async (req, res) => {
         });
     } catch (error) {
         console.log("Error occurred : ", error);
-        return res.status(500).json({ message: error.message || "Internal Server Error" });
+        next(error);
     }
 };
 
-export const userLogout = async (req, res) => {
+export const userLogout = async (req, res, next) => {
     try {
         res.clearCookie("token", {
             httpOnly: true,
@@ -318,11 +306,7 @@ export const userLogout = async (req, res) => {
 
     } catch (error) {
         console.error("Logout Error:", error);
-        return res.status(500).json({
-            status: 500,
-            success: false,
-            message: "An error occurred during logout",
-        });
+        next(error);
     }
 };
 

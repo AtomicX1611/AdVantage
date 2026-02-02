@@ -18,6 +18,7 @@ import {
     paymentDone,
     notInterested,
     getPendingRequests,
+    getYourNotifications,
 } from "../controllers/buyer.controller.js";
 import {
     addProduct,
@@ -53,6 +54,8 @@ router.put("/update/profile", upload.single("profilePic"), updateBuyerProfile); 
 
 router.get("/yourProducts",getYourProducts); 
 router.get("/getYourProfile",getYourProfile);
+
+router.get("/getNotifications", getYourNotifications);
 
 // buyer as a seller
 router.get("/products",findSellerProducts); // Working

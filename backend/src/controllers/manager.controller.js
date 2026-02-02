@@ -3,7 +3,7 @@ import {
     fetchUnverifiedProducts
  } from "../services/manager.service.js";
 
-export const verifyController = async (req,res) => {
+export const verifyController = async (req,res,next) => {
     const productId=req.body.pid;
     if(!productId) return res.status(400).json({
         success:false,
@@ -24,14 +24,11 @@ export const verifyController = async (req,res) => {
         })
         
     } catch (error) {
-        return res.status(500).json({
-            success:false,
-            message:error.message || "Server side error while verifying product"
-        })
+        next(error);
     }
 }
 
-export const dashboardController = async (req,res) => {
+export const dashboardController = async (req,res,next) => {
     try {
         // console.log('backend requrest for manager data');
         
@@ -48,9 +45,6 @@ export const dashboardController = async (req,res) => {
             message:"Unverified products fetched"
         })
     } catch (error) {
-        return res.status(500).json({
-            success:false,
-            message:"Server error while fetching products"
-        })    
+        next(error);
     }
 }
