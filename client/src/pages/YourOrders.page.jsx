@@ -1,5 +1,6 @@
 // src/pages/MyOrders.jsx
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import OrderHeader from "../components/OrderHeader.component";
 import ProductList from "../components/ProductList";
 import styles from "../styles/myorders.module.css";
@@ -43,10 +44,24 @@ const MyOrders = () => {
 
   return (
     <div className={styles.window}>
-      <OrderHeader />
       <div className={styles['main-container']}>
+        <OrderHeader />
         {loading ? (
-          <div>Loading your orders...</div>
+          <div className={styles.loadingContainer}>
+            <div className={styles.loadingSpinner}></div>
+            <span className={styles.loadingText}>Loading your orders...</span>
+          </div>
+        ) : userProducts.length === 0 ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>📦</div>
+            <h3 className={styles.emptyTitle}>No Orders Yet</h3>
+            <p className={styles.emptyText}>
+              You haven't purchased any products yet. Start browsing to find amazing deals!
+            </p>
+            <Link to="/search" className={styles.browseBtn}>
+              Browse Products
+            </Link>
+          </div>
         ) : (
           <ProductList userProducts={userProducts} backendURL={backendURL} />
         )}

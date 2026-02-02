@@ -12,11 +12,8 @@ const PendingTransactionCard = ({ item, backendURL, onPay, onNotInterested }) =>
 	const location = [item?.city, item?.district, item?.state]
 		.filter(Boolean)
 		.join(", ") || "N/A";
-	
-	// Get the buyer request info if available
 
 	const buyerRequest = item?.requests?.find(request => request.buyer?._id === item?.sellerAcceptedTo);
-    // console.log(buyerRequest);
 	const biddingPrice = buyerRequest?.biddingPrice;
 
 	return (
@@ -28,43 +25,45 @@ const PendingTransactionCard = ({ item, backendURL, onPay, onNotInterested }) =>
 					alt={item?.name || "Product"} 
 				/>
 				{isRental && (
-					<span className={styles.rentalBadge}>Rental</span>
+					<span className={styles.rentalBadge}>For Rent</span>
 				)}
+				<span className={styles.pendingBadge}>⏳ Pending</span>
 			</div>
 			
 			<div className={styles.cardContent}>
 				<h4 className={styles.name}>{item?.name}</h4>
-				<p className={styles.description}>
-					{item?.description?.substring(0, 80)}
-					{item?.description?.length > 80 ? "..." : ""}
-				</p>
+				{item?.description && (
+					<p className={styles.description}>{item.description}</p>
+				)}
 				
 				<div className={styles.details}>
 					<div className={styles.detailRow}>
-						<span className={styles.label}>Seller:</span>
+						<span className={styles.label}>Seller</span>
 						<span className={styles.value}>{sellerName}</span>
 					</div>
 					<div className={styles.detailRow}>
-						<span className={styles.label}>Category:</span>
+						<span className={styles.label}>Category</span>
 						<span className={styles.value}>{category}</span>
 					</div>
 					<div className={styles.detailRow}>
-						<span className={styles.label}>Location:</span>
+						<span className={styles.label}>Location</span>
 						<span className={styles.value}>{location}</span>
 					</div>
-					{biddingPrice && (
-						<div className={styles.detailRow}>
-							<span className={styles.label}>Your Bid:</span>
-							<span className={styles.value}>Rs. {biddingPrice}/-</span>
-						</div>
-					)}
 				</div>
 
 				<div className={styles.priceSection}>
-					<h3 className={styles.price}>Rs. {item?.price}/-</h3>
-					<span className={styles.priceLabel}>
-						{isRental ? "Rental Price" : "Sale Price"}
-					</span>
+					<div className={styles.priceInfo}>
+						<h3 className={styles.price}>₹{item?.price?.toLocaleString()}</h3>
+						<span className={styles.priceLabel}>
+							{isRental ? "Per Day" : "Sale Price"}
+						</span>
+					</div>
+					{biddingPrice && (
+						<div className={styles.bidPrice}>
+							<span className={styles.bidAmount}>₹{biddingPrice?.toLocaleString()}</span>
+							<span className={styles.bidLabel}>Your Bid</span>
+						</div>
+					)}
 				</div>
 			</div>
 
@@ -76,7 +75,7 @@ const PendingTransactionCard = ({ item, backendURL, onPay, onNotInterested }) =>
 					Pay Now
 				</button>
 				<button 
-					className={styles.payBtn} 
+					className={styles.notInterestedBtn} 
 					onClick={() => onNotInterested(item)}
 				>
 					Not Interested

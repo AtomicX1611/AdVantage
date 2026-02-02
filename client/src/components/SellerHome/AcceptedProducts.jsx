@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../../styles/sellerdashboard.module.css';
+import { API_CONFIG } from '../../config/api.config';
+
+const backendURL = API_CONFIG.BACKEND_URL;
 
 const AcceptedProducts = () => {
   const [acceptedProducts, setAcceptedProducts] = useState([]);
@@ -14,7 +17,7 @@ const AcceptedProducts = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch('http://localhost:3000/user/products', {
+      const response = await fetch(`${backendURL}/user/products`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -48,7 +51,7 @@ const AcceptedProducts = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/user/revokeAccepted/${productId}`, {
+      const response = await fetch(`${backendURL}/user/revokeAccepted/${productId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -72,24 +75,34 @@ const AcceptedProducts = () => {
   };
 
   if (isLoading) {
-    return <div className={styles.content}>Loading accepted products...</div>;
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner}></div>
+        <p className={styles.loadingText}>Loading accepted products...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className={styles.content} style={{ color: 'red' }}>{error}</div>;
+    return (
+      <div className={styles.emptyState}>
+        <span className={styles.emptyIcon}>⚠️</span>
+        <h3 className={styles.emptyTitle}>Something went wrong</h3>
+        <p className={styles.emptyText}>{error}</p>
+      </div>
+    );
   }
 
   return (
     <div>
       <h2>Accepted - Awaiting Payment</h2>
-      <p style={{ color: '#64748b', marginBottom: '20px' }}>
+      <p style={{ color: '#6b7280', marginBottom: '24px' }}>
         These products have been accepted by you but the buyer hasn't completed payment yet.
       </p>
 
-      <div className={styles.grid}>
-        {acceptedProducts.length > 0 ? (
-          acceptedProducts.map((product) => {
-            // Find the accepted buyer from requests (buyer is just an ID string)
+      {acceptedProducts.length > 0 ? (
+        <div className={styles.grid}>
+          {acceptedProducts.map((product) => {
             const acceptedRequest = product.requests.find(
               (req) => req.buyer === product.sellerAcceptedTo
             );
@@ -99,73 +112,64 @@ const AcceptedProducts = () => {
                 <div className={styles.cardImageContainer}>
                   <img
                     src={product.images && product.images.length > 0 
-                      ? `http://localhost:3000/${product.images[0].replace(/\\/g, '/')}`
+                      ? `${backendURL}/${product.images[0].replace(/\\/g, '/')}`
                       : 'https://placehold.co/300x300?text=No+Image'}
                     alt={product.name}
                     className={styles.cardImage}
                   />
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '10px',
-                      right: '10px',
-                      background: '#16a34a',
-                      color: 'white',
-                      padding: '5px 10px',
-                      borderRadius: '12px',
-                      fontSize: '0.75rem',
-                      fontWeight: 'bold',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                    }}
-                  >
+                  <span style={{
+                    position: 'absolute',
+                    top: '12px',
+                    right: '12px',
+                    background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                    color: 'white',
+                    padding: '6px 14px',
+                    borderRadius: '20px',
+                    fontSize: '0.75rem',
+                    fontWeight: '600',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                  }}>
                     Accepted
-                  </div>
+                  </span>
                 </div>
 
                 <div className={styles.cardDetails}>
-                  <div>
-                    <h3>{product.name}</h3>
-                    
-                    <div style={{ marginTop: '12px' }}>
-                      <p style={{ fontWeight: 'bold', color: '#334155', fontSize: '0.95rem' }}>
-                        Your Price: ${product.price}{product.isRental ? '/day' : ''}
+                  <h3>{product.name}</h3>
+                  
+                  <p className={styles.cardPrice}>
+                    ₹{product.price}{product.isRental ? '/day' : ''}
+                  </p>
+                  
+                  {acceptedRequest && acceptedRequest.biddingPrice && (
+                    <p style={{ 
+                      color: acceptedRequest.biddingPrice >= product.price ? '#059669' : '#dc2626', 
+                      fontWeight: '600',
+                      fontSize: '0.9rem',
+                    }}>
+                      Buyer's Bid: ₹{acceptedRequest.biddingPrice}
+                    </p>
+                  )}
+
+                  {acceptedRequest && (
+                    <div style={{ marginTop: '8px', fontSize: '0.85rem', color: '#6b7280' }}>
+                      <p><strong>Category:</strong> {product.category}</p>
+                      <p style={{ marginTop: '4px' }}>
+                        <strong>Location:</strong> {product.city}, {product.state}
                       </p>
                       
-                      {acceptedRequest && acceptedRequest.biddingPrice && (
-                        <p style={{ 
-                          color: acceptedRequest.biddingPrice >= product.price ? '#16a34a' : '#dc2626', 
-                          fontWeight: 'bold',
-                          fontSize: '0.95rem',
-                          marginTop: '4px'
-                        }}>
-                          Buyer's Bid: ${acceptedRequest.biddingPrice}
+                      {product.isRental && acceptedRequest.from && acceptedRequest.to && (
+                        <p style={{ marginTop: '8px', color: '#1a1a2e' }}>
+                          <strong>Rental Period:</strong><br/>
+                          {new Date(acceptedRequest.from).toLocaleDateString()} - {new Date(acceptedRequest.to).toLocaleDateString()}
                         </p>
                       )}
                     </div>
+                  )}
 
-                    {acceptedRequest && (
-                      <div style={{ marginTop: '12px', fontSize: '0.9rem', color: '#64748b' }}>
-                        <p>
-                          <strong>Category:</strong> {product.category}
-                        </p>
-                        <p style={{ marginTop: '4px' }}>
-                          <strong>Location:</strong> {product.city}, {product.state}
-                        </p>
-                        
-                        {product.isRental && acceptedRequest.from && acceptedRequest.to && (
-                          <p style={{ marginTop: '8px', color: '#0f172a', fontSize: '0.85rem' }}>
-                            <strong>Rental Period:</strong><br/>
-                            {new Date(acceptedRequest.from).toLocaleDateString()} - {new Date(acceptedRequest.to).toLocaleDateString()}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  <div style={{ marginTop: 'auto', paddingTop: '15px' }}>
+                  <div className={styles.cardActions}>
                     <button
-                      className={`${styles.btn} ${styles.btnLogout}`}
-                      style={{ width: '100%' }}
+                      className={styles.btnDel}
+                      style={{ flex: 1 }}
                       onClick={() => handleRevoke(product._id)}
                     >
                       Revoke Acceptance
@@ -174,13 +178,17 @@ const AcceptedProducts = () => {
                 </div>
               </div>
             );
-          })
-        ) : (
-          <p style={{ color: '#64748b', width: '100%' }}>
-            No accepted products awaiting payment.
+          })}
+        </div>
+      ) : (
+        <div className={styles.emptyState}>
+          <span className={styles.emptyIcon}>✅</span>
+          <h3 className={styles.emptyTitle}>No pending acceptances</h3>
+          <p className={styles.emptyText}>
+            You don't have any accepted products awaiting payment.
           </p>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

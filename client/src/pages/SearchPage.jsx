@@ -33,7 +33,7 @@ const SearchPage = () => {
         if (filters.min) queryParams.append('minPrice', filters.min);
         if (filters.max) queryParams.append('maxPrice', filters.max);
         if (filters.verifiedOnly) queryParams.append('verified', 'true');
-        if( filters.rentalOnly) queryParams.append('isRental', 'true');
+        if (filters.rentalOnly) queryParams.append('isRental', 'true');
         
         const url = `${backendURL}/anyone/products/filtered?${queryParams.toString()}`;
         console.log('Fetching from:', url);
@@ -67,22 +67,32 @@ const SearchPage = () => {
     ? products.filter((p) => p.isRental)
     : products;
 
+  // Build the header title
+  const getHeaderTitle = () => {
+    if (searchQuery && categoryParam) {
+      return `Results for "${searchQuery}" in ${categoryParam}`;
+    } else if (searchQuery) {
+      return `Results for "${searchQuery}"`;
+    } else if (categoryParam) {
+      return categoryParam;
+    }
+    return "All Products";
+  };
 
   return (
     <div className={styles.searchpage_window}>
       <main className={styles.mainContent}>
         <div id={styles.up}>
-          <b id={styles.filters}>
-            FILTERS 
-            {searchQuery && ` - Results for "${searchQuery}"`}
-            {categoryParam && ` - Category: ${categoryParam}`}
-          </b>
+          <h1 id={styles.filters}>{getHeaderTitle()}</h1>
         </div>
 
         <div id={styles.bottom}>
           <FilterPanel filters={filters} onChange={handleFilterChange} />
           {loading ? (
-            <div>Loading products...</div>
+            <div className={styles.loadingContainer}>
+              <div className={styles.loadingSpinner}></div>
+              <span className={styles.loadingText}>Finding products for you...</span>
+            </div>
           ) : (
             <ProductGrid backendURL={backendURL} products={filteredProducts} />
           )}
