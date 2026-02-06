@@ -60,13 +60,16 @@ const Header = () => {
               <span>Seller Account</span>
             </div>
 
-            {isAuth ? (
-              <div className={`${classes.loginBtn} ${classes.hoverBtn}`} style={{ display: 'none' }}>
-                <span onClick={() => navigate('/login')} style={{ cursor: 'pointer' }}>Login</span>
-              </div>
-            ) : (
-              <div className={`${classes.loginBtn} ${classes.hoverBtn}`}>
-                <span onClick={() => navigate('/signup')} style={{ cursor: 'pointer' }}>Login</span>
+            {!isAuth && 
+              // <div className={`${classes.loginBtn} ${classes.hoverBtn}`} style={{ display: 'none' }}>
+              //   <span onClick={() => navigate('/login')} style={{ cursor: 'pointer' }}>Login</span>
+              // </div>
+             (
+              <div className={`${classes.loginBtn} ${classes.hoverBtn}`} onClick={() => {
+                  console.log("clicked");
+                  navigate('/login')
+                  }}>
+                <span style={{ cursor: 'pointer' }}>Login</span>
               </div>
             )}
           </div>

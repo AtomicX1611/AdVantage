@@ -1,4 +1,4 @@
-import React from 'react';
+import React ,{useState}from 'react';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -25,7 +25,8 @@ ChartJS.register(
 );
 
 const SellerAnalytics = () => {
-  // --- DUMMY DATA (Replace with API data later) ---
+  const [Analytics,setAnalytics] = useState(null);
+
   useEffect(()=>{
     async function LoadAnalytics() {
       let response  = await fetch('http://localhost:3000/user/selling-analytics',{
@@ -37,10 +38,16 @@ const SellerAnalytics = () => {
       });
 
       let responseData = await response.json();
-      console.log("data for sdb: ",responseData);
+      if(responseData.success) {
+        console.log("data for sdb: ",responseData);
+        setAnalytics(responseData.data);
+        return ;
+      }
+      alert("Failed to load Analytics");
     }
     LoadAnalytics();
   },[])
+
   const stats = {
     totalEarnings: 1250,
     itemsSold: 12,
@@ -53,7 +60,7 @@ const SellerAnalytics = () => {
     labels: ['Items for Sale', 'Items for Rent'],
     datasets: [
       {
-        data: [15, 8], // e.g., 15 items uploaded for sale, 8 for rent
+        data: [Analytics!=null ? Analytics.itemsForSale : 0 , Analytics !=null ? Analytics.itemsToRent : 0 ], // e.g., 15 items uploaded for sale, 8 for rent
         backgroundColor: [
           '#3b82f6', // Blue (Sale)
           '#10b981', // Emerald (Rent)
@@ -70,12 +77,12 @@ const SellerAnalytics = () => {
     datasets: [
       {
         label: 'Items Sold',
-        data: [12],
+        data: [Analytics!=null ? Analytics.itemsSold : 0],
         backgroundColor: '#3b82f6',
       },
       {
         label: 'Items Rented Out',
-        data: [5],
+        data: [Analytics!=null ? Analytics.activeRentals : 0],
         backgroundColor: '#10b981',
       },
     ],
@@ -104,9 +111,9 @@ const SellerAnalytics = () => {
           <div className={styles.cardDetails}>
             <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Total Earnings</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              ${stats.totalEarnings}
+              Rs. {Analytics!=null ? Analytics.earnings : 0}
             </p>
-            <span style={{ fontSize: '0.85rem', color: '#10b981' }}>+12% from last month</span>
+            <span style={{ fontSize: '0.85rem', color: '#10b981' }}>Your earnings</span>
           </div>
         </div>
 
@@ -115,7 +122,7 @@ const SellerAnalytics = () => {
           <div className={styles.cardDetails}>
             <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Items Sold</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              {stats.itemsSold}
+              {Analytics!=null ? Analytics.itemsSold : 0}
             </p>
             <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Lifetime sales</span>
           </div>
@@ -126,7 +133,7 @@ const SellerAnalytics = () => {
           <div className={styles.cardDetails}>
             <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Active Rentals</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              {stats.activeRentals}
+              {Analytics!=null ? Analytics.activeRentals : 0}
             </p>
             <span style={{ fontSize: '0.85rem', color: '#f59e0b' }}>Currently with users</span>
           </div>
@@ -137,7 +144,7 @@ const SellerAnalytics = () => {
           <div className={styles.cardDetails}>
             <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Pending Requests</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              {stats.pendingRequests}
+              {Analytics!=null ? Analytics.pendingRequest : 0}
             </p>
             <span style={{ fontSize: '0.85rem', color: '#ef4444' }}>Action required</span>
           </div>

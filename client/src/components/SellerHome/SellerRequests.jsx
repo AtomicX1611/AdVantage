@@ -13,7 +13,7 @@ const SellerRequests = () => {
   const [error, setError] = useState(null);
   const [myAccount, setMyAccount] = useState("");
   const [pendingProductId, setPendingProductId] = useState(null);
-  const backendURL = "http://localhost:3000/";
+  const backendURL = "http://localhost:3000";
 
   // Check if we navigated here with a specific product ID (from notification)
   useEffect(() => {

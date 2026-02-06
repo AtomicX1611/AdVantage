@@ -53,6 +53,10 @@ const SellerHeader = ({ toggleSidebar }) => {
           + Add Product
         </Link>
 
+        <Link className={styles.btn} to="/">
+          Buyer Dashboard
+        </Link>
+
         <button className={`${styles.btn} ${styles.btnLogout}`} onClick={handleLogout}>
           Logout
         </button>
