@@ -12,7 +12,7 @@
 body {
   width: 100vw;
   font-family: "Poppins", sans-serif;
-  background-color: #ebe9f3;
+  background-color: #000000;
   overflow-x: hidden;
 }
 
@@ -219,15 +219,14 @@ button {
   display: none;
 }
 .bx-heart {
- /* margin-top: 10px; */
- margin-left: 13px;
+ margin-top: 10px;
   color: rgb(0, 0, 0);
-  font-size: 34px;
+  font-size: 37px;
 }
 .bxs-user-circle {
-    /* margin-top: 10px; */
+    margin-top: 10px;
   color: rgb(0, 0, 0);
-  font-size: 34px;
+  font-size: 40px;
 }
 
 .hover-btn{
