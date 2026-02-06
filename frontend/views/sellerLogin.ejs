@@ -18,36 +18,36 @@
             <div class="form">
                 <form action="/signup" method="post" id="signup-form">
                     <div class="email">
-                        <div class="label">
+                        <!-- <div class="label">
                             <label for="sgn-email">Email</label>
-                        </div>
+                        </div> -->
                         <input type="email" name="email" id="sgn-email" placeholder="Email ID" required />
-                        <div class="error" id="id-exist">
+                        <div class="error" id="id-exist" style="color: tomato;">
                             *This Email ID already Exist
                         </div>
                     </div>
                     <div class="user-details">
-                        <div class="label">
+                        <!-- <div class="label">
                             <label for="username">Username</label>
-                        </div>
+                        </div> -->
                         <input type="text" name="username" id="username" placeholder="Enter Your Name" required>
-                        <div class="label">
+                        <!-- <div class="label">
                             <label for="contact">Contact No</label>
-                        </div>
+                        </div> -->
                         <input type="number" name="contact" id="contact" placeholder="Contact No" required
                             pattern="[0-9]{10}">
                     </div>
-                    <div class="label">
+                    <!-- <div class="label">
                         <label for="create-password">Password</label>
-                    </div>
+                    </div> -->
                     <input type="password" name="password" id="create-password" placeholder="Password" required />
                     <div class="confirm-password">
-                        <div class="label">
+                        <!-- <div class="label">
                             <label for="confirm-password">Confirm Password</label>
-                        </div>
+                        </div> -->
                         <input type="password" name="confirmPassword" id="confirm-password"
                             placeholder="Confirm Password" required />
-                        <div class="error" id="password-misMatch">
+                        <div class="error" id="password-misMatch" style="color: tomato;">
                             *Passwords do not Match
                         </div>
                     </div>
@@ -66,18 +66,18 @@
             </div>
             <div class="form ">
                 <form action="/login" method="post" id="login-form">
-                    <div class="label">
+                    <!-- <div class="label">
                         <label for="email">Email</label>
-                    </div>
+                    </div> -->
                     <div class="email">
                         <input type="email" name="email" id="email" placeholder="Email ID" required />
                     </div>
                     <div class="confirm-password">
-                        <div class="label">
+                        <!-- <div class="label">
                             <label for="login-password">Password</label>
-                        </div>
+                        </div> -->
                         <input type="password" name="password" id="login-password" placeholder="Password" required />
-                        <div class="error" id="incorrect-password">
+                        <div class="error" id="incorrect-password" style="color: tomato;">
                             *Incorrect Password Entered
                         </div>
                     </div>
@@ -203,7 +203,7 @@
         let result = await response.json();
         console.log(result);
 
-        if (response.status === 400) {
+        if (response.status === 409) {
             idExist.style.display = "flex";
             return;
         }
@@ -213,7 +213,7 @@
             return;
         }
 
-        if (response.status === 200) {
+        if (response.ok) {
             window.location.href = "/seller/";
         }
 

@@ -12,19 +12,17 @@
 <body>
   <div class="card">
     <div class="login">
-      <div class="head" style="font-size: larger; margin-top: 20px;">
-        <h1>Manager Login</h1>
+      <div class="head" style="font-size: 18px; margin-top: 20px; font-weight: 400;">
+        <h1 style="font-weight: 400;">Manager Login</h1>
       </div>
       <div class="form">
-        <form id="login-form" method="post" style="gap: 20px;">
+        <form id="login-form" method="post" style="gap: 25px;">
           <div class="email">
-            <label for="email">Email</label>
             <input type="email" name="email" id="email" placeholder="Email ID" required>
           </div>
           <div class="confirm-password">
-            <label for="confirm-password">Password</label>
             <input type="password" name="password" id="login-password" placeholder="Password" required>
-            <div class="error" id="incorrect-password" style="display: none;">
+            <div class="error" id="incorrect-password">
               *Incorrect Email or Password
             </div>
           </div>
@@ -52,7 +50,6 @@
   <script>
     document.addEventListener("DOMContentLoaded", (event) => {
       const loginForm = document.getElementById("login-form");
-      console.log("Login form : ", loginForm);
       loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         const incErr = document.getElementById("incorrect-password");
@@ -60,19 +57,18 @@
 
         const email = document.getElementById("email").value.trim();
         const password = document.getElementById("login-password").value;
-        //validation need to be updated
 
         if (!email.includes('@')) {
-          alert("Enter a valid email missing  @.");
+          alert("Enter a valid email missing @.");
           return;
         }
+
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        
-        if(!emailRegex.test(email)) {
-            alert("Please enter a valid Email");
-            return ;
+        if (!emailRegex.test(email)) {
+          alert("Please enter a valid Email");
+          return;
         }
-        
+
         if (password === "") {
           alert("Password is required.");
           return;
@@ -86,15 +82,12 @@
             },
             body: JSON.stringify({ email, password })
           });
-          console.log("Result : ", response)
-          const result = await response.json();
 
           if (response.ok) {
             console.log("managerLogin Successful");
             window.location.href = "/manager/dashboard";
           } else {
-            console.log("Login Failed:", result.error);
-            incErr.style.display = "block";
+            incErr.style.display = "flex";
           }
         } catch (error) {
           console.error("Login Error:", error);

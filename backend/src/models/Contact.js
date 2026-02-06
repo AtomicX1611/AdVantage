@@ -16,5 +16,5 @@ const contactSchema=mongoose.Schema({
     },
 })
 
-contactSchema.index({user:1});
+// contactSchema.index({user:1});
 export const Contacts=new mongoose.model("Contacts",contactSchema);

@@ -1,71 +1,31 @@
-import Sellers from "../models/Sellers.js";
-import Products from "../models/Products.js";
+// import Sellers from "../models/Sellers.js";
+// import Products from "../models/Products.js";
 
-export const getSellerById= async (id)=>{
-    return await Sellers.findById(id);
-}
+// export const getSellerById= async (id)=>{
+//     return await Sellers.findById(id);
+// }
 
-export const createSeller = async (sellerData) => {
-    return await Sellers.create(sellerData);
-};
+// export const createSeller = async (sellerData) => {
+//     return await Sellers.create(sellerData);
+// };
 
-export const findSellerByEmail = async (email) => {
-    return await Sellers.findOne({ email });
-};
+// export const findSellerByEmail = async (email) => {
+//     return await Sellers.findOne({ email });
+// };
 
-export const updateSellerById = async (sellerId, updateData) => {
-    return await Sellers.findByIdAndUpdate(
-        sellerId,
-        { $set: updateData },
-        { new: true }
-    );
-};
+// export const updateSellerById = async (sellerId, updateData) => {
+//     return await Sellers.findByIdAndUpdate(
+//         sellerId,
+//         { $set: updateData },
+//         { new: true }
+//     );
+// };
 
-export const updateSellerPassById = async (sellerId, newPassword) => {
-    return await Sellers.findByIdAndUpdate(
-        sellerId,
-        { $set: { password: newPassword } },
-        { new: true }
-    );
-};
+// export const updateSellerPassById = async (sellerId, newPassword) => {
+//     return await Sellers.findByIdAndUpdate(
+//         sellerId,
+//         { $set: { password: newPassword } },
+//         { new: true }
+//     );
+// };
 
-export const findProductsForSeller = async (id) => {
-    try {
-        const products = await Products.find({ seller: id })
-            .populate("seller"); 
-        return {
-            success:true,
-            products:products
-        }
-    } catch (error) {
-        console.log(error);
-        return {
-            success:false,
-            message:"Database error"
-        }
-    }
-};
-
-export const findSellerSubsDao = async (userId) => {
-    try {
-        const seller = await Sellers.findById(userId).select("subscription");
-        
-        if (!seller) {
-            return {
-                success: false,
-                message: "Seller not found"
-            };
-        }
-
-        return {
-            success: true,
-            subscription: seller.subscription
-        };
-    } catch (error) {
-        console.log(error);
-        return {
-            success: false,
-            message: "Database error"
-        };
-    }
-};

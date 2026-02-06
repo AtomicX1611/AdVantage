@@ -7,11 +7,16 @@ import {
     getWishlistProductsService,
     getYourProductsService,
     rentService,
+    getYouProfileService,
+    paymentDoneService,
+    notInterestedService,
+    getPendingRequestsService,
+    getYourNotificationsService,
 } from "../services/buyer.service.js";
 
-export const updateBuyerProfile = async (req, res) => {
+export const updateBuyerProfile = async (req, res, next) => {
     try {
-        const buyerId = req.user._id; // assuming you set buyerId in middleware from JWT
+        const buyerId = req.user._id;
         const updateData = req.body;
 
         if (!buyerId) {
@@ -22,10 +27,12 @@ export const updateBuyerProfile = async (req, res) => {
         }
 
         if (!updateData || Object.keys(updateData).length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: "No update fields provided",
-            });
+            if (req.file === undefined) {
+                return res.status(400).json({
+                    success: false,
+                    message: "No update fields provided",
+                });
+            }
         }
 
         const response = await updateBuyerProfileService(buyerId, updateData, req.file);
@@ -44,14 +51,11 @@ export const updateBuyerProfile = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 };
 
-export const addToWishlist = async (req, res) => {
+export const addToWishlist = async (req, res, next) => {
     try {
         const userId = req.user._id;
         const productId = req.params.productId;
@@ -64,21 +68,29 @@ export const addToWishlist = async (req, res) => {
                 message: response.message
             });
         }
-
+        console.log("gettiasdadang wishlist in backend");
         return res.status(200).json({
             success: true,
             message: response.message
         });
 
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 };
 
-export const removeFromWishlist = async (req, res) => {
+export const getPendingRequests = async (req, res, next) => {
+    try {
+        const buyerId = req.user._id;
+        const response = await getPendingRequestsService(buyerId);
+        return res.status(response.status).json(response);
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
+
+export const removeFromWishlist = async (req, res, next) => {
     try {
         const userId = req.user._id;
         const productId = req.params.productId;
@@ -98,14 +110,11 @@ export const removeFromWishlist = async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 };
 
-export const getWishlistProducts = async (req, res) => {
+export const getWishlistProducts = async (req, res, next) => {
     try {
         // console.log("fdskjf");
         const userId = req.user._id;
@@ -124,19 +133,51 @@ export const getWishlistProducts = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 }
 
-export const requestProduct = async (req, res) => {
+export const requestProduct = async (req, res, next) => {
     try {
         const buyerId = req.user._id;
         const productId = req.params.productId;
+        console.log(req.body);
+        const { biddingPrice } = req.body;
 
-        const response = await requestProductService(productId, buyerId);
+        if (!buyerId || !productId || !biddingPrice) {
+            return res.status(404).json({ message: "Missing buyerId or productId or biddingPrice" });
+        }
+        const response = await requestProductService(productId, buyerId, biddingPrice);
+        console.log("response in contr: ", response);
+        if (!response.success) {
+            return res.status(response.status || 400).json({
+                success: false,
+                message: response.message
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: response.message
+        });
+
+    } catch (error) {
+        // console.log(error);
+        next(error);
+        // return res.status(500).json({
+        //     success: false,
+        //     message: error.message || "Internal server error"
+        // });
+    }
+};
+
+export const paymentDone = async (req, res, next) => {
+    try {
+        const buyerId = req.user._id;
+        const productId = req.params.productId;
+        if (!buyerId || !productId) {
+            return res.status(404).json({ message: "Missing buyerId or productId" });
+        }
+        const response = await paymentDoneService(buyerId, productId);
 
         if (!response.success) {
             return res.status(response.status).json({
@@ -151,15 +192,66 @@ export const requestProduct = async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 };
 
-export const updateBuyerPassword = async (req, res) => {
+export const getYourNotifications = async (req, res, next) => {
     try {
+        const buyerId = req.user._id;
+        if (!buyerId) {
+            return res.status(404).json({ message: "Missing buyerId" });
+        }
+        const response = await getYourNotificationsService(buyerId);
+
+        if (!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            notifications: response.notifications,
+            // message: response.message,
+        });
+
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
+
+export const notInterested = async (req, res, next) => {
+    try {
+        const buyerId = req.user._id;
+        const productId = req.params.productId;
+
+        if (!buyerId || !productId) {
+            return res.status(404).json({ message: "Missing buyerId or productId" });
+        }
+        const response = await notInterestedService(buyerId, productId);
+
+        if (!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: response.message
+        });
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
+
+export const updateBuyerPassword = async (req, res, next) => {
+    try {
+        // console.log("coming to buyerPassword");
         const { oldPassword, newPassword } = req.body;
         const userId = req.user._id;
         if (!oldPassword || !newPassword) {
@@ -180,13 +272,11 @@ export const updateBuyerPassword = async (req, res) => {
             message: "password updated successfully",
         });
     } catch (error) {
-        return res.status(500).json({
-            message: error
-        });
+        next(error);
     }
 }
 
-export const getYourProducts = async (req, res) => {
+export const getYourProducts = async (req, res, next) => {
     try {
         const userId = req.user._id;
         const response = await getYourProductsService(userId);
@@ -201,23 +291,36 @@ export const getYourProducts = async (req, res) => {
             products: response.products,
         });
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 }
 
-export const rentProduct = async (req, res) => {
-    const buyerId = req.user._id;
-    const productId = req.params.productId;
-    const { from, to } = req.body;
+export const rentProductController = async (req, res, next) => {
+    try {
+        const buyerId = req.user._id;
+        const productId = req.params.productId;
+        const { from, to, biddingPrice } = req.body;
 
-    if (!buyerId || !productId || !from || !to) {
-        return res.status(404).json({ message: "Missing buyerId or productId or from or to" });
+        if (!buyerId || !productId || !from || !to || !biddingPrice) {
+            return res.status(404).json({ message: "Missing buyerId or productId or from or to or biddingPrice" });
+        }
+
+        let respose = await rentService(buyerId, productId, from, to, biddingPrice);
+
+        return res.status(respose.status).json({ success: respose.success, message: respose.message });
+    } catch (error) {
+        console.log(error);
+        next(error);
     }
+}
 
-    let respose = await rentService(buyerId, productId, from, to);
-
-    return res.status(respose.status).json({ success: respose.success, message: respose.message });
+export const getYourProfile = async (req, res, next) => {
+    try {
+        const buyerId = req.user._id;
+        const response = await getYouProfileService(buyerId);
+        return res.status(response.status).json(response);
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
 }

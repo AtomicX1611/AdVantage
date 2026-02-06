@@ -5,48 +5,83 @@ import cors from "cors";
 import { connectDB } from "./src/config/mongo.config.js";
 import cookieParser from "cookie-parser";
 import path from "node:path";
+import fs from "fs";
+import morgan from "morgan";
+import { createStream } from "rotating-file-stream";
 import authRouter from "./src/routes/auth.router.js";
-import buyerRouter from "./src/routes/buyer.router.js";
-import sellerRouter from "./src/routes/seller.router.js";
+import userRouter from "./src/routes/user.router.js";
+// import sellerRouter from "./src/routes/seller.router.js";
 import adminRouter from "./src/routes/admin.router.js";
 import anyoneRouter from "./src/routes/anyone.router.js";
 import { chatRouter } from "./src/routes/chat.routes.js";
 import { Server } from "socket.io";
 import { socketActions } from "./src/controllers/socket.contoller.js";
 import { managerRouter } from "./src/routes/manager.router.js";
+import { errorMiddleware } from "./src/middlewares/error.middleware.js";
+// import { router } from "./src/routes/payment.router.js";
+import { seedData } from "./data.js";
 
-const app=express();
+const app = express();
 await connectDB();
+
+const logDirectory = path.join(process.cwd(), "logs");
+if (!fs.existsSync(logDirectory)) {
+  fs.mkdirSync(logDirectory);
+}
+
+const accessLogStream = createStream("access.log", {
+  interval: "1d", 
+  path: logDirectory,
+  maxFiles: 14,
+  size: "10M",
+});
+
+app.use(morgan("combined", { stream: accessLogStream }));
+app.use(morgan("dev"));
 
 // body Parsing middleware
 app.use(cookieParser());
+
 app.use(cors({
-  origin: "http://localhost:3001",
+  origin: "http://localhost:5173",
   credentials:true
 }));
+
 app.use(express.json({ limit: "500mb" }));
 app.use(express.urlencoded({ extended: true, limit: "500mb" }));
 
 app.use("/uploads", express.static(path.join("./", "uploads")));
 
-app.use("/auth",authRouter);
-app.use("/buyer",buyerRouter);
-app.use("/seller",sellerRouter);
-app.use('/manager',managerRouter);
-app.use("/admin",adminRouter);
-app.use("/anyone",anyoneRouter);
-app.use("/chat",chatRouter);
+app.use("/auth", authRouter);
+app.use("/user", userRouter);
+// app.use("/seller",sellerRouter);
+app.use('/manager', managerRouter);
+app.use("/admin", adminRouter);
+app.use("/anyone", anyoneRouter);
+app.use("/chat", chatRouter);
 
-const server=app.listen(process.env.PORT,()=>{
-    console.log("Server listening on http://localhost:"+process.env.PORT);
+//need to remove this later
+app.get('/shutdown', (req, res) => {
+  res.send('Server is shutting down...');
+  server.close(() => {
+    console.log('Server successfully closed.');
+    process.exit(0);
+  });
 });
 
-export const io=new Server(server,{
+app.use(errorMiddleware);
+
+const server = app.listen(process.env.PORT, () => {
+  // seedData();
+  console.log("Server listening on http://localhost:" + process.env.PORT);
+});
+
+export const io = new Server(server, {
   cors: {
-    origin:"http://localhost:3001",
+    origin:"http://localhost:5173",
     methods:['GET','POST'],
     credentials:true
   }
 });
 
-io.on("connection",socketActions);
+io.on("connection", socketActions);

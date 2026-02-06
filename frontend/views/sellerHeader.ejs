@@ -48,7 +48,7 @@
                     </div>
                 </a>
 
-                <a>
+                <a href="/logout/seller">
                     <div class="logout hover" id="logout">
                         Logout
                     </div>
@@ -61,20 +61,5 @@
         </nav>
     </header>
 </body>
-<script>
-    let logout = document.getElementById("logout");
-    logout.addEventListener("click", () => {
-
-        let token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = "/auth/seller"
-        }
-        let res = confirm("Do you want to logout ?");
-        if (res) {
-            localStorage.removeItem('token');
-            window.location.href("/auth/seller");
-        }
-    })
-</script>
 
 </html>

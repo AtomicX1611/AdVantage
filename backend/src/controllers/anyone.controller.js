@@ -4,7 +4,7 @@ import {
     getProductsService,
 } from "../services/anyone.service.js";
 
-export const getFeaturedFreshProducts = async (req, res) => {
+export const getFeaturedFreshProducts = async (req, res, next) => {
     try {
         const response = await getFeaturedFreshProductsService();
 
@@ -20,16 +20,13 @@ export const getFeaturedFreshProducts = async (req, res) => {
             featuredProducts: response.featuredProducts,
         });
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 }
 
-export const getProductDetails = async (req,res) => {
+export const getProductDetails = async (req,res,next) => {
     try {
-        console.log("At first coming");
+        // console.log("At first coming");
         const { productId } = req.params;
         if(!productId){
             return res.status(400).json("Need product Id");
@@ -42,21 +39,18 @@ export const getProductDetails = async (req,res) => {
                 message: response.message
             });
         }
-        console.log(response.product);
+        // console.log(response.product);
         return res.status(200).json({
             success: true,
             product: response.product,
             message: response.message,
         });
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 }
 
-export const getProducts = async (req,res) => {
+export const getProducts = async (req,res,next) => {
     try{
         const products = await getProductsService(req.query);
         // console.log(" sdkjf ");
@@ -67,10 +61,7 @@ export const getProducts = async (req,res) => {
             message: "Products retrieved successfully",
         });
     }catch(error){
-        console.log("dkssddd");
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        // console.log("dkssddd");
+        next(error);
     }
 }

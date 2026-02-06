@@ -1,4 +1,6 @@
 import Products from "../models/Products.js";
+import Users from "../models/Users.js";
+import { updateEarnings } from "./users.dao.js";
 
 export const getProductById = async (productId) => {
     // console.log(productId);
@@ -20,7 +22,7 @@ export const createProduct = async (productData) => {
     return await Products.create(productData);
 };
 
-export const addProductRequestDao = async (productId, buyerId) => {
+export const addProductRequestDao = async (productId, buyerId, biddingPrice) => {
     const product = await Products.findById(productId);
 
     if (!product) {
@@ -35,6 +37,10 @@ export const addProductRequestDao = async (productId, buyerId) => {
         return { success: false, reason: "already_sold" };
     }
 
+    if (product.price > biddingPrice) {
+        return { success: false, reason: "bidding_price_low" };
+    }
+
     const alreadyRequested = product.requests.some(
         req => req.buyer.toString() === buyerId.toString()
     );
@@ -43,10 +49,14 @@ export const addProductRequestDao = async (productId, buyerId) => {
         return { success: false, reason: "already_requested" };
     }
 
-    product.requests.push({ buyer: buyerId });
+    product.requests.push({ buyer: buyerId, biddingPrice: biddingPrice });
     await product.save();
 
-    return { success: true };
+    return {
+        success: true,
+        sellerId: product.seller,
+        productName: product.name
+    };
 };
 
 export const acceptProductRequestDao = async (productId, buyerId) => {
@@ -60,6 +70,10 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
         return { success: false, reason: "already_sold" };
     }
 
+    if (product.sellerAcceptedTo) {
+        return { success: false, reason: "already_accepted" };
+    }
+    console.log("requsst: ", product.requests);
     const isRequested = product.requests.some(
         req => req.buyer.toString() === buyerId.toString()
     );
@@ -68,16 +82,99 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
         return { success: false, reason: "no_request" };
     }
 
-    product.soldTo = buyerId;
-    if (product.isRental) {
-        product.requests = product.requests.filter(
-            req => req.buyer.toString() !== buyerId.toString()
-        );
-    }else{
-        product.requests=[];
-    }
+    product.sellerAcceptedTo = buyerId;
+    // product.requests = product.requests.filter(
+    //     req => req.buyer.toString() !== buyerId.toString()
+    // );
     await product.save();
 
+    return {
+        success: true,
+        sellerId: product.seller,
+        productName: product.name,
+    };
+};
+
+export const revokeAcceptedRequestDao = async (productId) => {
+    const product = await Products.findById(productId);
+
+    if (!product) {
+        return { success: false, reason: "not_found" };
+    }
+    if (product.soldTo && product.soldTo.buyer) {
+        return { success: false, reason: "already_sold" };
+    }
+    if (product.sellerAcceptedTo === null) {
+        return { success: false, reason: "no_accepted_request" };
+    }
+    product.sellerAcceptedTo = null;
+    await product.save();
+    return {
+        success: true,
+        buyerId: product.sellerAcceptedTo,
+        sellerId: product.seller,
+        productName: product.name,
+    };
+};
+
+/*
+    few changes done here
+    paymentDoneDao
+*/
+export const paymentDoneDao = async (buyerId, productId) => {
+    const product = await Products.findById(productId);
+
+    if (!product) {
+        return { success: false, reason: "not_found" };
+    }
+    if (product.sellerAcceptedTo.toString() !== buyerId.toString()) {
+        return { success: false, reason: "not_accepted_buyer" };
+    }
+    if (product.soldTo && product.soldTo.buyer) {
+        return { success: false, reason: "already_sold" };
+    }
+    const hisRequest = product.requests.find(req => req.buyer.toString() === buyerId.toString());
+    if (!product.isRental) {
+        product.price = hisRequest.biddingPrice;
+    }
+
+    // adding product.price for both rental and sale items
+    if(!hisRequest) {
+        return {success:false,reason:"not_found"}; // check this
+    }
+
+    const payingAmount = hisRequest.biddingPrice;
+    const sellerId = product.seller;
+
+    updateEarnings(sellerId,payingAmount);
+    
+    product.requests = [];
+    product.soldTo = buyerId;
+    await product.save();
+    // delete 
+    return {
+        success: true,
+        sellerId: product.seller,
+        price: hisRequest.biddingPrice,
+        productName: product.name,
+    };
+}
+export const notInterestedDao = async (buyerId, productId) => {
+    const product = await Products.findById(productId);
+
+    if (!product) {
+        return { success: false, reason: "not_found" };
+    }
+    if (product.soldTo && product.soldTo.buyer) {
+        return { success: false, reason: "already_sold" };
+    }
+    if (product.sellerAcceptedTo && product.sellerAcceptedTo.toString() === buyerId.toString()) {
+        product.sellerAcceptedTo = null;
+    }
+    product.requests = product.requests.filter(
+        req => req.buyer.toString() !== buyerId.toString()
+    );
+    await product.save();
     return { success: true };
 };
 
@@ -102,8 +199,11 @@ export const rejectProductRequestDao = async (productId, buyerId) => {
         req => req.buyer.toString() !== buyerId.toString()
     );
     await product.save();
-
-    return { success: true };
+    return {
+        success: true,
+        sellerId: product.seller,
+        productName: product.name,
+    };
 };
 
 export const verifyProductDao = async (productId) => {
@@ -122,7 +222,9 @@ export const verifyProductDao = async (productId) => {
         product.save();
         return {
             success: true,
-            message: "Verified Product with id"
+            message: "Verified Product with id: " + productId,
+            sellerId: product.seller,
+            productName: product.name,
         }
     } catch (error) {
         return {
@@ -134,7 +236,7 @@ export const verifyProductDao = async (productId) => {
 
 export const findUnverifiedProducts = async () => {
     try {
-        const products = await Products.find({ verified: false });
+        const products = await Products.find({ verified: false }).populate('seller');
         return {
             success: true,
             products: products
@@ -152,6 +254,13 @@ export const getYourProductsDao = async (buyerId) => {
     return products;
 };
 
+export const getProductsSellerAccepted = async (buyerId) => {
+    const products = await Products.find({ sellerAcceptedTo: buyerId, soldTo: null })
+        .populate('seller', 'username')
+        .populate('requests.buyer', 'username');
+    return products;
+}
+
 
 export const getFreshProductsDao = async () => {
     const products = await Products.find({ soldTo: null })
@@ -163,13 +272,14 @@ export const getFreshProductsDao = async () => {
 };
 
 export const getFeaturedProductsDao = async () => {
+    const productss = await Products.find();
     const products = await Products.aggregate([
         {
             $match: { soldTo: null }
         },
         {
             $lookup: {
-                from: "Sellers",
+                from: "sellers",
                 localField: "seller",
                 foreignField: "_id",
                 as: "sellerInfo",
@@ -184,7 +294,6 @@ export const getFeaturedProductsDao = async () => {
         },
         { $limit: 20 },
     ]);
-
     return products;
 };
 
@@ -192,7 +301,12 @@ export const findProducts = async (filters) => {
     return await Products.find(filters).lean();
 };
 
-export const rentDao = async (buyerId, productId, from, to) => {
+export const countProductsDao = async (filters) => {
+    const count = await Products.countDocuments(filters);
+    return count;
+};
+
+export const rentDao = async (buyerId, productId, from, to, biddingPrice) => {
     try {
         let prod = await Products.findById(productId);
         if (!prod) {
@@ -209,10 +323,23 @@ export const rentDao = async (buyerId, productId, from, to) => {
                 status: 400
             }
         }
+        const alreadyRequested = prod.requests.some(
+            (req) => req.buyer.toString() === buyerId.toString()
+        );
+
+        if (alreadyRequested) {
+            return {
+                success: false,
+                message: "You have already requested this product",
+                status: 400,
+            };
+        }
+        console.log("required data: ", buyerId, from, to, biddingPrice)
         prod.requests.push({
             buyer: buyerId,
             from: from,
             to: to,
+            biddingPrice: biddingPrice
         });
         await prod.save();
         return {
@@ -234,7 +361,7 @@ export const makeAvailableDao = async (sellerId, productId) => {
     try {
         const product = await Products.findOneAndUpdate(
             { _id: productId, seller: sellerId, isRental: true },
-            { $set: { soldTo: null } },
+            { $set: { soldTo: null, sellerAcceptedTo: null } },
             { new: true }
         );
 
@@ -251,4 +378,35 @@ export const makeAvailableDao = async (sellerId, productId) => {
 
 export const deleteProductDao = async (productId) => {
     return await Products.findByIdAndDelete(productId);
+};
+
+export const findProductsForSeller = async (id) => {
+    try {
+        const products = await Products.find({ seller: id })
+            .populate("seller")
+            .populate({
+                path: "requests.buyer",
+                select: "username email profilePic"
+            });
+        return {
+            success: true,
+            products: products
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            success: false,
+            message: "Database error"
+        }
+    }
+};
+
+export const getAllProducts = async () => {
+    return await Products.find()
+        .populate('seller', 'username')
+        .lean();
+};
+
+export const countAllProducts = async () => {
+    return await Products.countDocuments();
 };

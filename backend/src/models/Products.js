@@ -24,7 +24,7 @@ const productsSchema = new mongoose.Schema({
     },
     seller: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Sellers",
+        ref: "Users",
         required: true,
         index: true,
     },
@@ -80,7 +80,11 @@ const productsSchema = new mongoose.Schema({
             buyer: {
                 required: true,
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "Buyers",
+                ref: "Users",
+            },
+            biddingPrice: {
+                type: mongoose.Schema.Types.Number,
+                required: true,
             },
             from:{
                 type: mongoose.Schema.Types.Date,
@@ -90,9 +94,14 @@ const productsSchema = new mongoose.Schema({
             },
         }
     ],
+    sellerAcceptedTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Users",
+        default: null,
+    },
     soldTo: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Buyers",
+        ref: "Users",
         default: null,
         // required: true,
     },
@@ -106,3 +115,5 @@ productsSchema.index({ name: "text" });
 
 
 export default mongoose.model("Products", productsSchema);
+
+//hook need to be written

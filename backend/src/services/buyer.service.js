@@ -5,13 +5,19 @@ import {
     getBuyerById,
     updateBuyerPassById,
     getWishlistProductsDao,
-} from "../daos/buyers.dao.js";
+} from "../daos/users.dao.js";
 
 import {
     addProductRequestDao,
     getYourProductsDao,
     rentDao,
+    paymentDoneDao,
+    notInterestedDao,
+    getProductsSellerAccepted,
 } from "../daos/products.dao.js";
+import { createPayment } from "../daos/payment.dao.js";
+import { createNewRequestNotification, createProductSoldNotification } from "../helpers/notification.helper.js";
+import { getNotificationsByRecipient } from "../daos/notifications.dao.js";
 
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
 
@@ -23,6 +29,8 @@ export const updateBuyerProfileService = async (buyerId, updateData, file) => {
             filteredData[key] = updateData[key];
         }
     }
+
+    console.log(file);
 
     if (Object.keys(filteredData).length === 0 && file === undefined) {
         return {
@@ -87,6 +95,46 @@ export const getWishlistProductsService = async (userId) => {
     };
 }
 
+export const getYourNotificationsService = async (userId) => {
+    const result = await getNotificationsByRecipient(userId, 'Users', { includeRead: false, limit: 50, skip: 0 });
+
+    // console.log(result);
+
+    // if (!result.success) {
+    //     if (result.reason === "not_found") {
+    //         return { success: false, status: 404, message: "User not found" };
+    //     }
+    //     return {
+    //         success: false,
+    //         message: "Unknown error...",
+    //         status: 500,
+    //     }
+    // }
+
+    return {
+        success: true,
+        // message: result.length > 0 ? "Notifications fetched successfully" : "No new notifications",
+        notifications: result,
+    };
+}
+
+export const getPendingRequestsService = async (buyerId) => {
+    const pendingRequests = await getProductsSellerAccepted(buyerId); 
+    if (!pendingRequests) {
+        return {
+            success: false,
+            status: 404,
+            message: "No pending requests found",
+        };
+    }
+    return {
+        status: 200,
+        success: true,
+        message: "Pending requests fetched successfully",
+        products: pendingRequests,
+    };
+}
+
 export const removeFromWishlistService = async (userId, productId) => {
     const result = await removeFromWishlistDao(userId, productId);
 
@@ -102,9 +150,9 @@ export const removeFromWishlistService = async (userId, productId) => {
     return { success: true, message: "Product removed from wishlist" };
 };
 
-export const requestProductService = async (productId, buyerId) => {
-    const result = await addProductRequestDao(productId, buyerId);
-
+export const requestProductService = async (productId, buyerId, biddingPrice) => {
+    const result = await addProductRequestDao(productId, buyerId, biddingPrice);
+    console.log("result in req prod serv",result);
     if (!result.success) {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
@@ -114,12 +162,68 @@ export const requestProductService = async (productId, buyerId) => {
         };
         return { success: false, ...messages[result.reason] };
     }
-
+    await createNewRequestNotification(
+        result.sellerId,
+        buyerId,
+        productId,
+        result.productName,
+        biddingPrice
+    );
     return { success: true, message: "Request sent successfully" };
+};
+
+export const paymentDoneService = async (buyerId, productId) => {
+    const result = await paymentDoneDao(buyerId, productId);
+    if (!result.success) {
+        const messages = {
+            not_found: { status: 404, message: "Product not found" },
+            not_accepted_buyer: { status: 400, message: "You are not the accepted buyer for this product"},
+            already_sold: { status: 400, message: "Product is already sold" }
+        };
+        return { success: false, ...messages[result.reason] };
+    }
+
+   //here create payment record
+   const paymentData = {
+        from: buyerId,
+        fromModel: 'Users',
+        to: result.sellerId,
+        toModel: 'Users',
+        paymentType: "purchase",
+        relatedEntityId: productId,
+        relatedEntityType: "Products",
+        price: result.price,
+    };
+
+    const payment = await createPayment(paymentData);
+    await createProductSoldNotification(
+        result.sellerId,
+        buyerId,
+        productId,
+        result.productName,
+        result.price
+    );
+    return { success: true, message: "Payment confirmed successfully",payment: payment  };
+};
+
+export const notInterestedService = async (buyerId, productId) => {
+    const result = await notInterestedDao(buyerId, productId);
+
+    if (!result.success) {
+        const messages = {
+            not_found: { status: 404, message: "Product not found" },
+            already_sold: { status: 400, message: "Product is already sold" },
+            
+        };
+        return { success: false, ...messages[result.reason] };
+    }
+
+    return { success: true, message: "Marked as not interested successfully" };
 };
 
 export const updateBuyerPasswordService = async (oldPassword, newPassword, userId) => {
     const buyer = await getBuyerById(userId);
+    console.log(buyer);
     if (!buyer) {
         return {
             success: false,
@@ -150,6 +254,24 @@ export const getYourProductsService = async (buyerId) => {
     };
 }
 
-export const rentService=async (buyerId,productId,from,to) => {
-    return await rentDao(buyerId,productId,from,to);
+export const rentService = async (buyerId, productId, from, to,biddingPrice) => {
+    return await rentDao(buyerId, productId, from, to,biddingPrice);
+}
+
+export const getYouProfileService = async (buyerId) => {
+    const buyer = await getBuyerById(buyerId);
+    if (!buyer) {
+        return {
+            success: false,
+            message: "buyer not found",
+            status: 404,
+        }
+    }
+    buyer.password = "You fool do you think iam Dumb to give you password";
+    return {
+        success: true,
+        message: "profile fetched successfully",
+        status: 200,
+        buyer: buyer,
+    }
 }

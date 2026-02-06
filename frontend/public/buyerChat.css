@@ -4,23 +4,26 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 main {
-    height: 78vh;
+    height: 80vh;
     width:94vw;
-    margin-top: 5vh;
+    margin-top: 2vh;
     margin-left: 3vw;
     margin-right: 3vw;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    background-color: rgb(217, 217, 217);
+    border-radius: 20px;
+    background-color: rgb(245, 245, 255);
+    box-shadow: 0px 0px 20px black;
+    color: #000;
     display: flex;
 }
 body {
-    background: linear-gradient(70deg,#242424 40%,rgb(88, 88, 88) 100%);
+    background-color:#ffffff;
+    color: black !important;
 }
 .left {
     width: 30vw;
     height: inherit;
-    background-color: rgb(217, 217, 217);
+    background-color: rgb(245, 245, 255);
+    border-bottom-left-radius: 20px;
     border-top-left-radius: 20px;
     display: flex;
     flex-direction: column;
@@ -121,11 +124,11 @@ body {
 }
 .message-content {
     height: fit-content;
-    padding: 5px;
+    padding: 15px;
     max-width: 20vw;
     word-break: break-all;
     border-radius: 10px;
-    background-color: black;
+    background-color: #242424;
 }
 
 .message-left {
@@ -179,14 +182,15 @@ body {
     justify-content: center;
     align-items: center;
     gap: 10px;
+    padding: 10px 5px;
 }
 
 #text-box {
     resize:none;
     width: 30vw;
-    height: 30px;
+    height: 35px;
     display: flex;
-    padding: 3px 5px;
+    padding: 5px;
     align-items: center;
     font-size: 16px;
     border-radius: 10px;
@@ -194,8 +198,8 @@ body {
 .send-btn {
     height: fit-content;
     width: fit-content;
-    padding: 4px;
-    border: 1px solid black;
+    padding: 8px 12px;
+    border: 2px solid black;
     cursor: pointer;
     border-radius: 5px;
     color: black;
@@ -209,7 +213,7 @@ body {
 
 
 #myName {
-    color: white;
+    color: #242424;
     margin-left: 3vw;
-    font-style: italic;
+    font-style:italic;
 }

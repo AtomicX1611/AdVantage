@@ -18,7 +18,7 @@ export const getFeaturedFreshProductsService = async () => {
 
 export const getProductDetailsService = async (productId) => {
     const product = await getProductById(productId);
-    console.log(product);
+    // console.log(product);
     if(!product){
         return {
             success: false,
@@ -40,6 +40,10 @@ export const getProductsService = async (query) => {
 
     if (query.name) {
         filters.name = { $regex: query.name, $options: "i" };
+    }
+
+    if (query.isRental) {
+        filters.isRental = query.isRental === "true";
     }
 
     if (query.category) {

@@ -18,7 +18,7 @@
             </div>
           </div>
         </div>
-        <!-- Dial Code Feature End --> 
+        <!-- Dial Code Feature End -->
       </div>
   </div>
   <section>
@@ -29,52 +29,82 @@
       <div class="featuredIcons iconsBox">
         <a href="/search/product/category/Clothes">
           <div class="icon" id="clothes">
-            <img src="/Assets/categories/1.svg" alt="" />
+            <img src="/Assets/categories/image (1).png" alt="" />
+          </div>
+          <div class="iconText">
+            <h3>Clothes</h3>
           </div>
         </a>
-        <a href="/search/product/category/Electronics">
+        <a href="/search/product/category/Mobiles">
           <div class="icon" id="mobile">
-            <img src="/Assets/categories/2.svg" alt="" />
+            <img src="/Assets/categories/image (3).png" alt="" />
+          </div>
+          <div class="iconText">
+            <h3>Mobiles</h3>
           </div>
         </a>
         <a href="/search/product/category/Laptops">
           <div class="icon" id="laptops">
-            <img src="/Assets/categories/3.svg" alt="" />
+            <img src="/Assets/categories/image (4).png" alt="" />
+          </div>
+          <div class="iconText">
+            <h3>Laptops</h3>
           </div>
         </a>
         <a href="/search/product/category/Electronics">
           <div class="icon" id="electronics">
-            <img src="/Assets/categories/4.svg" alt="" />
+            <img src="/Assets/categories/image (5).png" alt="" />
+          </div>
+          <div class="iconText">
+            <h3>Electronics</h3>
           </div>
         </a>
         <a href="/search/product/category/Books">
           <div class="icon" id="books">
-            <img src="/Assets/categories/5.svg" alt="" />
+            <img src="/Assets/categories/image (6).png" alt="" />
+          </div>
+          <div class="iconText">
+            <h3>Books</h3>
           </div>
         </a>
         <a href="/search/product/category/Furniture">
           <div class="icon" id="furniture">
-            <img src="/Assets/categories/6.svg" alt="" />
+            <img src="/Assets/categories/image (7).png" alt="" />
+          </div>
+          <div class="iconText">
+            <h3>Furniture</h3>
           </div>
         </a>
         <a href="/search/product/category/Automobiles">
           <div class="icon" id="vehicles">
-            <img src="/Assets/categories/7.svg" alt="" />
+            <img src="/Assets/categories/image (8).png" alt="" />
+          </div>
+          <div class="iconText">
+            <h3>Vehicles</h3>
           </div>
         </a>
         <a href="/search/product/category/Sports">
           <div class="icon" id="sports">
-            <img src="/Assets/categories/8.svg" alt="" />
+            <img src="/Assets/categories/image (9).png" alt="" />
+          </div>
+          <div class="iconText">
+            <h3>Sports</h3>
           </div>
         </a>
         <a href="/search/product/category/Fashion">
           <div class="icon" id="accessories">
-            <img src="/Assets/categories/9.svg" alt="" />
+            <img src="/Assets/categories/image (10).png" alt="" />
+          </div>
+          <div class="iconText">
+            <h3>Accessories</h3>
           </div>
         </a>
         <a href="/search/product/category/Musical Instruments">
           <div class="icon" id="music">
-            <img src="/Assets/categories/10.svg" alt="" />
+            <img src="/Assets/categories/image (11).png" alt="" />
+          </div>
+          <div class="iconText">
+            <h3>Music</h3>
           </div>
         </a>
       </div>
@@ -85,14 +115,19 @@
       <div class="featuredHeader">
         <h2>Featured Products</h2>
       </div>
-     
+
       <div class="product_list">
+        <% console.log(featuredProducts); %>
         <% for(let i = 0; i < featuredProducts.length; i++) { %>
           <% let product = featuredProducts[i]; %>
           <a href="/search/product/<%= product._id %>">
             <div class="product_card">
-              <% if(product.Image1Src) { %>
-                <img src="http://localhost:3000/<%= product.images[0] %>" alt="Product Image" />
+              <% if(product.images[0]) { %>
+                <img src="<%= backendURL %><%= product.images[0] %>" alt="Product Image" style="width: 100%; height: 35vh;"/>
+                <h4 style="margin-left: 20px; font-size: 15px ; color: black; font-weight: 400; text-align: center; margin-top: 20px;">
+                        <%= product.name %>
+                      </h4>
+                      <h3 style="font-size: 20px;margin-left: 0px; color: black ; text-align: right; margin-right: 5px; font-weight: 600;">Rs. <%= product.price %>/-</h3>
               <% } %>
               <div class="productName">
                 
@@ -103,18 +138,24 @@
       </div>
     </div>
   </section>
+
   <section>
     <div class="Fresh">
       <div class="featuredHeader">
-        <h2>Fresh Recomendations</h2>
+        <h2>Fresh Recommendations</h2>
       </div>
+
       <div class="product_list">
         <% for(let i = 0; i < freshProducts.length; i++) { %>
           <% let product = freshProducts[i]; %>
           <a href="/search/product/<%= product._id %>">
             <div class="product_card">
               <% if(product.images[0]) { %>
-                <img src="http://localhost:3000/<%= product.images[0] %>" alt="Product Image" />
+                <img src="<%= backendURL %><%= product.images[0] %>" alt="Product Image" style="width: 100%; height: 35vh;"/>
+                <h4 style="margin-left: 20px; font-size: 15px ; color: black; font-weight: 400; text-align: center; margin-top: 20px;">
+                        <%= product.name %>
+                      </h4>
+                      <h3 style="font-size: 20px;margin-left: 0px; color: black ; text-align: right; margin-right: 5px; font-weight: 600;">Rs. <%= product.price %>/-</h3>
               <% } %>
               
             </div>

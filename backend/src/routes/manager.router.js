@@ -11,11 +11,9 @@ import {
 } from '../middlewares/protect.js'
 export const managerRouter=express.Router();
 
-managerRouter.use(checkToken);
-managerRouter.use(serializeUser); 
-managerRouter.use(authorize("manager"));
+// managerRouter.use(checkToken);
+// managerRouter.use(serializeUser); 
+// managerRouter.use(authorize("manager"));
  
 managerRouter.get("/d",dashboardController);
 managerRouter.post("/verify",verifyController);
-
-

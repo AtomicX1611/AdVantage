@@ -28,14 +28,16 @@ export const getProductsNoFilter = async (req, res) => {
   // console.log("start");
 
   let name = req.query.search;
-  let response = await fetch(`http://localhost:3000/anyone/products/filtered?name=${name}`);
+  let response = await fetch(`${process.env.BACKEND_URL}anyone/products/filtered?name=${name}`);
   let data = await response.json();
   console.log(response.status);
   console.log(data);
   
   return res.render("searchPage", {
     products: data.products,
-    isLogged: isLogged
+    isLogged: isLogged,
+    backendURL: process.env.BACKEND_URL,
+    data: req.data,
   });
 }
 
@@ -54,7 +56,7 @@ export const getProductDetails = async (req, res) => {
   }
 
   const productId = req.params.productId;
-  let response = await fetch(`http://localhost:3000/anyone/products/${productId}`);
+  let response = await fetch(`${process.env.BACKEND_URL}anyone/products/${productId}`);
   let data = await response.json();
   if (!data.success) {
     return res.status(response.status).json(data.message);
@@ -71,7 +73,9 @@ export const getProductDetails = async (req, res) => {
     manager: isLogged && (decoded.role == "manager"),
     hisProduct: isLogged && (decoded.role == "seller") && (decoded._id === pro.seller._id) && (!pro.soldTo),
     seller: isLogged && (decoded.role == "seller"),
-    sold1: isLogged && (decoded.role == "seller") && (decoded._id === pro.seller._id) && (pro.requests.length > 0)
+    sold1: isLogged && (decoded.role == "seller") && (decoded._id === pro.seller._id) && (pro.requests.length > 0),
+    backendURL: process.env.BACKEND_URL,
+    data: req.data,
   });
 };
 
@@ -88,11 +92,13 @@ export const getProductBycategory = async (req, res) => {
   }
 
   const category = req.params.category;
-  let response = await fetch(`http://localhost:3000/anyone/products/filtered?category=${encodeURIComponent(category)}`);
+  let response = await fetch(`${process.env.BACKEND_URL}anyone/products/filtered?category=${encodeURIComponent(category)}`);
   let data = await response.json();
   res.render("searchPage", {
     products: data.products,
     isLogged: isLogged,
+    backendURL: process.env.BACKEND_URL,
+    data: req.data,
   });
 }
 

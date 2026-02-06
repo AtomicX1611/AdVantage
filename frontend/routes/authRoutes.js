@@ -17,11 +17,11 @@ authRouter.post("/admin/login",adminLogin);
 // authRouter.post("seller/login");
 
 authRouter.get("/buyer", (req, res) => {
-  res.render("Login.ejs");
+  res.render("Login.ejs",{backendURL: process.env.BACKEND_URL});
 });
 
 authRouter.get("/seller", (req, res) => {
-  res.render("sellerLogin.ejs");
+  res.render("sellerLogin.ejs",{backendURL: process.env.BACKEND_URL});
 });
 
 export default authRouter;
