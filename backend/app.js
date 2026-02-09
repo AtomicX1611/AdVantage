@@ -20,6 +20,7 @@ import { managerRouter } from "./src/routes/manager.router.js";
 import { errorMiddleware } from "./src/middlewares/error.middleware.js";
 // import { router } from "./src/routes/payment.router.js";
 import { seedData } from "./data.js";
+import helmet from "helmet";
 
 const app = express();
 await connectDB();
@@ -38,6 +39,7 @@ const accessLogStream = createStream("access.log", {
 
 app.use(morgan("combined", { stream: accessLogStream }));
 app.use(morgan("dev"));
+// app.use(helmet());
 
 // body Parsing middleware
 app.use(cookieParser());

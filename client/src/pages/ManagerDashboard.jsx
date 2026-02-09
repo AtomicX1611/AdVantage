@@ -1,11 +1,14 @@
 // src/pages/ManagerDashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { logout } from '../redux/authSlice';
 import VerifyCard from '../components/Manager/VerifyCard.jsx';
 import styles from '../styles/manager.module.css';
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -71,36 +74,103 @@ const ManagerDashboard = () => {
     navigate(`/product/${productId}`);
   };
 
+  const handleLogout = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/auth/logout', {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (data.success) {
+        dispatch(logout());
+        navigate('/login');
+      } else {
+        alert('Logout failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('Logout Error:', err);
+      alert('Logout failed. Please try again.');
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
 
   if (error) {
-    return <h2 className={styles.title}>{error}</h2>;
+    return (
+      <div className={styles.container}>
+        <div className={styles.innerContainer}>
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>⚠️</div>
+            <h3 className={styles.emptyTitle}>{error}</h3>
+            <p className={styles.emptyText}>Please try again later or contact support if the issue persists.</p>
+          </div>
+        </div>
+      </div>
+    );
   }
   if (loading) {
-    return <h2 className={styles.title}>Loading...</h2>;
+    return (
+      <div className={styles.container}>
+        <div className={styles.innerContainer}>
+          <div className={styles.loadingContainer}>
+            <div className={styles.loadingSpinner}></div>
+            <p className={styles.loadingText}>Loading products for verification...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Manager Dashboard</h1>
+      <div className={styles.innerContainer}>
+        <div className={styles.pageHeader}>
+          <div className={styles.pageHeaderTop}>
+            <h1 className={styles.title}>Manager Dashboard</h1>
+            <button className={styles.logoutBtn} onClick={handleLogout}>Logout</button>
+          </div>
+          <p className={styles.subtitle}>Review and verify pending product listings</p>
+        </div>
 
-      <div className={styles.cardsGrid}>
-        {products.map((item) => (
-          <VerifyCard
-            key={item._id}
-            productPhoto={item.images?.[0] || 'https://via.placeholder.com/150'}
-            sellerName={item.seller?.username || 'Unknown Seller'}
-            postingDate={new Date(item.postingDate).toISOString().split('T')[0]}
-            category={item.category}
-            type={item.isRental ? 'Rental' : 'Sale'}
-            price={item.price}
-            onVerify={() => handleVerify(item._id)}
-            onViewDetails={() => handleViewDetails(item._id)}
-            invoice={item.invoice}
-          />
-        ))}
+        <div className={styles.statsBar}>
+          <div className={styles.statCard}>
+            <div className={`${styles.statIcon} ${styles.statIconPending}`}>📋</div>
+            <div>
+              <div className={styles.statValue}>{products.length}</div>
+              <div className={styles.statLabel}>Pending Review</div>
+            </div>
+          </div>
+        </div>
+
+        {products.length === 0 ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>✅</div>
+            <h3 className={styles.emptyTitle}>All Caught Up!</h3>
+            <p className={styles.emptyText}>There are no products waiting for verification right now.</p>
+          </div>
+        ) : (
+          <div className={styles.cardsGrid}>
+            {products.map((item) => {
+              console.log(item);
+              return (
+                <VerifyCard
+                  key={item._id}
+                  productPhoto={item.images?.[0] || 'https://via.placeholder.com/150'}
+                  sellerName={item.seller?.username || 'Unknown Seller'}
+                  postingDate={new Date(item.postingDate).toISOString().split('T')[0]}
+                  category={item.category}
+                  type={item.isRental ? 'Rental' : 'Sale'}
+                  price={item.price}
+                  onVerify={() => handleVerify(item._id)}
+                  onViewDetails={() => handleViewDetails(item._id)}
+                  invoice={item.invoice}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

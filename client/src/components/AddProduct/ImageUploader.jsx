@@ -11,37 +11,36 @@ const ImageUploader = ({ handleFileChange }) => {
   };
 
   return (
-    <div className={`${styles.griditem} ${styles.div3}`}>
-      <div className={styles.parent1}>
-        <h3 className={styles.flexitem}>Upload Images</h3>
+    <div className={styles.card}>
+      <h2 className={styles.cardTitle}>Product Images</h2>
 
-        <div className={styles.div22}>
+      <label htmlFor="productImages" className={styles.uploadArea}>
+        <div className={styles.uploadIcon}>📷</div>
+        <p className={styles.uploadText}>Click to upload images</p>
+        <p className={styles.uploadSubtext}>PNG, JPG up to 5MB each</p>
+      </label>
+      <input
+        type="file"
+        id="productImages"
+        name="productImages"
+        className={styles.hiddenInput}
+        multiple
+        accept="image/*"
+        onChange={handleChange}
+      />
+
+      {previewImages.length > 0 && (
+        <div className={styles.imagePreview}>
           {previewImages.map((src, idx) => (
             <img
               key={idx}
               src={src}
-              alt="preview"
-              style={{
-                height: "75px",
-                borderRadius: "10px",
-                margin: "5px",
-              }}
+              alt={`Preview ${idx + 1}`}
+              className={styles.previewImage}
             />
           ))}
         </div>
-
-        <div className={styles.div33}>
-          <label htmlFor="image" id="plus">+</label>
-          <input
-            type="file"
-            id="image"
-            name="productImages"
-            style={{ display: "none" }}
-            multiple
-            onChange={handleChange}
-          />
-        </div>
-      </div>
+      )}
     </div>
   );
 };

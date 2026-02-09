@@ -139,15 +139,28 @@ export const paymentDoneDao = async (buyerId, productId) => {
     }
 
     // adding product.price for both rental and sale items
-    if(!hisRequest) {
-        return {success:false,reason:"not_found"}; // check this
+    if (!hisRequest) {
+        return { success: false, reason: "not_found" }; // check this
     }
 
-    const payingAmount = hisRequest.biddingPrice;
     const sellerId = product.seller;
+    let amount = 0;
 
-    updateEarnings(sellerId,payingAmount);
-    
+    if (product.isRental) {
+        const from = new Date(hisRequest.from);
+        const to = new Date(hisRequest.to);
+
+        const millisecondsPerDay = 1000 * 60 * 60 * 24;
+        const days = Math.ceil((to - from) / millisecondsPerDay);
+
+        amount = hisRequest.biddingPrice * days;
+    }
+    else {
+        amount = hisRequest.biddingPrice;
+    }
+
+    updateEarnings(sellerId, amount);
+
     product.requests = [];
     product.soldTo = buyerId;
     await product.save();

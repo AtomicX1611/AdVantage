@@ -7,8 +7,31 @@
 
 .adminTitle {
   font-size: 32px;
-  margin-bottom: 25px;
+  margin-bottom: 0;
   font-weight: 700;
+}
+
+.adminHeaderTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.logoutBtn {
+  padding: 8px 22px;
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.logoutBtn:hover {
+  background-color: #c0392b;
 }
 
 /* Rows */

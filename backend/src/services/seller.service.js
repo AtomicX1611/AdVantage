@@ -203,6 +203,7 @@ export const updateSellerSubscriptionService = async (sellerId, subscription) =>
             return {
                 success: false,
                 message: "Seller not found",
+                staus: 404
             };
         }
 
@@ -210,6 +211,7 @@ export const updateSellerSubscriptionService = async (sellerId, subscription) =>
             return {
                 success: false,
                 message: "Seller already has a better or equal plan than the chosen one",
+                status: 404
             };
         }
 
@@ -256,6 +258,7 @@ export const updateSellerSubscriptionService = async (sellerId, subscription) =>
     } catch (error) {
         console.error("Error in updateSellerSubscriptionService:", error);
         return {
+            status: 500,
             success: false,
             message: "Internal server error while updating subscription",
         };

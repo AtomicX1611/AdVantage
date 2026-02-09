@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { logout } from '../redux/authSlice';
 import styles from "../styles/admin.module.css";
 import API_CONFIG from "../config/api.config";
 
@@ -9,6 +12,28 @@ import PaymentHistory from "../components/Admin/PaymentHistory";
 import UserList from "../components/Admin/UserList";
 
 export default function AdminPage() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch(`${API_CONFIG.BACKEND_URL}/auth/logout`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (data.success) {
+        dispatch(logout());
+        navigate('/login');
+      } else {
+        alert('Logout failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('Logout Error:', err);
+      alert('Logout failed. Please try again.');
+    }
+  };
+
   const [stats, setStats] = useState([
     { title: "Total Users", value: "Loading..." },
     { title: "Total Products", value: "Loading..." },
@@ -120,9 +145,9 @@ export default function AdminPage() {
         setPieData({
           users: [counts.admins || 0, counts.managers || 0, counts.users || 0],
           subscriptions: [
-            data.users.filter(u => u.subscription?.[0]?.type === 'Basic').length,
-            data.users.filter(u => u.subscription?.[0]?.type === 'VIP').length,
-            data.users.filter(u => u.subscription?.[0]?.type === 'Premium').length
+            data.users.filter(u => u.subscription === 0 || u.subscription == null).length,
+            data.users.filter(u => u.subscription === 1).length,
+            data.users.filter(u => u.subscription === 2).length
           ]
         });
       }
@@ -219,7 +244,10 @@ export default function AdminPage() {
   if (loading) {
     return (
       <div className={styles.adminContainer}>
-        <h1 className={styles.adminTitle}>Admin Dashboard</h1>
+        <div className={styles.adminHeaderTop}>
+          <h1 className={styles.adminTitle}>Admin Dashboard</h1>
+          <button className={styles.logoutBtn} onClick={handleLogout}>Logout</button>
+        </div>
         <p style={{ textAlign: 'center', padding: '20px' }}>Loading data...</p>
       </div>
     );
@@ -228,7 +256,10 @@ export default function AdminPage() {
   if (error) {
     return (
       <div className={styles.adminContainer}>
-        <h1 className={styles.adminTitle}>Admin Dashboard</h1>
+        <div className={styles.adminHeaderTop}>
+          <h1 className={styles.adminTitle}>Admin Dashboard</h1>
+          <button className={styles.logoutBtn} onClick={handleLogout}>Logout</button>
+        </div>
         <p style={{ textAlign: 'center', padding: '20px', color: 'red' }}>
           Error: {error}
         </p>
@@ -244,7 +275,10 @@ export default function AdminPage() {
 
   return (
     <div className={styles.adminContainer}>
-      <h1 className={styles.adminTitle}>Admin Dashboard</h1>
+      <div className={styles.adminHeaderTop}>
+        <h1 className={styles.adminTitle}>Admin Dashboard</h1>
+        <button className={styles.logoutBtn} onClick={handleLogout}>Logout</button>
+      </div>
 
       <StatsRow stats={stats} />
 

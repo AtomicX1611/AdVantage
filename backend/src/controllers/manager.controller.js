@@ -11,7 +11,7 @@ export const verifyController = async (req,res,next) => {
     });
 
     try {
-        const verify=await verifyProduct(productId);
+        const verify=await verifyProduct(productId,req.user._id);
         if(!verify.success) {
             return res.status(503).json({
                 success:false,

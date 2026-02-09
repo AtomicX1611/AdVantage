@@ -4,10 +4,11 @@ import {
  } from "../daos/products.dao.js"
 import { createProductVerifiedNotification } from "../helpers/notification.helper.js";
 
-export const verifyProduct= async (productId) => {
+export const verifyProduct= async (productId,managerId) => {
     let response=await verifyProductDao(productId);
     await createProductVerifiedNotification(
         response.sellerId,
+        managerId,
         productId,
         response.productName,
     );
