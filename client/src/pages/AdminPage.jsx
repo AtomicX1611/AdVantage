@@ -98,36 +98,47 @@ export default function AdminPage() {
           }));
 
         setSubscribedUsers(subscribed);
-
+          console.log("Loggin all users payments: ",data.payments);
+          
         // Store all users for the user list
         setAllUsers(data.users);
 
         // Process payment history for display
         const formattedPayments = data.payments.slice(0, 10).map(payment => {
+          
+          // Helper to safely find user/entity details whether populated or by ID
+          const findEntity = (idOrObj, list, defaultText) => {
+            if (!idOrObj) return defaultText;
+            
+            // If already populated as an object
+            if (typeof idOrObj === 'object') {
+              // If it's an object, it might have the fields directly
+              return idOrObj.username || idOrObj.email || defaultText;
+            }
+            
+            // If ID string, search in the provided list
+            const found = list?.find(item => String(item._id) === String(idOrObj));
+            return found?.username || found?.email || defaultText;
+          };
+
           // Find the from user/admin/manager
           let fromName = "Unknown";
           if (payment.fromModel === 'Users') {
-            const fromUser = data.users.find(u => u._id === payment.from);
-            fromName = fromUser?.username || fromUser?.email || "Unknown User";
+             fromName = findEntity(payment.from, data.users, "Unknown User");
           } else if (payment.fromModel === 'Admin') {
-            const fromAdmin = data.admins.find(a => a._id === payment.from);
-            fromName = fromAdmin?.email || "Unknown Admin";
+             fromName = findEntity(payment.from, data.admins, "Unknown Admin");
           } else if (payment.fromModel === 'Managers') {
-            const fromManager = data.managers.find(m => m._id === payment.from);
-            fromName = fromManager?.username || fromManager?.email || "Unknown Manager";
+             fromName = findEntity(payment.from, data.managers, "Unknown Manager");
           }
 
           // Find the to user/admin/manager
           let toName = "Unknown";
           if (payment.toModel === 'Users') {
-            const toUser = data.users.find(u => u._id === payment.to);
-            toName = toUser?.username || toUser?.email || "Unknown User";
+             toName = findEntity(payment.to, data.users, "Unknown User");
           } else if (payment.toModel === 'Admin') {
-            const toAdmin = data.admins.find(a => a._id === payment.to);
-            toName = toAdmin?.email || "Unknown Admin";
+             toName = findEntity(payment.to, data.admins, "Unknown Admin");
           } else if (payment.toModel === 'Managers') {
-            const toManager = data.managers.find(m => m._id === payment.to);
-            toName = toManager?.username || toManager?.email || "Unknown Manager";
+             toName = findEntity(payment.to, data.managers, "Unknown Manager");
           }
 
           return {
@@ -138,7 +149,8 @@ export default function AdminPage() {
             date: new Date(payment.date).toLocaleDateString('en-IN')
           };
         });
-
+        console.log("Formatted payments : ",formattedPayments);
+        
         setPayments(formattedPayments);
 
         // Calculate pie data for user distribution
