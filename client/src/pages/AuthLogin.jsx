@@ -102,7 +102,7 @@ const AuthLogin = () => {
           } else {
             navigate('/');
           }
-        }, 1500);
+        }, 0);
       } else {
         setMessage(data.message || 'Login failed');
       }
@@ -168,7 +168,7 @@ const AuthLogin = () => {
               <p className={styles.errorText}>⚠ {errors.password}</p>
             )}
           </div>
-          
+          <span>Don't have an account? <a href="#" onClick={(e) =>{e.preventDefault(); navigate('/signup')}} style={{ color: 'blue' }}>Register here</a></span>
           <button 
             type="submit" 
             className={styles.submitButton}

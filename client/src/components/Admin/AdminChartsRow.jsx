@@ -6,9 +6,9 @@ export default function ChartsRow({ pieData }) {
   return (
     <div className={styles.chartsRow}>
       <div className={styles.chartBox}>
-        <h3>User Activity</h3>
+        <h3>User Distribution</h3>
         <MiniPie
-          labels={["Active", "Inactive"]}
+          labels={["Admins", "Managers", "Users"]}
           values={pieData.users}
         />
       </div>

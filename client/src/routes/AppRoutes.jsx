@@ -95,16 +95,16 @@ const AppRoutes = () => {
       const data = await res.json();
       if (!data.success) {
         dispatch(logout());
+      }else{
+        dispatch(
+          loginSuccess({
+            email: data.info.email,
+            id: data.info._id,
+            role: data.info.role,
+            profilePicPath: data.info.profilePicPath,
+          })
+        );
       }
-
-      dispatch(
-        loginSuccess({
-          email: data.info.email,
-          id: data.info._id,
-          role: data.info.role,
-          profilePicPath: data.info.profilePicPath,
-        })
-      );
     };
 
     saveUserInfoToStore();

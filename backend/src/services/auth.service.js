@@ -43,9 +43,16 @@ export const signupBuyerService = async (username, contact, email, password) => 
 
     // create a new one 
     createPendingUser(username,contact,email,password,otp);
+    console.log("Here logging");
 
     // send otp 
-    await MailService(email,otp);
+    try {
+        await MailService(email,otp);
+        console.log("await done");
+        
+    } catch (error) {
+        console.log("At mail service: ",error)
+    }
 
     return {
         status: 201,
@@ -74,6 +81,8 @@ export const MailService = async (email, otp) => {
             subject: `Verify your account - ${new Date().toLocaleTimeString()}`,
             text: `Your OTP is ${otp}. Valid for 10 minutes.`
         });
+        console.log("Sent mail success to ",email);
+        
     } catch (error) {
         console.error('MailService error:', error);
         throw new Error('Failed to send verification email');

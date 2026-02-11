@@ -5,6 +5,9 @@ import cors from "cors";
 import { connectDB } from "./src/config/mongo.config.js";
 import cookieParser from "cookie-parser";
 import path from "node:path";
+import fs from "fs";
+import morgan from "morgan";
+import { createStream } from "rotating-file-stream";
 import authRouter from "./src/routes/auth.router.js";
 import userRouter from "./src/routes/user.router.js";
 // import sellerRouter from "./src/routes/seller.router.js";
@@ -17,9 +20,26 @@ import { managerRouter } from "./src/routes/manager.router.js";
 import { errorMiddleware } from "./src/middlewares/error.middleware.js";
 // import { router } from "./src/routes/payment.router.js";
 import { seedData } from "./data.js";
+import helmet from "helmet";
 
 const app = express();
 await connectDB();
+
+const logDirectory = path.join(process.cwd(), "logs");
+if (!fs.existsSync(logDirectory)) {
+  fs.mkdirSync(logDirectory);
+}
+
+const accessLogStream = createStream("access.log", {
+  interval: "1d", 
+  path: logDirectory,
+  maxFiles: 14,
+  size: "10M",
+});
+
+app.use(morgan("combined", { stream: accessLogStream }));
+app.use(morgan("dev"));
+// app.use(helmet());
 
 // body Parsing middleware
 app.use(cookieParser());

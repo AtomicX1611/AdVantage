@@ -116,3 +116,32 @@ export const getAllUsers = async () => {
 export const countUsers = async () => {
     return await Users.countDocuments();
 };
+
+
+export const updateEarnings = async (userId, amount) => {
+    try {
+        const user = await Users.findById(userId);
+        if (!user) {
+            return {
+                status:404,
+                message:"User not found",
+                success:false
+            }
+        }
+
+        const currentEarnings = Number(user.earnings) || 0;
+        const amountToAdd = Number(amount);
+        user.earnings = currentEarnings + amountToAdd;
+
+        await user.save();
+
+        return user;
+    } catch (error) {
+        console.error("Error updating earnings:", error);
+        return {
+            status:500,
+            message:"Payment error", // update later
+            success:false
+        }
+    }
+}

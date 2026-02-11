@@ -1,5 +1,6 @@
 import Products from "../models/Products.js";
 import Users from "../models/Users.js";
+import { updateEarnings } from "./users.dao.js";
 
 export const getProductById = async (productId) => {
     // console.log(productId);
@@ -136,6 +137,30 @@ export const paymentDoneDao = async (buyerId, productId) => {
     if (!product.isRental) {
         product.price = hisRequest.biddingPrice;
     }
+
+    // adding product.price for both rental and sale items
+    if (!hisRequest) {
+        return { success: false, reason: "not_found" }; // check this
+    }
+
+    const sellerId = product.seller;
+    let amount = 0;
+
+    if (product.isRental) {
+        const from = new Date(hisRequest.from);
+        const to = new Date(hisRequest.to);
+
+        const millisecondsPerDay = 1000 * 60 * 60 * 24;
+        const days = Math.ceil((to - from) / millisecondsPerDay);
+
+        amount = hisRequest.biddingPrice * days;
+    }
+    else {
+        amount = hisRequest.biddingPrice;
+    }
+
+    updateEarnings(sellerId, amount);
+
     product.requests = [];
     product.soldTo = buyerId;
     await product.save();
@@ -147,7 +172,6 @@ export const paymentDoneDao = async (buyerId, productId) => {
         productName: product.name,
     };
 }
-
 export const notInterestedDao = async (buyerId, productId) => {
     const product = await Products.findById(productId);
 

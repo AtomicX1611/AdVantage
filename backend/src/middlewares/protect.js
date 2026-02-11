@@ -26,6 +26,8 @@ export const checkToken = (req, res, next) => {
         });
     }
     req.token = token;
+    console.log("coming");
+    
     next();
 };
 

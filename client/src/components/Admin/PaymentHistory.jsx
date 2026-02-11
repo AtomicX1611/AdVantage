@@ -2,6 +2,8 @@ import React from "react";
 import styles from "../../styles/admin.module.css";
 
 export default function PaymentHistory({ payments }) {
+  console.log("Loggin here : ",payments);
+  
   return (
     <div className={styles.paymentBox}>
       <h3>Payment History</h3>

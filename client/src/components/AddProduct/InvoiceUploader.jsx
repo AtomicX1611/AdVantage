@@ -7,26 +7,37 @@ const InvoiceUploader = ({ handleInvoiceChange }) => {
   const handleChange = (e) => {
     const selected = e.target.files[0];
     setFile(selected);
-    handleInvoiceChange(selected); // LIFT TO PARENT
+    handleInvoiceChange(selected);
   };
 
   return (
-    <div className={`${styles.griditem} ${styles.div5}`}>
-      <label htmlFor="proof" style={{ fontSize: "xx-large" }} id="labelForProof">+</label>
+    <div className={styles.card}>
+      <h2 className={styles.cardTitle}>Invoice / Proof (Optional)</h2>
+
+      <label htmlFor="invoice" className={styles.uploadArea}>
+        <div className={styles.uploadIcon}>📄</div>
+        <p className={styles.uploadText}>Upload invoice or proof of purchase</p>
+        <p className={styles.uploadSubtext}>PDF, PNG, JPG up to 10MB</p>
+      </label>
       <input
         type="file"
-        id="proof"
+        id="invoice"
         name="invoice"
-        style={{ display: "none" }}
+        className={styles.hiddenInput}
+        accept=".pdf,.png,.jpg,.jpeg"
         onChange={handleChange}
       />
-      <div id="demoName">
-        {file && (
-          <a href={URL.createObjectURL(file)} target="_blank" rel="noreferrer">
-            {file.name}
-          </a>
-        )}
-      </div>
+
+      {file && (
+        <a
+          href={URL.createObjectURL(file)}
+          target="_blank"
+          rel="noreferrer"
+          className={styles.fileLink}
+        >
+          📎 {file.name}
+        </a>
+      )}
     </div>
   );
 };
