@@ -6,39 +6,82 @@ The goal is to promote **sustainability, affordability**, and **connection among
 
 ---
 
+## Project Structure
+
+This project adopts a client-server architecture:
+
+- **`backend/`**: Node.js & Express.js server (Active).
+- **`client/`**: React.js frontend using Vite (Active).
+- **`frontend/`**: Legacy/Deprecated frontend folder (Not in use).
+
+---
+
 ## Installation Guide
 
 ### Prerequisites
 
-Before you begin, ensure you have met the following requirements:
-
-- You have a Windows/Linux/Mac machine.
-- You have installed [Node.js](https://nodejs.org/) (version 14 or higher).
-- You have installed [Git](https://git-scm.com/).
+- [Node.js](https://nodejs.org/) (version 16 or higher recommended).
+- [Git](https://git-scm.com/).
+- [MongoDB](https://www.mongodb.com/) (Local or Atlas connection string).
 
 ---
 
-### Installation
+### Setup Instructions
 
-Follow these steps to install **AdVantage**:
-
-1. **Clone the repository:**
-    ```sh
-    git clone https://github.com/yourusername/AdVantage.git
-    ```
-2. **Navigate to the project root directory:**
-    ```sh
-    cd AdVantage
-    ```
-3. **Install the dependencies:**
-    ```sh
-    npm install
-    ```
-
----
-
-### Running the Application
-
-To start the application, run:
+#### 1. Clone the repository
 ```sh
+git clone https://github.com/yourusername/AdVantage.git
+cd AdVantage
+```
+
+#### 2. Backend Setup
+Navigate to the backend folder, install dependencies, and start the server.
+
+```sh
+cd backend
+
+# Install dependencies
+npm install
+
+# Create a .env file in the backend/ directory and configure:
+# PORT=5000
+# MONGODB_URI=your_mongodb_connection_string
+# JWT_SECRET=your_jwt_secret
+# ... (any other required env vars)
+
+# Start the server (Development mode)
 npm run dev
+```
+The backend server runs typically on `http://localhost:5000` (or the PORT defined in your .env).
+
+#### 3. Client Setup
+Open a new terminal, navigate to the client folder, install dependencies, and start the frontend.
+
+```sh
+cd client
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
+```
+The application will be accessible at `http://localhost:5173`.
+
+---
+
+## Usage
+
+1. Ensure MongoDB is running or your Atlas connection is valid.
+2. Start the Backend server first.
+3. Start the Client development server.
+4. Open `http://localhost:5173` in your browser.
+
+---
+
+## Tech Stack
+
+- **Frontend:** React, Vite, Redux Toolkit, TailwindCSS/CSS.
+- **Backend:** Node.js, Express.js, MongoDB (Mongoose).
+- **Authentication:** JWT (JSON Web Tokens).
+- **Real-time:** Socket.io (for chat features).
