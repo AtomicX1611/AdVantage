@@ -37,7 +37,7 @@ import {
 } from "../helpers/notification.helper.js";
 
 export const addProductService = async (req) => {
-
+    // Old implementation of isAllowed function which is slow
     // async function isAllowed(sellerId) {
     //     const arr = [10000, 50, 100];
     //     const oneMonthAgo = new Date();

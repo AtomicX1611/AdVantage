@@ -18,12 +18,16 @@ import { Server } from "socket.io";
 import { socketActions } from "./src/controllers/socket.contoller.js";
 import { managerRouter } from "./src/routes/manager.router.js";
 import { errorMiddleware } from "./src/middlewares/error.middleware.js";
+import { rateLimit } from 'express-rate-limit'
+
 // import { router } from "./src/routes/payment.router.js";
 import { seedData } from "./data.js";
 import helmet from "helmet";
 
 const app = express();
 await connectDB();
+
+// Middleware setups
 
 const logDirectory = path.join(process.cwd(), "logs");
 if (!fs.existsSync(logDirectory)) {
@@ -37,6 +41,22 @@ const accessLogStream = createStream("access.log", {
   size: "10M",
 });
 
+export const errorLogStream = createStream("error.log", {
+  interval: "1d",
+  path: logDirectory,
+  maxFiles: 30,
+  size: "10M",
+});
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000,
+	limit: 100,
+	standardHeaders: 'draft-8',
+	legacyHeaders: false,
+	ipv6Subnet: 56,
+})
+
+app.use(limiter);
 app.use(morgan("combined", { stream: accessLogStream }));
 app.use(morgan("dev"));
 // app.use(helmet());

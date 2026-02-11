@@ -315,7 +315,7 @@ export const userLogout = async (req, res, next) => {
     Verify email controller 
 */
 
-export const verifyEmailController = async (req, res) => {
+export const verifyEmailController = async (req, res, next) => {
     try {
         const { email, code } = req.body;
 
@@ -332,6 +332,6 @@ export const verifyEmailController = async (req, res) => {
             data: response.data
         });
     } catch (error) {
-        console.log("at verify email controller", error);
+        next(error);
     }
 }
