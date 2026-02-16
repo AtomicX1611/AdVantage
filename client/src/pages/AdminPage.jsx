@@ -10,6 +10,7 @@ import ChartsRow from "../components/Admin/AdminChartsRow.jsx";
 import ListsRow from "../components/Admin/ListsRow";
 import PaymentHistory from "../components/Admin/PaymentHistory";
 import UserList from "../components/Admin/UserList";
+import AddManagerForm from "../components/Admin/AddManagerForm";
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -204,6 +205,18 @@ export default function AdminPage() {
     }));
   };
 
+  const handleManagerAdded = (manager) => {
+    // Update manager count in pie data
+    setPieData(prevPieData => ({
+      ...prevPieData,
+      users: [
+        prevPieData.users[0],
+        prevPieData.users[1] + 1,
+        prevPieData.users[2]
+      ]
+    }));
+  };
+
   // Fetch graph data
   const fetchGraphData = async () => {
     try {
@@ -289,7 +302,10 @@ export default function AdminPage() {
     <div className={styles.adminContainer}>
       <div className={styles.adminHeaderTop}>
         <h1 className={styles.adminTitle}>Admin Dashboard</h1>
-        <button className={styles.logoutBtn} onClick={handleLogout}>Logout</button>
+        <div className={styles.adminHeaderActions}>
+          <AddManagerForm onManagerAdded={handleManagerAdded} />
+          <button className={styles.logoutBtn} onClick={handleLogout}>Logout</button>
+        </div>
       </div>
 
       <StatsRow stats={stats} />

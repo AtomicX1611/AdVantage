@@ -192,3 +192,125 @@
   cursor: not-allowed;
   opacity: 0.6;
 }
+
+/* Admin Header Actions */
+.adminHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Add Manager */
+.addManagerSection {
+  position: relative;
+}
+
+.addManagerBtn {
+  padding: 8px 22px;
+  background-color: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.addManagerBtn:hover {
+  background-color: #1565c0;
+}
+
+.addManagerFormBox {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 8px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  min-width: 300px;
+}
+
+.addManagerFormBox h3 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.addManagerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.addManagerInput {
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.addManagerInput:focus {
+  border-color: #1976d2;
+}
+
+.addManagerActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.addManagerSubmitBtn {
+  flex: 1;
+  padding: 8px 16px;
+  background-color: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.addManagerSubmitBtn:hover:not(:disabled) {
+  background-color: #1565c0;
+}
+
+.addManagerSubmitBtn:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.addManagerCancelBtn {
+  padding: 8px 16px;
+  background-color: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.addManagerCancelBtn:hover {
+  background-color: #ccc;
+}
+
+.successMsg {
+  color: #2e7d32;
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+
+.errorMsg {
+  color: #d32f2f;
+  font-size: 0.85rem;
+  margin-top: 8px;
+}

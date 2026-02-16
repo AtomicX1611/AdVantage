@@ -21,7 +21,7 @@ import { errorMiddleware } from "./src/middlewares/error.middleware.js";
 import { rateLimit } from 'express-rate-limit'
 
 // import { router } from "./src/routes/payment.router.js";
-import { seedData } from "./data.js";
+// import { seedData } from "./data.js";
 import helmet from "helmet";
 
 const app = express();

@@ -6,7 +6,7 @@ import {
   getAllAdmins,
   countAdmins,
 } from "../daos/admins.dao.js";
-import { getAllManagers, countManagers } from "../daos/managers.dao.js";
+import { getAllManagers, countManagers, findManagerByEmail, createManager } from "../daos/managers.dao.js";
 import { getAllUsers, countUsers } from "../daos/users.dao.js";
 import { getAllProducts, countAllProducts } from "../daos/products.dao.js";
 import { getAllPayments, countPayments } from "../daos/payment.dao.js";
@@ -78,6 +78,29 @@ export const removeUser = async (userId) => {
   } catch (error) {
     console.error("Error in removeUser service:", error);
     return { success: false, message: "Error removing user" };
+  }
+};
+
+export const addManagerService = async (email, password) => {
+  try {
+    if (!email || !password) {
+      return { success: false, message: "Email and password are required" };
+    }
+
+    const existing = await findManagerByEmail(email);
+    if (existing) {
+      return { success: false, message: "Manager with this email already exists" };
+    }
+
+    const manager = await createManager({ email, password });
+    return {
+      success: true,
+      message: "Manager added successfully",
+      manager: { _id: manager._id, email: manager.email }
+    };
+  } catch (error) {
+    console.error("Error in addManagerService:", error);
+    return { success: false, message: "Error adding manager" };
   }
 };
 

@@ -17,3 +17,8 @@ export const getAllManagers = async () => {
 export const countManagers = async () => {
     return await Managers.countDocuments();
 };
+
+export const createManager = async (data) => {
+    const manager = new Managers(data);
+    return await manager.save();
+};

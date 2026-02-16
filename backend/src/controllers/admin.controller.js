@@ -3,6 +3,7 @@ import {
   getProductsForAdmin,
   removeUser,
   getAllDataService,
+  addManagerService,
 } from "../services/admin.service.js";
 
 
@@ -49,6 +50,26 @@ export const getAllData = async (req, res, next) => {
 };
 
 
+
+export const addManager = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required"
+      });
+    }
+
+    const result = await addManagerService(email, password);
+    return res.status(result.success ? 201 : 400).json(result);
+
+  } catch (error) {
+    console.error("Error in addManager controller:", error);
+    next(error);
+  }
+};
 
 export const takeDownUser = async (req, res, next) => {
   try {
