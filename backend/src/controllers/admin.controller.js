@@ -2,6 +2,7 @@ import {
   findUsersForAdmin,
   getProductsForAdmin,
   removeUser,
+  removeManager,
   getAllDataService,
 } from "../services/admin.service.js";
 
@@ -77,6 +78,34 @@ export const takeDownUser = async (req, res, next) => {
 
   } catch (error) {
     console.error("Error in takeDownUser controller:", error);
+    next(error);
+  }
+};
+
+export const takeDownManager = async (req, res, next) => {
+  try {
+    const adminId = req.user && req.user._id;
+    const managerId = req.params.managerId || req.body.managerId;
+
+    if (!adminId) {
+      return res.status(401).json({
+        success: false,
+        message: "Admin not authenticated"
+      });
+    }
+
+    if (!managerId) {
+      return res.status(400).json({
+        success: false,
+        message: "Manager id required"
+      });
+    }
+
+    const result = await removeManager(managerId);
+    return res.status(result.success ? 200 : 404).json(result);
+
+  } catch (error) {
+    console.error("Error in takeDownManager controller:", error);
     next(error);
   }
 };

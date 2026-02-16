@@ -1,6 +1,6 @@
 import express from "express";
 import { authorize, checkToken, serializeUser } from "../middlewares/protect.js";
-import {getGraphData,getAllData,takeDownUser} from "../controllers/admin.controller.js"
+import {getGraphData,getAllData,takeDownUser,takeDownManager} from "../controllers/admin.controller.js"
 
 const adminRouter = express.Router();
 //Admin Login in authRoutes.
@@ -12,5 +12,6 @@ adminRouter.use(authorize('admin'));
 adminRouter.get('/',getAllData); // Working
 adminRouter.get('/graphData', getGraphData); // Working
 adminRouter.delete('/remove/:userId',takeDownUser); // Working
+adminRouter.delete('/removeManager/:managerId',takeDownManager);
 
 export default adminRouter
