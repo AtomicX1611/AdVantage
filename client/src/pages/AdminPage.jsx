@@ -10,6 +10,7 @@ import ChartsRow from "../components/Admin/AdminChartsRow.jsx";
 import ListsRow from "../components/Admin/ListsRow";
 import PaymentHistory from "../components/Admin/PaymentHistory";
 import UserList from "../components/Admin/UserList";
+import ManagerList from "../components/Admin/ManagerList";
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ export default function AdminPage() {
   const [subscribedUsers, setSubscribedUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [allManagers, setAllManagers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -102,6 +104,9 @@ export default function AdminPage() {
           
         // Store all users for the user list
         setAllUsers(data.users);
+
+        // Store all managers for the manager list
+        setAllManagers(data.managers || []);
 
         // Process payment history for display
         const formattedPayments = data.payments.slice(0, 10).map(payment => {
@@ -204,6 +209,21 @@ export default function AdminPage() {
     }));
   };
 
+  // Handle manager removal
+  const handleManagerRemoved = (managerId) => {
+    setAllManagers(prevManagers => prevManagers.filter(m => m._id !== managerId));
+
+    // Update pie data
+    setPieData(prevPieData => ({
+      ...prevPieData,
+      users: [
+        prevPieData.users[0], // admins unchanged
+        Math.max(0, prevPieData.users[1] - 1), // decrease managers
+        prevPieData.users[2] // regular users unchanged
+      ]
+    }));
+  };
+
   // Fetch graph data
   const fetchGraphData = async () => {
     try {
@@ -301,6 +321,8 @@ export default function AdminPage() {
       {payments.length > 0 && <PaymentHistory payments={payments} />}
 
       <UserList users={allUsers} onUserRemoved={handleUserRemoved} />
+
+      <ManagerList managers={allManagers} onManagerRemoved={handleManagerRemoved} />
     </div>
   );
 }
