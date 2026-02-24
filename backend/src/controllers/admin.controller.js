@@ -4,6 +4,7 @@ import {
   removeUser,
   removeManager,
   getAllDataService,
+  getAdminMetricsService,
 } from "../services/admin.service.js";
 
 
@@ -106,6 +107,27 @@ export const takeDownManager = async (req, res, next) => {
 
   } catch (error) {
     console.error("Error in takeDownManager controller:", error);
+    next(error);
+  }
+};
+
+export const getMetrics = async (req, res, next) => {
+  try {
+    const result = await getAdminMetricsService();
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: result.message || "Failed to fetch metrics"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      metrics: result.metrics
+    });
+  } catch (error) {
+    console.error("Error in getMetrics controller:", error);
     next(error);
   }
 };

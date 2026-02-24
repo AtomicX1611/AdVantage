@@ -7,9 +7,9 @@ import {
   countAdmins,
 } from "../daos/admins.dao.js";
 import { getAllManagers, countManagers, removeManagerById, getManagerVerifiedCounts } from "../daos/managers.dao.js";
-import { getAllUsers, countUsers } from "../daos/users.dao.js";
-import { getAllProducts, countAllProducts } from "../daos/products.dao.js";
-import { getAllPayments, countPayments } from "../daos/payment.dao.js";
+import { getAllUsers, countUsers, countActiveUsers } from "../daos/users.dao.js";
+import { getAllProducts, countAllProducts, getProductsByCategory, countVerifiedProducts, countUnverifiedProducts } from "../daos/products.dao.js";
+import { getAllPayments, countPayments, getPaymentStatsByType, getRecentPayments } from "../daos/payment.dao.js";
 // import { getAllContacts, countContacts } from "../daos/contacts.dao.js";
 // import { getAllMessages, countMessages } from "../daos/messages.dao.js";
 
@@ -175,5 +175,58 @@ export const getAllDataService = async () => {
       message: "Error fetching all data from database",
       error: error.message 
     };
+  }
+};
+export const getAdminMetricsService = async () => {
+  try {
+    const [
+      categoryDistribution,
+      revenueByType,
+      recentPaymentsList,
+      activeUserCount,
+      totalUserCount,
+      verifiedProductCount,
+      unverifiedProductCount,
+      totalProductCount,
+      totalPaymentCount,
+    ] = await Promise.all([
+      getProductsByCategory(),
+      getPaymentStatsByType(),
+      getRecentPayments(10),
+      countActiveUsers(),
+      countUsers(),
+      countVerifiedProducts(),
+      countUnverifiedProducts(),
+      countAllProducts(),
+      countPayments(),
+    ]);
+
+    const totalRevenue = revenueByType.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+
+    return {
+      success: true,
+      metrics: {
+        categoryDistribution,
+        revenueByType,
+        recentActivity: recentPaymentsList.map(p => ({
+          _id: p._id,
+          from: p.from?.username || p.from?.email || 'Unknown',
+          to: p.to?.username || p.to?.email || 'Unknown',
+          type: p.paymentType,
+          amount: p.price,
+          date: p.date,
+        })),
+        activeUsers: activeUserCount,
+        totalUsers: totalUserCount,
+        verifiedProducts: verifiedProductCount,
+        unverifiedProducts: unverifiedProductCount,
+        totalProducts: totalProductCount,
+        totalPayments: totalPaymentCount,
+        totalRevenue,
+      }
+    };
+  } catch (error) {
+    console.error("Error in getAdminMetricsService:", error);
+    return { success: false, message: "Error computing admin metrics" };
   }
 };

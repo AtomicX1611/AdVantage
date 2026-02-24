@@ -7,6 +7,7 @@ export const API_CONFIG = {
     CATEGORY_PRODUCTS: '/search/product/category',
     ADMIN_USERS: 'admin',
     ADMIN_GRAPH_DATA: 'admin/graphData',
+    ADMIN_METRICS: 'admin/metrics',
     WISHLIST_GET: '/user/wishlist',
     WISHLIST_ADD: '/user/wishlist/add',
     WISHLIST_REMOVE: '/user/wishlist/remove',

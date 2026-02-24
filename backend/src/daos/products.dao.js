@@ -423,3 +423,18 @@ export const getAllProducts = async () => {
 export const countAllProducts = async () => {
     return await Products.countDocuments();
 };
+
+export const getProductsByCategory = async () => {
+    return await Products.aggregate([
+        { $group: { _id: "$category", count: { $sum: 1 } } },
+        { $sort: { count: -1 } }
+    ]);
+};
+
+export const countVerifiedProducts = async () => {
+    return await Products.countDocuments({ verified: true });
+};
+
+export const countUnverifiedProducts = async () => {
+    return await Products.countDocuments({ verified: { $ne: true } });
+};
