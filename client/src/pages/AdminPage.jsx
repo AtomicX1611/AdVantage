@@ -10,6 +10,7 @@ import StatsRow from "../components/Admin/StatsRow";
 import ChartsRow from "../components/Admin/AdminChartsRow.jsx";
 import AdminRecentActivity from "../components/Admin/AdminRecentActivity";
 import PaymentHistory from "../components/Admin/PaymentHistory";
+import PaymentAnalytics from "../components/Admin/PaymentAnalytics";
 import UserList from "../components/Admin/UserList";
 import ManagerList from "../components/Admin/ManagerList";
 
@@ -52,6 +53,7 @@ export default function AdminPage() {
   const [recentActivity, setRecentActivity] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [paymentAnalytics, setPaymentAnalytics] = useState(null);
   const [allManagers, setAllManagers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -165,6 +167,32 @@ export default function AdminPage() {
     }
   };
 
+  // Fetch payment analytics data
+  const fetchPaymentAnalytics = async () => {
+    try {
+      const url = `${backendURL}/${API_CONFIG.API_ENDPOINTS.ADMIN_PAYMENT_ANALYTICS}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch payment analytics: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.analytics) {
+        setPaymentAnalytics(data.analytics);
+      }
+    } catch (err) {
+      console.error("Error fetching payment analytics:", err);
+      // Non-critical — payments tab will show basic history
+    }
+  };
+
   // Handle user removal
   const handleUserRemoved = (userId) => {
     setAllUsers(prevUsers => prevUsers.filter(u => u._id !== userId));
@@ -203,12 +231,26 @@ export default function AdminPage() {
     }));
   };
 
+  // Handle manager addition
+  const handleManagerAdded = (newManager) => {
+    setAllManagers(prevManagers => [...prevManagers, newManager]);
+
+    setPieData(prevPieData => ({
+      ...prevPieData,
+      users: [
+        prevPieData.users[0],
+        prevPieData.users[1] + 1,
+        prevPieData.users[2]
+      ]
+    }));
+  };
+
   // Fetch all data on component mount
   useEffect(() => {
     const loadAllData = async () => {
       try {
         setLoading(true);
-        await Promise.all([fetchAllData(), fetchMetrics()]);
+        await Promise.all([fetchAllData(), fetchMetrics(), fetchPaymentAnalytics()]);
       } catch (err) {
         console.error("Error loading admin data:", err);
         setError("Failed to load admin data");
@@ -224,14 +266,29 @@ export default function AdminPage() {
     overview: 'Dashboard Overview',
     users: 'User Management',
     managers: 'Manager Management',
-    payments: 'Payment History',
+    payments: 'Payment Analytics',
   };
 
   const tabSubtitles = {
     overview: 'Monitor your platform at a glance',
     users: 'View and manage platform users',
     managers: 'View and manage platform managers',
-    payments: 'Track all payment transactions',
+    payments: 'Revenue analytics, category insights, and transaction details',
+  };
+
+  const getCurrentDate = () => {
+    return new Date().toLocaleDateString('en-IN', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  const handleRefresh = () => {
+    setLoading(true);
+    Promise.all([fetchAllData(), fetchMetrics(), fetchPaymentAnalytics()])
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -244,8 +301,23 @@ export default function AdminPage() {
 
       <main className={styles.mainContent}>
         <div className={styles.contentHeader}>
-          <h1 className={styles.pageTitle}>{tabTitles[activeTab]}</h1>
-          <p className={styles.pageSubtitle}>{tabSubtitles[activeTab]}</p>
+          <div className={styles.headerLeft}>
+            <span className={styles.headerGreeting}>
+              <i className='bx bxs-hand-right'></i>
+              Welcome, Admin
+            </span>
+            <h1 className={styles.pageTitle}>{tabTitles[activeTab]}</h1>
+            <p className={styles.pageSubtitle}>{tabSubtitles[activeTab]}</p>
+          </div>
+          <div className={styles.headerRight}>
+            <div className={styles.headerDate}>
+              <i className='bx bx-calendar'></i>
+              {getCurrentDate()}
+            </div>
+            <button className={styles.headerRefreshBtn} onClick={handleRefresh} title="Refresh data">
+              <i className='bx bx-refresh'></i>
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -278,13 +350,13 @@ export default function AdminPage() {
 
             {activeTab === 'managers' && (
               <div className={styles.tabContent}>
-                <ManagerList managers={allManagers} onManagerRemoved={handleManagerRemoved} />
+                <ManagerList managers={allManagers} onManagerRemoved={handleManagerRemoved} onManagerAdded={handleManagerAdded} />
               </div>
             )}
 
             {activeTab === 'payments' && (
               <div className={styles.tabContent}>
-                <PaymentHistory payments={payments} />
+                <PaymentAnalytics analytics={paymentAnalytics} />
               </div>
             )}
           </>

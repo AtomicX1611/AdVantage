@@ -52,3 +52,28 @@ export const getManagerVerifiedCounts = async () => {
         return {};
     }
 };
+
+export const createManager = async (email, password) => {
+    try {
+        if (!email || !password) {
+            return { success: false, message: "Email and password are required" };
+        }
+
+        // Check if manager already exists
+        const existingManager = await Managers.findOne({ email });
+        if (existingManager) {
+            return { success: false, message: "Manager with this email already exists" };
+        }
+
+        const newManager = new Managers({ email, password });
+        const savedManager = await newManager.save();
+
+        return {
+            success: true,
+            manager: savedManager
+        };
+    } catch (error) {
+        console.error("Error in createManager DAO:", error);
+        return { success: false, message: "Database error while creating manager" };
+    }
+};

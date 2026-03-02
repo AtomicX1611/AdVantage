@@ -8,6 +8,8 @@ export const API_CONFIG = {
     ADMIN_USERS: 'admin',
     ADMIN_GRAPH_DATA: 'admin/graphData',
     ADMIN_METRICS: 'admin/metrics',
+    ADMIN_PAYMENT_ANALYTICS: 'admin/paymentAnalytics',
+    ADMIN_ADD_MANAGER: 'admin/addManager',
     WISHLIST_GET: '/user/wishlist',
     WISHLIST_ADD: '/user/wishlist/add',
     WISHLIST_REMOVE: '/user/wishlist/remove',
