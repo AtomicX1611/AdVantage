@@ -37,9 +37,9 @@ export const addProductRequestDao = async (productId, buyerId, biddingPrice) => 
         return { success: false, reason: "already_sold" };
     }
 
-    if (product.price > biddingPrice) {
-        return { success: false, reason: "bidding_price_low" };
-    }
+    // if (product.price > biddingPrice) {
+    //     return { success: false, reason: "bidding_price_low" };
+    // }
 
     const alreadyRequested = product.requests.some(
         req => req.buyer.toString() === buyerId.toString()

@@ -58,21 +58,25 @@ const limiter = rateLimit({
 
 app.use(limiter);
 app.use(morgan("combined", { stream: accessLogStream }));
-app.use(morgan("dev"));
+app.use(morgan("dev")); //morgan logger  (app level)
 // app.use(helmet());
 
 // body Parsing middleware
-app.use(cookieParser());
+app.use(cookieParser()); // Cookie parsing middleware
 
 app.use(cors({
-  origin: "http://localhost:5173",
-  credentials:true
+  origin: [
+    "http://localhost:5173",
+    "http://127.0.0.1:3001",
+    "http://localhost:3001"
+  ],
+  credentials: true
 }));
 
-app.use(express.json({ limit: "500mb" }));
-app.use(express.urlencoded({ extended: true, limit: "500mb" }));
+app.use(express.json({ limit: "500mb" })); //(app level)
+app.use(express.urlencoded({ extended: true, limit: "500mb" })); //(app level)
 
-app.use("/uploads", express.static(path.join("./", "uploads")));
+app.use("/uploads", express.static(path.join("./", "uploads"))); //(app level)
 
 app.use("/auth", authRouter);
 app.use("/user", userRouter);

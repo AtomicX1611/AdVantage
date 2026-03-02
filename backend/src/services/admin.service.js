@@ -6,7 +6,7 @@ import {
   getAllAdmins,
   countAdmins,
 } from "../daos/admins.dao.js";
-import { getAllManagers, countManagers, findManagerByEmail, createManager } from "../daos/managers.dao.js";
+import { getAllManagers, countManagers, findManagerByEmail, createManager, removeManagerById, getManagerVerifiedCounts } from "../daos/managers.dao.js";
 import { getAllUsers, countUsers } from "../daos/users.dao.js";
 import { getAllProducts, countAllProducts } from "../daos/products.dao.js";
 import { getAllPayments, countPayments } from "../daos/payment.dao.js";
@@ -103,12 +103,36 @@ export const addManagerService = async (email, password) => {
     return { success: false, message: "Error adding manager" };
   }
 };
+export const removeManager = async (managerId) => {
+  try {
+    if (!managerId) {
+      return { success: false, message: "managerId is required" };
+    }
+
+    const result = await removeManagerById(managerId);
+
+    if (!result.success) {
+      return result;
+    }
+
+    return {
+      success: true,
+      message: "Manager removed successfully",
+      manager: result.manager
+    };
+
+  } catch (error) {
+    console.error("Error in removeManager service:", error);
+    return { success: false, message: "Error removing manager" };
+  }
+};
 
 export const getAllDataService = async () => {
   try {
     const [
       admins,
       managers,
+      managerVerifiedCounts,
       users,
       products,
       payments,
@@ -124,6 +148,7 @@ export const getAllDataService = async () => {
     ] = await Promise.all([
       getAllAdmins(),
       getAllManagers(),
+      getManagerVerifiedCounts(),
       getAllUsers(),
       getAllProducts(),
       getAllPayments(),
@@ -137,12 +162,16 @@ export const getAllDataService = async () => {
       // countContacts(),
       // countMessages()
     ]);
-    
+
     return {
       success: true,
       data: {
         admins,
-        managers,
+        managers: managers.map(m => ({
+          ...m,
+          productsVerified: managerVerifiedCounts[m._id.toString()] || 0,
+          createdAt: m._id.getTimestamp ? m._id.getTimestamp() : new Date(parseInt(m._id.toString().substring(0, 8), 16) * 1000),
+        })),
         users,
         products,
         payments,
@@ -163,10 +192,10 @@ export const getAllDataService = async () => {
 
   } catch (error) {
     console.error("Error in getAllDataService:", error);
-    return { 
-      success: false, 
+    return {
+      success: false,
       message: "Error fetching all data from database",
-      error: error.message 
+      error: error.message
     };
   }
 };

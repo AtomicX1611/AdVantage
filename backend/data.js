@@ -73,7 +73,7 @@ export const data=[
     district: "Chandigarh",
     city: "Chandigarh",
     state: "Assam",
-    invoice: "",
+    invoice: "https://slicedinvoices.com/pdf/wordpress-pdf-invoice-plugin-sample.pdf",
     images: [
       "https://rukminim2.flixcart.com/image/480/640/xif0q/computer/w/o/9/-original-imahfyyskvad3vpk.jpeg?q=90 ",
       "https://i.ytimg.com/vi/HTiBSG7E474/maxresdefault.jpg",

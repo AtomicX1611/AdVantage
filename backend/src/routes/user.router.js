@@ -35,6 +35,7 @@ import {
 
 export const router = express.Router();
 
+//router level middleware
 router.use(checkToken);
 router.use(serializeUser);
 router.use(authorize("user"));

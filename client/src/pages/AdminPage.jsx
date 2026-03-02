@@ -11,6 +11,7 @@ import ListsRow from "../components/Admin/ListsRow";
 import PaymentHistory from "../components/Admin/PaymentHistory";
 import UserList from "../components/Admin/UserList";
 import AddManagerForm from "../components/Admin/AddManagerForm";
+import ManagerList from "../components/Admin/ManagerList";
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ export default function AdminPage() {
   const [subscribedUsers, setSubscribedUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [allManagers, setAllManagers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -59,7 +61,7 @@ export default function AdminPage() {
   const fetchAllData = async () => {
     try {
       const url = `${backendURL}/${API_CONFIG.API_ENDPOINTS.ADMIN_USERS}`;
-      
+
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -99,24 +101,27 @@ export default function AdminPage() {
           }));
 
         setSubscribedUsers(subscribed);
-          console.log("Loggin all users payments: ",data.payments);
-          
+        console.log("Loggin all users payments: ", data.payments);
+
         // Store all users for the user list
         setAllUsers(data.users);
 
+        // Store all managers for the manager list
+        setAllManagers(data.managers || []);
+
         // Process payment history for display
         const formattedPayments = data.payments.slice(0, 10).map(payment => {
-          
+
           // Helper to safely find user/entity details whether populated or by ID
           const findEntity = (idOrObj, list, defaultText) => {
             if (!idOrObj) return defaultText;
-            
+
             // If already populated as an object
             if (typeof idOrObj === 'object') {
               // If it's an object, it might have the fields directly
               return idOrObj.username || idOrObj.email || defaultText;
             }
-            
+
             // If ID string, search in the provided list
             const found = list?.find(item => String(item._id) === String(idOrObj));
             return found?.username || found?.email || defaultText;
@@ -125,21 +130,21 @@ export default function AdminPage() {
           // Find the from user/admin/manager
           let fromName = "Unknown";
           if (payment.fromModel === 'Users') {
-             fromName = findEntity(payment.from, data.users, "Unknown User");
+            fromName = findEntity(payment.from, data.users, "Unknown User");
           } else if (payment.fromModel === 'Admin') {
-             fromName = findEntity(payment.from, data.admins, "Unknown Admin");
+            fromName = findEntity(payment.from, data.admins, "Unknown Admin");
           } else if (payment.fromModel === 'Managers') {
-             fromName = findEntity(payment.from, data.managers, "Unknown Manager");
+            fromName = findEntity(payment.from, data.managers, "Unknown Manager");
           }
 
           // Find the to user/admin/manager
           let toName = "Unknown";
           if (payment.toModel === 'Users') {
-             toName = findEntity(payment.to, data.users, "Unknown User");
+            toName = findEntity(payment.to, data.users, "Unknown User");
           } else if (payment.toModel === 'Admin') {
-             toName = findEntity(payment.to, data.admins, "Unknown Admin");
+            toName = findEntity(payment.to, data.admins, "Unknown Admin");
           } else if (payment.toModel === 'Managers') {
-             toName = findEntity(payment.to, data.managers, "Unknown Manager");
+            toName = findEntity(payment.to, data.managers, "Unknown Manager");
           }
 
           return {
@@ -150,8 +155,8 @@ export default function AdminPage() {
             date: new Date(payment.date).toLocaleDateString('en-IN')
           };
         });
-        console.log("Formatted payments : ",formattedPayments);
-        
+        console.log("Formatted payments : ", formattedPayments);
+
         setPayments(formattedPayments);
 
         // Calculate pie data for user distribution
@@ -174,9 +179,9 @@ export default function AdminPage() {
   const handleUserRemoved = (userId) => {
     // Remove user from allUsers list
     setAllUsers(prevUsers => prevUsers.filter(u => u._id !== userId));
-    
+
     // Remove from subscribed users if present
-    setSubscribedUsers(prevSubscribed => 
+    setSubscribedUsers(prevSubscribed =>
       prevSubscribed.filter(u => u._id !== userId)
     );
 
@@ -215,6 +220,22 @@ export default function AdminPage() {
         prevPieData.users[2]
       ]
     }));
+    // Add new manager to the list
+    setAllManagers(prevManagers => [...prevManagers, manager]);
+  };
+  // Handle manager removal
+  const handleManagerRemoved = (managerId) => {
+    setAllManagers(prevManagers => prevManagers.filter(m => m._id !== managerId));
+
+    // Update pie data
+    setPieData(prevPieData => ({
+      ...prevPieData,
+      users: [
+        prevPieData.users[0], // admins unchanged
+        Math.max(0, prevPieData.users[1] - 1), // decrease managers
+        prevPieData.users[2] // regular users unchanged
+      ]
+    }));
   };
 
   // Fetch graph data
@@ -222,7 +243,7 @@ export default function AdminPage() {
     try {
       const url = `${backendURL}/${API_CONFIG.API_ENDPOINTS.ADMIN_GRAPH_DATA}`;
       console.log('Fetching graph data from:', url);
-      
+
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -317,6 +338,8 @@ export default function AdminPage() {
       {payments.length > 0 && <PaymentHistory payments={payments} />}
 
       <UserList users={allUsers} onUserRemoved={handleUserRemoved} />
+
+      <ManagerList managers={allManagers} onManagerRemoved={handleManagerRemoved} />
     </div>
   );
 }
