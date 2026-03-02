@@ -5,16 +5,19 @@ import { logout } from '../redux/authSlice';
 import styles from "../styles/admin.module.css";
 import API_CONFIG from "../config/api.config";
 
+import AdminSidebar from "../components/Admin/AdminSidebar";
 import StatsRow from "../components/Admin/StatsRow";
 import ChartsRow from "../components/Admin/AdminChartsRow.jsx";
-import ListsRow from "../components/Admin/ListsRow";
+import AdminRecentActivity from "../components/Admin/AdminRecentActivity";
 import PaymentHistory from "../components/Admin/PaymentHistory";
+import PaymentAnalytics from "../components/Admin/PaymentAnalytics";
 import UserList from "../components/Admin/UserList";
 import ManagerList from "../components/Admin/ManagerList";
 
 export default function AdminPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [activeTab, setActiveTab] = useState('overview');
 
   const handleLogout = async () => {
     try {
@@ -36,36 +39,35 @@ export default function AdminPage() {
   };
 
   const [stats, setStats] = useState([
-    { title: "Total Users", value: "Loading..." },
-    { title: "Total Products", value: "Loading..." },
-    { title: "Total Payments", value: "Loading..." },
-    { title: "Revenue (₹)", value: "Loading..." },
+    { title: "Total Users", value: "...", icon: "bx bxs-group", colorClass: "metricIconBlue" },
+    { title: "Active Users", value: "...", icon: "bx bxs-user-check", colorClass: "metricIconGreen" },
+    { title: "Total Products", value: "...", icon: "bx bx-package", colorClass: "metricIconPurple" },
+    { title: "Revenue (₹)", value: "...", icon: "bx bxs-wallet", colorClass: "metricIconAmber" },
   ]);
 
   const [pieData, setPieData] = useState({
-    users: [0, 0, 0], // admins, managers, regular users
+    users: [0, 0, 0],
     subscriptions: [0, 0, 0]
   });
 
-  const [subscribedUsers, setSubscribedUsers] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [paymentAnalytics, setPaymentAnalytics] = useState(null);
   const [allManagers, setAllManagers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const backendURL = API_CONFIG.BACKEND_URL;
 
-  // Fetch all data from the new endpoint
+  // Fetch all raw data from the existing endpoint
   const fetchAllData = async () => {
     try {
       const url = `${backendURL}/${API_CONFIG.API_ENDPOINTS.ADMIN_USERS}`;
-      
+
       const response = await fetch(url, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
       });
 
@@ -74,77 +76,34 @@ export default function AdminPage() {
       }
 
       const responseData = await response.json();
-      console.log('Admin data received:', responseData);
 
       if (responseData.success && responseData.data && responseData.counts) {
         const { data, counts } = responseData;
 
-        // Calculate total revenue from payments
-        const totalRevenue = data.payments.reduce((sum, payment) => sum + (payment.price || 0), 0);
-
-        // Update stats
-        setStats([
-          { title: "Total Users", value: counts.users || 0 },
-          { title: "Total Products", value: counts.products || 0 },
-          { title: "Total Payments", value: counts.payments || 0 },
-          { title: "Revenue (₹)", value: totalRevenue.toLocaleString('en-IN') },
-        ]);
-
-        // Extract subscribed users from users array
-        const subscribed = data.users
-          .filter(user => user.subscription && user.subscription.length > 0)
-          .slice(0, 5)
-          .map(user => ({
-            name: user.username || user.email || "Unknown",
-            subscription: user.subscription[0]?.type || "Active",
-          }));
-
-        setSubscribedUsers(subscribed);
-          console.log("Loggin all users payments: ",data.payments);
-          
-        // Store all users for the user list
+        // Store raw data for list tabs
         setAllUsers(data.users);
-
-        // Store all managers for the manager list
         setAllManagers(data.managers || []);
 
-        // Process payment history for display
+        // Process payment history for the Payments tab
         const formattedPayments = data.payments.slice(0, 10).map(payment => {
-          
-          // Helper to safely find user/entity details whether populated or by ID
           const findEntity = (idOrObj, list, defaultText) => {
             if (!idOrObj) return defaultText;
-            
-            // If already populated as an object
             if (typeof idOrObj === 'object') {
-              // If it's an object, it might have the fields directly
               return idOrObj.username || idOrObj.email || defaultText;
             }
-            
-            // If ID string, search in the provided list
             const found = list?.find(item => String(item._id) === String(idOrObj));
             return found?.username || found?.email || defaultText;
           };
 
-          // Find the from user/admin/manager
           let fromName = "Unknown";
-          if (payment.fromModel === 'Users') {
-             fromName = findEntity(payment.from, data.users, "Unknown User");
-          } else if (payment.fromModel === 'Admin') {
-             fromName = findEntity(payment.from, data.admins, "Unknown Admin");
-          } else if (payment.fromModel === 'Managers') {
-             fromName = findEntity(payment.from, data.managers, "Unknown Manager");
-          }
+          if (payment.fromModel === 'Users') fromName = findEntity(payment.from, data.users, "Unknown User");
+          else if (payment.fromModel === 'Admin') fromName = findEntity(payment.from, data.admins, "Unknown Admin");
+          else if (payment.fromModel === 'Managers') fromName = findEntity(payment.from, data.managers, "Unknown Manager");
 
-          // Find the to user/admin/manager
           let toName = "Unknown";
-          if (payment.toModel === 'Users') {
-             toName = findEntity(payment.to, data.users, "Unknown User");
-          } else if (payment.toModel === 'Admin') {
-             toName = findEntity(payment.to, data.admins, "Unknown Admin");
-          } else if (payment.toModel === 'Managers') {
-             toName = findEntity(payment.to, data.managers, "Unknown Manager");
-          }
+          if (payment.toModel === 'Users') toName = findEntity(payment.to, data.users, "Unknown User");
+          else if (payment.toModel === 'Admin') toName = findEntity(payment.to, data.admins, "Unknown Admin");
+          else if (payment.toModel === 'Managers') toName = findEntity(payment.to, data.managers, "Unknown Manager");
 
           return {
             user: fromName,
@@ -154,11 +113,10 @@ export default function AdminPage() {
             date: new Date(payment.date).toLocaleDateString('en-IN')
           };
         });
-        console.log("Formatted payments : ",formattedPayments);
-        
+
         setPayments(formattedPayments);
 
-        // Calculate pie data for user distribution
+        // Pie data for charts
         setPieData({
           users: [counts.admins || 0, counts.managers || 0, counts.users || 0],
           subscriptions: [
@@ -174,37 +132,87 @@ export default function AdminPage() {
     }
   };
 
+  // Fetch computed metrics from the new endpoint
+  const fetchMetrics = async () => {
+    try {
+      const url = `${backendURL}/${API_CONFIG.API_ENDPOINTS.ADMIN_METRICS}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch metrics: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.metrics) {
+        const m = data.metrics;
+
+        setStats([
+          { title: "Total Users", value: m.totalUsers || 0, icon: "bx bxs-group", colorClass: "metricIconBlue" },
+          { title: "Active Users", value: m.activeUsers || 0, icon: "bx bxs-user-check", colorClass: "metricIconGreen" },
+          { title: "Total Products", value: m.totalProducts || 0, icon: "bx bx-package", colorClass: "metricIconPurple" },
+          { title: "Revenue (₹)", value: (m.totalRevenue || 0).toLocaleString('en-IN'), icon: "bx bxs-wallet", colorClass: "metricIconAmber" },
+        ]);
+
+        setRecentActivity(m.recentActivity || []);
+      }
+    } catch (err) {
+      console.error("Error fetching metrics:", err);
+      // Non-critical — overview stats will show defaults
+    }
+  };
+
+  // Fetch payment analytics data
+  const fetchPaymentAnalytics = async () => {
+    try {
+      const url = `${backendURL}/${API_CONFIG.API_ENDPOINTS.ADMIN_PAYMENT_ANALYTICS}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch payment analytics: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.analytics) {
+        setPaymentAnalytics(data.analytics);
+      }
+    } catch (err) {
+      console.error("Error fetching payment analytics:", err);
+      // Non-critical — payments tab will show basic history
+    }
+  };
+
   // Handle user removal
   const handleUserRemoved = (userId) => {
-    // Remove user from allUsers list
     setAllUsers(prevUsers => prevUsers.filter(u => u._id !== userId));
-    
-    // Remove from subscribed users if present
-    setSubscribedUsers(prevSubscribed => 
-      prevSubscribed.filter(u => u._id !== userId)
-    );
 
-    // Update stats
     setStats(prevStats => {
       const newStats = [...prevStats];
-      const totalUsersIndex = 0;
-      if (newStats[totalUsersIndex]) {
-        const currentValue = parseInt(newStats[totalUsersIndex].value);
-        newStats[totalUsersIndex] = {
-          ...newStats[totalUsersIndex],
-          value: currentValue - 1
-        };
+      const idx = newStats.findIndex(s => s.title === "Total Users");
+      if (idx !== -1) {
+        const currentValue = parseInt(newStats[idx].value);
+        newStats[idx] = { ...newStats[idx], value: currentValue - 1 };
       }
       return newStats;
     });
 
-    // Update pie data
     setPieData(prevPieData => ({
       ...prevPieData,
       users: [
-        prevPieData.users[0], // admins unchanged
-        prevPieData.users[1], // managers unchanged
-        Math.max(0, prevPieData.users[2] - 1) // decrease regular users
+        prevPieData.users[0],
+        prevPieData.users[1],
+        Math.max(0, prevPieData.users[2] - 1)
       ]
     }));
   };
@@ -213,46 +221,28 @@ export default function AdminPage() {
   const handleManagerRemoved = (managerId) => {
     setAllManagers(prevManagers => prevManagers.filter(m => m._id !== managerId));
 
-    // Update pie data
     setPieData(prevPieData => ({
       ...prevPieData,
       users: [
-        prevPieData.users[0], // admins unchanged
-        Math.max(0, prevPieData.users[1] - 1), // decrease managers
-        prevPieData.users[2] // regular users unchanged
+        prevPieData.users[0],
+        Math.max(0, prevPieData.users[1] - 1),
+        prevPieData.users[2]
       ]
     }));
   };
 
-  // Fetch graph data
-  const fetchGraphData = async () => {
-    try {
-      const url = `${backendURL}/${API_CONFIG.API_ENDPOINTS.ADMIN_GRAPH_DATA}`;
-      console.log('Fetching graph data from:', url);
-      
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
+  // Handle manager addition
+  const handleManagerAdded = (newManager) => {
+    setAllManagers(prevManagers => [...prevManagers, newManager]);
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch graph data: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log('Graph data received:', data);
-
-      // Graph data is optional - don't set error if it fails
-      if (data.success && data.graphData) {
-        console.log("Graph data:", data.graphData);
-      }
-    } catch (err) {
-      console.error("Error fetching graph data:", err);
-      // Don't set error state for graph data failure
-    }
+    setPieData(prevPieData => ({
+      ...prevPieData,
+      users: [
+        prevPieData.users[0],
+        prevPieData.users[1] + 1,
+        prevPieData.users[2]
+      ]
+    }));
   };
 
   // Fetch all data on component mount
@@ -260,8 +250,7 @@ export default function AdminPage() {
     const loadAllData = async () => {
       try {
         setLoading(true);
-        await fetchAllData();
-        await fetchGraphData();
+        await Promise.all([fetchAllData(), fetchMetrics(), fetchPaymentAnalytics()]);
       } catch (err) {
         console.error("Error loading admin data:", err);
         setError("Failed to load admin data");
@@ -273,56 +262,106 @@ export default function AdminPage() {
     loadAllData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className={styles.adminContainer}>
-        <div className={styles.adminHeaderTop}>
-          <h1 className={styles.adminTitle}>Admin Dashboard</h1>
-          <button className={styles.logoutBtn} onClick={handleLogout}>Logout</button>
-        </div>
-        <p style={{ textAlign: 'center', padding: '20px' }}>Loading data...</p>
-      </div>
-    );
-  }
+  const tabTitles = {
+    overview: 'Dashboard Overview',
+    users: 'User Management',
+    managers: 'Manager Management',
+    payments: 'Payment Analytics',
+  };
 
-  if (error) {
-    return (
-      <div className={styles.adminContainer}>
-        <div className={styles.adminHeaderTop}>
-          <h1 className={styles.adminTitle}>Admin Dashboard</h1>
-          <button className={styles.logoutBtn} onClick={handleLogout}>Logout</button>
-        </div>
-        <p style={{ textAlign: 'center', padding: '20px', color: 'red' }}>
-          Error: {error}
-        </p>
-        <p style={{ textAlign: 'center', padding: '10px', fontSize: '12px', color: '#666' }}>
-          Backend URL: {backendURL}
-        </p>
-        <p style={{ textAlign: 'center', padding: '10px', fontSize: '12px', color: '#666' }}>
-          Make sure the backend server is running on {backendURL}
-        </p>
-      </div>
-    );
-  }
+  const tabSubtitles = {
+    overview: 'Monitor your platform at a glance',
+    users: 'View and manage platform users',
+    managers: 'View and manage platform managers',
+    payments: 'Revenue analytics, category insights, and transaction details',
+  };
+
+  const getCurrentDate = () => {
+    return new Date().toLocaleDateString('en-IN', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  const handleRefresh = () => {
+    setLoading(true);
+    Promise.all([fetchAllData(), fetchMetrics(), fetchPaymentAnalytics()])
+      .finally(() => setLoading(false));
+  };
 
   return (
-    <div className={styles.adminContainer}>
-      <div className={styles.adminHeaderTop}>
-        <h1 className={styles.adminTitle}>Admin Dashboard</h1>
-        <button className={styles.logoutBtn} onClick={handleLogout}>Logout</button>
-      </div>
+    <div className={styles.adminLayout}>
+      <AdminSidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onLogout={handleLogout}
+      />
 
-      <StatsRow stats={stats} />
+      <main className={styles.mainContent}>
+        <div className={styles.contentHeader}>
+          <div className={styles.headerLeft}>
+            <span className={styles.headerGreeting}>
+              <i className='bx bxs-hand-right'></i>
+              Welcome, Admin
+            </span>
+            <h1 className={styles.pageTitle}>{tabTitles[activeTab]}</h1>
+            <p className={styles.pageSubtitle}>{tabSubtitles[activeTab]}</p>
+          </div>
+          <div className={styles.headerRight}>
+            <div className={styles.headerDate}>
+              <i className='bx bx-calendar'></i>
+              {getCurrentDate()}
+            </div>
+            <button className={styles.headerRefreshBtn} onClick={handleRefresh} title="Refresh data">
+              <i className='bx bx-refresh'></i>
+            </button>
+          </div>
+        </div>
 
-      <ChartsRow pieData={pieData} />
+        {loading ? (
+          <div className={styles.loadingContainer}>
+            <div className={styles.spinner}></div>
+            <p>Loading dashboard data...</p>
+          </div>
+        ) : error ? (
+          <div className={styles.errorContainer}>
+            <p>{error}</p>
+            <p className={styles.errorHint}>
+              Make sure the backend server is running on {backendURL}
+            </p>
+          </div>
+        ) : (
+          <>
+            {activeTab === 'overview' && (
+              <div className={styles.tabContent}>
+                <StatsRow stats={stats} />
+                <ChartsRow pieData={pieData} />
+                <AdminRecentActivity activity={recentActivity} />
+              </div>
+            )}
 
-      <ListsRow subscribedUsers={subscribedUsers} />
+            {activeTab === 'users' && (
+              <div className={styles.tabContent}>
+                <UserList users={allUsers} onUserRemoved={handleUserRemoved} />
+              </div>
+            )}
 
-      {payments.length > 0 && <PaymentHistory payments={payments} />}
+            {activeTab === 'managers' && (
+              <div className={styles.tabContent}>
+                <ManagerList managers={allManagers} onManagerRemoved={handleManagerRemoved} onManagerAdded={handleManagerAdded} />
+              </div>
+            )}
 
-      <UserList users={allUsers} onUserRemoved={handleUserRemoved} />
-
-      <ManagerList managers={allManagers} onManagerRemoved={handleManagerRemoved} />
+            {activeTab === 'payments' && (
+              <div className={styles.tabContent}>
+                <PaymentAnalytics analytics={paymentAnalytics} />
+              </div>
+            )}
+          </>
+        )}
+      </main>
     </div>
   );
 }

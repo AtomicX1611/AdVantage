@@ -77,6 +77,7 @@ app.use("/uploads", express.static(path.join("./", "uploads")));
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 // app.use("/seller",sellerRouter);
+
 app.use('/manager', managerRouter);
 app.use("/admin", adminRouter);
 app.use("/anyone", anyoneRouter);
