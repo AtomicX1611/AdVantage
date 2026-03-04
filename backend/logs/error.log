@@ -1,0 +1,76 @@
+[2026-03-04T09:49:27.023Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:28.150Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:29.037Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:29.900Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:30.564Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:31.476Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:32.390Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:33.409Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:34.361Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:35.444Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:37.327Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:38.027Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:38.864Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:39.951Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:40.974Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:41.740Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T09:49:42.946Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T12:57:37.489Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T12:59:08.550Z] | POST /user/addProduct | Status: 500 | Type: Error | Message: At least one product image is required | Stack: Error: At least one product image is required
+    at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)

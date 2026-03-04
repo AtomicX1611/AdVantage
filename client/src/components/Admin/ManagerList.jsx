@@ -6,7 +6,7 @@ export default function ManagerList({ managers, onManagerRemoved, onManagerAdded
   const [loading, setLoading] = useState({});
   const [showAddForm, setShowAddForm] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ email: "", password: "", category: "" });
   const [formError, setFormError] = useState("");
 
   const handleRemove = async (managerId, email) => {
@@ -46,8 +46,8 @@ export default function ManagerList({ managers, onManagerRemoved, onManagerAdded
     e.preventDefault();
     setFormError("");
 
-    if (!formData.email || !formData.password) {
-      setFormError("Email and password are required");
+    if (!formData.email || !formData.password || !formData.category) {
+      setFormError("Email, password, and category are required");
       return;
     }
 
@@ -71,7 +71,7 @@ export default function ManagerList({ managers, onManagerRemoved, onManagerAdded
 
       if (data.success) {
         alert(`Manager "${formData.email}" has been added successfully`);
-        setFormData({ email: "", password: "" });
+        setFormData({ email: "", password: "", category: "" });
         setShowAddForm(false);
         if (onManagerAdded) {
           onManagerAdded(data.manager);
@@ -125,6 +125,27 @@ export default function ManagerList({ managers, onManagerRemoved, onManagerAdded
                   minLength={6}
                 />
               </div>
+              <div className={styles.addManagerInputGroup}>
+                <label>Category</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  required
+                  style={{ padding: "0.5rem", borderRadius: "6px", border: "1px solid #ddd", fontSize: "0.9rem" }}
+                >
+                  <option value="">Select Category</option>
+                  <option value="Clothes">Clothes</option>
+                  <option value="Mobiles">Mobiles</option>
+                  <option value="Laptops">Laptops</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Books">Books</option>
+                  <option value="Furniture">Furniture</option>
+                  <option value="Automobiles">Automobiles</option>
+                  <option value="Sports">Sports</option>
+                  <option value="Fashion">Fashion</option>
+                  <option value="Musical Instruments">Musical Instruments</option>
+                </select>
+              </div>
               <button 
                 type="submit" 
                 className={styles.submitManagerBtn}
@@ -150,6 +171,7 @@ export default function ManagerList({ managers, onManagerRemoved, onManagerAdded
                 <th>#</th>
                 <th>Manager ID</th>
                 <th>Email</th>
+                <th>Category</th>
                 <th>Products Verified</th>
                 <th>Created At</th>
                 <th>Action</th>
@@ -161,6 +183,7 @@ export default function ManagerList({ managers, onManagerRemoved, onManagerAdded
                   <td>{index + 1}</td>
                   <td>{manager._id}</td>
                   <td>{manager.email}</td>
+                  <td>{manager.category || "N/A"}</td>
                   <td>{manager.productsVerified ?? 0}</td>
                   <td>
                     {manager.createdAt

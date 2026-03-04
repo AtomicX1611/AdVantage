@@ -32,9 +32,16 @@ import {
     revokeAcceptedRequest,
     analyticsController
 } from "../controllers/seller.controller.js";
+import {
+    fileComplaint,
+    getMyComplaints,
+    getProductComplaints,
+    getProductBuyers,
+} from "../controllers/complaint.controller.js";
 
 export const router = express.Router();
 
+//router level middleware
 router.use(checkToken);
 router.use(serializeUser);
 router.use(authorize("user"));
@@ -82,5 +89,11 @@ router.post("/makeAvailable/:productId",makeAvailableController);
 */ 
 
 router.get("/selling-analytics",analyticsController);
+
+// Complaint routes
+router.post("/complaint", fileComplaint);
+router.get("/complaints", getMyComplaints);
+router.get("/complaints/product/:productId", getProductComplaints);
+router.get("/complaints/buyers/:productId", getProductBuyers);
 
 export default router;

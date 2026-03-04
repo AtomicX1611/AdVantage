@@ -37,9 +37,9 @@ export const addProductRequestDao = async (productId, buyerId, biddingPrice) => 
         return { success: false, reason: "already_sold" };
     }
 
-    if (product.price > biddingPrice) {
-        return { success: false, reason: "bidding_price_low" };
-    }
+    // if (product.price > biddingPrice) {
+    //     return { success: false, reason: "bidding_price_low" };
+    // }
 
     const alreadyRequested = product.requests.some(
         req => req.buyer.toString() === buyerId.toString()
@@ -262,6 +262,21 @@ export const findUnverifiedProducts = async () => {
     }
 };
 
+export const findUnverifiedProductsByCategory = async (category) => {
+    try {
+        const products = await Products.find({ verified: false, category: category }).populate('seller');
+        return {
+            success: true,
+            products: products
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: "database error"
+        }
+    }
+};
+
 export const getYourProductsDao = async (buyerId) => {
     const products = await Products.find({ soldTo: buyerId });
     return products;
@@ -327,6 +342,14 @@ export const rentDao = async (buyerId, productId, from, to, biddingPrice) => {
                 success: false,
                 message: "Product not found",
                 status: 404
+            }
+        }
+        // prevent seller from creating rent request on own product
+        if (prod.seller && prod.seller.toString() === buyerId.toString()) {
+            return {
+                success: false,
+                message: "You cannot request your own product",
+                status: 400
             }
         }
         if (prod.soldTo) {

@@ -222,6 +222,7 @@ export const managerLogin = async (req, res, next) => {
         return res.status(200).json({
             managerId: response.manager._id,
             email: response.manager.email,
+            category: response.manager.category,
             success: true,
             message: "Manager login successful",
         });

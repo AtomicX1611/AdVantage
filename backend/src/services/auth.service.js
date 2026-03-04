@@ -74,6 +74,9 @@ const createTransporter = () => {
 export const MailService = async (email, otp) => {
     try {
         const transporter = createTransporter();
+        console.log("new log");
+        console.log("logging with user meail and email also",process.env.MAIL_USER);
+        console.log("email to send to:",email);
         
         await transporter.sendMail({
             from: process.env.MAIL_USER,
@@ -318,7 +321,7 @@ export const managerLoginService = async (email, password) => {
     }
 
     const token = jwt.sign(
-        { _id: manager._id, role: "manager" },
+        { _id: manager._id, role: "manager", category: manager.category },
         process.env.JWT_SECRET,
         { expiresIn: "7d" }
     );

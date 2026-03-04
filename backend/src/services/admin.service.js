@@ -6,7 +6,7 @@ import {
   getAllAdmins,
   countAdmins,
 } from "../daos/admins.dao.js";
-import { getAllManagers, countManagers, removeManagerById, getManagerVerifiedCounts, createManager } from "../daos/managers.dao.js";
+import { getAllManagers, countManagers, removeManagerById, getManagerVerifiedCounts, createManager,findManagerByEmail } from "../daos/managers.dao.js";
 import { getAllUsers, countUsers, countActiveUsers } from "../daos/users.dao.js";
 import { getAllProducts, countAllProducts, getProductsByCategory, countVerifiedProducts, countUnverifiedProducts } from "../daos/products.dao.js";
 import { 
@@ -94,6 +94,28 @@ export const removeUser = async (userId) => {
   }
 };
 
+export const addManagerService = async (email, password, category) => {
+  try {
+    if (!email || !password || !category) {
+      return { success: false, message: "Email, password, and category are required" };
+    }
+
+    const existing = await findManagerByEmail(email);
+    if (existing) {
+      return { success: false, message: "Manager with this email already exists" };
+    }
+
+    const manager = await createManager({ email, password, category });
+    return {
+      success: true,
+      message: "Manager added successfully",
+      manager: { _id: manager._id, email: manager.email, category: manager.category }
+    };
+  } catch (error) {
+    console.error("Error in addManagerService:", error);
+    return { success: false, message: "Error adding manager" };
+  }
+};
 export const removeManager = async (managerId) => {
   try {
     if (!managerId) {
@@ -118,44 +140,44 @@ export const removeManager = async (managerId) => {
   }
 };
 
-export const addManagerService = async (email, password) => {
-  try {
-    if (!email || !password) {
-      return { success: false, message: "Email and password are required" };
-    }
+// export const addManagerService = async (email, password) => {
+//   try {
+//     if (!email || !password) {
+//       return { success: false, message: "Email and password are required" };
+//     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return { success: false, message: "Invalid email format" };
-    }
+//     // Validate email format
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(email)) {
+//       return { success: false, message: "Invalid email format" };
+//     }
 
-    // Validate password length
-    if (password.length < 6) {
-      return { success: false, message: "Password must be at least 6 characters" };
-    }
+//     // Validate password length
+//     if (password.length < 6) {
+//       return { success: false, message: "Password must be at least 6 characters" };
+//     }
 
-    const result = await createManager(email, password);
+//     const result = await createManager(email, password);
 
-    if (!result.success) {
-      return result;
-    }
+//     if (!result.success) {
+//       return result;
+//     }
 
-    // Return manager without password
-    const managerData = result.manager.toObject();
-    delete managerData.password;
+//     // Return manager without password
+//     const managerData = result.manager.toObject();
+//     delete managerData.password;
 
-    return {
-      success: true,
-      message: "Manager created successfully",
-      manager: managerData
-    };
+//     return {
+//       success: true,
+//       message: "Manager created successfully",
+//       manager: managerData
+//     };
 
-  } catch (error) {
-    console.error("Error in addManagerService:", error);
-    return { success: false, message: "Error creating manager" };
-  }
-};
+//   } catch (error) {
+//     console.error("Error in addManagerService:", error);
+//     return { success: false, message: "Error creating manager" };
+//   }
+// };
 
 export const getAllDataService = async () => {
   try {
@@ -192,7 +214,7 @@ export const getAllDataService = async () => {
       // countContacts(),
       // countMessages()
     ]);
-    
+
     return {
       success: true,
       data: {
@@ -222,10 +244,10 @@ export const getAllDataService = async () => {
 
   } catch (error) {
     console.error("Error in getAllDataService:", error);
-    return { 
-      success: false, 
+    return {
+      success: false,
       message: "Error fetching all data from database",
-      error: error.message 
+      error: error.message
     };
   }
 };
