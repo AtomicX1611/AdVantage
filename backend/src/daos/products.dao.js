@@ -262,6 +262,21 @@ export const findUnverifiedProducts = async () => {
     }
 };
 
+export const findUnverifiedProductsByCategory = async (category) => {
+    try {
+        const products = await Products.find({ verified: false, category: category }).populate('seller');
+        return {
+            success: true,
+            products: products
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: "database error"
+        }
+    }
+};
+
 export const getYourProductsDao = async (buyerId) => {
     const products = await Products.find({ soldTo: buyerId });
     return products;
@@ -327,6 +342,14 @@ export const rentDao = async (buyerId, productId, from, to, biddingPrice) => {
                 success: false,
                 message: "Product not found",
                 status: 404
+            }
+        }
+        // prevent seller from creating rent request on own product
+        if (prod.seller && prod.seller.toString() === buyerId.toString()) {
+            return {
+                success: false,
+                message: "You cannot request your own product",
+                status: 400
             }
         }
         if (prod.soldTo) {
@@ -422,4 +445,19 @@ export const getAllProducts = async () => {
 
 export const countAllProducts = async () => {
     return await Products.countDocuments();
+};
+
+export const getProductsByCategory = async () => {
+    return await Products.aggregate([
+        { $group: { _id: "$category", count: { $sum: 1 } } },
+        { $sort: { count: -1 } }
+    ]);
+};
+
+export const countVerifiedProducts = async () => {
+    return await Products.countDocuments({ verified: true });
+};
+
+export const countUnverifiedProducts = async () => {
+    return await Products.countDocuments({ verified: { $ne: true } });
 };

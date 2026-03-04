@@ -118,6 +118,10 @@ export const countUsers = async () => {
 };
 
 
+export const countActiveUsers = async () => {
+    return await Users.countDocuments({ earnings: { $gt: 0 } });
+};
+
 export const updateEarnings = async (userId, amount) => {
     try {
         const user = await Users.findById(userId);

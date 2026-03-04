@@ -321,7 +321,7 @@ export const managerLoginService = async (email, password) => {
     }
 
     const token = jwt.sign(
-        { _id: manager._id, role: "manager" },
+        { _id: manager._id, role: "manager", category: manager.category },
         process.env.JWT_SECRET,
         { expiresIn: "7d" }
     );

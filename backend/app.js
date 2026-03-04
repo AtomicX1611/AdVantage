@@ -48,15 +48,15 @@ export const errorLogStream = createStream("error.log", {
   size: "10M",
 });
 
-const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000,
-	limit: 100,
-	standardHeaders: 'draft-8',
-	legacyHeaders: false,
-	ipv6Subnet: 56,
-})
+// const limiter = rateLimit({
+// 	windowMs: 15 * 60 * 1000,
+// 	limit: 100,
+// 	standardHeaders: 'draft-8',
+// 	legacyHeaders: false,
+// 	ipv6Subnet: 56,
+// })
 
-app.use(limiter);
+// app.use(limiter);
 app.use(morgan("combined", { stream: accessLogStream }));
 app.use(morgan("dev")); //morgan logger  (app level)
 // app.use(helmet());
@@ -78,9 +78,40 @@ app.use(express.urlencoded({ extended: true, limit: "500mb" })); //(app level)
 
 app.use("/uploads", express.static(path.join("./", "uploads"))); //(app level)
 
+// Serve bulkUpload.html at /bulkUpload (same-origin, no CORS issues)
+app.get("/bulkUpload", (req, res) => {
+  res.sendFile(path.resolve("bulkUpload.html"));
+});
+
+// ================== This should be removed later ==================
+
+// Proxy endpoint to download external images/invoices (avoids browser CORS restrictions)
+app.get("/proxy-download", async (req, res) => {
+  const { url } = req.query;
+  if (!url) return res.status(400).json({ error: "url query param required" });
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "*/*",
+      },
+    });
+    if (!response.ok) return res.status(response.status).json({ error: `Failed to fetch: ${response.statusText}` });
+    const contentType = response.headers.get("content-type");
+    if (contentType) res.setHeader("Content-Type", contentType);
+    const buffer = Buffer.from(await response.arrayBuffer());
+    res.send(buffer);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========================= Till Here ===============================================
+
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 // app.use("/seller",sellerRouter);
+
 app.use('/manager', managerRouter);
 app.use("/admin", adminRouter);
 app.use("/anyone", anyoneRouter);

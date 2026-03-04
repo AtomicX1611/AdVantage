@@ -126,7 +126,7 @@
     <div class="config-section">
         <h2>📦 Product Data (JSON Array)</h2>
         <textarea id="productData" placeholder='Paste your product JSON array here...'>[
-    <!-- {
+    {
         "name": "OnePlus Nord 3",
         "price": 34999,
         "description": "5G smartphone with Dimensity 9000 chip and 120Hz AMOLED display.",
@@ -141,7 +141,7 @@
             "https://m.media-amazon.com/images/I/6116+vSW+1L.jpg",
             "https://m.media-amazon.com/images/I/71-yDa90UrL._UF1000,1000_QL80_.jpg"
         ]
-    } -->
+    }
     
 ]</textarea>
     </div>
@@ -220,8 +220,8 @@
         // ── Helper: Download a URL as a File object ──
         async function urlToFile(url, fallbackName) {
             log(`  ↓ Downloading: ${url.substring(0, 80)}...`, 'info');
-            // Use a CORS proxy since image servers won't allow cross-origin fetch
-            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+            // Use our own backend proxy to avoid browser CORS restrictions
+            const proxyUrl = `${getBaseUrl()}/proxy-download?url=${encodeURIComponent(url)}`;
             const response = await fetch(proxyUrl);
             if (!response.ok) throw new Error(`Failed to download: ${url} (status ${response.status})`);
             const blob = await response.blob();

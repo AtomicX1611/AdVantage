@@ -4,14 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { logout } from '../redux/authSlice';
 import VerifyCard from '../components/Manager/VerifyCard.jsx';
+import ComplaintList from '../components/Manager/ComplaintList.jsx';
 import styles from '../styles/manager.module.css';
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [products, setProducts] = useState([]);
+  const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('verify');
+  const [managerCategory, setManagerCategory] = useState('');
 
   const fetchData = async () => {
     try {
@@ -30,6 +34,7 @@ const ManagerDashboard = () => {
 
       if (data.success) {
         setProducts(data.products);
+        if (data.category) setManagerCategory(data.category);
       } else {
         setError("Failed to fetch products");
       }
@@ -41,10 +46,24 @@ const ManagerDashboard = () => {
     }
   };
 
+  const fetchComplaints = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/manager/complaints', {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setComplaints(data.complaints || []);
+      }
+    } catch (err) {
+      console.error("Error fetching complaints", err);
+    }
+  };
+
   const handleVerify = async (pid) => {
     try {
-      console.log("initaing verify");
-      
       const res = await fetch("http://localhost:3000/manager/verify", {
         method: "POST",
         credentials: "include",
@@ -67,6 +86,31 @@ const ManagerDashboard = () => {
     } catch (err) {
       console.error("Verify error:", err);
       alert("Server Error verifying product.");
+    }
+  };
+
+  const handleResolveComplaint = async (complaintId, status, resolution) => {
+    try {
+      const res = await fetch(`http://localhost:3000/manager/complaints/${complaintId}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status, resolution }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Complaint updated successfully");
+        setComplaints((prev) =>
+          prev.map((c) =>
+            c._id === complaintId ? { ...c, status, resolution } : c
+          )
+        );
+      } else {
+        alert(data.message || "Failed to update complaint");
+      }
+    } catch (err) {
+      console.error("Error resolving complaint:", err);
+      alert("Error updating complaint");
     }
   };
 
@@ -95,6 +139,7 @@ const ManagerDashboard = () => {
 
   useEffect(() => {
     fetchData();
+    fetchComplaints();
   }, []);
 
   if (error) {
@@ -131,45 +176,71 @@ const ManagerDashboard = () => {
             <h1 className={styles.title}>Manager Dashboard</h1>
             <button className={styles.logoutBtn} onClick={handleLogout}>Logout</button>
           </div>
-          <p className={styles.subtitle}>Review and verify pending product listings</p>
+          <p className={styles.subtitle}>
+            Category: <strong>{managerCategory || 'Loading...'}</strong> — Review products and handle complaints
+          </p>
         </div>
 
-        <div className={styles.statsBar}>
-          <div className={styles.statCard}>
-            <div className={`${styles.statIcon} ${styles.statIconPending}`}>📋</div>
-            <div>
-              <div className={styles.statValue}>{products.length}</div>
-              <div className={styles.statLabel}>Pending Review</div>
+        {/* Tab Navigation */}
+        <div className={styles.tabNav}>
+          <button
+            className={`${styles.tabButton} ${activeTab === 'verify' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('verify')}
+          >
+            Product Verification ({products.length})
+          </button>
+          <button
+            className={`${styles.tabButton} ${activeTab === 'complaints' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('complaints')}
+          >
+            Complaints ({complaints.length})
+          </button>
+        </div>
+
+        {activeTab === 'verify' && (
+          <>
+            <div className={styles.statsBar}>
+              <div className={styles.statCard}>
+                <div className={`${styles.statIcon} ${styles.statIconPending}`}>📋</div>
+                <div>
+                  <div className={styles.statValue}>{products.length}</div>
+                  <div className={styles.statLabel}>Pending Review</div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {products.length === 0 ? (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>✅</div>
-            <h3 className={styles.emptyTitle}>All Caught Up!</h3>
-            <p className={styles.emptyText}>There are no products waiting for verification right now.</p>
-          </div>
-        ) : (
-          <div className={styles.cardsGrid}>
-            {products.map((item) => {
-              console.log(item);
-              return (
-                <VerifyCard
-                  key={item._id}
-                  productPhoto={item.images?.[0] || 'https://via.placeholder.com/150'}
-                  sellerName={item.seller?.username || 'Unknown Seller'}
-                  postingDate={new Date(item.postingDate).toISOString().split('T')[0]}
-                  category={item.category}
-                  type={item.isRental ? 'Rental' : 'Sale'}
-                  price={item.price}
-                  onVerify={() => handleVerify(item._id)}
-                  onViewDetails={() => handleViewDetails(item._id)}
-                  invoice={item.invoice}
-                />
-              );
-            })}
-          </div>
+            {products.length === 0 ? (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>✅</div>
+                <h3 className={styles.emptyTitle}>All Caught Up!</h3>
+                <p className={styles.emptyText}>There are no products waiting for verification in your category right now.</p>
+              </div>
+            ) : (
+              <div className={styles.cardsGrid}>
+                {products.map((item) => (
+                  <VerifyCard
+                    key={item._id}
+                    productPhoto={item.images?.[0] || 'https://via.placeholder.com/150'}
+                    sellerName={item.seller?.username || 'Unknown Seller'}
+                    postingDate={new Date(item.postingDate).toISOString().split('T')[0]}
+                    category={item.category}
+                    type={item.isRental ? 'Rental' : 'Sale'}
+                    price={item.price}
+                    onVerify={() => handleVerify(item._id)}
+                    onViewDetails={() => handleViewDetails(item._id)}
+                    invoice={item.invoice}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {activeTab === 'complaints' && (
+          <ComplaintList
+            complaints={complaints}
+            onResolve={handleResolveComplaint}
+          />
         )}
       </div>
     </div>

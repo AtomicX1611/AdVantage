@@ -6,9 +6,11 @@ export const getManagerById= async (id)=>{
 }
 
 export const findManagerByEmail = async (email) => {
-    // console.log(email);
-    // console.log(await Managers.find());
     return await Managers.findOne({ email });
+};
+
+export const findManagerByCategory = async (category) => {
+    return await Managers.findOne({ category });
 };
 
 export const getAllManagers = async () => {

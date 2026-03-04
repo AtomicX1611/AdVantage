@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from '../../styles/sellerdashboard.module.css';
 import { Link } from 'react-router-dom';
 import { API_CONFIG } from '../../config/api.config';
+import ComplaintModal from '../ComplaintModal';
 
 const backendURL = API_CONFIG.BACKEND_URL;
 
@@ -60,6 +61,7 @@ function productFilter(filterType, products) {
 const SellerItems = ({ filterType }) => {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [complaintProduct, setComplaintProduct] = useState(null);
   const items = productFilter(filterType, products);
   
   const titles = {
@@ -190,6 +192,15 @@ const SellerItems = ({ filterType }) => {
                       Make Available
                     </button>
                   )}
+                  {item.soldTo !== null && (
+                    <button
+                      className={styles.btnDel}
+                      style={{ backgroundColor: "#fff3f3", color: "#d32f2f", border: "1px solid #d32f2f" }}
+                      onClick={() => setComplaintProduct(item)}
+                    >
+                      Report Buyer
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -203,6 +214,15 @@ const SellerItems = ({ filterType }) => {
             You don't have any items in this category yet. Add a new product to get started!
           </p>
         </div>
+      )}
+
+      {complaintProduct && (
+        <ComplaintModal
+          onClose={() => setComplaintProduct(null)}
+          productId={complaintProduct._id}
+          productName={complaintProduct.name}
+          source="seller_dashboard"
+        />
       )}
     </div>
   );

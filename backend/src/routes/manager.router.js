@@ -1,7 +1,9 @@
 import express from "express"
 import { 
     verifyController,
-    dashboardController
+    dashboardController,
+    getComplaintsController,
+    resolveComplaintController,
  } from "../controllers/manager.controller.js";
 
 import {
@@ -17,3 +19,5 @@ managerRouter.use(authorize("manager"));
  
 managerRouter.get("/d",dashboardController);
 managerRouter.post("/verify",verifyController);
+managerRouter.get("/complaints", getComplaintsController);
+managerRouter.patch("/complaints/:complaintId", resolveComplaintController);

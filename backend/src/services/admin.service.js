@@ -6,10 +6,23 @@ import {
   getAllAdmins,
   countAdmins,
 } from "../daos/admins.dao.js";
-import { getAllManagers, countManagers, findManagerByEmail, createManager, removeManagerById, getManagerVerifiedCounts } from "../daos/managers.dao.js";
-import { getAllUsers, countUsers } from "../daos/users.dao.js";
-import { getAllProducts, countAllProducts } from "../daos/products.dao.js";
-import { getAllPayments, countPayments } from "../daos/payment.dao.js";
+import { getAllManagers, countManagers, removeManagerById, getManagerVerifiedCounts, createManager,findManagerByEmail } from "../daos/managers.dao.js";
+import { getAllUsers, countUsers, countActiveUsers } from "../daos/users.dao.js";
+import { getAllProducts, countAllProducts, getProductsByCategory, countVerifiedProducts, countUnverifiedProducts } from "../daos/products.dao.js";
+import { 
+  getAllPayments, 
+  countPayments, 
+  getPaymentStatsByType, 
+  getRecentPayments,
+  getRevenueByCategory,
+  getRevenueByState,
+  getRevenueByPaymentType,
+  getMonthlyRevenue,
+  getPaymentsWithProductDetails,
+  getTopCategories,
+  getTopStates,
+  getRentalVsPurchaseStats
+} from "../daos/payment.dao.js";
 // import { getAllContacts, countContacts } from "../daos/contacts.dao.js";
 // import { getAllMessages, countMessages } from "../daos/messages.dao.js";
 
@@ -81,10 +94,10 @@ export const removeUser = async (userId) => {
   }
 };
 
-export const addManagerService = async (email, password) => {
+export const addManagerService = async (email, password, category) => {
   try {
-    if (!email || !password) {
-      return { success: false, message: "Email and password are required" };
+    if (!email || !password || !category) {
+      return { success: false, message: "Email, password, and category are required" };
     }
 
     const existing = await findManagerByEmail(email);
@@ -92,11 +105,11 @@ export const addManagerService = async (email, password) => {
       return { success: false, message: "Manager with this email already exists" };
     }
 
-    const manager = await createManager({ email, password });
+    const manager = await createManager({ email, password, category });
     return {
       success: true,
       message: "Manager added successfully",
-      manager: { _id: manager._id, email: manager.email }
+      manager: { _id: manager._id, email: manager.email, category: manager.category }
     };
   } catch (error) {
     console.error("Error in addManagerService:", error);
@@ -126,6 +139,45 @@ export const removeManager = async (managerId) => {
     return { success: false, message: "Error removing manager" };
   }
 };
+
+// export const addManagerService = async (email, password) => {
+//   try {
+//     if (!email || !password) {
+//       return { success: false, message: "Email and password are required" };
+//     }
+
+//     // Validate email format
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(email)) {
+//       return { success: false, message: "Invalid email format" };
+//     }
+
+//     // Validate password length
+//     if (password.length < 6) {
+//       return { success: false, message: "Password must be at least 6 characters" };
+//     }
+
+//     const result = await createManager(email, password);
+
+//     if (!result.success) {
+//       return result;
+//     }
+
+//     // Return manager without password
+//     const managerData = result.manager.toObject();
+//     delete managerData.password;
+
+//     return {
+//       success: true,
+//       message: "Manager created successfully",
+//       manager: managerData
+//     };
+
+//   } catch (error) {
+//     console.error("Error in addManagerService:", error);
+//     return { success: false, message: "Error creating manager" };
+//   }
+// };
 
 export const getAllDataService = async () => {
   try {
@@ -197,5 +249,148 @@ export const getAllDataService = async () => {
       message: "Error fetching all data from database",
       error: error.message
     };
+  }
+};
+export const getAdminMetricsService = async () => {
+  try {
+    const [
+      categoryDistribution,
+      revenueByType,
+      recentPaymentsList,
+      activeUserCount,
+      totalUserCount,
+      verifiedProductCount,
+      unverifiedProductCount,
+      totalProductCount,
+      totalPaymentCount,
+    ] = await Promise.all([
+      getProductsByCategory(),
+      getPaymentStatsByType(),
+      getRecentPayments(10),
+      countActiveUsers(),
+      countUsers(),
+      countVerifiedProducts(),
+      countUnverifiedProducts(),
+      countAllProducts(),
+      countPayments(),
+    ]);
+
+    const totalRevenue = revenueByType.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+
+    return {
+      success: true,
+      metrics: {
+        categoryDistribution,
+        revenueByType,
+        recentActivity: recentPaymentsList.map(p => ({
+          _id: p._id,
+          from: p.from?.username || p.from?.email || 'Unknown',
+          to: p.to?.username || p.to?.email || 'Unknown',
+          type: p.paymentType,
+          amount: p.price,
+          date: p.date,
+        })),
+        activeUsers: activeUserCount,
+        totalUsers: totalUserCount,
+        verifiedProducts: verifiedProductCount,
+        unverifiedProducts: unverifiedProductCount,
+        totalProducts: totalProductCount,
+        totalPayments: totalPaymentCount,
+        totalRevenue,
+      }
+    };
+  } catch (error) {
+    console.error("Error in getAdminMetricsService:", error);
+    return { success: false, message: "Error computing admin metrics" };
+  }
+};
+
+// Payment Analytics Service
+export const getPaymentAnalyticsService = async () => {
+  try {
+    const [
+      revenueByCategory,
+      revenueByState,
+      revenueByPaymentType,
+      monthlyRevenue,
+      paymentsWithDetails,
+      topCategories,
+      topStates,
+      rentalVsPurchase
+    ] = await Promise.all([
+      getRevenueByCategory(),
+      getRevenueByState(),
+      getRevenueByPaymentType(),
+      getMonthlyRevenue(12),
+      getPaymentsWithProductDetails(100),
+      getTopCategories(10),
+      getTopStates(10),
+      getRentalVsPurchaseStats()
+    ]);
+
+    // Transform rental vs purchase data
+    const rentalStats = rentalVsPurchase.find(r => r._id === true) || { count: 0, totalRevenue: 0 };
+    const purchaseStats = rentalVsPurchase.find(r => r._id === false) || { count: 0, totalRevenue: 0 };
+
+    // Transform monthly revenue for chart
+    const monthlyRevenueFormatted = monthlyRevenue.map(m => ({
+      month: `${m._id.year}-${String(m._id.month).padStart(2, '0')}`,
+      revenue: m.totalRevenue,
+      count: m.count
+    }));
+
+    return {
+      success: true,
+      analytics: {
+        revenueByCategory: revenueByCategory.map(c => ({
+          category: c._id || 'Uncategorized',
+          revenue: c.totalRevenue,
+          count: c.count
+        })),
+        revenueByState: revenueByState.map(s => ({
+          state: s._id || 'Unknown',
+          revenue: s.totalRevenue,
+          count: s.count
+        })),
+        revenueByPaymentType: revenueByPaymentType.map(p => ({
+          type: p._id,
+          revenue: p.totalRevenue,
+          count: p.count
+        })),
+        monthlyRevenue: monthlyRevenueFormatted,
+        topCategories: topCategories.map(c => ({
+          category: c._id,
+          salesCount: c.salesCount,
+          revenue: c.totalRevenue,
+          avgPrice: Math.round(c.avgPrice)
+        })),
+        topStates: topStates.map(s => ({
+          state: s._id,
+          salesCount: s.salesCount,
+          revenue: s.totalRevenue
+        })),
+        rentalVsPurchase: {
+          rental: { count: rentalStats.count, revenue: rentalStats.totalRevenue },
+          purchase: { count: purchaseStats.count, revenue: purchaseStats.totalRevenue }
+        },
+        detailedPayments: paymentsWithDetails.map(p => ({
+          _id: p._id,
+          from: p.fromUser || p.fromEmail || 'Unknown',
+          to: p.toUser || p.toEmail || 'Unknown',
+          amount: p.price,
+          type: p.paymentType,
+          date: p.date,
+          product: p.productName || null,
+          category: p.productCategory || null,
+          state: p.productState || null,
+          city: p.productCity || null,
+          district: p.productDistrict || null,
+          isRental: p.isRental || false
+        }))
+      }
+    };
+  } catch (error) {
+    console.error("Error in getPaymentAnalyticsService:", error);
+    return { success: false, message: "Error computing payment analytics" };
   }
 };
