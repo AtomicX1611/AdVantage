@@ -79,6 +79,7 @@ export const updatePaymentById = async (paymentId, updateData) => {
     );
 };
 
+// What is the purpose  ?
 // Delete payment by ID
 export const deletePaymentById = async (paymentId) => {
     return await Payment.findByIdAndDelete(paymentId);

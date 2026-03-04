@@ -10,11 +10,11 @@ import {
     revokeAcceptedRequestDao,
 } from "../daos/products.dao.js";
 // import {
-    // getSellerById,
-    // updateSellerById,
-    // updateSellerPassById,
-    // updateSellerSubscriptionDao
-    // findSellerSubsDao,
+// getSellerById,
+// updateSellerById,
+// updateSellerPassById,
+// updateSellerSubscriptionDao
+// findSellerSubsDao,
 // } from "../daos/sellers.dao.js";
 import {
     getBuyerById,
@@ -27,7 +27,7 @@ import {
     findProductsForSeller,
 } from "../daos/products.dao.js";
 
-import { createPayment } from "../daos/payment.dao.js";
+import { createPayment, getPaymentsByFrom, getPaymentsByTo } from "../daos/payment.dao.js";
 
 import { getAdminById, getAllAdmins } from "../daos/admins.dao.js";
 import {
@@ -56,7 +56,7 @@ export const addProductService = async (req) => {
         const arr = [10001, 50, 100];
         const seller = (await getBuyerById(sellerId));
         // console.log(seller.windowStart);
-        if(!seller.windowStart || new Date(seller.windowStart).getFullYear() !== new Date().getFullYear() || new Date(seller.windowStart).getMonth() !== new Date().getMonth()){
+        if (!seller.windowStart || new Date(seller.windowStart).getFullYear() !== new Date().getFullYear() || new Date(seller.windowStart).getMonth() !== new Date().getMonth()) {
             await resetUsedPostsDao(sellerId);
             seller.usedPosts = 0;
         }
@@ -198,7 +198,7 @@ export const deleteProductService = async (sellerId, productId) => {
 export const updateSellerSubscriptionService = async (sellerId, subscription) => {
     try {
         const seller = await getBuyerById(sellerId);
-        
+
         if (!seller) {
             return {
                 success: false,
@@ -384,24 +384,24 @@ export const makeAvailableService = async (sellerId, productId) => {
     }
 };
 
-export const analyticsService = async(sellerId)=> {
+export const analyticsService = async (sellerId) => {
     try {
         const user = await getBuyerById(sellerId);
-        if(!user) {
+        if (!user) {
             return {
-                status:404,
-                success:false,
-                message:"Seller not found"
+                status: 404,
+                success: false,
+                message: "Seller not found"
             }
         }
         const earnings = user.earnings;
 
         const userProducts = await findProductsForSeller(sellerId);
-        if(!userProducts.success) {
+        if (!userProducts.success) {
             return {
-                status:409,
-                success:false,
-                message:"Could not load products"
+                status: 409,
+                success: false,
+                message: "Could not load products"
             }
         }
         const products = userProducts.products;
@@ -411,19 +411,34 @@ export const analyticsService = async(sellerId)=> {
 
         let itemsForSale = 0;
         let itemsToRent = 0;
-        
+
+        const revPerCat = {
+            "Clothes": 0,
+            "Mobiles": 0,
+            "Laptops": 0,
+            "Electronics": 0,
+            "Books": 0,
+            "Furniture": 0,
+            "Automobiles": 0,
+            "Sports": 0,
+            "Fashion": 0,
+            "Musical Instruments": 0
+        };
+
         products.forEach(prod => {
             pendingRequest += prod.requests?.length || 0;
 
-            if(prod.isRental) {
-                if(prod.soldTo != null) {
+            if (prod.isRental) {
+                if (prod.soldTo != null) {
+                    revPerCat[prod.category] += prod.price;
                     activeRentals++;
-                }else {
+                } else {
                     itemsToRent++;
                 }
             }
             else {
-                if(prod.soldTo != null) {
+                if (prod.soldTo != null) {
+                    revPerCat[prod.category] += prod.price;
                     itemsSold++;
                 }
                 else {
@@ -433,24 +448,46 @@ export const analyticsService = async(sellerId)=> {
         });
 
         return {
-            status:200,
-            success:true,
-            message:"Analytics found",
-            data:{
+            status: 200,
+            success: true,
+            message: "Analytics found",
+            data: {
                 earnings,
                 pendingRequest,
                 itemsForSale,
                 itemsSold,
                 itemsToRent,
-                activeRentals
+                activeRentals,
+                revPerCat
             }
         }
     } catch (error) {
-        console.log("err at analytics: ",error);
+        console.log("err at analytics: ", error);
         return {
-            status:500,
-            message:"Internal server err",
-            success:false
+            status: 500,
+            message: "Internal server err",
+            success: false
         }
     }
+}
+
+export const getTransactionsService = async (userId) => {
+    try {
+        const rcvd = getPaymentsByTo(userId, 'Users');
+        const paid = getPaymentsByFrom(userId, 'Admin');
+
+        return {
+            status:200,
+            received : rcvd,
+            paidTo : paid
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            status: 500,
+            message: "Internal server err",
+            success: false
+        }
+    }
+
 }

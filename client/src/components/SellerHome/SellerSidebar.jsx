@@ -18,6 +18,7 @@ const SellerSidebar = ({ isOpen }) => {
       <NavLink to="accepted-pending" className={getLinkClass}>Accepted - Awaiting Payment</NavLink>
       <NavLink to="sold" className={getLinkClass}>Sold Items</NavLink>
       <NavLink to="rented-out" className={getLinkClass}>Currently Rented Out</NavLink>
+      <NavLink to="transaction-history" className={getLinkClass}>Transaction History</NavLink>
     </aside>
   );
 };

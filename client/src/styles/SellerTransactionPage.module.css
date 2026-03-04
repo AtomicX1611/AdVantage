@@ -1,0 +1,162 @@
+/* Container */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: "Segoe UI", sans-serif;
+  color: #334155;
+  padding-bottom: 40px;
+}
+
+.header {
+  margin-bottom: 30px;
+}
+
+.header h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.header p {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* Filter Tabs */
+.filterContainer {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 15px;
+  overflow-x: auto; /* For mobile responsiveness */
+}
+
+.filterBtn {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #64748b;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.filterBtn:hover {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+.activeFilter {
+  background-color: #0f172a;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.3);
+}
+
+.activeFilter:hover {
+  background-color: #1e293b; /* Slightly lighter black on hover */
+  color: white;
+}
+
+/* Transaction List */
+.transactionList {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.transactionCard {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.transactionCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e1;
+}
+
+/* Left Side: Icon + Info */
+.cardLeft {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.iconWrapper {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+/* Specific Icon Colors */
+.iconSale { background-color: #dbeafe; color: #2563eb; } /* Blue */
+.iconRent { background-color: #d1fae5; color: #059669; } /* Green */
+.iconSub { background-color: #fee2e2; color: #dc2626; }  /* Red */
+
+.details h4 {
+  margin: 0 0 5px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.details p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+/* Right Side: Amount + Status */
+.cardRight {
+  text-align: right;
+}
+
+.amount {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.amountPositive { color: #059669; } /* Green */
+.amountNegative { color: #dc2626; } /* Red */
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.statusSuccess { background-color: #ecfdf5; color: #059669; }
+.statusPending { background-color: #fffbeb; color: #d97706; }
+.statusFailed { background-color: #fef2f2; color: #dc2626; }
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 40px;
+  color: #94a3b8;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 2px dashed #e2e8f0;
+}

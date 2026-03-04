@@ -24,7 +24,7 @@ const paymentSchema = new mongoose.Schema({
     paymentType: {
         type: String,
         required: true,
-        enum: ["purchase", "subscription","other"]
+        enum: ["purchase","subscription","other"]
     },
     relatedEntityId: {
         type: mongoose.Schema.Types.ObjectId,

@@ -22,11 +22,14 @@ import ViewRequest from "../pages/ViewRequest.jsx";
 import PendingTxsPage from "../pages/PendingTxsPage.jsx";
 import ManagerDashboard from '../pages/ManagerDashboard.jsx';
 import SellerDashboardLayout from "../pages/SellerDashboard.jsx";
+
 import SellerItems from "../components/SellerHome/SellerItems";
 import SellerRequests from "../components/SellerHome/SellerRequests";
 import AcceptedProducts from "../components/SellerHome/AcceptedProducts";
 import SellerAnalytics from '../components/SellerHome/SellerAnalytics.jsx'
 import SellerHeaderLayout from "../components/SellerHome/SellerHeaderLayout.jsx"
+import SellerTransactionHistory from "../components/SellerHome/SellerTransactionHistory.jsx"
+
 import LoginPage from "../components/TempLogin.jsx";
 import AuthLogin from "../pages/AuthLogin.jsx";
 import AuthSignup from "../pages/AuthSignup.jsx";
@@ -152,6 +155,7 @@ const AppRoutes = () => {
             <Route path="rented-out" element={<SellerItems filterType="rented" />} />
             <Route path="requests" element={<SellerRequests />} />
             <Route path="accepted-pending" element={<AcceptedProducts />} />
+            <Route path="transaction-history" element={<SellerTransactionHistory />} />
           </Route>
 
           <Route path="subscription/vip"

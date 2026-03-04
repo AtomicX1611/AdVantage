@@ -10,7 +10,8 @@ import {
     makeAvailableService,
     deleteProductService,
     revokeAcceptedRequestService,
-    analyticsService
+    analyticsService,
+    getTransactionsService
 } from "../services/seller.service.js";
 
 export const addProduct = async (req, res, next) => {
@@ -284,6 +285,7 @@ export const makeAvailableController = async (req, res, next) => {
 export const analyticsController = async(req, res, next) => {
     try {
         const userId = req.user._id;
+        console.log("entered");
 
         if (!userId) return res.status(404).json({
             success: false,
@@ -291,10 +293,33 @@ export const analyticsController = async(req, res, next) => {
         })
 
         const response = await analyticsService(userId);
+        console.log("response: ",response);
+        
         return res.status(response.status).json({
             message: response.message,
             success: response.success,
             data:response.data
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getTransactionsController = async (req,res,next) =>{
+    try {
+        const userId = req.user._id;
+        
+         if (!userId) return res.status(404).json({
+            success: false,
+            message: "userId not found"
+        })
+
+        const response = await getTransactionsService(userId);
+        
+        return res.status(response.status).json({
+            success: response.success,
+            received:response.received,
+            paidTo:response.paidTo
         });
     } catch (error) {
         next(error);
