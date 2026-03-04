@@ -217,6 +217,19 @@ export default function AdminPage() {
     }));
   };
 
+  const handleManagerAdded = (manager) => {
+    // Update manager count in pie data
+    setPieData(prevPieData => ({
+      ...prevPieData,
+      users: [
+        prevPieData.users[0],
+        prevPieData.users[1] + 1,
+        prevPieData.users[2]
+      ]
+    }));
+    // Add new manager to the list
+    setAllManagers(prevManagers => [...prevManagers, manager]);
+  };
   // Handle manager removal
   const handleManagerRemoved = (managerId) => {
     setAllManagers(prevManagers => prevManagers.filter(m => m._id !== managerId));
@@ -231,19 +244,6 @@ export default function AdminPage() {
     }));
   };
 
-  // Handle manager addition
-  const handleManagerAdded = (newManager) => {
-    setAllManagers(prevManagers => [...prevManagers, newManager]);
-
-    setPieData(prevPieData => ({
-      ...prevPieData,
-      users: [
-        prevPieData.users[0],
-        prevPieData.users[1] + 1,
-        prevPieData.users[2]
-      ]
-    }));
-  };
 
   // Fetch all data on component mount
   useEffect(() => {

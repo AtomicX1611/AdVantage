@@ -1,4 +1,3 @@
-import { createProduct } from "./src/daos/products.dao.js"
 export const data=[
     {
     name: "OnePlus Nord 3",
@@ -6,7 +5,6 @@ export const data=[
     description: "5G smartphone with Dimensity 9000 chip and 120Hz AMOLED display.",
     postingDate: new Date(),
     zipCode: "110092",
-    seller: '68ee39e574194f3881df4f6f',
     verified: false,
     category: "Mobiles",
     district: "East Delhi",
@@ -70,15 +68,12 @@ export const data=[
     name: "MacBook Air M2",
     price: 134999,
     description: "Apple MacBook Air with M2 chip, 8GB RAM, and 256GB SSD.",
-    postingDate: '2025-10-12T13:45:36.406+00:00',
     zipCode: "160001",
-    seller: '68ee39e574194f3881df4f6f',
-    verified: true,
     category: "Laptops",
     district: "Chandigarh",
     city: "Chandigarh",
     state: "Assam",
-    invoice: "",
+    invoice: "https://slicedinvoices.com/pdf/wordpress-pdf-invoice-plugin-sample.pdf",
     images: [
       "https://rukminim2.flixcart.com/image/480/640/xif0q/computer/w/o/9/-original-imahfyyskvad3vpk.jpeg?q=90 ",
       "https://i.ytimg.com/vi/HTiBSG7E474/maxresdefault.jpg",
@@ -88,8 +83,14 @@ export const data=[
     isRental: false,
   }
 ]
-export const seedData=async()=>{
-    data.forEach(async(product)=>{
-        await createProduct(product);
-    });
-}
+
+
+//         name,
+//         price,
+//         description,
+//         zipCode,
+//         category,
+//         district,
+//         city,
+//         state,
+//         isRental

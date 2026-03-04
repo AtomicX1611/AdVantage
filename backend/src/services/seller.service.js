@@ -473,8 +473,9 @@ export const analyticsService = async (sellerId) => {
 
 export const getTransactionsService = async (userId) => {
     try {
-        const rcvd = getPaymentsByTo(userId, 'Users');
-        const paid = getPaymentsByFrom(userId, 'Admin');
+        const rcvd = await getPaymentsByTo(userId, 'Users');
+        console.log('received: ',rcvd);
+        const paid = await getPaymentsByFrom(userId, 'Admin');
 
         return {
             status:200,

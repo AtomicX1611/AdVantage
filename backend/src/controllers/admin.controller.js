@@ -54,6 +54,26 @@ export const getAllData = async (req, res, next) => {
 
 
 
+export const addManager = async (req, res, next) => {
+  try {
+    const { email, password, category } = req.body;
+
+    if (!email || !password || !category) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, password, and category are required"
+      });
+    }
+
+    const result = await addManagerService(email, password, category);
+    return res.status(result.success ? 201 : 400).json(result);
+
+  } catch (error) {
+    console.error("Error in addManager controller:", error);
+    next(error);
+  }
+};
+
 export const takeDownUser = async (req, res, next) => {
   try {
     const adminId = req.user && req.user._id;
@@ -158,7 +178,7 @@ export const getPaymentAnalytics = async (req, res, next) => {
 export const addNewManager = async (req, res, next) => {
   try {
     const adminId = req.user?._id;
-    const { email, password } = req.body;
+    const { email, password, category } = req.body;
 
     if (!adminId) {
       return res.status(401).json({
@@ -167,14 +187,14 @@ export const addNewManager = async (req, res, next) => {
       });
     }
 
-    if (!email || !password) {
+    if (!email || !password || !category) {
       return res.status(400).json({
         success: false,
-        message: "Email and password are required"
+        message: "Email, password, and category are required"
       });
     }
 
-    const result = await addManagerService(email, password);
+    const result = await addManagerService(email, password, category);
     return res.status(result.success ? 201 : 400).json(result);
 
   } catch (error) {

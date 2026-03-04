@@ -6,9 +6,11 @@ export const getManagerById= async (id)=>{
 }
 
 export const findManagerByEmail = async (email) => {
-    // console.log(email);
-    // console.log(await Managers.find());
     return await Managers.findOne({ email });
+};
+
+export const findManagerByCategory = async (category) => {
+    return await Managers.findOne({ category });
 };
 
 export const getAllManagers = async () => {
@@ -19,6 +21,10 @@ export const countManagers = async () => {
     return await Managers.countDocuments();
 };
 
+export const createManager = async (data) => {
+    const manager = new Managers(data);
+    return await manager.save();
+};
 export const removeManagerById = async (managerId) => {
     try {
         if (!managerId) {
@@ -50,30 +56,5 @@ export const getManagerVerifiedCounts = async () => {
     } catch (error) {
         console.error("Error in getManagerVerifiedCounts DAO:", error);
         return {};
-    }
-};
-
-export const createManager = async (email, password) => {
-    try {
-        if (!email || !password) {
-            return { success: false, message: "Email and password are required" };
-        }
-
-        // Check if manager already exists
-        const existingManager = await Managers.findOne({ email });
-        if (existingManager) {
-            return { success: false, message: "Manager with this email already exists" };
-        }
-
-        const newManager = new Managers({ email, password });
-        const savedManager = await newManager.save();
-
-        return {
-            success: true,
-            manager: savedManager
-        };
-    } catch (error) {
-        console.error("Error in createManager DAO:", error);
-        return { success: false, message: "Database error while creating manager" };
     }
 };
