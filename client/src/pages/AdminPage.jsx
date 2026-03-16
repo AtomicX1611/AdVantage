@@ -12,7 +12,6 @@ import AdminRecentActivity from "../components/Admin/AdminRecentActivity";
 import PaymentHistory from "../components/Admin/PaymentHistory";
 import PaymentAnalytics from "../components/Admin/PaymentAnalytics";
 import UserList from "../components/Admin/UserList";
-import AddManagerForm from "../components/Admin/AddManagerForm";
 import ManagerList from "../components/Admin/ManagerList";
 
 export default function AdminPage() {

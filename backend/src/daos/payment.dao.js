@@ -41,6 +41,9 @@ export const getPaymentsByFrom = async (userId, fromModel) => {
 
 // Get payments received by a specific user
 export const getPaymentsByTo = async (userId, toModel) => {
+    console.log("userId: ",userId);
+    console.log("toModel: ",toModel);
+    
     return await Payment.find({ to: userId, toModel: toModel })
         .populate('from', 'username email')
         .populate('relatedEntityId')
@@ -79,6 +82,7 @@ export const updatePaymentById = async (paymentId, updateData) => {
     );
 };
 
+// What is the purpose  ?
 // Delete payment by ID
 export const deletePaymentById = async (paymentId) => {
     return await Payment.findByIdAndDelete(paymentId);

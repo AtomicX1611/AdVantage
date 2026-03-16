@@ -30,7 +30,8 @@ import {
     makeAvailableController,
     deleteProduct,
     revokeAcceptedRequest,
-    analyticsController
+    analyticsController,
+    getTransactionsController
 } from "../controllers/seller.controller.js";
 import {
     fileComplaint,
@@ -82,7 +83,6 @@ router.patch("/revokeAccepted/:productId",revokeAcceptedRequest);
 
 router.post("/makeAvailable/:productId",makeAvailableController);
 
-
 /*
     "/selling-analytics" for seller dashboard
     method:GET
@@ -90,6 +90,7 @@ router.post("/makeAvailable/:productId",makeAvailableController);
 
 router.get("/selling-analytics",analyticsController);
 
+router.get("/getMyTransactions",getTransactionsController);
 // Complaint routes
 router.post("/complaint", fileComplaint);
 router.get("/complaints", getMyComplaints);

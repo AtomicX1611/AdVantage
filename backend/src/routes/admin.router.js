@@ -15,7 +15,6 @@ adminRouter.get('/metrics', getMetrics);
 adminRouter.get('/paymentAnalytics', getPaymentAnalytics);
 adminRouter.post('/addManager', addManager);
 adminRouter.delete('/remove/:userId',takeDownUser); // Working
-adminRouter.post('/manager',addManager); // Add Manager
 adminRouter.delete('/removeManager/:managerId',takeDownManager);
 
 export default adminRouter

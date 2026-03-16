@@ -74,3 +74,8 @@
     at addProductService (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/services/seller.service.js:88:15)
     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
     at async addProduct (file:///media/rajeev/Safety/projects/webDev/AdVantage/backend/src/controllers/seller.controller.js:18:28)
+[2026-03-04T13:55:40.809Z] | PATCH /user/revokeAccepted/69a839447865b9849f9a7a22 | Status: 500 | Type: ValidationError | Message: Notifications validation failed: recipient: Path `recipient` is required. | Stack: ValidationError: Notifications validation failed: recipient: Path `recipient` is required.
+    at Document.invalidate (D:\Sem 6\WBD\AdVantage\backend\node_modules\mongoose\lib\document.js:3362:32)
+    at D:\Sem 6\WBD\AdVantage\backend\node_modules\mongoose\lib\document.js:3123:17
+    at D:\Sem 6\WBD\AdVantage\backend\node_modules\mongoose\lib\schemaType.js:1417:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
