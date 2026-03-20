@@ -109,6 +109,10 @@ const productsSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
+    ollama_embeddings: {
+        type: [Number],
+        default: [],
+    },
 });
 
 productsSchema.index({ name: "text" });

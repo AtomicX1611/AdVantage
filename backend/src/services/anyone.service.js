@@ -3,7 +3,9 @@ import {
     getFreshProductsDao,
     getProductById,
     findProducts,
+    vectorSearchProducts,
 } from "../daos/products.dao.js";
+import { generateSearchQueryEmbedding } from "../helpers/productEmbedding.helper.js";
 
 
 export const getFeaturedFreshProductsService = async () => {
@@ -19,7 +21,7 @@ export const getFeaturedFreshProductsService = async () => {
 export const getProductDetailsService = async (productId) => {
     const product = await getProductById(productId);
     // console.log(product);
-    if(!product){
+    if (!product) {
         return {
             success: false,
             message: "Product not found",
@@ -29,21 +31,21 @@ export const getProductDetailsService = async (productId) => {
     return {
         success: true,
         message: "Product retrieved successfully",
-        status:200,
+        status: 200,
         product: product,
     };
 }
 
 export const getProductsService = async (query) => {
-    const filters = { soldTo: null };
-    filters.soldTo = { $in: [null, undefined] };
-
-    if (query.name) {
-        filters.name = { $regex: query.name, $options: "i" };
-    }
+    const filters = {
+        $or: [
+            { soldTo: { $exists: false } },
+            { soldTo: null }
+        ]
+    };
 
     if (query.isRental) {
-        filters.isRental = query.isRental === "true";
+        filters.isRental = query.isRental === 'true';
     }
 
     if (query.category) {
@@ -51,7 +53,7 @@ export const getProductsService = async (query) => {
     }
 
     if (query.verified !== undefined) {
-        filters.verified = query.verified === "true";
+        filters.verified = query.verified === 'true';
     }
 
     if (query.minPrice || query.maxPrice) {
@@ -64,7 +66,25 @@ export const getProductsService = async (query) => {
         filters.postingDate = { $gte: new Date(query.postingDate) };
     }
 
-    console.log(filters);
-    const products = await findProducts(filters);
-    return products;
+    const hasName = typeof query.name === 'string' && query.name.trim().length > 0;
+
+    if (hasName) {
+        const queryVector = await generateSearchQueryEmbedding(query.name);
+
+        if (!Array.isArray(queryVector) || queryVector.length === 0) {
+            return [];
+        }
+
+        const requestedLimit = Number(query.limit);
+        const requestedCandidates = Number(query.numCandidates);
+        console.log(requestedCandidates);
+        return vectorSearchProducts({
+            queryVector,
+            filters,
+            limit: requestedLimit,
+            numCandidates: requestedCandidates,
+        });
+    }
+
+    return findProducts(filters);
 };

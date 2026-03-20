@@ -35,6 +35,7 @@ import {
     createRequestRejectedNotification,
     createRequestRevokedNotification,
 } from "../helpers/notification.helper.js";
+import { generateProductOllamaEmbedding } from "../helpers/productEmbedding.helper.js";
 
 export const addProductService = async (req) => {
     // Old implementation of isAllowed function which is slow
@@ -108,6 +109,16 @@ export const addProductService = async (req) => {
         invoice: invoicePath,
         soldTo: null,
     };
+
+    try {
+        const { vector } = await generateProductOllamaEmbedding(productData);
+        if (Array.isArray(vector) && vector.length > 0) {
+            productData.ollama_embeddings = vector;
+        }
+    } catch (error) {
+        console.error("Failed to generate Ollama embedding for addProduct:", error?.message || error);
+    }
+
     // console.log("product data: ", productData);
     const newProduct = await createProduct(productData);
     await incrementUsedPostsDao(req.user._id);

@@ -14,11 +14,12 @@ import userRouter from "./src/routes/user.router.js";
 import adminRouter from "./src/routes/admin.router.js";
 import anyoneRouter from "./src/routes/anyone.router.js";
 import { chatRouter } from "./src/routes/chat.routes.js";
+import { chatbotRouter } from "./src/routes/chatbot.routes.js";
 import { Server } from "socket.io";
 import { socketActions } from "./src/controllers/socket.contoller.js";
 import { managerRouter } from "./src/routes/manager.router.js";
 import { errorMiddleware } from "./src/middlewares/error.middleware.js";
-import { rateLimit } from 'express-rate-limit'
+// import { rateLimit } from 'express-rate-limit'
 
 // import { router } from "./src/routes/payment.router.js";
 // import { seedData } from "./data.js";
@@ -78,12 +79,13 @@ app.use(express.urlencoded({ extended: true, limit: "500mb" })); //(app level)
 
 app.use("/uploads", express.static(path.join("./", "uploads"))); //(app level)
 
+// ================== This should be removed later ==================
+
 // Serve bulkUpload.html at /bulkUpload (same-origin, no CORS issues)
 app.get("/bulkUpload", (req, res) => {
   res.sendFile(path.resolve("bulkUpload.html"));
 });
 
-// ================== This should be removed later ==================
 
 // Proxy endpoint to download external images/invoices (avoids browser CORS restrictions)
 app.get("/proxy-download", async (req, res) => {
@@ -115,6 +117,7 @@ app.use("/user", userRouter);
 app.use('/manager', managerRouter);
 app.use("/admin", adminRouter);
 app.use("/anyone", anyoneRouter);
+app.use("/chatbot", chatbotRouter);
 app.use("/chat", chatRouter);
 
 //need to remove this later

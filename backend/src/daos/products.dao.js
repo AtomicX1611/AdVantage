@@ -461,3 +461,35 @@ export const countVerifiedProducts = async () => {
 export const countUnverifiedProducts = async () => {
     return await Products.countDocuments({ verified: { $ne: true } });
 };
+
+export const vectorSearchProducts = async ({
+    queryVector,
+    filters = {},
+    numCandidates = 150,
+    limit = 30,
+}) => {
+    const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 100) : 30;
+    const safeCandidates = Number.isFinite(numCandidates) && numCandidates > 0
+        ? Math.max(numCandidates, safeLimit)
+        : Math.max(10000, safeLimit * 5);
+
+    const pipeline = [
+        {
+            $vectorSearch: {
+                index: 'productSearchIndex',
+                path: 'ollama_embeddings',
+                queryVector,
+                numCandidates: safeCandidates,
+                limit: 1,
+                // filter: filters,
+            },
+        },
+        {
+            $set: {
+                score: { $meta: 'vectorSearchScore' },
+            },
+        },
+    ];
+
+    return Products.aggregate(pipeline);
+};

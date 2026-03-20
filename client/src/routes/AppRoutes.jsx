@@ -39,6 +39,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { loginSuccess,logout } from '../redux/authSlice';
 import TestLogin from "../testLogin.jsx";
+import AIChatOverlay from "../components/AIChatOverlay.jsx";
 
 
 const ProtectedRoute = ({ element, allowedRoles }) => {
@@ -186,6 +187,7 @@ const AppRoutes = () => {
         <Route path="/manager" element={<ProtectedRoute element={<ManagerDashboard />} allowedRoles={['manager']} />} />
         <Route path="/error" element={<ErrorPage />} />
       </Routes>
+      <AIChatOverlay />
     </Router>
   );
 };
