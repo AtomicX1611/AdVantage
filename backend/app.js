@@ -24,11 +24,45 @@ import { rateLimit } from 'express-rate-limit'
 // import { seedData } from "./data.js";
 import helmet from "helmet";
 
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+
 const app = express();
 await connectDB();
 
-// Middleware setups
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API Documentation',
+      version: '1.0.0',
+      description: 'API documentation for Auth, User, Manager, Admin, and Chat services',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+        description: 'Development server',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+  },
+  // Ensure this points to the files where your @swagger comments live
+  apis: ['./src/routes/*.js', './src/routes/**/*.js', './app.js'], 
+};
 
+const specs = swaggerJsdoc(options);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
+
+// Middleware setups
 const logDirectory = path.join(process.cwd(), "logs");
 if (!fs.existsSync(logDirectory)) {
   fs.mkdirSync(logDirectory);

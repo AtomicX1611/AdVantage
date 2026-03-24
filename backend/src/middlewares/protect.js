@@ -2,33 +2,33 @@ import jwt from "jsonwebtoken";
 
 export const serializeUser = (req, res, next) => {
     // console.log('Logging in serializeUser with token : ',req.cookies.token);
-    
-    jwt.verify(req.cookies.token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) {
-            console.log('ERROR: Could not verify token');
-            return res.sendStatus(403);
-        }
-        // console.log("decoded : ",decoded); 
-        req.user = decoded;  // req.user._id for userId
-        // console.log("serialize user");
-        // console.log(req.user);
-        next();
-    });
+  const token = req.cookies?.token || (req.headers.authorization ? req.headers.authorization.split(' ')[1] : null);
+
+  if (!token) {
+    console.log('ERROR: No token provided to serializeUser');
+    return res.sendStatus(403);
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      console.log('ERROR: Could not verify token');
+      return res.sendStatus(403);
+    }
+    req.user = decoded;  // req.user._id for userId
+    next();
+  });
 };
 
 export const checkToken = (req, res, next) => {
-    // console.log("req.cookies: ",req.cookies); 
-    const token = req.cookies.token;
-    
-    if (!token) {
-        return res.status(403).json({
-            error: "token not there in cookies"
-        });
-    }
-    req.token = token;
-    console.log("coming");
-    
-    next();
+  const token = req.cookies?.token || (req.headers.authorization ? req.headers.authorization.split(' ')[1] : null);
+
+  if (!token) {
+    return res.status(403).json({
+      error: "token not provided"
+    });
+  }
+  req.token = token;
+  next();
 };
 
 export const authorize = (...roles) => {
