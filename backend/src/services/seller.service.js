@@ -214,7 +214,7 @@ export const updateSellerSubscriptionService = async (sellerId, subscription) =>
             return {
                 success: false,
                 message: "Seller not found",
-                staus: 404
+                status: 404
             };
         }
 
@@ -303,7 +303,8 @@ export const revokeAcceptedRequestService = async (productId) => {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
             already_sold: { status: 400, message: "Product already sold" },
-            no_accepted_request: { status: 400, message: "No accepted request to revoke" }
+            no_accepted_request: { status: 400, message: "No accepted request to revoke" },
+            payment_in_progress: { status: 400, message: "Cannot revoke accepted request while payment is in progress" }
         };
         return { success: false, ...messages[result.reason] };
     }

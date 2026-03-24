@@ -19,6 +19,8 @@ import {
     notInterested,
     getPendingRequests,
     getYourNotifications,
+    createOrder,
+    verifyPayment,
 } from "../controllers/buyer.controller.js";
 import {
     addProduct,
@@ -31,7 +33,7 @@ import {
     deleteProduct,
     revokeAcceptedRequest,
     analyticsController,
-    getTransactionsController
+    getTransactionsController,
 } from "../controllers/seller.controller.js";
 import {
     fileComplaint,
@@ -48,6 +50,8 @@ router.use(serializeUser);
 router.use(authorize("user"));
 
 router.post("/request/:productId",requestProduct);
+router.post('/create-order', createOrder);
+router.post("/verify-payment",verifyPayment);
 router.post("/paymentDone/:productId",paymentDone);//working
 router.post("/notInterested/:productId",notInterested);
 router.put("/rent/:productId",rentProductController);

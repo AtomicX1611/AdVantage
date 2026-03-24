@@ -13,8 +13,8 @@ import userRouter from "./src/routes/user.router.js";
 // import sellerRouter from "./src/routes/seller.router.js";
 import adminRouter from "./src/routes/admin.router.js";
 import anyoneRouter from "./src/routes/anyone.router.js";
-import { chatRouter } from "./src/routes/chat.routes.js";
-import { chatbotRouter } from "./src/routes/chatbot.routes.js";
+import { chatRouter } from "./src/routes/chat.router.js";
+import { chatbotRouter } from "./src/routes/chatbot.router.js";
 import { Server } from "socket.io";
 import { socketActions } from "./src/controllers/socket.contoller.js";
 import { managerRouter } from "./src/routes/manager.router.js";
@@ -49,6 +49,7 @@ export const errorLogStream = createStream("error.log", {
   size: "10M",
 });
 
+// need to uncomment this later 
 // const limiter = rateLimit({
 // 	windowMs: 15 * 60 * 1000,
 // 	limit: 100,
@@ -68,8 +69,8 @@ app.use(cookieParser()); // Cookie parsing middleware
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "http://127.0.0.1:3001",
-    "http://localhost:3001"
+    "http://127.0.0.1:3001", // for bulk upload testing
+    "http://localhost:3001" // for bulk upload testing
   ],
   credentials: true
 }));

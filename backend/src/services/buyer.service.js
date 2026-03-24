@@ -6,7 +6,9 @@ import {
     updateBuyerPassById,
     getWishlistProductsDao,
 } from "../daos/users.dao.js";
-
+import {
+    razorpay
+} from "../config/payment.config.js";
 import {
     addProductRequestDao,
     getYourProductsDao,
@@ -15,6 +17,9 @@ import {
     notInterestedDao,
     getProductsSellerAccepted,
 } from "../daos/products.dao.js";
+import {
+    createOrderDao
+} from "../daos/orders.dao.js";
 import { createPayment } from "../daos/payment.dao.js";
 import { createNewRequestNotification, createProductSoldNotification } from "../helpers/notification.helper.js";
 import { getNotificationsByRecipient } from "../daos/notifications.dao.js";
@@ -119,7 +124,7 @@ export const getYourNotificationsService = async (userId) => {
 }
 
 export const getPendingRequestsService = async (buyerId) => {
-    const pendingRequests = await getProductsSellerAccepted(buyerId); 
+    const pendingRequests = await getProductsSellerAccepted(buyerId);
     if (!pendingRequests) {
         return {
             success: false,
@@ -152,7 +157,7 @@ export const removeFromWishlistService = async (userId, productId) => {
 
 export const requestProductService = async (productId, buyerId, biddingPrice) => {
     const result = await addProductRequestDao(productId, buyerId, biddingPrice);
-    console.log("result in req prod serv",result);
+    console.log("result in req prod serv", result);
     if (!result.success) {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
@@ -172,19 +177,83 @@ export const requestProductService = async (productId, buyerId, biddingPrice) =>
     return { success: true, message: "Request sent successfully" };
 };
 
+export const createOrderService = async (buyerId, productId, subscription) => {
+    if(subscription!== false){
+        const seller = await getBuyerById(buyerId);
+
+        if (!seller) {
+            return {
+                success: false,
+                message: "Seller not found",
+                status: 404
+            };
+        }
+
+        if (seller.subscription >= subscription) {
+            return {
+                success: false,
+                message: "Seller already has a better or equal plan than the chosen one",
+                status: 404
+            };
+        }
+
+        // Determine subscription price
+        const subscriptionPrices = {
+            1: 100,
+            2: 500
+        };
+        const options = {
+            amount: subscriptionPrices[subscription] * 100, // Convert amount to paise
+            currency: "INR",
+            receipt: `receipt_${Date.now()}`,
+            notes: { "subscription": subscription.toString(), "sellerId": buyerId.toString() },
+        };
+        const order = await razorpay.orders.create(options);
+        const result = await createOrderDao(buyerId, null, subscription, order.id, order.amount, order.currency, order.receipt, order.notes);
+        return {
+            success: true,
+            message: "Subscription Order created successfully",
+            order: result.order
+        };
+    }
+    const holdProductResponse = await holdPoductWhilePaymentDao(buyerId, productId);
+    if (!holdProductResponse.success) {
+        const messages = {
+            not_found: { status: 404, message: "Product not found" },
+            not_accepted_buyer: { status: 400, message: "You are not the accepted buyer for this product" },
+            already_sold: { status: 400, message: "Product is already sold" },
+            payment_in_progress: { status: 400, message: "Payment is already in progress for this product" },
+        };
+        return { success: false, ...messages[holdProductResponse.reason] };
+    }
+    const options = {
+        amount: holdProductResponse.price * 100, // Convert amount to paise
+        currency: "INR",
+        receipt: `receipt_${Date.now()}`,
+        notes: { "productId": productId.toString(), "buyerId": buyerId.toString() },
+    };
+
+    const order = await razorpay.orders.create(options);
+    order.buyerId = buyerId;
+    order.productId = productId;
+    const result = await createOrderDao(buyerId, productId, null, order.id, order.amount, order.currency, order.receipt,order.notes);
+
+    return { success: true, message: "Order created successfully", order: result.order };
+};
+
 export const paymentDoneService = async (buyerId, productId) => {
     const result = await paymentDoneDao(buyerId, productId);
     if (!result.success) {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
-            not_accepted_buyer: { status: 400, message: "You are not the accepted buyer for this product"},
-            already_sold: { status: 400, message: "Product is already sold" }
+            not_accepted_buyer: { status: 400, message: "You are not the accepted buyer for this product" },
+            already_sold: { status: 400, message: "Product is already sold" },
         };
         return { success: false, ...messages[result.reason] };
     }
 
-   //here create payment record
-   const paymentData = {
+    //here create payment record
+    const paymentData = {
         from: buyerId,
         fromModel: 'Users',
         to: result.sellerId,
@@ -203,7 +272,7 @@ export const paymentDoneService = async (buyerId, productId) => {
         result.productName,
         result.price
     );
-    return { success: true, message: "Payment confirmed successfully",payment: payment  };
+    return { success: true, message: "Payment confirmed successfully", payment: payment };
 };
 
 export const notInterestedService = async (buyerId, productId) => {
@@ -213,7 +282,7 @@ export const notInterestedService = async (buyerId, productId) => {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
             already_sold: { status: 400, message: "Product is already sold" },
-            
+
         };
         return { success: false, ...messages[result.reason] };
     }
@@ -254,8 +323,8 @@ export const getYourProductsService = async (buyerId) => {
     };
 }
 
-export const rentService = async (buyerId, productId, from, to,biddingPrice) => {
-    return await rentDao(buyerId, productId, from, to,biddingPrice);
+export const rentService = async (buyerId, productId, from, to, biddingPrice) => {
+    return await rentDao(buyerId, productId, from, to, biddingPrice);
 }
 
 export const getYouProfileService = async (buyerId) => {

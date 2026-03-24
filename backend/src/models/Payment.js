@@ -43,7 +43,11 @@ const paymentSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
         required: true,
-    }
+    },
+    orders: {
+        type: Object,
+        required: true,
+    },
 });
 
 export default mongoose.model("Payment", paymentSchema);

@@ -12,6 +12,7 @@ import {
     notInterestedService,
     getPendingRequestsService,
     getYourNotificationsService,
+    createOrderService,
 } from "../services/buyer.service.js";
 
 export const updateBuyerProfile = async (req, res, next) => {
@@ -167,6 +168,36 @@ export const requestProduct = async (req, res, next) => {
         //     success: false,
         //     message: error.message || "Internal server error"
         // });
+    }
+};
+
+export const createOrder = async (req, res, next) => {
+    try {
+        const buyerId = req.user._id;
+        const productId = req.body.productId || false;
+        const subscription = req.body.subscription || false;
+
+        if (!buyerId || (!!productId === !!subscription)) {
+            return res.status(400).json({ message: "Missing buyerId or (productId and subscription) both are given or both are not given" });
+        }
+
+        const response = await createOrderService(buyerId, productId, subscription);
+
+        if (!response.success) {
+            return res.status(response.status || 400).json({
+                success: false,
+                message: response.message
+            });
+        }
+
+        return res.status(201).json({
+            success: true,
+            message: response.message,
+            order: response.order
+        });
+
+    } catch (error) {
+        next(error);
     }
 };
 

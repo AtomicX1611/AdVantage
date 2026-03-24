@@ -109,6 +109,10 @@ const productsSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
+    paymentInProgress: {
+        type: Boolean,
+        default: false,
+    },
     ollama_embeddings: {
         type: [Number],
         default: [],
