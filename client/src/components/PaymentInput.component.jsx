@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import styles from "../styles/paymentpage.module.css";
-import { act } from "react";
 import { useNavigate } from "react-router-dom";
+import API_CONFIG from "../config/api.config";
+import { startRazorpayPayment } from "../utils/razorpay";
 
-const PaymentInputs = ({ subscription,type , price }) => {
+const PaymentInputs = ({ subscription, type, price }) => {
   const [activeMethod, setActiveMethod] = useState(null);
   const [cardDetails, setCardDetails] = useState({
     cardNumber: "",
     cardHolder: "",
     cvv: "",
   });
+  const backendURL = API_CONFIG.BACKEND_URL;
 
   const navigate = useNavigate();
 
@@ -36,19 +38,19 @@ const PaymentInputs = ({ subscription,type , price }) => {
       }
     }
 
-    const res = await fetch("http://localhost:3000/user/update/subscription", {
-      method: "PUT",
-      headers: { "Content-type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({subscription:subscription}),
-    });
+    try {
+      await startRazorpayPayment({
+        backendURL,
+        createOrderPayload: { subscription },
+        displayName: "AdVantage",
+        description: `${type || "Subscription"} plan payment`,
+      });
 
-    const data=await res.json();
-    console.log("data: ",data);
-
-    if(data.success) {
       alert("Payment Done successfully");
       navigate("/seller/dashboard");
+    } catch (paymentError) {
+      console.error("Subscription payment failed", paymentError);
+      alert(paymentError.message || "Payment Failed");
     }
   };
 

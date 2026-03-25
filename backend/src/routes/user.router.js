@@ -52,7 +52,7 @@ router.use(authorize("user"));
 router.post("/request/:productId",requestProduct);
 router.post('/create-order', createOrder);
 router.post("/verify-payment",verifyPayment);
-router.post("/paymentDone/:productId",paymentDone);//working
+// router.post("/paymentDone/:productId",paymentDone);//working
 router.post("/notInterested/:productId",notInterested);
 router.put("/rent/:productId",rentProductController);
 
@@ -72,7 +72,7 @@ router.get("/getNotifications", getYourNotifications);
 // buyer as a seller
 router.get("/products",findSellerProducts); // Working
 router.get("/subscriptionStatus",findSellerSubscription); // Working
-router.put("/update/subscription",updateSellerSubscription); // Working
+// router.put("/update/subscription",updateSellerSubscription); // Working
 
 router.post("/addProduct", upload.fields([
     { name: "productImages", maxCount: 10 },

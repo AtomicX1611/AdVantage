@@ -6,7 +6,7 @@ import {
     rejectProductRequestDao,
     makeAvailableDao,
     // findProducts,
-    countProductsDao,
+    // countProductsDao,
     revokeAcceptedRequestDao,
 } from "../daos/products.dao.js";
 // import {
@@ -206,76 +206,6 @@ export const deleteProductService = async (sellerId, productId) => {
 //     };
 // };
 
-export const updateSellerSubscriptionService = async (sellerId, subscription) => {
-    try {
-        const seller = await getBuyerById(sellerId);
-
-        if (!seller) {
-            return {
-                success: false,
-                message: "Seller not found",
-                status: 404
-            };
-        }
-
-        if (seller.subscription >= subscription) {
-            return {
-                success: false,
-                message: "Seller already has a better or equal plan than the chosen one",
-                status: 404
-            };
-        }
-
-        // Determine subscription price
-        const subscriptionPrices = {
-            1: 100,  // Basic subscription
-            2: 500   // Premium subscription
-        };
-
-        const price = subscriptionPrices[subscription] || 0;
-
-        if (price === 0) {
-            return {
-                success: false,
-                message: "Invalid subscription level",
-            };
-        }
-
-        // Update seller subscription
-        seller.subscription = subscription;
-        await seller.save();
-
-        const admin = await getAllAdmins();
-        const adminId = admin[0]._id;
-
-        // Create payment record
-        await createPayment({
-            from: sellerId,
-            fromModel: 'Users',
-            to: adminId,
-            toModel: 'Admin',
-            paymentType: 'subscription',
-            price: price,
-            relatedEntityId: null,
-            relatedEntityType: null,
-        });
-
-        return {
-            success: true,
-            message: "Subscription updated successfully",
-            updatedSeller: seller,
-        };
-
-    } catch (error) {
-        console.error("Error in updateSellerSubscriptionService:", error);
-        return {
-            status: 500,
-            success: false,
-            message: "Internal server error while updating subscription",
-        };
-    }
-};
-
 export const acceptProductRequestService = async (productId, buyerId) => {
     const result = await acceptProductRequestDao(productId, buyerId);
 
@@ -367,6 +297,14 @@ export const sellerProdRetriveService = async (id) => {
 
 export const sellerSubsRetService = async (userId) => {
     return await findSellerSubsDao(userId);
+}
+
+export const updateSellerSubscriptionService = async () => {
+    return {
+        success: false,
+        status: 410,
+        message: "Subscription update must go through create-order and verify-payment flow",
+    };
 }
 
 export const makeAvailableService = async (sellerId, productId) => {
@@ -487,7 +425,7 @@ export const getTransactionsService = async (userId) => {
     try {
         const rcvd = await getPaymentsByTo(userId, 'Users');
         console.log('received: ',rcvd);
-        const paid = await getPaymentsByFrom(userId, 'Admin');
+        const paid = await getPaymentsByFrom(userId, 'Users');
 
         return {
             status:200,

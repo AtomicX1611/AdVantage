@@ -127,7 +127,7 @@ export const holdPoductWhilePaymentDao = async (buyerId, productId) => {
     if (!product) {
         return { success: false, reason: "not_found" };
     }
-    if (product.sellerAcceptedTo.toString() !== buyerId.toString()) {
+    if (!product.sellerAcceptedTo || product.sellerAcceptedTo.toString() !== buyerId.toString()) {
         return { success: false, reason: "not_accepted_buyer" };
     }
     if (product.soldTo && product.soldTo.buyer) {
@@ -158,7 +158,7 @@ export const paymentDoneDao = async (buyerId, productId) => {
     if (!product) {
         return { success: false, reason: "not_found" };
     }
-    if (product.sellerAcceptedTo.toString() !== buyerId.toString()) {
+    if (!product.sellerAcceptedTo || product.sellerAcceptedTo.toString() !== buyerId.toString()) {
         return { success: false, reason: "not_accepted_buyer" };
     }
     if (product.soldTo && product.soldTo.buyer) {
@@ -168,8 +168,8 @@ export const paymentDoneDao = async (buyerId, productId) => {
     if (!hisRequest) {
         return { success: false, reason: "not_found" }; // check this
     }
-    if(product.paymentInProgress) {
-        return { success: false, reason: "payment_in_progress" };
+    if (!product.paymentInProgress) {
+        return { success: false, reason: "payment_not_in_progress" };
     }
 
     if (!product.isRental) {
@@ -199,6 +199,7 @@ export const paymentDoneDao = async (buyerId, productId) => {
 
     product.requests = [];
     product.soldTo = buyerId;
+    product.paymentInProgress = false;
     await product.save();
     // delete 
     return {
@@ -550,4 +551,23 @@ export const vectorSearchProducts = async ({
         return result;
     });
     return results;
+};
+
+export const releaseProductPaymentHoldDao = async (productId, buyerId = null) => {
+    const query = {
+        _id: productId,
+        soldTo: null,
+    };
+
+    if (buyerId) {
+        query.sellerAcceptedTo = buyerId;
+    }
+
+    const product = await Products.findOneAndUpdate(
+        query,
+        { paymentInProgress: false },
+        { new: true }
+    );
+
+    return { success: !!product };
 };

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { paymentDoneHelper, updateSellerSubscriptionHelper } from "../helpers/user.helper.js";
 
 const orderSchema = new mongoose.Schema({
     buyerId: {
@@ -16,6 +17,7 @@ const orderSchema = new mongoose.Schema({
     },
     id: {
         type: String,
+        index: true,
         required: true,
         unique: true
     },
@@ -31,12 +33,60 @@ const orderSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    status: {
+        type: String,
+        default: "created",
+        enum: ["created", "paid", "failed"]
+    },
+    paymentId: {
+        type: String,
+        default: null,
+    },
+    paymentProcessed: {
+        type: Boolean,
+        default: false,
+    },
+    paymentProcessedAt: {
+        type: Date,
+        default: null,
+    },
     notes: {
         type: Object,
         required: true,
     },
 }, {
     timestamps: true
+});
+
+const runPaidHook = async (orderDoc) => {
+    if (!orderDoc) return;
+    if (orderDoc.status !== "paid") return;
+    if (orderDoc.paymentProcessed) return;
+    if (!orderDoc.paymentId) return;
+
+    if (orderDoc.productId) {
+        const result = await paymentDoneHelper(orderDoc.buyerId, orderDoc.productId, orderDoc.paymentId);
+        if (!result?.success) {
+            throw new Error(result?.message || "Failed to finalize product payment");
+        }
+    } else if (orderDoc.subscription) {
+        const result = await updateSellerSubscriptionHelper(orderDoc.buyerId, orderDoc.subscription, orderDoc.paymentId);
+        if (!result?.success) {
+            throw new Error(result?.message || "Failed to finalize subscription payment");
+        }
+    }
+
+    orderDoc.paymentProcessed = true;
+    orderDoc.paymentProcessedAt = new Date();
+    await orderDoc.save();
+};
+
+orderSchema.post("save", async function postSavePaidHook() {
+    await runPaidHook(this);
+});
+
+orderSchema.post("findOneAndUpdate", async function postUpdatePaidHook(updatedDoc) {
+    await runPaidHook(updatedDoc);
 });
 
 export default mongoose.model("Orders", orderSchema);

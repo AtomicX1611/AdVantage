@@ -9,7 +9,7 @@ import Register from "../pages/Register";
 // import Admin from "../pages/Admin.jsx";
 import Admin from "../pages/AdminPage.jsx";
 import SubscriptionPage from "../pages/Subscription.page.jsx";
-import PaymentPage from "../pages/Payment.page.jsx";
+// import PaymentPage from "../pages/Payment.page.jsx";
 // import Login from "../pages/Login.jsx";
 import YourOrders from "../pages/YourOrders.page";
 import ChatPage from "../pages/ChatPage";
@@ -68,20 +68,21 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
   return element;
 };
 
-const subsData = [
-  {
-    type: "vip",
-    subscription : 1,
-    duration: "6 Months",
-    price: "100",
-  },
-  {
-    type: "premium",
-    duration: "1 year",
-    subscription:2,
-    price: "1299",
-  }
-];
+// Legacy demo-only flow kept commented intentionally:
+// const subsData = [
+//   {
+//     type: "vip",
+//     subscription : 1,
+//     duration: "6 Months",
+//     price: "100",
+//   },
+//   {
+//     type: "premium",
+//     duration: "1 year",
+//     subscription:2,
+//     price: "1299",
+//   }
+// ];
 
 const AppRoutes = () => {
   const dispatch = useDispatch();
@@ -159,6 +160,7 @@ const AppRoutes = () => {
             <Route path="transaction-history" element={<SellerTransactionHistory />} />
           </Route>
 
+          {/* Legacy demo-only payment pages (pre-Razorpay direct flow):
           <Route path="subscription/vip"
             element={
               <PaymentPage
@@ -181,6 +183,7 @@ const AppRoutes = () => {
               />
             }
           />
+          */}
         </Route>
         {/* Admin and Manager Routes - role specific */}
         <Route path="/admin" element={<ProtectedRoute element={<Admin />} allowedRoles={['admin']} />} />

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PendingTransactionCard from "../components/PendingTransactionCard";
 import API_CONFIG from "../config/api.config";
+import { startRazorpayPayment } from "../utils/razorpay";
 import styles from "../styles/pendingtxs.module.css";
 
 const PendingTxsPage = () => {
@@ -48,18 +49,19 @@ const PendingTxsPage = () => {
 	}, [backendURL]);
 
 	const handlePay = async (item) => {
-		console.log("Pay clicked for:", item);
-		let response = await fetch(`${backendURL}/user/paymentDone/${item._id}`, {
-			method: "POST",
-			credentials: "include",
-			headers: { "Content-Type": "application/json" },
-		});
-		let data = await response.json();
-		if (data.success) {
+		try {
+			await startRazorpayPayment({
+				backendURL,
+				createOrderPayload: { productId: item._id },
+				displayName: "AdVantage",
+				description: item?.name ? `Payment for ${item.name}` : "Product payment",
+			});
+
 			alert("Payment Successful");
-			navigate('/yourProducts');
-		} else {
-			alert("Payment Failed");
+			navigate("/yourProducts");
+		} catch (paymentError) {
+			console.error("Payment failed", paymentError);
+			alert(paymentError.message || "Payment Failed");
 		}
 	};
 

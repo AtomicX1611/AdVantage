@@ -1,5 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./src/config/mongo.config.js";
@@ -19,6 +18,7 @@ import { Server } from "socket.io";
 import { socketActions } from "./src/controllers/socket.contoller.js";
 import { managerRouter } from "./src/routes/manager.router.js";
 import { errorMiddleware } from "./src/middlewares/error.middleware.js";
+import { startOrderTimeoutWorker } from "./src/services/orderTimeout.service.js";
 // import { rateLimit } from 'express-rate-limit'
 
 // import { router } from "./src/routes/payment.router.js";
@@ -27,6 +27,7 @@ import helmet from "helmet";
 
 const app = express();
 await connectDB();
+startOrderTimeoutWorker();
 
 // Middleware setups
 
