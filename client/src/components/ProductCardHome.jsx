@@ -1,10 +1,11 @@
 import React from 'react';
 import styles from '../styles/home.module.css';
+import { resolveImageUrl } from '../utils/imageUrl';
 
 const ProductCardHome = ({ product, backendURL, onClick }) => {
   const imageUrl = product.images && product.images[0] 
-    ? `${backendURL}/${product.images[0]}`
-    : product.Image1Src || '/Assets/placeholder.png';
+    ? resolveImageUrl(product.images[0])
+    : resolveImageUrl(product.Image1Src);
   console.log("loggin imageurl",imageUrl);
   
   return (

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styles from "../styles/wishlist.module.css";
+import { resolveImageUrl } from "../utils/imageUrl";
 
 export default function ComparisonCard({ product, removeFromCompare,deleteFromWishlist }) {
   const [imgIndex, setImgIndex] = useState(0);
@@ -15,7 +16,7 @@ export default function ComparisonCard({ product, removeFromCompare,deleteFromWi
       <div className={styles.carousel}>
         <button onClick={prevImg}>❮</button>
         <img
-          src={import.meta.env.VITE_BACKEND_URL+ "/" + product.images[imgIndex]}
+          src={resolveImageUrl(product.images[imgIndex])}
           alt={product.name}
           className="clickable-img"
           height={100}

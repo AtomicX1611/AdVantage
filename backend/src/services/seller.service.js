@@ -85,13 +85,15 @@ export const addProductService = async (req) => {
     if (!allowed) {
         throw new Error("You exceeded your plan's limit per month");
     }
-    if (!req.files?.productImages || req.files.productImages.length === 0) {
+    if (!req.cloudinary?.productImages || req.cloudinary.productImages.length === 0) {
         throw new Error("At least one product image is required");
     }
 
-    const images = req.files.productImages.map(file => file.path);
-    const invoicePath = req.files.invoice?.[0]?.path || null;
-
+    // const images = req.files.productImages.map(file => file.path);
+    // const invoicePath = req.files.invoice?.[0]?.path || null;
+    const images = req.cloudinary.productImages.map(img => img.url);
+    const invoicePath = req.cloudinary.invoice?.url || null;
+    
     const isRental1 = (isRental == 'true' || isRental == true) ? true : false;
 
     const productData = {
@@ -424,13 +426,13 @@ export const analyticsService = async (sellerId) => {
 export const getTransactionsService = async (userId) => {
     try {
         const rcvd = await getPaymentsByTo(userId, 'Users');
-        console.log('received: ',rcvd);
+        console.log('received: ', rcvd);
         const paid = await getPaymentsByFrom(userId, 'Users');
 
         return {
-            status:200,
-            received : rcvd,
-            paidTo : paid
+            status: 200,
+            received: rcvd,
+            paidTo: paid
         }
     } catch (error) {
         console.log(error);

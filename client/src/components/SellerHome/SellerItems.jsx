@@ -3,6 +3,7 @@ import styles from '../../styles/sellerdashboard.module.css';
 import { Link } from 'react-router-dom';
 import { API_CONFIG } from '../../config/api.config';
 import ComplaintModal from '../ComplaintModal';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 const backendURL = API_CONFIG.BACKEND_URL;
 
@@ -158,7 +159,7 @@ const SellerItems = ({ filterType }) => {
               <div className={styles.cardImageContainer}>
                 <img 
                   src={item.images && item.images.length > 0 
-                    ? `${backendURL}/${item.images[0].replace(/\\/g, '/')}` 
+                    ? resolveImageUrl(item.images[0])
                     : 'https://placehold.co/400x300?text=No+Image'} 
                   alt={item.name} 
                   className={styles.cardImage} 

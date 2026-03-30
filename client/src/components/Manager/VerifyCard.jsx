@@ -1,12 +1,13 @@
 // src/components/Manager/VerifyCard.jsx
 import React from 'react';
 import styles from '../../styles/manager.module.css';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 const VerifyCard = ({ productPhoto, sellerName, postingDate, category, type, price, onVerify, onViewDetails, invoice }) => {
   return (
     <div className={styles.verifyCard}>
       <div className={styles.cardImageContainer}>
-        <img src={import.meta.env.VITE_BACKEND_URL + "/" + productPhoto} alt="Product" className={styles.productPhoto} />
+        <img src={resolveImageUrl(productPhoto)} alt="Product" className={styles.productPhoto} />
         <span className={`${styles.typeBadge} ${type === 'Rental' ? styles.typeRental : styles.typeSale}`}>
           {type}
         </span>

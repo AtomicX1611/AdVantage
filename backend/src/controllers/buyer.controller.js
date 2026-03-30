@@ -29,7 +29,7 @@ export const updateBuyerProfile = async (req, res, next) => {
         }
 
         if (!updateData || Object.keys(updateData).length === 0) {
-            if (req.file === undefined) {
+            if (req.cloudinary.profilePic === undefined) {
                 return res.status(400).json({
                     success: false,
                     message: "No update fields provided",
@@ -37,7 +37,7 @@ export const updateBuyerProfile = async (req, res, next) => {
             }
         }
 
-        const response = await updateBuyerProfileService(buyerId, updateData, req.file);
+        const response = await updateBuyerProfileService(buyerId, updateData, req.cloudinary.profilePic);
 
         if (!response.success) {
             return res.status(response.status).json({
