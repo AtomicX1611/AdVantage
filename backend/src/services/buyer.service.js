@@ -50,7 +50,7 @@ export const updateBuyerProfileService = async (buyerId, updateData, file) => {
     }
 
     if (file !== undefined) {
-        filteredData.profilePicPath = file.path;
+        filteredData.profilePicPath = file;
     }
 
     const updatedBuyer = await updateBuyerById(buyerId, filteredData);

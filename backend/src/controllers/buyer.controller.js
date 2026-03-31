@@ -36,8 +36,8 @@ export const updateBuyerProfile = async (req, res, next) => {
                 });
             }
         }
-
-        const response = await updateBuyerProfileService(buyerId, updateData, req.cloudinary.profilePic);
+        console.log("My log : "+ req.cloudinary.profilePic);
+        const response = await updateBuyerProfileService(buyerId, updateData, req.cloudinary.profilePic?.url);
 
         if (!response.success) {
             return res.status(response.status).json({
