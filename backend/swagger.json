@@ -1,0 +1,1517 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Documentation",
+    "version": "1.0.0",
+    "description": "API documentation for Auth, User, Manager, Admin, and Chat services"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth routes",
+      "description": "Authentication and user identity endpoints"
+    },
+    {
+      "name": "Chat routes",
+      "description": "Chat and messaging endpoints"
+    },
+    {
+      "name": "Anyone",
+      "description": "Endpoints accessible without authentication"
+    },
+    {
+      "name": "Admin routes",
+      "description": "Endpoints for admin users (requires admin role)"
+    },
+    {
+      "name": "Manager routes",
+      "description": "Endpoints for managers (requires manager role)"
+    }
+  ],
+  "paths": {
+    "/auth/google": {
+      "post": {
+        "summary": "Sign in / register via Google id token",
+        "tags": ["Auth routes"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["idToken"],
+                "properties": {
+                  "idToken": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Google login successful"
+          }
+        }
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "summary": "Create a new buyer account (sends verification OTP)",
+        "tags": ["Auth routes"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "contact", "email", "password"],
+                "properties": {
+                  "username": { "type": "string" },
+                  "contact": { "type": "string" },
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OTP sent to email"
+          }
+        }
+      }
+    },
+    "/auth/verify-email": {
+      "post": {
+        "summary": "Verify email with OTP and create account",
+        "tags": ["Auth routes"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "code"],
+                "properties": {
+                  "email": { "type": "string" },
+                  "code": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email verified and account created (returns token)"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Buyer login",
+        "tags": ["Auth routes"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful (sets token cookie)"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "delete": {
+        "summary": "Logout user (clears token cookie)",
+        "tags": ["Auth routes"],
+        "responses": {
+          "200": {
+            "description": "Logged out successfully"
+          }
+        }
+      }
+    },
+    "/auth/admin/login": {
+      "post": {
+        "summary": "Admin login",
+        "tags": ["Auth routes"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Admin login successful"
+          }
+        }
+      }
+    },
+    "/auth/manager/login": {
+      "post": {
+        "summary": "Manager login",
+        "tags": ["Auth routes"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Manager login successful"
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "summary": "Get current user info",
+        "tags": ["Auth routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current user info returned"
+          }
+        }
+      }
+    },
+    "/chat/contacts": {
+      "get": {
+        "summary": "Retrieve user contact list",
+        "tags": ["Chat routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of contacts"
+          }
+        }
+      }
+    },
+    "/chat/createContact/{id}": {
+      "post": {
+        "summary": "Create a new contact connection",
+        "tags": ["Chat routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the user to add as a contact"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Contact created successfully"
+          }
+        }
+      }
+    },
+    "/chat/messages/{id}": {
+      "get": {
+        "summary": "Get message history with a specific contact",
+        "tags": ["Chat routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of messages"
+          }
+        }
+      }
+    },
+    "/chat/message/{id}": {
+      "post": {
+        "summary": "Send a message to a contact",
+        "tags": ["Chat routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "newMessage": {
+                    "type": "object",
+                    "properties": {
+                      "sender": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message sent"
+          }
+        }
+      }
+    },
+    "/anyone/HomeRequirements": {
+      "get": {
+        "summary": "Get featured and fresh products",
+        "tags": ["Anyone"],
+        "responses": {
+          "200": {
+            "description": "Successful response with featured and fresh products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "freshProducts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "featuredProducts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/anyone/products/filtered": {
+      "get": {
+        "summary": "Get products with optional filters",
+        "tags": ["Anyone"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Partial or full product name to search"
+          },
+          {
+            "in": "query",
+            "name": "isRental",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Filter by rental products (true/false)"
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "verified",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "minPrice",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "maxPrice",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "postingDate",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "ISO date string to filter postings after this date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "products": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/anyone/products/{productId}": {
+      "get": {
+        "summary": "Get product details by ID",
+        "tags": ["Anyone"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Product identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "product": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        }
+      }
+    },
+    "/admin": {
+      "get": {
+        "summary": "Retrieve aggregated admin dashboard data",
+        "tags": ["Admin routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aggregated data returned successfully"
+          }
+        }
+      }
+    },
+    "/admin/graphData": {
+      "get": {
+        "summary": "Get product graph data for admin dashboard",
+        "tags": ["Admin routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Graph data returned successfully"
+          }
+        }
+      }
+    },
+    "/admin/metrics": {
+      "get": {
+        "summary": "Get computed admin metrics",
+        "tags": ["Admin routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Metrics returned successfully"
+          }
+        }
+      }
+    },
+    "/admin/paymentAnalytics": {
+      "get": {
+        "summary": "Get payment analytics and trends",
+        "tags": ["Admin routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment analytics returned successfully"
+          }
+        }
+      }
+    },
+    "/admin/addManager": {
+      "post": {
+        "summary": "Add a new manager user",
+        "tags": ["Admin routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password", "category"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Manager created successfully"
+          }
+        }
+      }
+    },
+    "/admin/remove/{userId}": {
+      "delete": {
+        "summary": "Remove a user by id",
+        "tags": ["Admin routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User removed successfully"
+          }
+        }
+      }
+    },
+    "/admin/removeManager/{managerId}": {
+      "delete": {
+        "summary": "Remove a manager by id",
+        "tags": ["Admin routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "managerId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Manager removed successfully"
+          }
+        }
+      }
+    },
+    "/manager/d": {
+      "get": {
+        "summary": "Get manager dashboard data (unverified products for manager category)",
+        "tags": ["Manager routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard products returned successfully"
+          }
+        }
+      }
+    },
+    "/manager/verify": {
+      "post": {
+        "summary": "Verify a product (manager action)",
+        "tags": ["Manager routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["pid"],
+                "properties": {
+                  "pid": {
+                    "type": "string",
+                    "description": "Product id to verify"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Product verified successfully"
+          }
+        }
+      }
+    },
+    "/manager/complaints": {
+      "get": {
+        "summary": "Get complaints for manager's category",
+        "tags": ["Manager routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complaints returned successfully"
+          }
+        }
+      }
+    },
+    "/manager/complaints/{complaintId}": {
+      "patch": {
+        "summary": "Resolve a complaint by id",
+        "tags": ["Manager routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "complaintId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "resolution": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Complaint resolved successfully"
+          }
+        }
+      }
+    },
+    "/user/request/{productId}": {
+      "post": {
+        "summary": "Request a product (place a bid)",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "biddingPrice": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request sent successfully"
+          }
+        }
+      }
+    },
+    "/user/paymentDone/{productId}": {
+      "post": {
+        "summary": "Confirm payment for a product",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment confirmed"
+          }
+        }
+      }
+    },
+    "/user/notInterested/{productId}": {
+      "post": {
+        "summary": "Mark product as not interested",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Marked as not interested"
+          }
+        }
+      }
+    },
+    "/user/rent/{productId}": {
+      "put": {
+        "summary": "Rent a product for a period",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "to": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "biddingPrice": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rent request submitted"
+          }
+        }
+      }
+    },
+    "/user/wishlist/add/{productId}": {
+      "put": {
+        "summary": "Add a product to wishlist",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product added to wishlist"
+          }
+        }
+      }
+    },
+    "/user/wishlist": {
+      "get": {
+        "summary": "Get wishlist products for current user",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wishlist returned"
+          }
+        }
+      }
+    },
+    "/user/pendingRequests": {
+      "get": {
+        "summary": "Get pending product requests for current user",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pending requests returned"
+          }
+        }
+      }
+    },
+    "/user/wishlist/remove/{productId}": {
+      "delete": {
+        "summary": "Remove a product from wishlist",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product removed from wishlist"
+          }
+        }
+      }
+    },
+    "/user/update/password": {
+      "patch": {
+        "summary": "Update buyer password",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["oldPassword", "newPassword"],
+                "properties": {
+                  "oldPassword": {
+                    "type": "string"
+                  },
+                  "newPassword": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password updated successfully"
+          }
+        }
+      }
+    },
+    "/user/update/profile": {
+      "put": {
+        "summary": "Update buyer profile (multipart/form-data for profilePic)",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "contact": {
+                    "type": "string"
+                  },
+                  "profilePic": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated successfully"
+          }
+        }
+      }
+    },
+    "/user/yourProducts": {
+      "get": {
+        "summary": "Get products posted by current user",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User products returned"
+          }
+        }
+      }
+    },
+    "/user/getYourProfile": {
+      "get": {
+        "summary": "Get current user's public profile",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile returned"
+          }
+        }
+      }
+    },
+    "/user/getNotifications": {
+      "get": {
+        "summary": "Get notifications for current user",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notifications returned"
+          }
+        }
+      }
+    },
+    "/user/products": {
+      "get": {
+        "summary": "Get products where current user is seller",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Seller products returned"
+          }
+        }
+      }
+    },
+    "/user/subscriptionStatus": {
+      "get": {
+        "summary": "Get subscription status for seller",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription status returned"
+          }
+        }
+      }
+    },
+    "/user/update/subscription": {
+      "put": {
+        "summary": "Update seller subscription",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "subscription": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Subscription updated"
+          }
+        }
+      }
+    },
+    "/user/addProduct": {
+      "post": {
+        "summary": "Add a new product (multipart/form-data)",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "productImages": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  },
+                  "invoice": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "price": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product added successfully"
+          }
+        }
+      }
+    },
+    "/user/deleteProduct/{productId}": {
+      "delete": {
+        "summary": "Delete a product",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product deleted"
+          }
+        }
+      }
+    },
+    "/user/rejectRequest/{productId}/{buyerId}": {
+      "delete": {
+        "summary": "Reject a buyer's request",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "buyerId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request rejected"
+          }
+        }
+      }
+    },
+    "/user/acceptRequest/{productId}/{buyerId}": {
+      "post": {
+        "summary": "Accept a buyer's request",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "buyerId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request accepted"
+          }
+        }
+      }
+    },
+    "/user/revokeAccepted/{productId}": {
+      "patch": {
+        "summary": "Revoke an accepted request for a product",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accepted request revoked"
+          }
+        }
+      }
+    },
+    "/user/makeAvailable/{productId}": {
+      "post": {
+        "summary": "Mark product as available",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product made available"
+          }
+        }
+      }
+    },
+    "/user/selling-analytics": {
+      "get": {
+        "summary": "Get seller analytics for current user",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Analytics returned"
+          }
+        }
+      }
+    },
+    "/user/getMyTransactions": {
+      "get": {
+        "summary": "Get transactions for current user",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transactions returned"
+          }
+        }
+      }
+    },
+    "/user/complaint": {
+      "post": {
+        "summary": "File a complaint about a product or user",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["productId", "type", "subject", "description"],
+                "properties": {
+                  "productId": {
+                    "type": "string"
+                  },
+                  "respondentId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Complaint filed successfully"
+          }
+        }
+      }
+    },
+    "/user/complaints": {
+      "get": {
+        "summary": "Get complaints filed by current user",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complaints returned"
+          }
+        }
+      }
+    },
+    "/user/complaints/product/{productId}": {
+      "get": {
+        "summary": "Get complaints for a product",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product complaints returned"
+          }
+        }
+      }
+    },
+    "/user/complaints/buyers/{productId}": {
+      "get": {
+        "summary": "Get buyers for a product (complaint view)",
+        "tags": ["User routes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Buyers returned"
+          }
+        }
+      }
+    }
+  }
+}
