@@ -43,7 +43,11 @@ const paymentSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
         required: true,
-    }
+    },
+    razorpay_payment_id: {
+        type: String,
+        required: true,
+    },
 });
 
 export default mongoose.model("Payment", paymentSchema);

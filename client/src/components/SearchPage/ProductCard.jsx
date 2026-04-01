@@ -1,10 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styles from "../../styles/searchpage.module.css";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 const ProductCard = ({ product, backendURL }) => {
   const imageUrl = product.images && product.images.length > 0 
-    ? `${backendURL}/${product.images[0]}` 
+    ? resolveImageUrl(product.images[0])
     : '/Assets/placeholder.png';
     
   return (

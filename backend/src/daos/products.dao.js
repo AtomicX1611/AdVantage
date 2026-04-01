@@ -1,11 +1,11 @@
 import Products from "../models/Products.js";
-import Users from "../models/Users.js";
 import { updateEarnings } from "./users.dao.js";
 
 export const getProductById = async (productId) => {
     // console.log(productId);
 
     const product = await Products.findById(productId)
+        .select("-ollama_embeddings") 
         .populate({
             path: "requests.buyer",
             select: "username",
@@ -14,7 +14,8 @@ export const getProductById = async (productId) => {
             path: "seller",
             select: "username",
         });
-
+    // delete product.ollama_embeddings;
+    // console.log(product);
     return product;
 };
 
@@ -107,6 +108,9 @@ export const revokeAcceptedRequestDao = async (productId) => {
     if (product.sellerAcceptedTo === null) {
         return { success: false, reason: "no_accepted_request" };
     }
+    if(product.paymentInProgress){
+        return { success: false, reason: "payment_in_progress" };
+    }
     product.sellerAcceptedTo = null;
     await product.save();
     return {
@@ -114,6 +118,33 @@ export const revokeAcceptedRequestDao = async (productId) => {
         buyerId: product.sellerAcceptedTo,
         sellerId: product.seller,
         productName: product.name,
+    };
+};
+
+export const holdPoductWhilePaymentDao = async (buyerId, productId) => {
+    const product = await Products.findById(productId);
+
+    if (!product) {
+        return { success: false, reason: "not_found" };
+    }
+    if (!product.sellerAcceptedTo || product.sellerAcceptedTo.toString() !== buyerId.toString()) {
+        return { success: false, reason: "not_accepted_buyer" };
+    }
+    if (product.soldTo && product.soldTo.buyer) {
+        return { success: false, reason: "already_sold" };
+    }
+    const hisRequest = product.requests.find(req => req.buyer.toString() === buyerId.toString());
+    if (!hisRequest) {
+        return { success: false, reason: "not_found" }; // check this
+    }
+    if(product.paymentInProgress) {
+        return { success: false, reason: "payment_in_progress" };
+    }
+    product.paymentInProgress = true;
+    await product.save();
+    return {
+        success: true,
+        price: hisRequest.biddingPrice,
     };
 };
 
@@ -127,21 +158,25 @@ export const paymentDoneDao = async (buyerId, productId) => {
     if (!product) {
         return { success: false, reason: "not_found" };
     }
-    if (product.sellerAcceptedTo.toString() !== buyerId.toString()) {
+    if (!product.sellerAcceptedTo || product.sellerAcceptedTo.toString() !== buyerId.toString()) {
         return { success: false, reason: "not_accepted_buyer" };
     }
     if (product.soldTo && product.soldTo.buyer) {
         return { success: false, reason: "already_sold" };
     }
     const hisRequest = product.requests.find(req => req.buyer.toString() === buyerId.toString());
+    if (!hisRequest) {
+        return { success: false, reason: "not_found" }; // check this
+    }
+    if (!product.paymentInProgress) {
+        return { success: false, reason: "payment_not_in_progress" };
+    }
+
     if (!product.isRental) {
         product.price = hisRequest.biddingPrice;
     }
 
     // adding product.price for both rental and sale items
-    if (!hisRequest) {
-        return { success: false, reason: "not_found" }; // check this
-    }
 
     const sellerId = product.seller;
     let amount = 0;
@@ -159,10 +194,12 @@ export const paymentDoneDao = async (buyerId, productId) => {
         amount = hisRequest.biddingPrice;
     }
 
-    updateEarnings(sellerId, amount);
+    // Ali change cheyyava according to comment
+    updateEarnings(sellerId, amount);// Creating inconsitency better to have a hook in user model to update earnings whenever a product is sold
 
     product.requests = [];
     product.soldTo = buyerId;
+    product.paymentInProgress = false;
     await product.save();
     // delete 
     return {
@@ -172,6 +209,7 @@ export const paymentDoneDao = async (buyerId, productId) => {
         productName: product.name,
     };
 }
+
 export const notInterestedDao = async (buyerId, productId) => {
     const product = await Products.findById(productId);
 
@@ -291,17 +329,17 @@ export const getProductsSellerAccepted = async (buyerId) => {
 
 
 export const getFreshProductsDao = async () => {
-    const products = await Products.find({ soldTo: null })
+    let products = await Products.find({ soldTo: null })
+        .select("-ollama_embeddings -requests -description -soldTo -invoice")
         .sort({ postingDate: -1 })
         .limit(20)
         .populate("seller", "username subscription");
-
     return products;
 };
 
 export const getFeaturedProductsDao = async () => {
-    const productss = await Products.find();
-    const products = await Products.aggregate([
+    // const productss = await Products.find();
+    let products = await Products.aggregate([
         {
             $match: { soldTo: null }
         },
@@ -321,12 +359,22 @@ export const getFeaturedProductsDao = async () => {
             },
         },
         { $limit: 20 },
+        {
+            $project: {
+                ollama_embeddings: 0,
+                requests: 0,
+                description: 0,
+                soldTo: 0,
+                invoice: 0
+            }
+        }
     ]);
     return products;
 };
 
 export const findProducts = async (filters) => {
-    return await Products.find(filters).lean();
+    let products = await Products.find(filters).select("-ollama_embeddings -requests -description -soldTo -invoice").lean();
+    return products;
 };
 
 export const countProductsDao = async (filters) => {
@@ -460,4 +508,66 @@ export const countVerifiedProducts = async () => {
 
 export const countUnverifiedProducts = async () => {
     return await Products.countDocuments({ verified: { $ne: true } });
+};
+
+export const vectorSearchProducts = async ({
+    queryVector,
+    filters = {},
+    numCandidates = 150,
+    limit = 30,
+}) => {
+    const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 100) : 30;
+    const safeCandidates = Number.isFinite(numCandidates) && numCandidates > 0
+        ? Math.max(numCandidates, safeLimit)
+        : Math.max(10000, safeLimit * 5);
+
+    const pipeline = [
+        {
+            $vectorSearch: {
+                index: 'productSearchIndex',
+                path: 'ollama_embeddings',
+                queryVector,
+                numCandidates: safeCandidates,
+                limit: 100,
+                filter: filters,
+            },
+        },
+        {
+            $set: {
+                score: { $meta: 'vectorSearchScore' },
+            },
+        },
+    ];
+
+    let results = await Products.aggregate(pipeline);
+    results=results.filter((result) => result.score > 0.75);
+    results=results.map((result) => {
+        delete result.ollama_embeddings;
+        delete result.requests;
+        delete result.soldTo;
+        delete result.invoice;
+        delete result.description;
+        delete result.seller;
+        return result;
+    });
+    return results;
+};
+
+export const releaseProductPaymentHoldDao = async (productId, buyerId = null) => {
+    const query = {
+        _id: productId,
+        soldTo: null,
+    };
+
+    if (buyerId) {
+        query.sellerAcceptedTo = buyerId;
+    }
+
+    const product = await Products.findOneAndUpdate(
+        query,
+        { paymentInProgress: false },
+        { new: true }
+    );
+
+    return { success: !!product };
 };

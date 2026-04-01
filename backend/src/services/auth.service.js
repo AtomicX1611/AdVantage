@@ -13,7 +13,7 @@ import {
     createPendingUser,
     deletePendingUser,
     findPendingUserByEmail
-} from "../daos/pendingUserDao.js";
+} from "../daos/pendingUser.dao.js";
 
 
 // import {

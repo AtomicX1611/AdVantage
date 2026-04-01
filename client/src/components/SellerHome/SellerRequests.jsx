@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from '../../styles/sellerdashboard.module.css';
 import { API_CONFIG } from '../../config/api.config';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 const backendURL = API_CONFIG.BACKEND_URL;
 
@@ -274,7 +275,7 @@ const SellerRequests = () => {
               <div className={styles.cardImageContainer}>
                 <img
                   src={item.images && item.images.length > 0 
-                    ? `${backendURL}/${item.images[0].replace(/\\/g, '/')}` 
+                    ? resolveImageUrl(item.images[0])
                     : 'https://placehold.co/300x300?text=No+Image'}
                   alt={item.name}
                   className={styles.cardImage}

@@ -1,5 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./src/config/mongo.config.js";
@@ -13,12 +12,14 @@ import userRouter from "./src/routes/user.router.js";
 // import sellerRouter from "./src/routes/seller.router.js";
 import adminRouter from "./src/routes/admin.router.js";
 import anyoneRouter from "./src/routes/anyone.router.js";
-import { chatRouter } from "./src/routes/chat.routes.js";
+import { chatRouter } from "./src/routes/chat.router.js";
+import { chatbotRouter } from "./src/routes/chatbot.router.js";
 import { Server } from "socket.io";
 import { socketActions } from "./src/controllers/socket.contoller.js";
 import { managerRouter } from "./src/routes/manager.router.js";
 import { errorMiddleware } from "./src/middlewares/error.middleware.js";
-import { rateLimit } from 'express-rate-limit'
+import { startOrderTimeoutWorker } from "./src/services/orderTimeout.service.js";
+// import { rateLimit } from 'express-rate-limit'
 
 // import { router } from "./src/routes/payment.router.js";
 // import { seedData } from "./data.js";
@@ -29,6 +30,7 @@ import swaggerUi from 'swagger-ui-express';
 
 const app = express();
 await connectDB();
+startOrderTimeoutWorker();
 
 // const options = {
 //   definition: {
@@ -84,6 +86,7 @@ export const errorLogStream = createStream("error.log", {
   size: "10M",
 });
 
+// need to uncomment this later 
 // const limiter = rateLimit({
 // 	windowMs: 15 * 60 * 1000,
 // 	limit: 100,
@@ -103,8 +106,8 @@ app.use(cookieParser()); // Cookie parsing middleware
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "http://127.0.0.1:3001",
-    "http://localhost:3001"
+    "http://127.0.0.1:3001", // for bulk upload testing
+    "http://localhost:3001" // for bulk upload testing
   ],
   credentials: true
 }));
@@ -114,12 +117,13 @@ app.use(express.urlencoded({ extended: true, limit: "500mb" })); //(app level)
 
 app.use("/uploads", express.static(path.join("./", "uploads"))); //(app level)
 
+// ================== This should be removed later ==================
+
 // Serve bulkUpload.html at /bulkUpload (same-origin, no CORS issues)
 app.get("/bulkUpload", (req, res) => {
   res.sendFile(path.resolve("bulkUpload.html"));
 });
 
-// ================== This should be removed later ==================
 
 // Proxy endpoint to download external images/invoices (avoids browser CORS restrictions)
 app.get("/proxy-download", async (req, res) => {
@@ -151,6 +155,7 @@ app.use("/user", userRouter);
 app.use('/manager', managerRouter);
 app.use("/admin", adminRouter);
 app.use("/anyone", anyoneRouter);
+app.use("/chatbot", chatbotRouter);
 app.use("/chat", chatRouter);
 
 //need to remove this later

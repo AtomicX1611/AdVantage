@@ -6,7 +6,7 @@ import {
     rejectProductRequestDao,
     makeAvailableDao,
     // findProducts,
-    countProductsDao,
+    // countProductsDao,
     revokeAcceptedRequestDao,
 } from "../daos/products.dao.js";
 // import {
@@ -35,6 +35,7 @@ import {
     createRequestRejectedNotification,
     createRequestRevokedNotification,
 } from "../helpers/notification.helper.js";
+import { generateProductOllamaEmbedding } from "../helpers/productEmbedding.helper.js";
 
 export const addProductService = async (req) => {
     // Old implementation of isAllowed function which is slow
@@ -84,13 +85,15 @@ export const addProductService = async (req) => {
     if (!allowed) {
         throw new Error("You exceeded your plan's limit per month");
     }
-    if (!req.files?.productImages || req.files.productImages.length === 0) {
+    if (!req.cloudinary?.productImages || req.cloudinary.productImages.length === 0) {
         throw new Error("At least one product image is required");
     }
 
-    const images = req.files.productImages.map(file => file.path);
-    const invoicePath = req.files.invoice?.[0]?.path || null;
-
+    // const images = req.files.productImages.map(file => file.path);
+    // const invoicePath = req.files.invoice?.[0]?.path || null;
+    const images = req.cloudinary.productImages.map(img => img.url);
+    const invoicePath = req.cloudinary.invoice?.url || null;
+    
     const isRental1 = (isRental == 'true' || isRental == true) ? true : false;
 
     const productData = {
@@ -108,6 +111,16 @@ export const addProductService = async (req) => {
         invoice: invoicePath,
         soldTo: null,
     };
+
+    try {
+        const { vector } = await generateProductOllamaEmbedding(productData);
+        if (Array.isArray(vector) && vector.length > 0) {
+            productData.ollama_embeddings = vector;
+        }
+    } catch (error) {
+        console.error("Failed to generate Ollama embedding for addProduct:", error?.message || error);
+    }
+
     // console.log("product data: ", productData);
     const newProduct = await createProduct(productData);
     await incrementUsedPostsDao(req.user._id);
@@ -195,76 +208,6 @@ export const deleteProductService = async (sellerId, productId) => {
 //     };
 // };
 
-export const updateSellerSubscriptionService = async (sellerId, subscription) => {
-    try {
-        const seller = await getBuyerById(sellerId);
-
-        if (!seller) {
-            return {
-                success: false,
-                message: "Seller not found",
-                staus: 404
-            };
-        }
-
-        if (seller.subscription >= subscription) {
-            return {
-                success: false,
-                message: "Seller already has a better or equal plan than the chosen one",
-                status: 404
-            };
-        }
-
-        // Determine subscription price
-        const subscriptionPrices = {
-            1: 100,  // Basic subscription
-            2: 500   // Premium subscription
-        };
-
-        const price = subscriptionPrices[subscription] || 0;
-
-        if (price === 0) {
-            return {
-                success: false,
-                message: "Invalid subscription level",
-            };
-        }
-
-        // Update seller subscription
-        seller.subscription = subscription;
-        await seller.save();
-
-        const admin = await getAllAdmins();
-        const adminId = admin[0]._id;
-
-        // Create payment record
-        await createPayment({
-            from: sellerId,
-            fromModel: 'Users',
-            to: adminId,
-            toModel: 'Admin',
-            paymentType: 'subscription',
-            price: price,
-            relatedEntityId: null,
-            relatedEntityType: null,
-        });
-
-        return {
-            success: true,
-            message: "Subscription updated successfully",
-            updatedSeller: seller,
-        };
-
-    } catch (error) {
-        console.error("Error in updateSellerSubscriptionService:", error);
-        return {
-            status: 500,
-            success: false,
-            message: "Internal server error while updating subscription",
-        };
-    }
-};
-
 export const acceptProductRequestService = async (productId, buyerId) => {
     const result = await acceptProductRequestDao(productId, buyerId);
 
@@ -292,7 +235,8 @@ export const revokeAcceptedRequestService = async (productId) => {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
             already_sold: { status: 400, message: "Product already sold" },
-            no_accepted_request: { status: 400, message: "No accepted request to revoke" }
+            no_accepted_request: { status: 400, message: "No accepted request to revoke" },
+            payment_in_progress: { status: 400, message: "Cannot revoke accepted request while payment is in progress" }
         };
         return { success: false, ...messages[result.reason] };
     }
@@ -355,6 +299,14 @@ export const sellerProdRetriveService = async (id) => {
 
 export const sellerSubsRetService = async (userId) => {
     return await findSellerSubsDao(userId);
+}
+
+export const updateSellerSubscriptionService = async () => {
+    return {
+        success: false,
+        status: 410,
+        message: "Subscription update must go through create-order and verify-payment flow",
+    };
 }
 
 export const makeAvailableService = async (sellerId, productId) => {
@@ -474,13 +426,13 @@ export const analyticsService = async (sellerId) => {
 export const getTransactionsService = async (userId) => {
     try {
         const rcvd = await getPaymentsByTo(userId, 'Users');
-        console.log('received: ',rcvd);
-        const paid = await getPaymentsByFrom(userId, 'Admin');
+        console.log('received: ', rcvd);
+        const paid = await getPaymentsByFrom(userId, 'Users');
 
         return {
-            status:200,
-            received : rcvd,
-            paidTo : paid
+            status: 200,
+            received: rcvd,
+            paidTo: paid
         }
     } catch (error) {
         console.log(error);

@@ -12,6 +12,8 @@ import {
     notInterestedService,
     getPendingRequestsService,
     getYourNotificationsService,
+    createOrderService,
+    verifyPaymentService,
 } from "../services/buyer.service.js";
 
 export const updateBuyerProfile = async (req, res, next) => {
@@ -27,15 +29,15 @@ export const updateBuyerProfile = async (req, res, next) => {
         }
 
         if (!updateData || Object.keys(updateData).length === 0) {
-            if (req.file === undefined) {
+            if (req.cloudinary.profilePic === undefined) {
                 return res.status(400).json({
                     success: false,
                     message: "No update fields provided",
                 });
             }
         }
-
-        const response = await updateBuyerProfileService(buyerId, updateData, req.file);
+        console.log("My log : "+ req.cloudinary.profilePic);
+        const response = await updateBuyerProfileService(buyerId, updateData, req.cloudinary.profilePic?.url);
 
         if (!response.success) {
             return res.status(response.status).json({
@@ -170,14 +172,80 @@ export const requestProduct = async (req, res, next) => {
     }
 };
 
+export const createOrder = async (req, res, next) => {
+    try {
+        const buyerId = req.user._id;
+        const productId = req.body.productId || false;
+        const subscription = req.body.subscription || false;
+
+        if (!buyerId || (!!productId === !!subscription)) {
+            return res.status(400).json({ message: "Missing buyerId or (productId and subscription) both are given or both are not given" });
+        }
+
+        const response = await createOrderService(buyerId, productId, subscription);
+
+        if (!response.success) {
+            return res.status(response.status || 400).json({
+                success: false,
+                message: response.message
+            });
+        }
+
+        return res.status(201).json({
+            success: true,
+            message: response.message,
+            order: response.order
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const verifyPayment = async (req, res, next) => {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+        if(!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            return res.status(400).json({ status: 'error', message: 'Missing required fields' });
+        }
+
+        const secret = process.env.RAZORPAYKEYSECRET;
+        const body = razorpay_order_id + '|' + razorpay_payment_id;
+
+        const response = await verifyPaymentService(body,razorpay_order_id, razorpay_payment_id, razorpay_signature, secret);
+
+        if (!response.success) {
+            return res.status(response.status || 400).json({
+                success: false,
+                message: response.message
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: response.message,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const paymentDone = async (req, res, next) => {
     try {
         const buyerId = req.user._id;
         const productId = req.params.productId;
+        const { razorpay_payment_id } = req.body;
         if (!buyerId || !productId) {
             return res.status(404).json({ message: "Missing buyerId or productId" });
         }
-        const response = await paymentDoneService(buyerId, productId);
+        if (!razorpay_payment_id) {
+            return res.status(400).json({
+                success: false,
+                message: "razorpay_payment_id is required",
+            });
+        }
+
+        const response = await paymentDoneService(buyerId, productId, razorpay_payment_id);
 
         if (!response.success) {
             return res.status(response.status).json({

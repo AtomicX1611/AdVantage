@@ -3,14 +3,18 @@ import React from "react";
 import classes from "../styles/sellerSubscription.module.css";
 import SubscriptionBox from "../components/SubscriptionBox.component.jsx";
 import { useEffect,useState } from "react";
+import API_CONFIG from "../config/api.config";
+import { startRazorpayPayment } from "../utils/razorpay";
 
 const SubscriptionPage = () => {
   const [currentPlan, setCurrentPlan] = useState(0);  
+  const [isPaying, setIsPaying] = useState(false);
+  const backendURL = API_CONFIG.BACKEND_URL;
   // Example: fetched from backend (0 = Basic, 1 = VIP, 2 = Premium)
 
   useEffect(() => {
     async function fetchCurrentPlan() {
-      const response = await fetch('http://localhost:3000/user/subscriptionStatus', {
+      const response = await fetch(`${backendURL}/user/subscriptionStatus`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -24,7 +28,32 @@ const SubscriptionPage = () => {
       }
     }
     fetchCurrentPlan();
-  }, []);
+  }, [backendURL]);
+
+  const handleSubscribe = async (plan) => {
+    if (isPaying) {
+      return;
+    }
+
+    try {
+      setIsPaying(true);
+
+      await startRazorpayPayment({
+        backendURL,
+        createOrderPayload: { subscription: plan.id },
+        displayName: "AdVantage",
+        description: `${plan.name} subscription payment`,
+      });
+
+      setCurrentPlan(plan.id);
+      alert("Subscription updated successfully");
+    } catch (error) {
+      console.error("Subscription payment failed", error);
+      alert(error.message || "Payment failed");
+    } finally {
+      setIsPaying(false);
+    }
+  };
 
   const plans = [
     {
@@ -37,7 +66,6 @@ const SubscriptionPage = () => {
         "No Ads shown",
         "No Featured Promotion",
       ],
-      link: null,
     },
     {
       id: 1,
@@ -49,7 +77,6 @@ const SubscriptionPage = () => {
         "Your products in Featured Recommendations",
         "No ads Shown",
       ],
-      link: "/seller/subscription/vip",
     },
     {
       id: 2,
@@ -61,7 +88,6 @@ const SubscriptionPage = () => {
         "Your products in Featured Recommendations",
         "No ads Shown",
       ],
-      link: "/seller/subscription/premium",
     },
   ];
 
@@ -74,6 +100,8 @@ const SubscriptionPage = () => {
             key={plan.id}
             plan={plan}
             currentPlan={currentPlan}
+            onSubscribe={handleSubscribe}
+            isPaying={isPaying}
           />
         ))}
       </div>
