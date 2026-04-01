@@ -1,6 +1,12 @@
 import {
     createNotification,
     createManyNotifications,
+    getNotificationsByRecipient,
+    countUnreadNotifications,
+    getNotificationByIdForRecipient,
+    markAsReadForRecipient,
+    markAllAsRead,
+    deleteNotificationForRecipient,
 
 } from '../daos/notifications.dao.js';
 /**
@@ -270,4 +276,77 @@ export const createBulkAnnouncementNotifications = async (userIds, title, messag
     }));
 
     return await createManyNotifications(notifications);
+};
+
+export const getUserNotificationsHelper = async (userId, options = {}) => {
+    const { includeRead = true, limit = 50, skip = 0 } = options;
+
+    const [notifications, unreadCount] = await Promise.all([
+        getNotificationsByRecipient(userId, 'Users', { includeRead, limit, skip }),
+        countUnreadNotifications(userId, 'Users'),
+    ]);
+
+    return {
+        notifications,
+        unreadCount,
+    };
+};
+
+export const markNotificationAsReadHelper = async (userId, notificationId) => {
+    const existing = await getNotificationByIdForRecipient(notificationId, userId, 'Users');
+
+    if (!existing) {
+        return {
+            success: false,
+            status: 404,
+            message: 'Notification not found',
+        };
+    }
+
+    if (existing.isRead) {
+        return {
+            success: true,
+            status: 200,
+            message: 'Notification already marked as read',
+            notification: existing,
+        };
+    }
+
+    const updatedNotification = await markAsReadForRecipient(notificationId, userId, 'Users');
+
+    return {
+        success: true,
+        status: 200,
+        message: 'Notification marked as read',
+        notification: updatedNotification,
+    };
+};
+
+export const markAllUserNotificationsAsReadHelper = async (userId) => {
+    const result = await markAllAsRead(userId, 'Users');
+
+    return {
+        success: true,
+        status: 200,
+        message: result.modifiedCount > 0 ? 'All notifications marked as read' : 'No unread notifications found',
+        modifiedCount: result.modifiedCount,
+    };
+};
+
+export const deleteUserNotificationHelper = async (userId, notificationId) => {
+    const deletedNotification = await deleteNotificationForRecipient(notificationId, userId, 'Users');
+
+    if (!deletedNotification) {
+        return {
+            success: false,
+            status: 404,
+            message: 'Notification not found',
+        };
+    }
+
+    return {
+        success: true,
+        status: 200,
+        message: 'Notification deleted successfully',
+    };
 };

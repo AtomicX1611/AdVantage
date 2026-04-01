@@ -105,17 +105,20 @@ export const revokeAcceptedRequestDao = async (productId) => {
     if (product.soldTo && product.soldTo.buyer) {
         return { success: false, reason: "already_sold" };
     }
-    if (product.sellerAcceptedTo === null) {
+    if (!product.sellerAcceptedTo) {
         return { success: false, reason: "no_accepted_request" };
     }
     if(product.paymentInProgress){
         return { success: false, reason: "payment_in_progress" };
     }
+
+    const acceptedBuyerId = product.sellerAcceptedTo;
     product.sellerAcceptedTo = null;
     await product.save();
+
     return {
         success: true,
-        buyerId: product.sellerAcceptedTo,
+        buyerId: acceptedBuyerId,
         sellerId: product.seller,
         productName: product.name,
     };

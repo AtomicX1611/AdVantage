@@ -12,6 +12,9 @@ import {
     notInterestedService,
     getPendingRequestsService,
     getYourNotificationsService,
+    markNotificationAsReadService,
+    markAllNotificationsAsReadService,
+    deleteNotificationService,
     createOrderService,
     verifyPaymentService,
 } from "../services/buyer.service.js";
@@ -282,11 +285,81 @@ export const getYourNotifications = async (req, res, next) => {
         return res.status(200).json({
             success: true,
             notifications: response.notifications,
-            // message: response.message,
+            unreadCount: response.unreadCount,
         });
 
     } catch (error) {
         console.log(error);
+        next(error);
+    }
+};
+
+export const markNotificationAsRead = async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+        const notificationId = req.params.notificationId;
+
+        const response = await markNotificationAsReadService(userId, notificationId);
+
+        if (!response.success) {
+            return res.status(response.status || 400).json({
+                success: false,
+                message: response.message,
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: response.message,
+            notification: response.notification,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const markAllNotificationsAsRead = async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+
+        const response = await markAllNotificationsAsReadService(userId);
+
+        if (!response.success) {
+            return res.status(response.status || 400).json({
+                success: false,
+                message: response.message,
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: response.message,
+            modifiedCount: response.modifiedCount,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const deleteNotification = async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+        const notificationId = req.params.notificationId;
+
+        const response = await deleteNotificationService(userId, notificationId);
+
+        if (!response.success) {
+            return res.status(response.status || 400).json({
+                success: false,
+                message: response.message,
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: response.message,
+        });
+    } catch (error) {
         next(error);
     }
 };

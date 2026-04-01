@@ -117,6 +117,8 @@ const AuthSignup = () => {
       });
 
       const data = await resp.json();
+      console.log(data);
+      
 
       if (data && data.success) {
         dispatch(loginSuccess({

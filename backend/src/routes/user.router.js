@@ -22,6 +22,9 @@ import {
     notInterested,
     getPendingRequests,
     getYourNotifications,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    deleteNotification,
     createOrder,
     verifyPayment,
 } from "../controllers/buyer.controller.js";
@@ -82,6 +85,9 @@ router.put("/update/profile", upload.single("profilePic"), updateBuyerProfile);
 router.get("/yourProducts", getYourProducts);
 router.get("/getYourProfile", getYourProfile);
 router.get("/getNotifications", getYourNotifications);
+router.patch("/notifications/:notificationId/read", markNotificationAsRead);
+router.post("/notifications/mark-all-read", markAllNotificationsAsRead);
+router.delete("/notifications/:notificationId", deleteNotification);
 
 // buyer as a seller
 router.get("/products", findSellerProducts);

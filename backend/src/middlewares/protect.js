@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 export const serializeUser = (req, res, next) => {
     // console.log('Logging in serializeUser with token : ',req.cookies.token);
-  const token = req.cookies?.token || (req.headers.authorization ? req.headers.authorization.split(' ')[1] : null);
+  const token = req.cookies?.token;
 
   if (!token) {
     console.log('ERROR: No token provided to serializeUser');
@@ -20,7 +20,7 @@ export const serializeUser = (req, res, next) => {
 };
 
 export const checkToken = (req, res, next) => {
-  const token = req.cookies?.token || (req.headers.authorization ? req.headers.authorization.split(' ')[1] : null);
+  const token = req.cookies?.token;
 
   if (!token) {
     return res.status(403).json({

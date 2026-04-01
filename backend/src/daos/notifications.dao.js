@@ -15,6 +15,16 @@ export const getNotificationById = async (notificationId) => {
         .populate('relatedEntity');
 };
 
+export const getNotificationByIdForRecipient = async (notificationId, recipientId, recipientModel) => {
+    return await Notifications.findOne({
+        _id: notificationId,
+        recipient: recipientId,
+        recipientModel,
+    })
+        .populate('sender', 'username email profilePicPath')
+        .populate('relatedEntity');
+};
+
 export const getNotificationsByRecipient = async (recipientId, recipientModel, options = {}) => {
     const { limit = 50, skip = 0, includeRead = true } = options;
     
@@ -80,6 +90,25 @@ export const markAsRead = async (notificationId) => {
     );
 };
 
+export const markAsReadForRecipient = async (notificationId, recipientId, recipientModel) => {
+    return await Notifications.findOneAndUpdate(
+        {
+            _id: notificationId,
+            recipient: recipientId,
+            recipientModel,
+        },
+        {
+            $set: {
+                isRead: true,
+                readAt: new Date(),
+            },
+        },
+        { new: true }
+    )
+        .populate('sender', 'username email profilePicPath')
+        .populate('relatedEntity');
+};
+
 export const markManyAsRead = async (notificationIds) => {
     return await Notifications.updateMany(
         { _id: { $in: notificationIds } },
@@ -110,6 +139,14 @@ export const markAllAsRead = async (recipientId, recipientModel) => {
 
 export const deleteNotification = async (notificationId) => {
     return await Notifications.findByIdAndDelete(notificationId);
+};
+
+export const deleteNotificationForRecipient = async (notificationId, recipientId, recipientModel) => {
+    return await Notifications.findOneAndDelete({
+        _id: notificationId,
+        recipient: recipientId,
+        recipientModel,
+    });
 };
 
 export const deleteAllNotifications = async (recipientId, recipientModel) => {

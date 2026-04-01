@@ -120,7 +120,7 @@ const SellerRequests = () => {
         );
 
         setSelectedProduct(null);
-        alert("Request Accepted! Item moved to Sold/Rented.");
+        alert("Request Accepted! Item moved to Accepted-Awaiting Payment tab.");
       } else {
         setError(data.message || "Failed to accept request.");
       }

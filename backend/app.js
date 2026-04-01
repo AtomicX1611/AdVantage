@@ -86,7 +86,7 @@ export const errorLogStream = createStream("error.log", {
   size: "10M",
 });
 
-// need to uncomment this later 
+// ======================= NEED TO UNCOMMENT LATER ======================== 
 // const limiter = rateLimit({
 // 	windowMs: 15 * 60 * 1000,
 // 	limit: 100,
@@ -98,7 +98,7 @@ export const errorLogStream = createStream("error.log", {
 // app.use(limiter);
 app.use(morgan("combined", { stream: accessLogStream }));
 app.use(morgan("dev")); //morgan logger  (app level)
-// app.use(helmet());
+app.use(helmet());
 
 // body Parsing middleware
 app.use(cookieParser()); // Cookie parsing middleware
