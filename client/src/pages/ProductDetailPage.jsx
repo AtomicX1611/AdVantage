@@ -89,7 +89,7 @@ const ProductDetailPage = () => {
       // require auth
       if (!isAuth) {
         alert("Please sign in to submit a request");
-        navigate('/auth/login');
+        navigate('/login');
         return;
       }
       // prevent owner from requesting own product
@@ -119,7 +119,7 @@ const ProductDetailPage = () => {
       } else {
         if (response.status === 401 || response.status === 403) {
           alert("Please sign in to submit a request");
-          navigate('/auth/login');
+          navigate('/login');
           return;
         }
         alert(data.message || "Failed to submit bid");
@@ -135,7 +135,7 @@ const ProductDetailPage = () => {
       // require auth
       if (!isAuth) {
         alert("Please sign in to submit a rent request");
-        navigate('/auth/login');
+        navigate('/login');
         return;
       }
       // prevent owner from requesting own product
@@ -169,7 +169,7 @@ const ProductDetailPage = () => {
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
           alert("Please sign in to submit a rent request");
-          navigate('/auth/login');
+          navigate('/login');
           return;
         }
         alert(data.message || "Failed to submit rent request");
@@ -238,7 +238,7 @@ const ProductDetailPage = () => {
               onComplain={() => {
                 if (!isAuth) {
                   alert("Please sign in to file a complaint");
-                  navigate('/auth/login');
+                  navigate('/login');
                   return;
                 }
                 setShowComplaintModal(true);
