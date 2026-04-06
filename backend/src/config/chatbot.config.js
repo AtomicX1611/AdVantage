@@ -8,5 +8,5 @@ export const CHATBOT_CONFIG = {
 	OLLAMA_EMBEDDING_MODEL:
 		process.env.OLLAMA_EMBEDDING_MODEL || "qwen3-embedding:latest",
 	OLLAMA_BASE_URL: process.env.OLLAMABASEURL || "http://localhost:11434",
-	OLLAMA_TEMPERATURE: 0.2,
+	OLLAMA_TEMPERATURE: 0.5,
 };
