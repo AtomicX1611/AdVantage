@@ -325,12 +325,24 @@ export const verifyEmailController = async (req, res, next) => {
         }
 
         let response = await verifyEmailService(email, code);
+        if(!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message
+            });
+        }
+        res.cookie("token", response.token, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
         console.log("response: ",response);
 
         return res.status(response.status).json({
             success: response.success,
             message: response.message,
-            data: response.data
+            token: response.token,
+            email: response.email,
+            buyerId: response.buyerId,
         });
     } catch (error) {
         next(error);

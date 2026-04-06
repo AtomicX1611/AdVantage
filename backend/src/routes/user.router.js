@@ -22,6 +22,9 @@ import {
     notInterested,
     getPendingRequests,
     getYourNotifications,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    deleteNotification,
     createOrder,
     verifyPayment,
 } from "../controllers/buyer.controller.js";
@@ -63,6 +66,13 @@ router.put("/wishlist/add/:productId", addToWishlist);
 router.get("/wishlist", getWishlistProducts); // Working
 router.get("/pendingRequests", getPendingRequests);
 
+router.post("/request/:productId", requestProduct);
+router.post("/paymentDone/:productId", paymentDone);
+router.post("/notInterested/:productId", notInterested);
+router.put("/rent/:productId", rentProductController);
+router.put("/wishlist/add/:productId", addToWishlist);
+router.get("/wishlist", getWishlistProducts);
+router.get("/pendingRequests", getPendingRequests);
 router.delete("/wishlist/remove/:productId", removeFromWishlist);
 router.patch("/update/password", updateBuyerPassword); // Working
 router.put("/update/profile", upload.single("profilePic"), uploadFilesToCloudinary, updateBuyerProfile); // Working
@@ -70,13 +80,19 @@ router.put("/update/profile", upload.single("profilePic"), uploadFilesToCloudina
 router.get("/yourProducts", getYourProducts);
 router.get("/getYourProfile", getYourProfile);
 
+router.patch("/update/password", updateBuyerPassword);
+router.put("/update/profile", upload.single("profilePic"), updateBuyerProfile);
+router.get("/yourProducts", getYourProducts);
+router.get("/getYourProfile", getYourProfile);
 router.get("/getNotifications", getYourNotifications);
+router.patch("/notifications/:notificationId/read", markNotificationAsRead);
+router.post("/notifications/mark-all-read", markAllNotificationsAsRead);
+router.delete("/notifications/:notificationId", deleteNotification);
 
 // buyer as a seller
-router.get("/products", findSellerProducts); // Working
-router.get("/subscriptionStatus", findSellerSubscription); // Working
-// router.put("/update/subscription",updateSellerSubscription); // Working
-
+router.get("/products", findSellerProducts);
+router.get("/subscriptionStatus", findSellerSubscription);
+router.put("/update/subscription", updateSellerSubscription);
 router.post("/addProduct", upload.fields([
     { name: "productImages", maxCount: 10 },
     { name: "invoice", maxCount: 1 }

@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
-import crypto from "crypto";
+import crypto from "node:crypto";
 import nodemailer from 'nodemailer';
 
 import {
@@ -114,7 +114,7 @@ export const verifyEmailService = async (email,code)=> {
                     status: 200,
                     success: true,
                     message: "Email already verified",
-                    data: token,
+                    token: token,
                     email:user.email,
                     buyerId : user._id
                 }
@@ -125,7 +125,7 @@ export const verifyEmailService = async (email,code)=> {
                 status: 404,
                 success: false,
                 message: "Verification expired",
-                data: null
+                token: null
             }
         }
 
@@ -150,7 +150,7 @@ export const verifyEmailService = async (email,code)=> {
                 status: 200,
                 success: true,
                 message: "Email verified successfully",                    
-                data: token,
+                token: token,
                 email:user.email,
                 buyerId : user._id
             }
@@ -160,14 +160,15 @@ export const verifyEmailService = async (email,code)=> {
         return {
             status:400,
             success:false,
-            message:"Invalid otp"
+            message:"Invalid otp",
+            token:null,
         }
     } catch (error) {
         console.log(error);
         return {
             status:500,
             success:false,
-            message:"Server error"
+            message:"Server error",
         }
     }
 }

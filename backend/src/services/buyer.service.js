@@ -25,8 +25,14 @@ import {
 } from "../daos/orders.dao.js";
 import { paymentDoneHelper,updateSellerSubscriptionHelper } from "../helpers/user.helper.js";
 import { createNewRequestNotification } from "../helpers/notification.helper.js";
-import { getNotificationsByRecipient } from "../daos/notifications.dao.js";
+import {
+    getUserNotificationsHelper,
+    markNotificationAsReadHelper,
+    markAllUserNotificationsAsReadHelper,
+    deleteUserNotificationHelper,
+} from "../helpers/notification.helper.js";
 import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils.js";
+import mongoose from "mongoose";
 
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
 
@@ -105,27 +111,42 @@ export const getWishlistProductsService = async (userId) => {
 }
 
 export const getYourNotificationsService = async (userId) => {
-    const result = await getNotificationsByRecipient(userId, 'Users', { includeRead: false, limit: 50, skip: 0 });
-
-    // console.log(result);
-
-    // if (!result.success) {
-    //     if (result.reason === "not_found") {
-    //         return { success: false, status: 404, message: "User not found" };
-    //     }
-    //     return {
-    //         success: false,
-    //         message: "Unknown error...",
-    //         status: 500,
-    //     }
-    // }
+    const result = await getUserNotificationsHelper(userId, { includeRead: true, limit: 50, skip: 0 });
 
     return {
         success: true,
-        // message: result.length > 0 ? "Notifications fetched successfully" : "No new notifications",
-        notifications: result,
+        notifications: result.notifications,
+        unreadCount: result.unreadCount,
     };
 }
+
+export const markNotificationAsReadService = async (userId, notificationId) => {
+    if (!mongoose.Types.ObjectId.isValid(notificationId)) {
+        return {
+            success: false,
+            status: 400,
+            message: "Invalid notification id",
+        };
+    }
+
+    return await markNotificationAsReadHelper(userId, notificationId);
+};
+
+export const markAllNotificationsAsReadService = async (userId) => {
+    return await markAllUserNotificationsAsReadHelper(userId);
+};
+
+export const deleteNotificationService = async (userId, notificationId) => {
+    if (!mongoose.Types.ObjectId.isValid(notificationId)) {
+        return {
+            success: false,
+            status: 400,
+            message: "Invalid notification id",
+        };
+    }
+
+    return await deleteUserNotificationHelper(userId, notificationId);
+};
 
 export const getPendingRequestsService = async (buyerId) => {
     const pendingRequests = await getProductsSellerAccepted(buyerId);

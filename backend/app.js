@@ -25,12 +25,48 @@ import { startOrderTimeoutWorker } from "./src/services/orderTimeout.service.js"
 // import { seedData } from "./data.js";
 import helmet from "helmet";
 
+// import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+
 const app = express();
 await connectDB();
 startOrderTimeoutWorker();
 
-// Middleware setups
+// const options = {
+//   definition: {
+//     openapi: '3.0.0',
+//     info: {
+//       title: 'API Documentation',
+//       version: '1.0.0',
+//       description: 'API documentation for Auth, User, Manager, Admin, and Chat services',
+//     },
+//     servers: [
+//       {
+//         url: 'http://localhost:3000',
+//         description: 'Development server',
+//       },
+//     ],
+//     components: {
+//       securitySchemes: {
+//         bearerAuth: {
+//           type: 'http',
+//           scheme: 'bearer',
+//           bearerFormat: 'JWT',
+//         },
+//       },
+//     },
+//   },
+//   // Ensure this points to the files where your @swagger comments live
+//   apis: ['./src/routes/*.js', './src/routes/**/*.js', './app.js'], 
+// };
 
+// const specs = swaggerJsdoc(options);
+const swaggerDocument = JSON.parse(fs.readFileSync(path.resolve('./swagger.json'), 'utf-8'));
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+// Middleware setups
 const logDirectory = path.join(process.cwd(), "logs");
 if (!fs.existsSync(logDirectory)) {
   fs.mkdirSync(logDirectory);
@@ -50,7 +86,7 @@ export const errorLogStream = createStream("error.log", {
   size: "10M",
 });
 
-// need to uncomment this later 
+// ======================= NEED TO UNCOMMENT LATER ======================== 
 // const limiter = rateLimit({
 // 	windowMs: 15 * 60 * 1000,
 // 	limit: 100,
@@ -62,7 +98,7 @@ export const errorLogStream = createStream("error.log", {
 // app.use(limiter);
 app.use(morgan("combined", { stream: accessLogStream }));
 app.use(morgan("dev")); //morgan logger  (app level)
-// app.use(helmet());
+app.use(helmet());
 
 // body Parsing middleware
 app.use(cookieParser()); // Cookie parsing middleware

@@ -23,7 +23,7 @@ const VerifyCard = ({ productPhoto, sellerName, postingDate, category, type, pri
         <p className={styles.price}>₹{price}</p>
         {invoice ? (
           <a
-            href={import.meta.env.VITE_BACKEND_URL + "/" + invoice}
+            href={invoice}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.invoiceLink}
