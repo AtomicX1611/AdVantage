@@ -1,4 +1,4 @@
-import { errorLogStream } from "../../app.js";
+import { errorLogStream } from "../config/logger.config.js";
 
 export const errorMiddleware = (err, req, res, next) => {
     const status = err.status || err.statusCode || 500;
