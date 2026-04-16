@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "../styles/wishlist.module.css";
+import { resolveImageUrl } from "../utils/imageUrl";
 
 export default function ProductItem({ product, addToCompare }) {
   return (
@@ -8,7 +9,7 @@ export default function ProductItem({ product, addToCompare }) {
       onClick={() => addToCompare(product)}
     >
       <span style={{ position: "absolute", top: 8, right: 10, cursor: "pointer" }}>❤️</span>
-      <img src={product.images[0]} alt={product.name} />
+      <img src={resolveImageUrl(product.images[0])} alt={product.name} />
       <p>{product.name}</p>
       <p>{product.price}</p>
     </div>

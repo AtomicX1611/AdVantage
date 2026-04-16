@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import GeneralInfo from "../components/AddProduct/GeneralInfo";
 import AddressSection from "../components/AddProduct/AddressSection";
 import ImageUploader from "../components/AddProduct/ImageUploader";
@@ -129,17 +130,23 @@ const AddProductForm = () => {
   };
 
   return (
-    <form method="post" id="formElement" className={styles.formElement}>
-      <a href="/seller"><img src="/Assets/Logo.svg" alt="Logo" id={styles.logo} draggable="false" /></a>
+    <div className={styles.formContainer}>
+      <div className={styles.formHeader}>
+        <Link to="/seller" className={styles.backButton}>
+          {/* <img src="/Assets/Logo.svg" alt="Logo" draggable="false" /> */}
+          <i className="bx bx-left-arrow-alt"></i>
+        </Link>
+        <h1 className={styles.pageTitle}>Add New Product</h1>
+      </div>
 
-      <div className={styles.parent}>
+      <div className={styles.formGrid}>
         <GeneralInfo formData={formData} handleChange={handleChange} />
         <AddressSection formData={formData} handleChange={handleChange} />
         <ImageUploader handleFileChange={handleFileChange} />
         <InvoiceUploader handleInvoiceChange={handleInvoiceChange} />
         <PriceSection formData={formData} handleChange={handleChange} handleSubmit={handleSubmit} />
       </div>
-    </form>
+    </div>
   );
 };
 

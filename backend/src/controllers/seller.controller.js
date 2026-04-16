@@ -10,9 +10,11 @@ import {
     makeAvailableService,
     deleteProductService,
     revokeAcceptedRequestService,
+    analyticsService,
+    getTransactionsService
 } from "../services/seller.service.js";
 
-export const addProduct = async (req, res) => {
+export const addProduct = async (req, res, next) => {
     try {
         const newProduct = await addProductService(req);
         return res.status(201).json({
@@ -21,11 +23,7 @@ export const addProduct = async (req, res) => {
             data: newProduct,
         });
     } catch (err) {
-        console.log("error: ", err);
-        return res.status(500).json({
-            success: false,
-            message: err.message,
-        });
+        next(err);
     }
 };
 
@@ -72,7 +70,7 @@ export const addProduct = async (req, res) => {
 //     }
 // };
 
-export const updateSellerSubscription = async (req, res) => {
+export const updateSellerSubscription = async (req, res, next) => {
     try {
         const sellerId = req.user._id;
         const { subscription } = req.body;
@@ -98,14 +96,11 @@ export const updateSellerSubscription = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 }
 
-export const deleteProduct = async (req, res) => {
+export const deleteProduct = async (req, res, next) => {
     try {
         const { productId } = req.params;
 
@@ -117,16 +112,12 @@ export const deleteProduct = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Delete Product Error:", error);
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 };
 
 
-export const acceptRequest = async (req, res) => {
+export const acceptRequest = async (req, res, next) => {
     try {
         const { productId, buyerId } = req.params;
         console.log("product id: ", productId);
@@ -147,14 +138,11 @@ export const acceptRequest = async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 };
 
-export const revokeAcceptedRequest = async (req, res) => {
+export const revokeAcceptedRequest = async (req, res, next) => {
     try {
         const { productId } = req.params;
         const response = await revokeAcceptedRequestService(productId);
@@ -171,15 +159,11 @@ export const revokeAcceptedRequest = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 };
 
-export const rejectRequest = async (req, res) => {
+export const rejectRequest = async (req, res, next) => {
     try {
         // console.log("int reject Request");
         const { productId, buyerId } = req.params;
@@ -199,10 +183,7 @@ export const rejectRequest = async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 };
 
@@ -239,26 +220,30 @@ export const rejectRequest = async (req, res) => {
 //     }
 // };
 
-export const findSellerProducts = async (req, res) => {
-    const userId = req.user._id;
-    if (!userId) return res.status(400).json({ message: "userId not found" });
+export const findSellerProducts = async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+        if (!userId) return res.status(400).json({ message: "userId not found" });
 
-    let response = await sellerProdRetriveService(userId);
+        let response = await sellerProdRetriveService(userId);
 
-    if (!response.success) {
-        return res.status(500).json({
-            success: false,
-            messagea: response.message
+        if (!response.success) {
+            return res.status(500).json({
+                success: false,
+                message: response.message
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            products: response.products
         })
+    } catch (error) {
+        next(error);
     }
-
-    return res.status(200).json({
-        success: true,
-        products: response.products
-    })
 }
 
-export const findSellerSubscription = async (req, res) => {
+export const findSellerSubscription = async (req, res, next) => {
     try {
         const userId = req.user._id;
         if (!userId) return res.status(404).json({
@@ -278,19 +263,12 @@ export const findSellerSubscription = async (req, res) => {
             subscription: response.subscription
         })
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        })
-
+        next(error);
     }
 }
 
-export const makeAvailableController = async (req, res) => {
+export const makeAvailableController = async (req, res, next) => {
     try {
-        // console.log("Ali is the webdev topper");
-
         const sellerId = req.user._id;
         const productId = req.params.productId;
 
@@ -300,7 +278,50 @@ export const makeAvailableController = async (req, res) => {
             success: response.success,
         });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error" });
+        next(error);
+    }
+}
+
+export const analyticsController = async(req, res, next) => {
+    try {
+        const userId = req.user._id;
+        console.log("entered");
+
+        if (!userId) return res.status(404).json({
+            success: false,
+            message: "userId not found"
+        })
+
+        const response = await analyticsService(userId);
+        console.log("response: ",response);
+        
+        return res.status(response.status).json({
+            message: response.message,
+            success: response.success,
+            data:response.data
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getTransactionsController = async (req,res,next) =>{
+    try {
+        const userId = req.user._id;
+        
+         if (!userId) return res.status(404).json({
+            success: false,
+            message: "userId not found"
+        })
+
+        const response = await getTransactionsService(userId);
+        
+        return res.status(response.status).json({
+            success: response.success,
+            received:response.received,
+            paidTo:response.paidTo
+        });
+    } catch (error) {
+        next(error);
     }
 }

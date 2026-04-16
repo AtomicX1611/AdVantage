@@ -1,11 +1,14 @@
 import express from "express";
+import axios from "axios";
 import {
     buyerSignup,
     buyerLogin,
     adminLogin,
     managerLogin,
     getMyInfo,
-    userLogout
+    userLogout,
+    googelSignIn,
+    verifyEmailController
 } from "../controllers/auth.controller.js";
 import {
     checkToken,
@@ -14,20 +17,13 @@ import {
 
 export const router = express.Router();
 
-//buyer
+router.post('/google', googelSignIn);
 router.post('/signup', buyerSignup);
+router.post('/verify-email', verifyEmailController);
 router.post('/login', buyerLogin);
-router.delete("/logout",userLogout);
-
-// //seller
-// router.post('/seller/signup', sellerSignup);
-// router.post('/seller/login',sellerLogin);
-
-//admin
-router.post('/admin/login',adminLogin);
-//manager
-router.post('/manager/login',managerLogin);
-
-router.get("/me",checkToken,serializeUser,getMyInfo);
+router.delete('/logout', userLogout);
+router.post('/admin/login', adminLogin);
+router.post('/manager/login', managerLogin);
+router.get('/me', checkToken, serializeUser, getMyInfo);
 
 export default router;

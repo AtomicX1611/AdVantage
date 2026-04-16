@@ -8,7 +8,7 @@ const Profile = () => {
   // dummy options data
   const [options] = useState([
     {
-      title: "Login and Security",
+      title: "Update Password",
       icon: "bxs-lock",
       link: "/updatePassword",
     },

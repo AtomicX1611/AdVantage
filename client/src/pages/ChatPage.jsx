@@ -144,7 +144,7 @@ const ChatPage = () => {
 
   return (
     <div className={styles.bodyWrapper}>
-      <h1 id="myName">Welcome, {myUsername}</h1>
+      <h1 className={styles.welcomeHeading}>Welcome, {myUsername || 'User'}</h1>
       <main className={styles.mainContent}>
         <ChatSidebar senders={senders} onSelectSender={handleSelectSender} />
         <ChatBox

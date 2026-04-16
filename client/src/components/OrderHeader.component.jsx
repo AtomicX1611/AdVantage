@@ -6,14 +6,14 @@ const OrderHeader = () => {
   return (
     <div className={styles.header}>
       <div className={styles.backIcon}>
-        <Link to="/" aria-label="Go back">
+        <Link to="/profile" aria-label="Go back">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
+            width="24"
+            height="24"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="black"
+            stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -24,7 +24,7 @@ const OrderHeader = () => {
         </Link>
       </div>
       <div className={styles.headerText}>
-        <h1 style={{ color: "black" }}>Your Orders</h1>
+        <h1>Your Orders</h1>
       </div>
     </div>
   );

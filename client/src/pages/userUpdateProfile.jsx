@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import ProfileHeader from "../components/ProfileHeader";
 import styles from "../styles/updateProfile.module.css";
 import API_CONFIG from "../config/api.config";
+import { resolveImageUrl } from "../utils/imageUrl";
 
 const UserUpdateProfile = () => {
   const [profileData, setProfileData] = useState({
@@ -125,7 +126,10 @@ const UserUpdateProfile = () => {
       <div className={styles.window}>
         <ProfileHeader />
         <div className={styles.container}>
-          <p>Loading profile...</p>
+          <div className={styles.loadingContainer}>
+            <div className={styles.loadingSpinner}></div>
+            <span className={styles.loadingText}>Loading your profile...</span>
+          </div>
         </div>
       </div>
     );
@@ -144,7 +148,7 @@ const UserUpdateProfile = () => {
               className={styles.profileImage}
               src={
                 profileData.profilePicPath
-                  ? `${backendURL}/${profileData.profilePicPath}`
+                  ? resolveImageUrl(profileData.profilePicPath)
                   : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
               }
               alt="Profile"

@@ -24,7 +24,7 @@ const paymentSchema = new mongoose.Schema({
     paymentType: {
         type: String,
         required: true,
-        enum: ["purchase", "subscription","other"]
+        enum: ["purchase","subscription","other"]
     },
     relatedEntityId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -43,7 +43,11 @@ const paymentSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
         required: true,
-    }
+    },
+    razorpay_payment_id: {
+        type: String,
+        required: true,
+    },
 });
 
 export default mongoose.model("Payment", paymentSchema);

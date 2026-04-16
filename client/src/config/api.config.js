@@ -7,9 +7,16 @@ export const API_CONFIG = {
     CATEGORY_PRODUCTS: '/search/product/category',
     ADMIN_USERS: 'admin',
     ADMIN_GRAPH_DATA: 'admin/graphData',
+    ADMIN_METRICS: 'admin/metrics',
+    ADMIN_PAYMENT_ANALYTICS: 'admin/paymentAnalytics',
+    ADMIN_ADD_MANAGER: 'admin/addManager',
     WISHLIST_GET: '/user/wishlist',
     WISHLIST_ADD: '/user/wishlist/add',
     WISHLIST_REMOVE: '/user/wishlist/remove',
+    // Notifications
+    NOTIFICATIONS_FETCH: '/user/getNotifications',
+    NOTIFICATIONS_MARK_READ: '/user/notifications', // will PATCH /user/notifications/:id/read
+    NOTIFICATIONS_MARK_ALL_READ: '/user/notifications/mark-all-read',
   }
 };
 
