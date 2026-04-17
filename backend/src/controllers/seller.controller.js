@@ -2,6 +2,10 @@ import {
     addProductService,
     acceptProductRequestService,
     rejectProductRequestService,
+    createStakeOrderService,
+    verifyStakeService,
+    shipOrderService,
+    verifyDeliveryService,
     // updateSellerProfileService,
     // updateSellerPasswordService,
     updateSellerSubscriptionService,
@@ -137,6 +141,84 @@ export const acceptRequest = async (req, res, next) => {
             message: response.message
         });
 
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const createStakeOrderController = async (req, res, next) => {
+    try {
+        const { productId, buyerId } = req.params;
+        const response = await createStakeOrderService(productId, buyerId);
+        
+        if (!response.success) {
+            return res.status(response.status || 400).json({ success: false, message: response.message });
+        }
+        return res.status(200).json({ success: true, order: response.order });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const verifyStakeController = async (req, res, next) => {
+    try {
+        const { productId, buyerId } = req.params;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+        if(!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            return res.status(400).json({ status: 'error', message: 'Missing required fields' });
+        }
+
+        const secret = process.env.RAZORPAYKEYSECRET;
+        const body = razorpay_order_id + '|' + razorpay_payment_id;
+
+        const response = await verifyStakeService(productId, buyerId, body, razorpay_order_id, razorpay_payment_id, razorpay_signature, secret);
+
+        if (!response.success) {
+            return res.status(response.status || 400).json({
+                success: false,
+                message: response.message
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: response.message,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const shipOrderController = async (req, res, next) => {
+    try {
+        const { orderId } = req.params;
+        const { awbCode, courierName } = req.body;
+        const sellerId = req.user._id;
+
+        if (!awbCode || !courierName) {
+            return res.status(400).json({ success: false, message: "Missing awbCode or courierName" });
+        }
+
+        const response = await shipOrderService(orderId, sellerId, awbCode, courierName);
+        if (!response.success) {
+            return res.status(response.status || 400).json({ success: false, message: response.message });
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const verifyDeliveryController = async (req, res, next) => {
+    try {
+        const { orderId } = req.params;
+        const sellerId = req.user._id;
+
+        const response = await verifyDeliveryService(orderId, sellerId);
+        if (!response.success) {
+            return res.status(response.status || 400).json({ success: false, message: response.message });
+        }
+        return res.status(200).json(response);
     } catch (error) {
         next(error);
     }

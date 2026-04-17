@@ -8,7 +8,11 @@ import {
     // findProducts,
     // countProductsDao,
     revokeAcceptedRequestDao,
+    createStakeOrderDao,
+    verifyStakeDao,
 } from "../daos/products.dao.js";
+import { razorpay } from "../config/payment.config.js";
+import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils.js";
 // import {
 // getSellerById,
 // updateSellerById,
@@ -27,6 +31,8 @@ import {
     findProductsForSeller,
 } from "../daos/products.dao.js";
 
+import { shipOrderDao, verifyDeliveryDao, markOrderDeliveredDao } from "../daos/orders.dao.js";
+
 import { createPayment, getPaymentsByFrom, getPaymentsByTo } from "../daos/payment.dao.js";
 
 import { getAdminById, getAllAdmins } from "../daos/admins.dao.js";
@@ -36,6 +42,7 @@ import {
     createRequestRevokedNotification,
 } from "../helpers/notification.helper.js";
 import { generateProductOllamaEmbedding } from "../helpers/productEmbedding.helper.js";
+import PendingPayouts from "../models/PendingPayouts.js";
 
 export const addProductService = async (req) => {
     // Old implementation of isAllowed function which is slow
@@ -229,6 +236,130 @@ export const acceptProductRequestService = async (productId, buyerId) => {
     return { success: true, message: "Request accepted and notification sent to the buyer" };
 };
 
+export const createStakeOrderService = async (productId, buyerId) => {
+    const product = await getProductById(productId);
+    if (!product) return { status: 404, success: false, message: "Product not found" };
+
+    const request = product.requests.find(req => req.buyer._id ? req.buyer._id.toString() === buyerId.toString() : req.buyer.toString() === buyerId.toString());
+    if (!request) return { status: 404, success: false, message: "Request not found" };
+
+    const stakeAmount = request.biddingPrice * 0.2;
+
+    const options = {
+        amount: stakeAmount * 100,
+        currency: "INR",
+        receipt: `stake_${Date.now()}`,
+        notes: { "productId": productId.toString(), "buyerId": buyerId.toString(), "type": "seller_stake" },
+    };
+
+    const order = await razorpay.orders.create(options);
+    
+    const result = await createStakeOrderDao(productId, buyerId, stakeAmount, order.id);
+    if (!result.success) {
+        return { status: 400, success: false, message: "Failed to save stake order details" };
+    }
+
+    return { success: true, status: 200, order };
+};
+
+export const verifyStakeService = async (productId, buyerId, body, razorpay_order_id, razorpay_payment_id, razorpay_signature, secret) => {
+    const isValidSignature = validateWebhookSignature(body, razorpay_signature, secret);
+    
+    if (!isValidSignature) {
+        return { success: false, status: 400, message: "Invalid payment signature" };
+    }
+
+    const result = await verifyStakeDao(productId, buyerId, razorpay_payment_id);
+    if (!result.success) {
+        return { success: false, status: 400, message: "Failed to verify stake in database" };
+    }
+
+    const acceptResult = await acceptProductRequestDao(productId, buyerId);
+    if (!acceptResult.success) {
+        return { success: false, status: 400, message: "Stake verified but failed to accept request" };
+    }
+
+    await createRequestAcceptedNotification(
+        buyerId,
+        acceptResult.sellerId,
+        productId,
+        acceptResult.productName
+    );
+
+    return { success: true, status: 200, message: "Stake verified and request accepted successfully" };
+};
+
+
+export const shipOrderService = async (orderId, sellerId, awbCode, courierName) => {
+    return await shipOrderDao(orderId, sellerId, awbCode, courierName);
+};
+
+export const verifyDeliveryService = async (orderId, sellerId) => {
+    const result = await verifyDeliveryDao(orderId, sellerId);
+    if (!result.success) return result;
+
+    const order = result.order;
+    const { awbCode, productId } = order;
+    
+    const hisRequest = productId.requests.find(req => req.buyer.toString() === order.buyerId.toString());
+    const expectedPinCode = hisRequest ? hisRequest.shippingAddress.pinCode : null;
+
+    if (!expectedPinCode) {
+        return { success: false, status: 400, message: "Buyer shipping address pin code not found" };
+    }
+
+    try {
+        const authResponse = await fetch(`${process.env.SHIP_ROCKET_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: process.env.SHIP_ROCKET_EMAIL,
+                password: process.env.SHIP_ROCKET_PASSWORD
+            })
+        });
+
+        if (!authResponse.ok) {
+            return { success: false, status: 500, message: "Failed to authenticate with Shiprocket" };
+        }
+
+        const authData = await authResponse.json();
+        const token = authData.token;
+
+        const trackingResponse = await fetch(`${process.env.SHIP_ROCKET_BASE_URL}/courier/track/awb/${awbCode}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!trackingResponse.ok) {
+            return { success: false, status: 400, message: "Failed to track AWB on Shiprocket" };
+        }
+
+        const trackingData = await trackingResponse.json();
+        
+        // As per shiprocket tracking API
+        const trackingDetails = trackingData.tracking_data;
+        const isDelivered = trackingDetails.shipment_track && trackingDetails.shipment_track[0].current_status === 'Delivered';
+        const destinationPincode = trackingDetails.shipment_track && trackingDetails.shipment_track[0].destination_pincode;
+
+        if (!isDelivered) {
+            return { success: false, status: 400, message: "Courier has not marked this delivered yet." };
+        }
+
+        if (destinationPincode && expectedPinCode && destinationPincode.toString() !== expectedPinCode.toString()) {
+            return { success: false, status: 400, message: "Fraud Alert: Delivery PIN code does not match buyer's PIN code." };
+        }
+
+        await markOrderDeliveredDao(orderId);
+
+        return { success: true, status: 200, message: "Delivery verified successfully. 48-hour window started." };
+    } catch (err) {
+        console.log("verifyDelivery error: ", err);
+        return { success: false, status: 500, message: "Error contacting tracking service." };
+    }
+};
+
 export const revokeAcceptedRequestService = async (productId) => {
     const result = await revokeAcceptedRequestDao(productId);
     if (!result.success) {
@@ -240,6 +371,17 @@ export const revokeAcceptedRequestService = async (productId) => {
         };
         return { success: false, ...messages[result.reason] };
     }
+
+    if (result.refundStakeAmount && result.refundStakeAmount > 0) {
+        await PendingPayouts.create({
+            recipientId: result.sellerId,
+            productId: productId,
+            amount: result.refundStakeAmount,
+            payoutType: "Seller_20_Refund",
+            reason: "Seller revoked the accepted request",
+        });
+    }
+
     await createRequestRevokedNotification(
         result.buyerId,
         result.sellerId,
@@ -255,7 +397,8 @@ export const rejectProductRequestService = async (productId, buyerId) => {
     if (!result.success) {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
-            no_request: { status: 400, message: "No request from this buyer" }
+            no_request: { status: 400, message: "No request from this buyer" },
+            already_accepted: { status: 400, message: "Cannot reject a request that is already accepted or has a staked amount. Use revoke instead." }
         };
         return { success: false, ...messages[result.reason] };
     }

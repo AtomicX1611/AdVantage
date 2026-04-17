@@ -22,6 +22,7 @@ import {
     createOrderDao,
     getOrderByIdDao,
     updateOrderStatusDao,
+    disputeOrderDao,
 } from "../daos/orders.dao.js";
 import { paymentDoneHelper,updateSellerSubscriptionHelper } from "../helpers/user.helper.js";
 import { createNewRequestNotification } from "../helpers/notification.helper.js";
@@ -33,6 +34,8 @@ import {
 } from "../helpers/notification.helper.js";
 import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils.js";
 import mongoose from "mongoose";
+import PendingPayouts from "../models/PendingPayouts.js";
+import Complaints from "../models/Complaints.js";
 
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
 
@@ -180,8 +183,8 @@ export const removeFromWishlistService = async (userId, productId) => {
     return { success: true, message: "Product removed from wishlist" };
 };
 
-export const requestProductService = async (productId, buyerId, biddingPrice) => {
-    const result = await addProductRequestDao(productId, buyerId, biddingPrice);
+export const requestProductService = async (productId, buyerId, biddingPrice, shippingAddress) => {
+    const result = await addProductRequestDao(productId, buyerId, biddingPrice, shippingAddress);
     console.log("result in req prod serv", result);
     if (!result.success) {
         const messages = {
@@ -341,6 +344,16 @@ export const notInterestedService = async (buyerId, productId) => {
         return { success: false, ...messages[result.reason] };
     }
 
+    if (result.refundStakeAmount && result.refundStakeAmount > 0) {
+        await PendingPayouts.create({
+            recipientId: result.sellerId,
+            productId: productId,
+            amount: result.refundStakeAmount,
+            payoutType: "Seller_20_Refund",
+            reason: "Buyer marked as not interested after acceptance",
+        });
+    }
+
     return { success: true, message: "Marked as not interested successfully" };
 };
 
@@ -398,3 +411,24 @@ export const getYouProfileService = async (buyerId) => {
         buyer: buyer,
     }
 }
+
+export const disputeOrderService = async (orderId, buyerId, subject, description) => {
+    const result = await disputeOrderDao(orderId, buyerId);
+    if (!result.success) {
+        return { success: false, status: 400, message: result.message };
+    }
+
+    const complaint = new Complaints({
+        productId: result.order.productId._id || result.order.productId,
+        complainant: buyerId,
+        respondent: result.order.productId.seller,
+        type: "product",
+        subject: subject,
+        description: description,
+        status: "pending"
+    });
+
+    await complaint.save();
+
+    return { success: true, status: 200, message: "Dispute created successfully" };
+};
