@@ -6,40 +6,63 @@ import {
     rejectProductRequestDao,
     makeAvailableDao,
     // findProducts,
-    countProductsDao,
+    // countProductsDao,
     revokeAcceptedRequestDao,
 } from "../daos/products.dao.js";
 // import {
-    // getSellerById,
-    // updateSellerById,
-    // updateSellerPassById,
-    // updateSellerSubscriptionDao
-    // findSellerSubsDao,
+// getSellerById,
+// updateSellerById,
+// updateSellerPassById,
+// updateSellerSubscriptionDao
+// findSellerSubsDao,
 // } from "../daos/sellers.dao.js";
 import {
     getBuyerById,
     findSellerSubsDao,
+    incrementUsedPostsDao,
+    resetUsedPostsDao,
 } from "../daos/users.dao.js"
+
 import {
     findProductsForSeller,
 } from "../daos/products.dao.js";
-import { createPayment } from "../daos/payment.dao.js";
+
+import { createPayment, getPaymentsByFrom, getPaymentsByTo } from "../daos/payment.dao.js";
+
 import { getAdminById, getAllAdmins } from "../daos/admins.dao.js";
+import {
+    createRequestAcceptedNotification,
+    createRequestRejectedNotification,
+    createRequestRevokedNotification,
+} from "../helpers/notification.helper.js";
+import { generateProductOllamaEmbedding } from "../helpers/productEmbedding.helper.js";
 
 export const addProductService = async (req) => {
+    // Old implementation of isAllowed function which is slow
+    // async function isAllowed(sellerId) {
+    //     const arr = [10000, 50, 100];
+    //     const oneMonthAgo = new Date();
+    //     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    //     const filters = {
+    //         seller: sellerId,
+    //         postingDate: { $gte: oneMonthAgo },
+    //     }
+    //     const count = await countProductsDao(filters);
+    //     const subscription = (await findSellerSubsDao(sellerId)).subscription;
+    //     console.log("subscription : " + subscription + " count : " + count);
+    //     return (count < arr[subscription]);
+    // }
 
     async function isAllowed(sellerId) {
-        const arr = [15, 50, 100];
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        const filters = {
-            seller: sellerId,
-            postingDate: { $gte: oneMonthAgo },
+        const arr = [10001, 50, 100];
+        const seller = (await getBuyerById(sellerId));
+        // console.log(seller.windowStart);
+        if (!seller.windowStart || new Date(seller.windowStart).getFullYear() !== new Date().getFullYear() || new Date(seller.windowStart).getMonth() !== new Date().getMonth()) {
+            await resetUsedPostsDao(sellerId);
+            seller.usedPosts = 0;
         }
-        const count = await countProductsDao(filters);
-        const subscription = (await findSellerSubsDao(sellerId)).subscription;
-        console.log("subscription : " + subscription + " count : " + count);
-        return (count < arr[subscription]);
+        // console.log("subscription : " + seller.subscription + " usedPosts : " + seller.usedPosts);
+        return (seller.usedPosts < arr[seller.subscription]);
     }
 
 
@@ -56,17 +79,21 @@ export const addProductService = async (req) => {
     } = req.body;
     // console.log(req.body);
 
+    // console.log("fkldsj");
+
     const allowed = await isAllowed(req.user._id);
     if (!allowed) {
         throw new Error("You exceeded your plan's limit per month");
     }
-    if (!req.files?.productImages || req.files.productImages.length === 0) {
+    if (!req.cloudinary?.productImages || req.cloudinary.productImages.length === 0) {
         throw new Error("At least one product image is required");
     }
 
-    const images = req.files.productImages.map(file => file.path);
-    const invoicePath = req.files.invoice?.[0]?.path || null;
-
+    // const images = req.files.productImages.map(file => file.path);
+    // const invoicePath = req.files.invoice?.[0]?.path || null;
+    const images = req.cloudinary.productImages.map(img => img.url);
+    const invoicePath = req.cloudinary.invoice?.url || null;
+    
     const isRental1 = (isRental == 'true' || isRental == true) ? true : false;
 
     const productData = {
@@ -84,8 +111,19 @@ export const addProductService = async (req) => {
         invoice: invoicePath,
         soldTo: null,
     };
+
+    try {
+        const { vector } = await generateProductOllamaEmbedding(productData);
+        if (Array.isArray(vector) && vector.length > 0) {
+            productData.ollama_embeddings = vector;
+        }
+    } catch (error) {
+        console.error("Failed to generate Ollama embedding for addProduct:", error?.message || error);
+    }
+
     // console.log("product data: ", productData);
     const newProduct = await createProduct(productData);
+    await incrementUsedPostsDao(req.user._id);
     return newProduct;
 };
 
@@ -170,73 +208,6 @@ export const deleteProductService = async (sellerId, productId) => {
 //     };
 // };
 
-export const updateSellerSubscriptionService = async (sellerId, subscription) => {
-    try {
-        const seller = await getBuyerById(sellerId);
-        
-        if (!seller) {
-            return {
-                success: false,
-                message: "Seller not found",
-            };
-        }
-
-        if (seller.subscription >= subscription) {
-            return {
-                success: false,
-                message: "Seller already has a better or equal plan than the chosen one",
-            };
-        }
-
-        // Determine subscription price
-        const subscriptionPrices = {
-            1: 100,  // Basic subscription
-            2: 500   // Premium subscription
-        };
-
-        const price = subscriptionPrices[subscription] || 0;
-
-        if (price === 0) {
-            return {
-                success: false,
-                message: "Invalid subscription level",
-            };
-        }
-
-        // Update seller subscription
-        seller.subscription = subscription;
-        await seller.save();
-
-        const admin = await getAllAdmins();
-        const adminId = admin[0]._id;
-
-        // Create payment record
-        await createPayment({
-            from: sellerId,
-            fromModel: 'Users',
-            to: adminId,
-            toModel: 'Admin',
-            paymentType: 'subscription',
-            price: price,
-            relatedEntityId: null,
-            relatedEntityType: null,
-        });
-
-        return {
-            success: true,
-            message: "Subscription updated successfully",
-            updatedSeller: seller,
-        };
-
-    } catch (error) {
-        console.error("Error in updateSellerSubscriptionService:", error);
-        return {
-            success: false,
-            message: "Internal server error while updating subscription",
-        };
-    }
-};
-
 export const acceptProductRequestService = async (productId, buyerId) => {
     const result = await acceptProductRequestDao(productId, buyerId);
 
@@ -249,7 +220,12 @@ export const acceptProductRequestService = async (productId, buyerId) => {
         };
         return { success: false, ...messages[result.reason] };
     }
-
+    await createRequestAcceptedNotification(
+        buyerId,
+        result.sellerId,
+        productId,
+        result.productName
+    );
     return { success: true, message: "Request accepted and notification sent to the buyer" };
 };
 
@@ -259,11 +235,17 @@ export const revokeAcceptedRequestService = async (productId) => {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
             already_sold: { status: 400, message: "Product already sold" },
-            no_accepted_request: { status: 400, message: "No accepted request to revoke" }
+            no_accepted_request: { status: 400, message: "No accepted request to revoke" },
+            payment_in_progress: { status: 400, message: "Cannot revoke accepted request while payment is in progress" }
         };
         return { success: false, ...messages[result.reason] };
     }
-
+    await createRequestRevokedNotification(
+        result.buyerId,
+        result.sellerId,
+        productId,
+        result.productName
+    );
     return { success: true, message: "Accepted request revoked successfully" };
 };
 
@@ -277,7 +259,12 @@ export const rejectProductRequestService = async (productId, buyerId) => {
         };
         return { success: false, ...messages[result.reason] };
     }
-
+    await createRequestRejectedNotification(
+        buyerId,
+        result.sellerId,
+        productId,
+        result.productName
+    );
     return { success: true, message: "Request rejected successfully" };
 };
 
@@ -314,6 +301,14 @@ export const sellerSubsRetService = async (userId) => {
     return await findSellerSubsDao(userId);
 }
 
+export const updateSellerSubscriptionService = async () => {
+    return {
+        success: false,
+        status: 410,
+        message: "Subscription update must go through create-order and verify-payment flow",
+    };
+}
+
 export const makeAvailableService = async (sellerId, productId) => {
     try {
         const result = await makeAvailableDao(sellerId, productId);
@@ -340,3 +335,112 @@ export const makeAvailableService = async (sellerId, productId) => {
         };
     }
 };
+
+export const analyticsService = async (sellerId) => {
+    try {
+        const user = await getBuyerById(sellerId);
+        if (!user) {
+            return {
+                status: 404,
+                success: false,
+                message: "Seller not found"
+            }
+        }
+        const earnings = user.earnings;
+
+        const userProducts = await findProductsForSeller(sellerId);
+        if (!userProducts.success) {
+            return {
+                status: 409,
+                success: false,
+                message: "Could not load products"
+            }
+        }
+        const products = userProducts.products;
+        let itemsSold = 0;
+        let activeRentals = 0;
+        let pendingRequest = 0;
+
+        let itemsForSale = 0;
+        let itemsToRent = 0;
+
+        const revPerCat = {
+            "Clothes": 0,
+            "Mobiles": 0,
+            "Laptops": 0,
+            "Electronics": 0,
+            "Books": 0,
+            "Furniture": 0,
+            "Automobiles": 0,
+            "Sports": 0,
+            "Fashion": 0,
+            "Musical Instruments": 0
+        };
+
+        products.forEach(prod => {
+            pendingRequest += prod.requests?.length || 0;
+
+            if (prod.isRental) {
+                if (prod.soldTo != null) {
+                    revPerCat[prod.category] += prod.price;
+                    activeRentals++;
+                } else {
+                    itemsToRent++;
+                }
+            }
+            else {
+                if (prod.soldTo != null) {
+                    revPerCat[prod.category] += prod.price;
+                    itemsSold++;
+                }
+                else {
+                    itemsForSale++;
+                }
+            }
+        });
+
+        return {
+            status: 200,
+            success: true,
+            message: "Analytics found",
+            data: {
+                earnings,
+                pendingRequest,
+                itemsForSale,
+                itemsSold,
+                itemsToRent,
+                activeRentals,
+                revPerCat
+            }
+        }
+    } catch (error) {
+        console.log("err at analytics: ", error);
+        return {
+            status: 500,
+            message: "Internal server err",
+            success: false
+        }
+    }
+}
+
+export const getTransactionsService = async (userId) => {
+    try {
+        const rcvd = await getPaymentsByTo(userId, 'Users');
+        console.log('received: ', rcvd);
+        const paid = await getPaymentsByFrom(userId, 'Users');
+
+        return {
+            status: 200,
+            received: rcvd,
+            paidTo: paid
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            status: 500,
+            message: "Internal server err",
+            success: false
+        }
+    }
+
+}

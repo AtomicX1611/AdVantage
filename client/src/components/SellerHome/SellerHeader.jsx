@@ -1,9 +1,32 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from '../../styles/sellerdashboard.module.css';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../redux/authSlice';
+import { API_CONFIG } from '../../config/api.config';
+
+const backendURL = API_CONFIG.BACKEND_URL;
 
 const SellerHeader = ({ toggleSidebar }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleLogout = async () => {
+    try {
+      let response = await fetch(`${backendURL}/auth/logout`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      let data = await response.json();
+      if (data.success) {
+        dispatch(logout());
+        navigate("/");
+      }
+    } catch (error) {
+      alert("Logout failed. Please try again.");
+      console.error("Logout Error:", error);
+    }
+  };
 
   return (
     <header className={styles.header}>
@@ -30,7 +53,11 @@ const SellerHeader = ({ toggleSidebar }) => {
           + Add Product
         </Link>
 
-        <button className={`${styles.btn} ${styles.btnLogout}`}>
+        <Link className={styles.btn} to="/">
+          Buyer Dashboard
+        </Link>
+
+        <button className={`${styles.btn} ${styles.btnLogout}`} onClick={handleLogout}>
           Logout
         </button>
       </div>

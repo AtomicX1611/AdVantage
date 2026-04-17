@@ -9,7 +9,7 @@ import {
     generateChatId,
 } from "../daos/chat.dao.js";
 
-export const getContacts = async (req, res) => {
+export const getContacts = async (req, res, next) => {
     try {
         const userId = req.user._id;
         if (!userId) {
@@ -31,15 +31,11 @@ export const getContacts = async (req, res) => {
             myAccount: response.myAccount
         })
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        })
+        next(error);
     }
 }
 
-export const createContact = async (req, res) => {
+export const createContact = async (req, res, next) => {
     try {
         const userId = req.user._id;
         const otherUserId = req.params.id;
@@ -47,7 +43,7 @@ export const createContact = async (req, res) => {
         console.log("hitting createcontact: ",userId);
 
         if (!userId || !otherUserId) return res.status(400).json({
-            sucess: false,
+            success: false,
             message: "Missing fields to create contact"
         })
         let response = await createContactService(userId, otherUserId);
@@ -65,15 +61,11 @@ export const createContact = async (req, res) => {
         })
 
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        })
+        next(error);
     }
 }
 
-export const inboxController = async (req, res) => {
+export const inboxController = async (req, res, next) => {
     try {
         console.log("hitting inboxController")
         const userId = req.user._id;
@@ -92,13 +84,12 @@ export const inboxController = async (req, res) => {
             success:true
         });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({message:"Internal server error"});
+        next(error);
     }
 
 }
 
-export const saveController=async (req,res)=> {
+export const saveController=async (req,res,next)=> {
     try {
         const userId=req.user._id;
         const otherId=req.params.id;
@@ -110,7 +101,6 @@ export const saveController=async (req,res)=> {
         }
         return res.status(200).json({message:response.message});
     } catch (error) {
-        console.log("error: ",error);
-        return res.status(500).json({message:"Internal server error"});
+        next(error);
     }
 }

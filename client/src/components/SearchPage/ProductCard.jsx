@@ -1,44 +1,40 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import styles from "../../styles/searchpage.module.css";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
-const ProductCard = ({ product, backendURL }) => {
+const ProductCard = ({ product }) => {
   const imageUrl = product.images && product.images.length > 0 
-    ? `${backendURL}/${product.images[0]}` 
+    ? resolveImageUrl(product.images[0])
     : '/Assets/placeholder.png';
     
   return (
-    <a href={`/product/${product._id}`} style={{ color: "black" }}>
+    <Link to={`/product/${product._id}`} style={{ textDecoration: 'none' }}>
       <div className={styles.products}>
-        <img
-          src={imageUrl}
-          alt={product.name}
-          className={styles.images}
-        />
-        <h4
-          style={{
-            marginLeft: "20px",
-            fontSize: "15px",
-            color: "black",
-            textAlign: "center",
-            marginTop: "10px",
-            fontWeight: 400,
-          }}
-        >
-          {product.name}
-        </h4>
-        <h3
-          style={{
-            fontSize: "20px",
-            color: "black",
-            textAlign: "right",
-            marginRight: "5px",
-            fontWeight: 600,
-          }}
-        >
-          Rs. {product.price}/-
-        </h3>
+        <div className={styles.imageWrapper}>
+          {product.isRental && (
+            <span className={styles.rentalBadge}>For Rent</span>
+          )}
+          {product.verified && (
+            <span className={styles.verifiedBadge}>
+              ✓ Verified
+            </span>
+          )}
+          <img
+            src={imageUrl}
+            alt={product.name}
+            className={styles.images}
+          />
+        </div>
+        <div className={styles.productInfo}>
+          <h4 className={styles.productName}>{product.name}</h4>
+          <div className={styles.productPrice}>
+            ₹{product.price?.toLocaleString()}
+            {product.isRental && <span>/day</span>}
+          </div>
+        </div>
       </div>
-    </a>
+    </Link>
   );
 };
 

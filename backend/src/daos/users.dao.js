@@ -74,7 +74,7 @@ export const updateBuyerPassById = async (buyerId, newPassword) => {
 export const findSellerSubsDao = async (userId) => {
     try {
         const seller = await Users.findById(userId).select("subscription");
-        
+
         if (!seller) {
             return {
                 success: false,
@@ -95,6 +95,20 @@ export const findSellerSubsDao = async (userId) => {
     }
 };
 
+export const incrementUsedPostsDao = async (userId) => {
+    await Users.updateOne(
+        { _id: userId },
+        { $inc: { usedPosts: 1 } }
+    );
+}
+
+export const resetUsedPostsDao = async (userId) => {
+    await Users.updateOne(
+        { _id: userId },
+        { $set: { usedPosts: 0, windowStart: new Date() } }
+    );
+}
+
 export const getAllUsers = async () => {
     return await Users.find().lean();
 };
@@ -102,3 +116,36 @@ export const getAllUsers = async () => {
 export const countUsers = async () => {
     return await Users.countDocuments();
 };
+
+
+export const countActiveUsers = async () => {
+    return await Users.countDocuments({ earnings: { $gt: 0 } });
+};
+
+export const updateEarnings = async (userId, amount) => {
+    try {
+        const user = await Users.findById(userId);
+        if (!user) {
+            return {
+                status:404,
+                message:"User not found",
+                success:false
+            }
+        }
+
+        const currentEarnings = Number(user.earnings) || 0;
+        const amountToAdd = Number(amount);
+        user.earnings = currentEarnings + amountToAdd;
+
+        await user.save();
+
+        return user;
+    } catch (error) {
+        console.error("Error updating earnings:", error);
+        return {
+            status:500,
+            message:"Payment error", // update later
+            success:false
+        }
+    }
+}

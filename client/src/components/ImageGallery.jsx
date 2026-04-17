@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styles from "../styles/productdetails.module.css";
+import { resolveImageUrl } from "../utils/imageUrl";
 
 const ImageGallery = ({ images }) => {
   const imageList = images && images.length > 0 ? images : ['/Assets/placeholder.png'];
@@ -13,7 +14,7 @@ const ImageGallery = ({ images }) => {
           return (
             <img
               key={idx}
-              src={import.meta.env.VITE_BACKEND_URL + "/" + img}
+              src={resolveImageUrl(img)}
               alt={`Thumbnail ${idx}`}
               className={styles.card_container}
               onMouseOver={() => setBigImage(img)}
@@ -21,7 +22,7 @@ const ImageGallery = ({ images }) => {
           );
         })}
       </div>
-      <img src={import.meta.env.VITE_BACKEND_URL + "/" + bigImage} alt="Main" className={styles.big_card} />
+      <img src={resolveImageUrl(bigImage)} alt="Main" className={styles.big_card} />
     </div>
   );
 };

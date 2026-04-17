@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@langchain/core": "^1.1.33",
+    "@langchain/mongodb": "^1.1.0",
+    "@langchain/ollama": "^1.2.6",
+    "mongodb": "^7.1.0"
+  }
+}

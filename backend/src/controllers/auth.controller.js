@@ -7,12 +7,12 @@ import {
     managerLoginService,
     getMyInfoService,
     googleSignInService,
+    verifyEmailService
 } from "../services/auth.service.js";
 
 
-export const buyerSignup = async (req, res) => {
+export const buyerSignup = async (req, res, next) => {
     try {
-        console.log("in backend buyersignup");
         const { username, contact, email, password } = req.body;
         if (!username || !contact || !email || !password) {
             return res.status(400).json({
@@ -30,24 +30,13 @@ export const buyerSignup = async (req, res) => {
             });
         }
 
-        console.log("logging here with response sucess");
-        res.cookie("token", response.token, {
-            httpOnly: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
-
         return res.status(201).json({
             success: true,
-            message: "Buyer registered successfully",
-            buyerId: response.newBuyer._id,
-            email: response.newBuyer.email,
+            message: "OTP sent to email",
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({
-            success:false,
-            message: error.message || "Internal server error"
-        });
+        next(error);
     }
 };
 
@@ -89,11 +78,11 @@ export const buyerSignup = async (req, res) => {
 //     }
 // };
 
-export const buyerLogin = async (req, res) => {
+export const buyerLogin = async (req, res, next) => {
     try {
-        console.log("request rcvd: ",req.body);
+        console.log("request rcvd: ", req.body);
         const { email, password } = req.body;
-        
+
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
@@ -122,9 +111,7 @@ export const buyerLogin = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 }
 
@@ -166,21 +153,21 @@ export const buyerLogin = async (req, res) => {
 //     }
 // };
 
-export const adminLogin = async (req, res) => {
+export const adminLogin = async (req, res, next) => {
     try {
-        
+
         const { email, password } = req.body;
 
-        if (!email || !password){
+        if (!email || !password) {
             return res.status(400).json({
                 success: false,
                 message: "email, password both are required",
             });
         }
-     
+
         const response = await adminLoginService(email, password);
-      
-        
+
+
         if (!response.success) {
             return res.status(response.status).json({
                 success: false,
@@ -193,22 +180,20 @@ export const adminLogin = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
         console.log('Returning token');
-        
-        return res.status(200).json({ 
-            token : response.token,
+
+        return res.status(200).json({
+            token: response.token,
             adminId: response.admin._id,
             email: response.admin.email,
             success: true,
             message: "Admin login successful",
         });
     } catch (error) {
-        res.status(500).json({
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 };
 
-export const managerLogin = async (req, res) => {
+export const managerLogin = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
@@ -237,17 +222,16 @@ export const managerLogin = async (req, res) => {
         return res.status(200).json({
             managerId: response.manager._id,
             email: response.manager.email,
+            category: response.manager.category,
             success: true,
             message: "Manager login successful",
         });
     } catch (error) {
-        res.status(500).json({
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 };
 
-export const getMyInfo = async (req, res) => {
+export const getMyInfo = async (req, res, next) => {
     try {
         const userId = req.user._id;
         const role = req.user.role;
@@ -268,15 +252,12 @@ export const getMyInfo = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        })
+        next(error);
     }
 };
 
 
-export const googelSignIn = async (req, res) => {
+export const googelSignIn = async (req, res, next) => {
     try {
         const { idToken } = req.body;
 
@@ -291,7 +272,7 @@ export const googelSignIn = async (req, res) => {
                 message: response.message,
                 success: false,
             });
-        }       
+        }
 
         res.cookie("token", response.token, {
             httpOnly: true,
@@ -308,6 +289,62 @@ export const googelSignIn = async (req, res) => {
         });
     } catch (error) {
         console.log("Error occurred : ", error);
-        return res.status(500).json({ message: error.message || "Internal Server Error" });
+        next(error);
     }
 };
+
+export const userLogout = async (req, res, next) => {
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,
+        });
+
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: "User logged out successfully",
+        });
+
+    } catch (error) {
+        console.error("Logout Error:", error);
+        next(error);
+    }
+};
+
+
+/*
+    Verify email controller 
+*/
+
+export const verifyEmailController = async (req, res, next) => {
+    try {
+        const { email, code } = req.body;
+
+        if (!email || !code) {
+            return res.status(400).json({ message: "Email and Code are required" });
+        }
+
+        let response = await verifyEmailService(email, code);
+        if(!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message
+            });
+        }
+        res.cookie("token", response.token, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        console.log("response: ",response);
+
+        return res.status(response.status).json({
+            success: response.success,
+            message: response.message,
+            token: response.token,
+            email: response.email,
+            buyerId: response.buyerId,
+        });
+    } catch (error) {
+        next(error);
+    }
+}

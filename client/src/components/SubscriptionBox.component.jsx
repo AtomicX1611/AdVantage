@@ -1,8 +1,7 @@
-import { Link } from "react-router-dom";
 import React from "react";
 import classes from "../styles/sellerSubscription.module.css";
 
-const SubscriptionBox = ({ plan, currentPlan }) => {
+const SubscriptionBox = ({ plan, currentPlan, onSubscribe, isPaying }) => {
   const isCurrent = currentPlan === plan.id;
 
   const canSubscribe =
@@ -44,12 +43,19 @@ const SubscriptionBox = ({ plan, currentPlan }) => {
           );
         })}
       </div>
-      {canSubscribe && plan.link && (
-        <Link to={plan.link}>
-          <div className={classes["payment-btn"]}>
-            {currentPlan === 1 && plan.id === 2 ? "Upgrade" : "Subscribe"}
-          </div>
-        </Link>
+      {canSubscribe && (
+        <button
+          type="button"
+          className={classes["payment-btn"]}
+          onClick={() => onSubscribe?.(plan)}
+          disabled={isPaying}
+        >
+          {isPaying
+            ? "Processing..."
+            : currentPlan === 1 && plan.id === 2
+            ? "Upgrade"
+            : "Subscribe"}
+        </button>
       )}
     </div>
   );

@@ -18,6 +18,62 @@ const categories = [
   { name: 'Music', image: '/Assets/categories/image (11).png', id: 'music', path: 'Musical Instruments' }
 ];
 
+const Typewriter = ({ words, typingSpeed = 120, deletingSpeed = 60, pause = 1000 }) => {
+  const [wordIndex, setWordIndex] = useState(0);
+  const [display, setDisplay] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    let timeoutId;
+
+    const tick = () => {
+      const current = words[wordIndex];
+      if (!isDeleting) {
+        if (display.length < current.length) {
+          timeoutId = setTimeout(() => {
+            if (!mounted) return;
+            setDisplay(current.slice(0, display.length + 1));
+          }, typingSpeed);
+        } else {
+          timeoutId = setTimeout(() => {
+            if (!mounted) return;
+            setIsDeleting(true);
+          }, pause);
+        }
+      } else {
+        if (display.length > 0) {
+          timeoutId = setTimeout(() => {
+            if (!mounted) return;
+            setDisplay(current.slice(0, display.length - 1));
+          }, deletingSpeed);
+        } else {
+          timeoutId = setTimeout(() => {
+            if (!mounted) return;
+            setIsDeleting(false);
+            setWordIndex((prev) => (prev + 1) % words.length);
+          }, 200);
+        }
+      }
+    };
+
+    tick();
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, [display, isDeleting, wordIndex, words, typingSpeed, deletingSpeed, pause]);
+
+  return (
+    <div className={styles.typewriter} aria-live="polite">
+      {display.split('').map((ch, i) => (
+        <span key={i} className={styles.typeLetter}>{ch}</span>
+      ))}
+      <span className={styles.cursor}>|</span>
+    </div>
+  );
+};
+
 const Home = () => {
   const navigate = useNavigate();
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -72,7 +128,7 @@ const Home = () => {
           {/* Dial Code Feature */}
           <div className={styles.imgWrapper}>
             <img 
-              src="/Assets/Screenshot-2025-03-12-235350.jpeg" 
+              src="/Assets/BannerImg.png" 
               alt="Logo" 
               className={styles.logo} 
               draggable="false" 
@@ -81,11 +137,7 @@ const Home = () => {
           <div className={styles.dialContainer}>
             <h1>A one stop place to</h1>
             <div className={styles.dial}>
-              <div className={styles.words}>
-                <span className={styles.word}>BUY</span>
-                <span className={styles.word}>SELL</span>
-                <span className={styles.word}>RENT</span>
-              </div>
+              <Typewriter words={["BUY", "SELL", "RENT"]} />
             </div>
           </div>
         </div>

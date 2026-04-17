@@ -3,13 +3,17 @@ import classes from '../styles/header.module.css';
 import NotificationSidebar from './NotificationSidebar';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { resolveImageUrl } from '../utils/imageUrl';
 
 // Removed unused icon URLs
 const LOGO_URL = '/Assets/ADVANTAGE.png';
+const CHAT_ICON = '/Assets/chat.png';
+const NOTIFICATION_ICON = '/Assets/notification.png';
+const WISHLIST_ICON = '/Assets/wishlist.png';
+const USER_ICON = '/Assets/user.png';
 
 const Header = () => {
   const { isAuth, user } = useSelector((state) => state.auth);
-  const backendURL = import.meta.env.VITE_BACKEND_URL;
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
@@ -56,13 +60,16 @@ const Header = () => {
               <span>Seller Account</span>
             </div>
 
-            {isAuth ? (
-              <div className={`${classes.loginBtn} ${classes.hoverBtn}`} style={{ display: 'none' }}>
-                <span onClick={() => navigate('/login')} style={{ cursor: 'pointer' }}>Login</span>
-              </div>
-            ) : (
-              <div className={`${classes.loginBtn} ${classes.hoverBtn}`}>
-                <span onClick={() => navigate('/signup')} style={{ cursor: 'pointer' }}>Login</span>
+            {!isAuth && 
+              // <div className={`${classes.loginBtn} ${classes.hoverBtn}`} style={{ display: 'none' }}>
+              //   <span onClick={() => navigate('/login')} style={{ cursor: 'pointer' }}>Login</span>
+              // </div>
+             (
+              <div className={`${classes.loginBtn} ${classes.hoverBtn}`} onClick={() => {
+                  console.log("clicked");
+                  navigate('/login')
+                  }}>
+                <span style={{ cursor: 'pointer' }}>Login</span>
               </div>
             )}
           </div>
@@ -72,21 +79,25 @@ const Header = () => {
             <div className={classes.box2}>
               {/* UPDATED: Changed from <img> to text */}
               <div className={`${classes.hover} ${classes.chaticon} ${classes.box2Icons}`}>
-                <a href="#" onClick={(e) => { e.preventDefault(); navigate('/chat'); }}>Chats</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); navigate('/chat'); }}>
+                  <img src={CHAT_ICON} alt="Chat" style={{ width: '28px', height: '28px' }} />
+                </a>
               </div>
               {/* UPDATED: Changed from <img> to text */}
-              <div className={`${classes.hover} ${classes.alert} ${classes.box2Icons}`}>
+              {/* <div className={`${classes.hover} ${classes.alert} ${classes.box2Icons}`}>
                 <a href="#">Alerts</a>
-              </div>
+              </div> */}
               {/* UPDATED: Changed from <img> to text */}
-              <div className={`${classes.hover} ${classes.toggle} ${classes.box2Icons}`}>
+              {/* <div className={`${classes.hover} ${classes.toggle} ${classes.box2Icons}`}>
                 <a href="#">Toggle</a>
-              </div>
+              </div> */}
             </div>
 
             <div className={classes.box3}>
               <div className={`${classes.hover} ${classes.box2Icons} ${classes.heart}`}>
-                <a href="/wishlist"><i className='bx bx-heart'></i></a>
+                <a href="#" onClick={(e) => { e.preventDefault(); navigate('/wishlist'); }}>
+                  <img src="/Assets/heartblack.png" alt="Wishlist" style={{ width: '28px', height: '28px' }} />
+                </a>
               </div>
               <div
                 className={`${classes.hover} ${classes.box2Icons} ${classes.notifications} ${classes.alert}`}
@@ -94,22 +105,23 @@ const Header = () => {
               >
                 {/* UPDATED: Changed from <img> to text */}
                 <a href="#" onClick={(e) => e.preventDefault()}>
-                  Notifications
+                  <img src={NOTIFICATION_ICON} alt="Notifications" style={{ width: '28px', height: '28px' }} />
                 </a>
               </div>
               <div className={`${classes.hover} ${classes.box2Icons} ${classes.profile}`}>
                 {profilePic ? (
                   <a href="#" onClick={(e) => { e.preventDefault(); navigate('/profile'); }}>
                     <img
-                      src={`${backendURL}${profilePic}`}
+                      src={resolveImageUrl(profilePic)}
                       alt="your profile pic"
-                      height="50px"
-                      width="50px"
-                      style={{ borderRadius: '50%' }}
+                      height="28px"
+                      width="28px"
                     />
                   </a>
                 ) : (
-                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/profile'); }}><i className='bx bxs-user-circle'></i></a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/profile'); }}>
+                    <img src={USER_ICON} alt="User" style={{ width: '28px', height: '28px' }} />
+                  </a>
                 )}
               </div>
             </div>

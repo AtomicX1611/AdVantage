@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdVantage - Bulk Product Uploader</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f0f0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        h1 { color: #7c4dff; margin-bottom: 30px; }
+        .config-section {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+        .config-section h2 { color: #b388ff; margin-bottom: 16px; font-size: 1.1rem; }
+        label { display: block; margin-bottom: 6px; font-size: 0.9rem; color: #aaa; }
+        input, textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: #16213e;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+            margin-bottom: 14px;
+            outline: none;
+        }
+        input:focus, textarea:focus { border-color: #7c4dff; }
+        textarea { resize: vertical; min-height: 200px; font-family: 'Courier New', monospace; font-size: 0.85rem; }
+        .btn-row { display: flex; gap: 14px; margin-top: 10px; }
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-login { background: #7c4dff; color: white; }
+        .btn-login:hover:not(:disabled) { background: #651fff; }
+        .btn-upload { background: #00c853; color: white; }
+        .btn-upload:hover:not(:disabled) { background: #00a844; }
+        .status-box {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 10px;
+        }
+        .status-box h3 { color: #b388ff; margin-bottom: 10px; }
+        #log {
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+        .log-ok { color: #69f0ae; }
+        .log-err { color: #ff5252; }
+        .log-info { color: #448aff; }
+        .log-warn { color: #ffd740; }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .badge-ok { background: #1b5e20; color: #69f0ae; }
+        .badge-no { background: #b71c1c; color: #ff8a80; }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #7c4dff, #00c853);
+            border-radius: 3px;
+            transition: width 0.3s;
+            width: 0%;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 AdVantage Bulk Uploader</h1>
+
+    <!-- Credentials Section -->
+    <div class="config-section">
+        <h2>🔑 Server & Credentials</h2>
+        <label for="baseUrl">Backend Base URL</label>
+        <input type="text" id="baseUrl" value="http://localhost:3000" placeholder="http://localhost:3000">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="your-email@example.com">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="your-password">
+        <div>
+            Auth Status: <span id="authStatus"><span class="badge badge-no">Not Authenticated</span></span>
+        </div>
+    </div>
+
+    <!-- Product Data Section -->
+    <div class="config-section">
+        <h2>📦 Product Data (JSON Array)</h2>
+        <textarea id="productData" placeholder='Paste your product JSON array here...'>[
+    {
+        "name": "OnePlus Nord 3",
+        "price": 34999,
+        "description": "5G smartphone with Dimensity 9000 chip and 120Hz AMOLED display.",
+        "zipCode": "110092",
+        "category": "Mobiles",
+        "district": "East Delhi",
+        "city": "Assam",
+        "state": "Assam",
+        "isRental": true,
+        "invoice": "",
+        "images": [
+            "https://m.media-amazon.com/images/I/6116+vSW+1L.jpg",
+            "https://m.media-amazon.com/images/I/71-yDa90UrL._UF1000,1000_QL80_.jpg"
+        ]
+    }
+    
+]</textarea>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="config-section">
+        <div class="btn-row">
+            <button class="btn-login" id="btnLogin" onclick="doLogin()">🔐 Authenticate</button>
+            <button class="btn-upload" id="btnUpload" onclick="doUpload()" disabled>📤 Upload Products</button>
+        </div>
+        <div class="progress-bar" id="progressBar" style="display:none;">
+            <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <!-- Log Section -->
+    <div class="status-box">
+        <h3>📋 Logs</h3>
+        <div id="log"></div>
+    </div>
+
+    <script>
+        let isAuthenticated = false;
+
+        function log(msg, type = 'info') {
+            const el = document.getElementById('log');
+            const cls = type === 'ok' ? 'log-ok' : type === 'err' ? 'log-err' : type === 'warn' ? 'log-warn' : 'log-info';
+            const time = new Date().toLocaleTimeString();
+            el.innerHTML += `<div class="${cls}">[${time}] ${msg}</div>`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        function getBaseUrl() {
+            return document.getElementById('baseUrl').value.replace(/\/+$/, '');
+        }
+
+        // ── STEP 1: Authenticate ──
+        async function doLogin() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const baseUrl = getBaseUrl();
+
+            if (!email || !password) {
+                log('Please enter both email and password.', 'err');
+                return;
+            }
+
+            log(`Logging in as ${email}...`);
+            document.getElementById('btnLogin').disabled = true;
+
+            try {
+                const res = await fetch(`${baseUrl}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    isAuthenticated = true;
+                    document.getElementById('authStatus').innerHTML = '<span class="badge badge-ok">Authenticated ✓</span>';
+                    document.getElementById('btnUpload').disabled = false;
+                    log(`Login successful! User: ${data.email} (ID: ${data.buyerId})`, 'ok');
+                } else {
+                    log(`Login failed: ${data.message || res.statusText}`, 'err');
+                }
+            } catch (err) {
+                log(`Login error: ${err.message}`, 'err');
+            } finally {
+                document.getElementById('btnLogin').disabled = false;
+            }
+        }
+
+        // ── Helper: Download a URL as a File object ──
+        async function urlToFile(url, fallbackName) {
+            log(`  ↓ Downloading: ${url.substring(0, 80)}...`, 'info');
+            // Use our own backend proxy to avoid browser CORS restrictions
+            const proxyUrl = `${getBaseUrl()}/proxy-download?url=${encodeURIComponent(url)}`;
+            const response = await fetch(proxyUrl);
+            if (!response.ok) throw new Error(`Failed to download: ${url} (status ${response.status})`);
+            const blob = await response.blob();
+            // Determine filename from URL
+            const urlPath = new URL(url).pathname;
+            let filename = urlPath.split('/').pop() || fallbackName;
+            // Ensure it has an extension
+            if (!filename.includes('.')) {
+                const ext = blob.type.split('/')[1] || 'jpg';
+                filename += '.' + ext;
+            }
+            return new File([blob], filename, { type: blob.type });
+        }
+
+        // ── STEP 2: Upload Products ──
+        async function doUpload() {
+            if (!isAuthenticated) {
+                log('Please authenticate first!', 'err');
+                return;
+            }
+
+            let products;
+            try {
+                products = JSON.parse(document.getElementById('productData').value);
+                if (!Array.isArray(products)) throw new Error('Must be a JSON array');
+            } catch (e) {
+                log(`Invalid JSON: ${e.message}`, 'err');
+                return;
+            }
+
+            log(`Starting upload of ${products.length} product(s)...`, 'info');
+            document.getElementById('btnUpload').disabled = true;
+            document.getElementById('progressBar').style.display = 'block';
+
+            const baseUrl = getBaseUrl();
+            let successCount = 0;
+            let failCount = 0;
+
+            for (let i = 0; i < products.length; i++) {
+                const p = products[i];
+                const pctg = Math.round(((i) / products.length) * 100);
+                document.getElementById('progressFill').style.width = pctg + '%';
+
+                log(`\n━━━ [${i + 1}/${products.length}] "${p.name}" ━━━`, 'info');
+
+                try {
+                    const formData = new FormData();
+                    formData.append('name', p.name);
+                    formData.append('price', String(p.price));
+                    formData.append('description', p.description);
+                    formData.append('zipCode', p.zipCode);
+                    formData.append('category', p.category);
+                    formData.append('district', p.district);
+                    formData.append('city', p.city);
+                    formData.append('state', p.state);
+                    formData.append('isRental', String(p.isRental ?? false));
+
+                    // Download and attach product images
+                    if (p.images && p.images.length > 0) {
+                        for (let j = 0; j < p.images.length; j++) {
+                            try {
+                                const file = await urlToFile(p.images[j], `image_${j}.jpg`);
+                                formData.append('productImages', file);
+                                log(`  ✓ Image ${j + 1}/${p.images.length} downloaded (${(file.size / 1024).toFixed(1)} KB)`, 'ok');
+                            } catch (imgErr) {
+                                log(`  ✗ Image ${j + 1} failed: ${imgErr.message}`, 'warn');
+                            }
+                        }
+                    }
+
+                    // Download and attach invoice if provided
+                    if (p.invoice && p.invoice.trim() !== '') {
+                        try {
+                            const invoiceFile = await urlToFile(p.invoice, 'invoice.pdf');
+                            formData.append('invoice', invoiceFile);
+                            log(`  ✓ Invoice downloaded (${(invoiceFile.size / 1024).toFixed(1)} KB)`, 'ok');
+                        } catch (invErr) {
+                            log(`  ✗ Invoice download failed: ${invErr.message}`, 'warn');
+                        }
+                    }
+
+                    // Send to backend
+                    log(`  → Sending to ${baseUrl}/user/addProduct ...`, 'info');
+                    const res = await fetch(`${baseUrl}/user/addProduct`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        body: formData
+                    });
+
+                    const result = await res.json();
+
+                    if (res.ok && result.success) {
+                        successCount++;
+                        log(`  ✅ SUCCESS: "${p.name}" added! (ID: ${result.data?._id || 'N/A'})`, 'ok');
+                    } else {
+                        failCount++;
+                        log(`  ❌ FAILED: ${result.message || res.statusText}`, 'err');
+                    }
+                } catch (err) {
+                    failCount++;
+                    log(`  ❌ ERROR: ${err.message}`, 'err');
+                }
+            }
+
+            document.getElementById('progressFill').style.width = '100%';
+            log(`\n════════════════════════════════════`, 'info');
+            log(`Done! ✅ ${successCount} succeeded, ❌ ${failCount} failed out of ${products.length} total.`, successCount === products.length ? 'ok' : 'warn');
+            document.getElementById('btnUpload').disabled = false;
+        }
+    </script>
+</body>
+</html>

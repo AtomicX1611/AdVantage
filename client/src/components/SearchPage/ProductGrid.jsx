@@ -5,15 +5,13 @@ import ProductCard from "./ProductCard";
 const ProductGrid = ({ products, backendURL }) => {
   if (products.length === 0) {
     return (
-      <h3
-        style={{
-          marginTop: "30vh",
-          marginLeft: "30vw",
-          color: "black",
-        }}
-      >
-        No products found in Search
-      </h3>
+      <div className={styles.emptyState}>
+        <div className={styles.emptyIcon}>🔍</div>
+        <h3 className={styles.emptyTitle}>No Products Found</h3>
+        <p className={styles.emptyText}>
+          We couldn't find any products matching your search. Try adjusting your filters or search for something else.
+        </p>
+      </div>
     );
   }
 

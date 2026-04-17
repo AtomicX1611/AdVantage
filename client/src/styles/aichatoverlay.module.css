@@ -1,0 +1,169 @@
+.triggerButton {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1200;
+  border: none;
+  border-radius: 999px;
+  background: #0d6efd;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 12px 18px;
+  box-shadow: 0 8px 24px rgba(13, 110, 253, 0.35);
+  cursor: pointer;
+}
+
+.panel {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1200;
+  width: min(360px, calc(100vw - 24px));
+  height: min(520px, calc(100vh - 24px));
+  background: #ffffff;
+  border: 1px solid #d8e0ea;
+  border-radius: 14px;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.2);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #f3f7fd;
+  border-bottom: 1px solid #d8e0ea;
+}
+
+.header h3 {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.header p {
+  margin-top: 2px;
+  color: #5c6675;
+  font-size: 11px;
+  word-break: break-all;
+}
+
+.headerActions {
+  display: flex;
+  gap: 6px;
+}
+
+.headerActions button {
+  border: 1px solid #c5d2e2;
+  background: #ffffff;
+  color: #1f2937;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  overflow-y: auto;
+  background: #f9fbff;
+}
+
+.message {
+  max-width: 88%;
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-size: 14px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.userMessage {
+  align-self: flex-end;
+  background: #0d6efd;
+  color: #ffffff;
+}
+
+.botMessage {
+  align-self: flex-start;
+  background: #e8eef9;
+  color: #16202e;
+}
+
+.welcome {
+  margin: auto 0;
+  text-align: center;
+  color: #5c6675;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.statusText {
+  font-size: 12px;
+  color: #5c6675;
+}
+
+.errorText {
+  font-size: 12px;
+  color: #b91c1c;
+}
+
+.inputRow {
+  border-top: 1px solid #d8e0ea;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  background: #ffffff;
+}
+
+.input {
+  width: 100%;
+  resize: none;
+  border: 1px solid #c5d2e2;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font: inherit;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.15);
+}
+
+.sendButton {
+  border: none;
+  border-radius: 10px;
+  background: #0d6efd;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+.sendButton:disabled {
+  background: #91b8f9;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .triggerButton,
+  .panel {
+    left: 10px;
+    bottom: 10px;
+  }
+
+  .panel {
+    width: calc(100vw - 20px);
+    height: min(76vh, 520px);
+  }
+}

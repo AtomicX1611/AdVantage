@@ -1,12 +1,12 @@
-import { useState } from 'react';
 import classes from '../styles/Home.module.css';
+import { resolveImageUrl } from '../utils/imageUrl';
 
 const ProductCard = ({ productDetails }) => {
     const { name, images, price } = productDetails;
     return (
         <>
             <div className={classes.product_card}>
-                <img src={import.meta.env.VITE_BACKEND_URL + images[0]} alt="Product Image" style={{ width: '100%', height: '35vh' }} />
+                <img src={resolveImageUrl(images[0])} alt="Product Image" style={{ width: '100%', height: '35vh' }} />
                 <h4 style={{
                     marginLeft: '20px',
                     fontSize: '15px',

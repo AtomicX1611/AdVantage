@@ -3,63 +3,75 @@ import styles from "../../styles/Addproductform.module.css";
 
 const AddressSection = ({ formData, handleChange }) => {
   return (
-    <div className={`${styles.griditem} ${styles.div2}`}>
-      <h3 style={{ marginLeft: "1vw", fontSize: "25px", fontWeight: 400 }}>
-        Your Address
-      </h3>
+    <div className={styles.card}>
+      <h2 className={styles.cardTitle}>Location Details</h2>
 
-      <select
-        name="state"
-        id="State"
-        className={styles.flexitem}
-        value={formData.state}
-        onChange={handleChange}
-        required
-      >
-        <option value="default">Select your state</option>
-        {[
-          "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat",
-          "Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh",
-          "Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab",
-          "Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh",
-          "Uttarakhand","West Bengal",
-        ].map((state) => (
-          <option key={state} value={state}>{state}</option>
-        ))}
-      </select>
+      <div className={styles.inputGroup}>
+        <label htmlFor="state" className={styles.label}>State</label>
+        <select
+          name="state"
+          id="state"
+          className={styles.select}
+          value={formData.state}
+          onChange={handleChange}
+          required
+        >
+          <option value="default">Select your state</option>
+          {[
+            "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat",
+            "Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh",
+            "Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab",
+            "Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh",
+            "Uttarakhand","West Bengal",
+          ].map((state) => (
+            <option key={state} value={state}>{state}</option>
+          ))}
+        </select>
+      </div>
 
-      <input
-        type="text"
-        name="district"
-        id="District"
-        className={styles.flexitem}
-        placeholder="District"
-        value={formData.district}
-        onChange={handleChange}
-        required
-      />
+      <div className={styles.inputRow}>
+        <div className={styles.inputGroup}>
+          <label htmlFor="district" className={styles.label}>District</label>
+          <input
+            type="text"
+            name="district"
+            id="district"
+            className={styles.input}
+            placeholder="Enter district"
+            value={formData.district}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-      <input
-        type="text"
-        name="city"
-        id="City"
-        className={styles.flexitem}
-        placeholder="City"
-        value={formData.city}
-        onChange={handleChange}
-        required
-      />
+        <div className={styles.inputGroup}>
+          <label htmlFor="city" className={styles.label}>City</label>
+          <input
+            type="text"
+            name="city"
+            id="city"
+            className={styles.input}
+            placeholder="Enter city"
+            value={formData.city}
+            onChange={handleChange}
+            required
+          />
+        </div>
+      </div>
 
-      <input
-        type="number"
-        id="zipcode"
-        name="zipCode"
-        className={styles.flexitem}
-        placeholder="Zipcode"
-        value={formData.zipCode}
-        onChange={handleChange}
-        required
-      />
+      <div className={styles.inputGroup}>
+        <label htmlFor="zipCode" className={styles.label}>Zip Code</label>
+        <input
+          type="number"
+          id="zipCode"
+          name="zipCode"
+          className={styles.input}
+          placeholder="Enter zip code"
+          value={formData.zipCode}
+          onChange={handleChange}
+          required
+        />
+      </div>
     </div>
   );
 };

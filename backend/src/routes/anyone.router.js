@@ -7,11 +7,8 @@ import {
 
 export const router = express.Router();
 
-router.get("/HomeRequirements",getFeaturedFreshProducts);
-
-router.get("/products/filtered",getProducts);
-
-router.get("/products/:productId",getProductDetails);
-
+router.get("/HomeRequirements", getFeaturedFreshProducts);
+router.get("/products/filtered", getProducts);
+router.get("/products/:productId", getProductDetails);
 
 export default router;

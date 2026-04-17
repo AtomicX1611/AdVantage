@@ -1,10 +1,8 @@
-import React, { useState, useEffect,useRef, use } from "react";
+import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import ChatSidebar from "../components/ChatSidebar";
 import ChatBox from "../components/ChatBox";
 import styles from "../styles/buyerchat.module.css";
-import { useContext } from "react";
-import { CurrentUserContext } from "../context/CurrentUserContextProvider.jsx";
 
 const ChatPage = () => {
   // store username here
@@ -14,13 +12,13 @@ const ChatPage = () => {
   // const { currentUser2, setCurrentUser2 } = useContext(CurrentUserContext);
 
   const [socket, setSocket] = useState(null);
-  const [senders, setSenders] = useState([  // set this with fetch request to get contacts
-    { _id: "seller1", username: "Alice" },
-    { _id: "seller2", username: "Bob" },
-    { _id: "seller3", username: "Charlie" },
-  ]);
+  const [senders, setSenders] = useState([]);
 
-  const [selectedSender, setSelectedSender] = useState(null);
+  /*
+    State to store who is the current chatting user
+    when updating check if newSender is already current sender
+  */ 
+  const [selectedSender, setSelectedSender] = useState(null); 
   const [messages, setMessages] = useState([]);
 
   
@@ -112,6 +110,10 @@ const ChatPage = () => {
   }, [socket, selectedSender]);
 
   const handleSelectSender = (sender) => {
+    if(selectedSender && selectedSender._id === sender._id) {
+      console.log("Already current one");
+      return;
+    }
     setSelectedSender(sender);
     setMessages([]);
   };
@@ -140,7 +142,7 @@ const ChatPage = () => {
 
   return (
     <div className={styles.bodyWrapper}>
-      <h1 id="myName">Welcome, {myUsername}</h1>
+      <h1 className={styles.welcomeHeading}>Welcome, {myUsername || 'User'}</h1>
       <main className={styles.mainContent}>
         <ChatSidebar senders={senders} onSelectSender={handleSelectSender} />
         <ChatBox
