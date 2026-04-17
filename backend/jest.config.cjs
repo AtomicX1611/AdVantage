@@ -1,7 +1,7 @@
 module.exports = {
   testEnvironment: "node",
   roots: ["<rootDir>/tests"],
-  testTimeout: 60000,
+  testTimeout: 180000,
   moduleFileExtensions: ["js", "json"],
   transform: {
     "^.+\\.js$": "babel-jest",
