@@ -4,17 +4,14 @@ import styles from '../../styles/sellerdashboard.module.css';
 import { API_CONFIG } from '../../config/api.config';
 import { resolveImageUrl } from '../../utils/imageUrl';
 
-const backendURL = API_CONFIG.BACKEND_URL;
-
 const SellerRequests = () => {
   const location = useLocation();
   const [productsWithRequests, setProductsWithRequests] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [myAccount, setMyAccount] = useState("");
   const [pendingProductId, setPendingProductId] = useState(null);
-  const backendURL = "http://localhost:3000";
+  const backendURL = API_CONFIG.BACKEND_URL;
 
   // Check if we navigated here with a specific product ID (from notification)
   useEffect(() => {
@@ -68,7 +65,7 @@ const SellerRequests = () => {
     };
 
     fetchRequests();
-  }, [pendingProductId]);
+  }, [backendURL, pendingProductId]);
 
   // useEffect(() => {
   //     async function fetchContacts() {

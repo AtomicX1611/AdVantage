@@ -2,7 +2,7 @@ import React from "react";
 import styles from "../styles/pendingtxs.module.css";
 import { resolveImageUrl } from "../utils/imageUrl";
 
-const PendingTransactionCard = ({ item, backendURL, onPay, onNotInterested }) => {
+const PendingTransactionCard = ({ item, onPay, onNotInterested }) => {
 	const imageSrc = item?.images?.[0]
 		? resolveImageUrl(item.images[0])
 		: "/Assets/placeholder.png";

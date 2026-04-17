@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import classes from '../styles/Home.module.css';
 import { resolveImageUrl } from '../utils/imageUrl';
 

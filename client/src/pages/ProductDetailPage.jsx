@@ -19,7 +19,7 @@ const ProductDetailPage = () => {
   const [error, setError] = useState("");
   const [showRentForm, setShowRentForm] = useState(false);
   const [showBidModal, setShowBidModal] = useState(false);
-  const [notification, setNotification] = useState("");
+  const [notification] = useState("");
   const [showNotif, setShowNotif] = useState(false);
   const [showComplaintModal, setShowComplaintModal] = useState(false);
   const navigate = useNavigate();

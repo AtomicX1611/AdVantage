@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import styles from "../styles/complaintmodal.module.css";
 import API_CONFIG from "../config/api.config";
 
@@ -20,14 +20,7 @@ const ComplaintModal = ({
 
   const backendURL = API_CONFIG.BACKEND_URL;
 
-  // Fetch buyers associated with this product (for seller complaints)
-  useEffect(() => {
-    if (productId && source === "seller_dashboard") {
-      fetchBuyers();
-    }
-  }, [productId, source]);
-
-  const fetchBuyers = async () => {
+  const fetchBuyers = useCallback(async () => {
     setLoadingBuyers(true);
     try {
       const res = await fetch(
@@ -47,7 +40,14 @@ const ComplaintModal = ({
     } finally {
       setLoadingBuyers(false);
     }
-  };
+  }, [backendURL, productId]);
+
+  // Fetch buyers associated with this product (for seller complaints)
+  useEffect(() => {
+    if (productId && source === "seller_dashboard") {
+      fetchBuyers();
+    }
+  }, [fetchBuyers, productId, source]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { logout } from '../redux/authSlice';
@@ -9,7 +9,6 @@ import AdminSidebar from "../components/Admin/AdminSidebar";
 import StatsRow from "../components/Admin/StatsRow";
 import ChartsRow from "../components/Admin/AdminChartsRow.jsx";
 import AdminRecentActivity from "../components/Admin/AdminRecentActivity";
-import PaymentHistory from "../components/Admin/PaymentHistory";
 import PaymentAnalytics from "../components/Admin/PaymentAnalytics";
 import UserList from "../components/Admin/UserList";
 import ManagerList from "../components/Admin/ManagerList";
@@ -52,7 +51,6 @@ export default function AdminPage() {
 
   const [recentActivity, setRecentActivity] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
-  const [payments, setPayments] = useState([]);
   const [paymentAnalytics, setPaymentAnalytics] = useState(null);
   const [allManagers, setAllManagers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +59,7 @@ export default function AdminPage() {
   const backendURL = API_CONFIG.BACKEND_URL;
 
   // Fetch all raw data from the existing endpoint
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
     try {
       const url = `${backendURL}/${API_CONFIG.API_ENDPOINTS.ADMIN_USERS}`;
 
@@ -84,38 +82,6 @@ export default function AdminPage() {
         setAllUsers(data.users);
         setAllManagers(data.managers || []);
 
-        // Process payment history for the Payments tab
-        const formattedPayments = data.payments.slice(0, 10).map(payment => {
-          const findEntity = (idOrObj, list, defaultText) => {
-            if (!idOrObj) return defaultText;
-            if (typeof idOrObj === 'object') {
-              return idOrObj.username || idOrObj.email || defaultText;
-            }
-            const found = list?.find(item => String(item._id) === String(idOrObj));
-            return found?.username || found?.email || defaultText;
-          };
-
-          let fromName = "Unknown";
-          if (payment.fromModel === 'Users') fromName = findEntity(payment.from, data.users, "Unknown User");
-          else if (payment.fromModel === 'Admin') fromName = findEntity(payment.from, data.admins, "Unknown Admin");
-          else if (payment.fromModel === 'Managers') fromName = findEntity(payment.from, data.managers, "Unknown Manager");
-
-          let toName = "Unknown";
-          if (payment.toModel === 'Users') toName = findEntity(payment.to, data.users, "Unknown User");
-          else if (payment.toModel === 'Admin') toName = findEntity(payment.to, data.admins, "Unknown Admin");
-          else if (payment.toModel === 'Managers') toName = findEntity(payment.to, data.managers, "Unknown Manager");
-
-          return {
-            user: fromName,
-            type: payment.paymentType,
-            amount: payment.price.toLocaleString('en-IN'),
-            to: toName,
-            date: new Date(payment.date).toLocaleDateString('en-IN')
-          };
-        });
-
-        setPayments(formattedPayments);
-
         // Pie data for charts
         setPieData({
           users: [counts.admins || 0, counts.managers || 0, counts.users || 0],
@@ -130,10 +96,10 @@ export default function AdminPage() {
       console.error("Error fetching admin data:", err);
       setError("Failed to fetch admin data");
     }
-  };
+  }, [backendURL]);
 
   // Fetch computed metrics from the new endpoint
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
     try {
       const url = `${backendURL}/${API_CONFIG.API_ENDPOINTS.ADMIN_METRICS}`;
 
@@ -165,10 +131,10 @@ export default function AdminPage() {
       console.error("Error fetching metrics:", err);
       // Non-critical — overview stats will show defaults
     }
-  };
+  }, [backendURL]);
 
   // Fetch payment analytics data
-  const fetchPaymentAnalytics = async () => {
+  const fetchPaymentAnalytics = useCallback(async () => {
     try {
       const url = `${backendURL}/${API_CONFIG.API_ENDPOINTS.ADMIN_PAYMENT_ANALYTICS}`;
 
@@ -191,7 +157,7 @@ export default function AdminPage() {
       console.error("Error fetching payment analytics:", err);
       // Non-critical — payments tab will show basic history
     }
-  };
+  }, [backendURL]);
 
   // Handle user removal
   const handleUserRemoved = (userId) => {
@@ -260,7 +226,7 @@ export default function AdminPage() {
     };
 
     loadAllData();
-  }, []);
+  }, [fetchAllData, fetchMetrics, fetchPaymentAnalytics]);
 
   const tabTitles = {
     overview: 'Dashboard Overview',
