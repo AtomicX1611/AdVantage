@@ -81,7 +81,13 @@ describe("products dao (memory db)", () => {
   test("add request then accept request updates sellerAcceptedTo", async () => {
     const created = await createProduct(buildProductData(seller._id));
 
-    const requestRes = await addProductRequestDao(created._id, buyer._id, 12000);
+    const requestRes = await addProductRequestDao(created._id, buyer._id, 12000, {
+      street: "Main St",
+      city: "Hyderabad",
+      state: "Telangana",
+      pinCode: "500001",
+      country: "India"
+    });
     expect(requestRes.success).toBe(true);
 
     const acceptRes = await acceptProductRequestDao(created._id, buyer._id);
@@ -96,7 +102,13 @@ describe("products dao (memory db)", () => {
   test("cannot request own product", async () => {
     const created = await createProduct(buildProductData(seller._id));
 
-    const result = await addProductRequestDao(created._id, seller._id, 10000);
+    const result = await addProductRequestDao(created._id, seller._id, 10000, {
+      street: "Main St",
+      city: "Hyderabad",
+      state: "Telangana",
+      pinCode: "500001",
+      country: "India"
+    });
 
     expect(result.success).toBe(false);
     expect(result.reason).toBe("self_request");

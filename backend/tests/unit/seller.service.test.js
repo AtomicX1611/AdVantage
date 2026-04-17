@@ -1,3 +1,17 @@
+process.env.RAZORPAYKEYID = "test_key_id";
+process.env.RAZORPAYKEYSECRET = "test_key_secret";
+
+jest.mock("../../src/config/payment.config.js", () => ({
+  razorpay: {
+    orders: {
+      create: jest.fn()
+    },
+    payments: {
+      fetch: jest.fn()
+    }
+  }
+}));
+
 import {
   acceptProductRequestService,
   rejectProductRequestService,
