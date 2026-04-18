@@ -13,6 +13,8 @@ import {
 } from "../daos/products.dao.js";
 import { razorpay } from "../config/payment.config.js";
 import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils.js";
+import mongoose from "mongoose";
+import { randomUUID } from "node:crypto";
 // import {
 // getSellerById,
 // updateSellerById,
@@ -44,8 +46,34 @@ import {
 } from "../helpers/notification.helper.js";
 import { generateProductOllamaEmbedding } from "../helpers/productEmbedding.helper.js";
 import PendingPayouts from "../models/PendingPayouts.js";
+import {
+    createPayoutAccountDao,
+    createSellerWithdrawalDao,
+    getActivePayoutAccountBySellerDao,
+    getProcessingWithdrawalBySellerDao,
+    getSellerWithdrawalsDao,
+    getWithdrawablePayoutsDao,
+    markPayoutsAsLinkedToWithdrawalDao,
+    markWithdrawalPayoutExecutionDao,
+    unlinkPayoutsFromWithdrawalDao,
+    updateSellerWithdrawalDao,
+} from "../daos/payout.dao.js";
+import { createImmediateSellerPayout, createSellerFundAccount } from "./payout.service.js";
 
 const roundAmount = (value) => Number((value || 0).toFixed(2));
+
+const SELLER_PAYOUT_TYPES = [
+    "Seller_120_Percent",
+    "Seller_20_Refund",
+    "Seller_BuyerPool_Share",
+    "Seller_Stake_Release",
+];
+
+const maskAccountNumber = (raw) => {
+    const value = String(raw || "").trim();
+    if (value.length <= 4) return value;
+    return `${"*".repeat(Math.max(value.length - 4, 4))}${value.slice(-4)}`;
+};
 
 const payoutTitleMap = {
     Seller_120_Percent: "Seller Settlement (120%)",
@@ -54,11 +82,22 @@ const payoutTitleMap = {
     Seller_Stake_Release: "Seller Stake Release",
 };
 
-const getPayoutStatusMeta = (status) => {
-    if (status === "Processed") {
-        return { displayStatus: "Settled", statusClass: "success", isRealizedIncome: true };
+const getPayoutStatusMeta = (payout) => {
+    const isSellerPayableType = SELLER_PAYOUT_TYPES.includes(payout.payoutType);
+
+    if (payout.status === "Processed" && payout.withdrawalRequestId) {
+        return { displayStatus: "Withdrawn", statusClass: "success", isRealizedIncome: true };
     }
-    if (status === "Failed") {
+    if (payout.status === "Processed") {
+        return { displayStatus: "Available to Withdraw", statusClass: "success", isRealizedIncome: true };
+    }
+    if (payout.status === "Pending" && isSellerPayableType && !payout.withdrawalRequestId) {
+        return { displayStatus: "Ready to Withdraw", statusClass: "success", isRealizedIncome: true };
+    }
+    if (payout.withdrawalRequestId && payout.status === "Pending") {
+        return { displayStatus: "Withdrawal In Progress", statusClass: "pending", isRealizedIncome: true };
+    }
+    if (payout.status === "Failed") {
         return { displayStatus: "Payout Failed", statusClass: "failed", isRealizedIncome: false };
     }
     return { displayStatus: "Awaiting Payout", statusClass: "pending", isRealizedIncome: false };
@@ -584,6 +623,234 @@ export const updateSellerSubscriptionService = async () => {
     };
 }
 
+export const setupSellerPayoutAccountService = async (sellerId, payload) => {
+    try {
+        const seller = await getBuyerById(sellerId);
+        if (!seller) {
+            return { success: false, status: 404, message: "Seller not found" };
+        }
+
+        const existingAccount = await getActivePayoutAccountBySellerDao(sellerId);
+        if (existingAccount) {
+            return {
+                success: false,
+                status: 409,
+                message: "Payout account is already configured for this seller",
+            };
+        }
+
+        const accountType = payload.accountType;
+        const holderName = String(payload.holderName || "").trim();
+        const accountNumber = payload.accountNumber ? String(payload.accountNumber).trim() : null;
+        const ifsc = payload.ifsc ? String(payload.ifsc).toUpperCase().trim() : null;
+        const upiId = payload.upiId ? String(payload.upiId).trim() : null;
+
+        const payoutAccountSource = await createSellerFundAccount({
+            seller,
+            accountType,
+            holderName,
+            accountNumber,
+            ifsc,
+            upiId,
+        });
+
+        const payoutAccount = await createPayoutAccountDao({
+            sellerId,
+            accountType,
+            holderName,
+            accountNumberMasked: accountType === "bank" ? maskAccountNumber(accountNumber) : null,
+            ifsc,
+            upiId,
+            razorpayContactId: payoutAccountSource.contactId,
+            razorpayFundAccountId: payoutAccountSource.fundAccountId,
+            verificationStatus: "Verified",
+            isActive: true,
+        });
+
+        await seller.updateOne({
+            $set: {
+                defaultPayoutAccountId: payoutAccount._id,
+                payoutConfiguredAt: new Date(),
+            }
+        });
+
+        return {
+            success: true,
+            status: 201,
+            message: "Payout account setup completed",
+            payoutAccount: {
+                id: payoutAccount._id,
+                accountType: payoutAccount.accountType,
+                holderName: payoutAccount.holderName,
+                accountNumberMasked: payoutAccount.accountNumberMasked,
+                ifsc: payoutAccount.ifsc,
+                upiId: payoutAccount.upiId,
+                verificationStatus: payoutAccount.verificationStatus,
+            },
+        };
+    } catch (error) {
+        return {
+            success: false,
+            status: 500,
+            message: error?.error?.description || error.message || "Failed to setup payout account",
+        };
+    }
+};
+
+export const getSellerPayoutAccountService = async (sellerId) => {
+    try {
+        const account = await getActivePayoutAccountBySellerDao(sellerId);
+        if (!account) {
+            return {
+                success: true,
+                status: 200,
+                payoutAccount: null,
+            };
+        }
+
+        return {
+            success: true,
+            status: 200,
+            payoutAccount: {
+                id: account._id,
+                accountType: account.accountType,
+                holderName: account.holderName,
+                accountNumberMasked: account.accountNumberMasked,
+                ifsc: account.ifsc,
+                upiId: account.upiId,
+                verificationStatus: account.verificationStatus,
+            },
+        };
+    } catch (error) {
+        return {
+            success: false,
+            status: 500,
+            message: error.message || "Failed to fetch payout account",
+        };
+    }
+};
+
+export const withdrawFinalizedBalanceService = async (sellerId, transferMode) => {
+    const session = await mongoose.startSession();
+    let linkedPayoutIds = [];
+    let withdrawal = null;
+
+    try {
+        const payoutAccount = await getActivePayoutAccountBySellerDao(sellerId);
+        if (!payoutAccount) {
+            return {
+                success: false,
+                status: 400,
+                message: "Payout account not configured",
+            };
+        }
+
+        const existingProcessing = await getProcessingWithdrawalBySellerDao(sellerId);
+        if (existingProcessing) {
+            return {
+                success: false,
+                status: 409,
+                message: "A withdrawal is already in progress",
+            };
+        }
+
+        const idempotencyKey = randomUUID();
+        let withdrawablePayouts = [];
+
+        await session.withTransaction(async () => {
+            withdrawablePayouts = await getWithdrawablePayoutsDao(sellerId, SELLER_PAYOUT_TYPES, session);
+            const eligibleAmount = withdrawablePayouts.reduce((sum, payout) => sum + Number(payout.amount || 0), 0);
+
+            if (eligibleAmount <= 0) {
+                throw new Error("No finalized balance is available to withdraw");
+            }
+
+            withdrawal = await createSellerWithdrawalDao({
+                sellerId,
+                eligibleAmountSnapshot: roundAmount(eligibleAmount),
+                withdrawnAmount: roundAmount(eligibleAmount),
+                status: "Processing",
+                initiatedAt: new Date(),
+                payoutAccountId: payoutAccount._id,
+                fundAccountId: payoutAccount.razorpayFundAccountId,
+                idempotencyKey,
+            }, session);
+
+            linkedPayoutIds = withdrawablePayouts.map((payout) => payout._id);
+
+            await markPayoutsAsLinkedToWithdrawalDao({
+                payoutIds: linkedPayoutIds,
+                withdrawalId: withdrawal._id,
+                idempotencyKey,
+            }, session);
+        });
+
+        const payoutResponse = await createImmediateSellerPayout({
+            fundAccountId: payoutAccount.razorpayFundAccountId,
+            amount: withdrawal.withdrawnAmount,
+            mode: transferMode || (payoutAccount.accountType === "upi" ? "UPI" : "IMPS"),
+            idempotencyKey: withdrawal.idempotencyKey,
+            narration: "Seller finalized balance withdrawal",
+        });
+
+        await updateSellerWithdrawalDao(withdrawal._id, {
+            status: "Processed",
+            completedAt: new Date(),
+            externalPayoutId: payoutResponse.id,
+            failureReason: null,
+        });
+
+        await markWithdrawalPayoutExecutionDao({
+            payoutIds: linkedPayoutIds,
+            payoutId: payoutResponse.id,
+            transferMode: payoutResponse.mode || transferMode,
+        });
+
+        return {
+            success: true,
+            status: 200,
+            message: "Withdrawal completed successfully",
+            data: {
+                withdrawalId: withdrawal._id,
+                amount: withdrawal.withdrawnAmount,
+                externalPayoutId: payoutResponse.id,
+                payoutStatus: payoutResponse.status || "processed",
+            },
+        };
+    } catch (error) {
+        if (withdrawal?._id) {
+            await updateSellerWithdrawalDao(withdrawal._id, {
+                status: "Failed",
+                failedAt: new Date(),
+                failureReason: error?.error?.description || error.message || "Withdrawal failed",
+            });
+        }
+
+        if (linkedPayoutIds.length > 0) {
+            await unlinkPayoutsFromWithdrawalDao(linkedPayoutIds, error?.error?.description || error.message);
+            await markWithdrawalPayoutExecutionDao({
+                payoutIds: linkedPayoutIds,
+                failureCode: error?.error?.code || null,
+                failureReason: error?.error?.description || error.message || "Withdrawal failed",
+            });
+        }
+
+        const message = error.message === "No finalized balance is available to withdraw"
+            ? error.message
+            : (error?.error?.description || error.message || "Withdrawal failed");
+
+        const isConfigError = message.includes("RazorpayX source account number is missing. Set RAZORPAY_X_ACCOUNT_NUMBER");
+
+        return {
+            success: false,
+            status: (message === "No finalized balance is available to withdraw" || isConfigError) ? 400 : 500,
+            message,
+        };
+    } finally {
+        session.endSession();
+    }
+};
+
 export const makeAvailableService = async (sellerId, productId) => {
     try {
         const result = await makeAvailableDao(sellerId, productId);
@@ -706,9 +973,12 @@ export const analyticsService = async (sellerId) => {
             .populate("productId", "category")
             .sort({ createdAt: -1 });
 
+        const withdrawals = await getSellerWithdrawalsDao(sellerId);
+
         let settledEarnings = 0;
         let pendingEarnings = 0;
         let failedPayoutAmount = 0;
+        let finalizedAvailableBalance = 0;
 
         sellerPayouts.forEach((payout) => {
             const amount = Number(payout.amount || 0);
@@ -716,6 +986,9 @@ export const analyticsService = async (sellerId) => {
 
             if (payout.status === "Processed") {
                 settledEarnings += amount;
+                if (!payout.withdrawalRequestId && SELLER_PAYOUT_TYPES.includes(payout.payoutType)) {
+                    finalizedAvailableBalance += amount;
+                }
                 if (category && categoryRevenueSettled[category] !== undefined) {
                     categoryRevenueSettled[category] += amount;
                 }
@@ -723,7 +996,9 @@ export const analyticsService = async (sellerId) => {
             }
 
             if (payout.status === "Pending") {
-                pendingEarnings += amount;
+                if (!SELLER_PAYOUT_TYPES.includes(payout.payoutType) || payout.withdrawalRequestId) {
+                    pendingEarnings += amount;
+                }
                 if (category && categoryRevenuePending[category] !== undefined) {
                     categoryRevenuePending[category] += amount;
                 }
@@ -732,6 +1007,20 @@ export const analyticsService = async (sellerId) => {
 
             failedPayoutAmount += amount;
         });
+
+        const totalWithdrawnToDate = withdrawals
+            .filter((item) => item.status === "Processed")
+            .reduce((sum, item) => sum + Number(item.withdrawnAmount || 0), 0);
+
+        const withdrawalsInProcessing = withdrawals
+            .filter((item) => item.status === "Initiated" || item.status === "Processing")
+            .reduce((sum, item) => sum + Number(item.withdrawnAmount || 0), 0);
+
+        const failedWithdrawalAmount = withdrawals
+            .filter((item) => item.status === "Failed")
+            .reduce((sum, item) => sum + Number(item.withdrawnAmount || 0), 0);
+
+        const latestWithdrawal = withdrawals[0] || null;
 
         const sellerOrders = await getSellerOrdersDao(sellerId);
         const disputedHoldAmount = sellerOrders.reduce((sum, order) => {
@@ -757,6 +1046,12 @@ export const analyticsService = async (sellerId) => {
                     pendingEarnings: roundAmount(pendingEarnings),
                     failedPayoutAmount: roundAmount(failedPayoutAmount),
                     disputedHoldAmount: roundAmount(disputedHoldAmount),
+                    finalizedAvailableBalance: roundAmount(finalizedAvailableBalance),
+                    totalWithdrawnToDate: roundAmount(totalWithdrawnToDate),
+                    withdrawalsInProcessing: roundAmount(withdrawalsInProcessing),
+                    failedWithdrawalAmount: roundAmount(failedWithdrawalAmount),
+                    lastWithdrawalAt: latestWithdrawal?.initiatedAt || null,
+                    lastWithdrawalStatus: latestWithdrawal?.status || null,
                 },
                 pendingRequest,
                 itemsForSale,
@@ -782,6 +1077,7 @@ export const getTransactionsService = async (userId) => {
     try {
         const receivedPayments = await getPaymentsByTo(userId, 'Users');
         const outgoingPayments = await getPaymentsByFrom(userId, 'Users');
+        const withdrawals = await getSellerWithdrawalsDao(userId);
 
         const sellerPayouts = await PendingPayouts.find({ recipientId: userId })
             .populate("orderId", "deliveryStatus status")
@@ -883,7 +1179,7 @@ export const getTransactionsService = async (userId) => {
         }));
 
         const payoutLedger = sellerPayouts.map((payout) => {
-            const statusMeta = getPayoutStatusMeta(payout.status);
+            const statusMeta = getPayoutStatusMeta(payout);
             return {
                 id: payout._id,
                 ledgerType: "payout",
@@ -901,13 +1197,53 @@ export const getTransactionsService = async (userId) => {
             };
         });
 
+        const withdrawalLedger = withdrawals.map((withdrawal) => {
+            const isSuccess = withdrawal.status === "Processed";
+            const isFailed = withdrawal.status === "Failed";
+            const destination = withdrawal.payoutAccountId?.accountType === "upi"
+                ? withdrawal.payoutAccountId?.upiId
+                : `${withdrawal.payoutAccountId?.accountNumberMasked || "Bank account"}`;
+
+            return {
+                id: withdrawal._id,
+                ledgerType: "withdrawal",
+                eventType: "seller_withdrawal",
+                title: "Withdrawal to Payout Account",
+                date: withdrawal.initiatedAt,
+                amount: Number(withdrawal.withdrawnAmount || 0),
+                amountSign: "-",
+                displayStatus: isSuccess ? "Transferred" : (isFailed ? "Transfer Failed" : "Transfer Processing"),
+                statusClass: isSuccess ? "success" : (isFailed ? "failed" : "pending"),
+                isRealizedIncome: false,
+                counterparty: destination,
+                orderDeliveryStatus: null,
+                reason: withdrawal.failureReason || null,
+            };
+        });
+
         const settledEarnings = payoutLedger
-            .filter((item) => item.statusClass === "success")
+            .filter((item) => SELLER_PAYOUT_TYPES.includes(item.eventType) && item.statusClass === "success")
             .reduce((sum, item) => sum + item.amount, 0);
 
         const pendingEarnings = payoutLedger
-            .filter((item) => item.statusClass === "pending")
+            .filter((item) => SELLER_PAYOUT_TYPES.includes(item.eventType) && item.statusClass === "pending")
             .reduce((sum, item) => sum + item.amount, 0);
+
+        const availableToWithdraw = sellerPayouts
+            .filter((payout) => ["Pending", "Processed"].includes(payout.status) && !payout.withdrawalRequestId && SELLER_PAYOUT_TYPES.includes(payout.payoutType))
+            .reduce((sum, payout) => sum + Number(payout.amount || 0), 0);
+
+        const withdrawnToDate = withdrawals
+            .filter((item) => item.status === "Processed")
+            .reduce((sum, item) => sum + Number(item.withdrawnAmount || 0), 0);
+
+        const inProgressWithdrawals = withdrawals
+            .filter((item) => item.status === "Initiated" || item.status === "Processing")
+            .reduce((sum, item) => sum + Number(item.withdrawnAmount || 0), 0);
+
+        const failedWithdrawals = withdrawals
+            .filter((item) => item.status === "Failed")
+            .reduce((sum, item) => sum + Number(item.withdrawnAmount || 0), 0);
 
         const grossBuyerPayments = paymentLedger
             .filter((item) => item.amountSign === "+")
@@ -918,10 +1254,15 @@ export const getTransactionsService = async (userId) => {
             status: 200,
             paymentLedger: [...paymentLedger, ...expenseLedger].sort((a, b) => new Date(b.date) - new Date(a.date)),
             payoutLedger,
+            withdrawalLedger,
             summary: {
                 grossBuyerPayments: roundAmount(grossBuyerPayments),
                 settledEarnings: roundAmount(settledEarnings),
                 pendingEarnings: roundAmount(pendingEarnings),
+                availableToWithdraw: roundAmount(availableToWithdraw),
+                withdrawnToDate: roundAmount(withdrawnToDate),
+                inProgressWithdrawals: roundAmount(inProgressWithdrawals),
+                failedWithdrawals: roundAmount(failedWithdrawals),
             },
             received: receivedPayments,
             paidTo: outgoingPayments,
@@ -934,10 +1275,15 @@ export const getTransactionsService = async (userId) => {
             message: "Internal server err",
             paymentLedger: [],
             payoutLedger: [],
+            withdrawalLedger: [],
             summary: {
                 grossBuyerPayments: 0,
                 settledEarnings: 0,
                 pendingEarnings: 0,
+                availableToWithdraw: 0,
+                withdrawnToDate: 0,
+                inProgressWithdrawals: 0,
+                failedWithdrawals: 0,
             },
         }
     }

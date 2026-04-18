@@ -44,11 +44,43 @@ const pendingPayoutsSchema = new mongoose.Schema({
     reason: {
         type: String,
     },
+    withdrawalRequestId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "SellerWithdrawal",
+        default: null,
+    },
+    externalPayoutId: {
+        type: String,
+        default: null,
+    },
+    idempotencyKey: {
+        type: String,
+        default: null,
+    },
+    transferMode: {
+        type: String,
+        default: null,
+        enum: [null, "IMPS", "NEFT", "RTGS", "UPI"],
+    },
+    payoutProcessedAt: {
+        type: Date,
+        default: null,
+    },
+    payoutFailureCode: {
+        type: String,
+        default: null,
+    },
+    payoutFailureReason: {
+        type: String,
+        default: null,
+    },
 }, {
     timestamps: true
 });
 
 pendingPayoutsSchema.index({ status: 1 });
 pendingPayoutsSchema.index({ recipientId: 1 });
+pendingPayoutsSchema.index({ recipientId: 1, status: 1 });
+pendingPayoutsSchema.index({ idempotencyKey: 1 });
 
 export default mongoose.model("PendingPayouts", pendingPayoutsSchema);

@@ -17,7 +17,10 @@ import {
     deleteProductService,
     revokeAcceptedRequestService,
     analyticsService,
-    getTransactionsService
+    getTransactionsService,
+    setupSellerPayoutAccountService,
+    getSellerPayoutAccountService,
+    withdrawFinalizedBalanceService,
 } from "../services/seller.service.js";
 
 export const addProduct = async (req, res, next) => {
@@ -406,10 +409,15 @@ export const getTransactionsController = async (req, res, next) => {
             success: response.success,
             paymentLedger: response.paymentLedger || [],
             payoutLedger: response.payoutLedger || [],
+            withdrawalLedger: response.withdrawalLedger || [],
             summary: response.summary || {
                 grossBuyerPayments: 0,
                 settledEarnings: 0,
                 pendingEarnings: 0,
+                availableToWithdraw: 0,
+                withdrawnToDate: 0,
+                inProgressWithdrawals: 0,
+                failedWithdrawals: 0,
             },
             received: response.received,
             paidTo: response.paidTo
@@ -435,6 +443,36 @@ export const sellerCancelPaidOrderController = async (req, res, next) => {
         const sellerId = req.user._id;
 
         const response = await sellerCancelPaidOrderService(orderId, sellerId);
+        return res.status(response.status || 200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const createPayoutAccountController = async (req, res, next) => {
+    try {
+        const sellerId = req.user._id;
+        const response = await setupSellerPayoutAccountService(sellerId, req.body || {});
+        return res.status(response.status || 200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getPayoutAccountController = async (req, res, next) => {
+    try {
+        const sellerId = req.user._id;
+        const response = await getSellerPayoutAccountService(sellerId);
+        return res.status(response.status || 200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const withdrawFinalizedBalanceController = async (req, res, next) => {
+    try {
+        const sellerId = req.user._id;
+        const response = await withdrawFinalizedBalanceService(sellerId, req.body?.transferMode);
         return res.status(response.status || 200).json(response);
     } catch (error) {
         next(error);

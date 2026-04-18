@@ -49,7 +49,11 @@ import {
     sellerCancelPaidOrderController,
     analyticsController,
     getTransactionsController,
+    createPayoutAccountController,
+    getPayoutAccountController,
+    withdrawFinalizedBalanceController,
 } from "../controllers/seller.controller.js";
+import { validatePayoutAccountPayload, validateWithdrawPayload } from "../middlewares/payout.middleware.js";
 import {
     fileComplaint,
     getMyComplaints,
@@ -137,6 +141,9 @@ router.post("/makeAvailable/:productId", makeAvailableController);
 router.get("/selling-analytics", analyticsController);
 
 router.get("/getMyTransactions", getTransactionsController);
+router.post("/payout-account", validatePayoutAccountPayload, createPayoutAccountController);
+router.get("/payout-account", getPayoutAccountController);
+router.post("/withdraw-finalized-balance", validateWithdrawPayload, withdrawFinalizedBalanceController);
 // Complaint routes
 router.post("/complaint", fileComplaint);
 router.get("/complaints", getMyComplaints);

@@ -166,31 +166,31 @@ const SellerAnalytics = () => {
 
         <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #3b82f6' }}>
           <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Pending Payouts</h3>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Finalized Available Balance</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              Rs. {settledSummary?.pendingEarnings || 0}
+              Rs. {settledSummary?.finalizedAvailableBalance || 0}
             </p>
-            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Queued, not realized yet</span>
+            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Ready for withdrawal</span>
           </div>
         </div>
 
         <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #f59e0b' }}>
           <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Dispute/Hold Amount</h3>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Withdrawn To Date</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              Rs. {settledSummary?.disputedHoldAmount || 0}
+              Rs. {settledSummary?.totalWithdrawnToDate || 0}
             </p>
-            <span style={{ fontSize: '0.85rem', color: '#f59e0b' }}>Under dispute hold</span>
+            <span style={{ fontSize: '0.85rem', color: '#0f766e' }}>Transferred successfully</span>
           </div>
         </div>
 
         <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #ef4444' }}>
           <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Pending Requests</h3>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Withdrawals In Processing</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              {Analytics?.pendingRequest || 0}
+              Rs. {settledSummary?.withdrawalsInProcessing || 0}
             </p>
-            <span style={{ fontSize: '0.85rem', color: '#ef4444' }}>Action required</span>
+            <span style={{ fontSize: '0.85rem', color: '#ef4444' }}>Bank transfer in progress</span>
           </div>
         </div>
       </div>
