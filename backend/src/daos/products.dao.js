@@ -23,7 +23,7 @@ export const createProduct = async (productData) => {
     return await Products.create(productData);
 };
 
-export const addProductRequestDao = async (productId, buyerId, biddingPrice) => {
+export const addProductRequestDao = async (productId, buyerId, biddingPrice, shippingAddress) => {
     const product = await Products.findById(productId);
 
     if (!product) {
@@ -50,7 +50,7 @@ export const addProductRequestDao = async (productId, buyerId, biddingPrice) => 
         return { success: false, reason: "already_requested" };
     }
 
-    product.requests.push({ buyer: buyerId, biddingPrice: biddingPrice });
+    product.requests.push({ buyer: buyerId, biddingPrice: biddingPrice, shippingAddress: shippingAddress });
     await product.save();
 
     return {
@@ -96,6 +96,47 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
     };
 };
 
+export const createStakeOrderDao = async (productId, buyerId, stakeAmount, razorpayOrderId) => {
+    const product = await Products.findById(productId);
+    if (!product) return { success: false, reason: "not_found" };
+
+    if (product.soldTo && product.soldTo.buyer) {
+        return { success: false, reason: "already_sold" };
+    }
+
+    const requestIndex = product.requests.findIndex(req => req.buyer.toString() === buyerId.toString());
+    if (requestIndex === -1) {
+        return { success: false, reason: "no_request" };
+    }
+
+    product.requests[requestIndex].sellerStakeId = razorpayOrderId;
+    product.requests[requestIndex].sellerStakeAmount = stakeAmount;
+    product.requests[requestIndex].sellerStakeStatus = 'Pending';
+    
+    await product.save();
+
+    return { success: true };
+};
+
+export const verifyStakeDao = async (productId, buyerId, razorpayPaymentId) => {
+    const product = await Products.findById(productId);
+    if (!product) return { success: false, reason: "not_found" };
+
+    const requestIndex = product.requests.findIndex(req => req.buyer.toString() === buyerId.toString());
+    if (requestIndex === -1) {
+        return { success: false, reason: "no_request" };
+    }
+
+    if (product.requests[requestIndex].sellerStakeStatus !== 'Pending') {
+        return { success: false, reason: "already_verified" };
+    }
+
+    product.requests[requestIndex].sellerStakeStatus = 'Locked';
+    await product.save();
+
+    return { success: true, sellerId: product.seller, productName: product.name };
+};
+
 export const revokeAcceptedRequestDao = async (productId) => {
     const product = await Products.findById(productId);
 
@@ -113,6 +154,14 @@ export const revokeAcceptedRequestDao = async (productId) => {
     }
 
     const acceptedBuyerId = product.sellerAcceptedTo;
+
+    const hisRequest = product.requests.find(req => req.buyer.toString() === acceptedBuyerId.toString());
+    let refundStakeAmount = 0;
+    if (hisRequest && hisRequest.sellerStakeStatus === 'Locked') {
+        refundStakeAmount = hisRequest.sellerStakeAmount;
+    }
+
+    product.requests = product.requests.filter(req => req.buyer.toString() !== acceptedBuyerId.toString());
     product.sellerAcceptedTo = null;
     await product.save();
 
@@ -121,6 +170,7 @@ export const revokeAcceptedRequestDao = async (productId) => {
         buyerId: acceptedBuyerId,
         sellerId: product.seller,
         productName: product.name,
+        refundStakeAmount: refundStakeAmount
     };
 };
 
@@ -138,7 +188,10 @@ export const holdPoductWhilePaymentDao = async (buyerId, productId) => {
     }
     const hisRequest = product.requests.find(req => req.buyer.toString() === buyerId.toString());
     if (!hisRequest) {
-        return { success: false, reason: "not_found" }; // check this
+        return { success: false, reason: "not_found" };
+    }
+    if (hisRequest.sellerStakeStatus !== 'Locked') {
+        return { success: false, reason: "stake_not_locked" };
     }
     if(product.paymentInProgress) {
         return { success: false, reason: "payment_in_progress" };
@@ -222,6 +275,13 @@ export const notInterestedDao = async (buyerId, productId) => {
     if (product.soldTo && product.soldTo.buyer) {
         return { success: false, reason: "already_sold" };
     }
+    
+    let refundStakeAmount = 0;
+    const hisRequest = product.requests.find(req => req.buyer.toString() === buyerId.toString());
+    if (hisRequest && hisRequest.sellerStakeStatus === 'Locked') {
+        refundStakeAmount = hisRequest.sellerStakeAmount;
+    }
+
     if (product.sellerAcceptedTo && product.sellerAcceptedTo.toString() === buyerId.toString()) {
         product.sellerAcceptedTo = null;
     }
@@ -229,7 +289,7 @@ export const notInterestedDao = async (buyerId, productId) => {
         req => req.buyer.toString() !== buyerId.toString()
     );
     await product.save();
-    return { success: true };
+    return { success: true, refundStakeAmount: refundStakeAmount, sellerId: product.seller };
 };
 
 export const rejectProductRequestDao = async (productId, buyerId) => {
@@ -241,12 +301,18 @@ export const rejectProductRequestDao = async (productId, buyerId) => {
         return { success: false, reason: "not_found" };
     }
 
-    const isRequested = product.requests.some(
+    const isRequested = product.requests.find(
         req => req.buyer.toString() === buyerId.toString()
     );
 
     if (!isRequested) {
         return { success: false, reason: "no_request" };
+    }
+
+    // Security check: Prevent rejection if the seller has already accepted and staked.
+    // They must use the "Revoke Request" API instead.
+    if (product.sellerAcceptedTo && product.sellerAcceptedTo.toString() === buyerId.toString() || isRequested.sellerStakeStatus === 'Locked') {
+        return { success: false, reason: "already_accepted" };
     }
 
     product.requests = product.requests.filter(

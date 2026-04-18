@@ -86,6 +86,23 @@ const productsSchema = new mongoose.Schema({
                 type: mongoose.Schema.Types.Number,
                 required: true,
             },
+            shippingAddress: {
+                addressLine: { type: String },
+                city: { type: String },
+                state: { type: String },
+                pinCode: { type: String, required: true },
+            },
+            sellerStakeId: {
+                type: String,
+            },
+            sellerStakeAmount: {
+                type: Number,
+            },
+            sellerStakeStatus: {
+                type: String,
+                enum: ['Pending', 'Locked', 'Refunded', 'Slashed'],
+                default: 'Pending',
+            },
             from:{
                 type: mongoose.Schema.Types.Date,
             },

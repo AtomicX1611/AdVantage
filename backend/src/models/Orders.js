@@ -54,6 +54,24 @@ const orderSchema = new mongoose.Schema({
         type: Object,
         required: true,
     },
+    awbCode: {
+        type: String,
+    },
+    courierName: {
+        type: String,
+    },
+    deliveryStatus: {
+        type: String,
+        default: "Pending",
+        enum: ["Pending", "Shipped", "Delivered", "Disputed", "Completed"],
+    },
+    deliveredAt: {
+        type: Date,
+    },
+    timerTriggered48Hour: {
+        type: Boolean,
+        default: false,
+    },
 }, {
     timestamps: true
 });

@@ -27,6 +27,7 @@ import {
     deleteNotification,
     createOrder,
     verifyPayment,
+    disputeOrderController,
 } from "../controllers/buyer.controller.js";
 import {
     addProduct,
@@ -38,6 +39,10 @@ import {
     makeAvailableController,
     deleteProduct,
     revokeAcceptedRequest,
+    createStakeOrderController,
+    verifyStakeController,
+    shipOrderController,
+    verifyDeliveryController,
     analyticsController,
     getTransactionsController,
 } from "../controllers/seller.controller.js";
@@ -69,6 +74,7 @@ router.get("/pendingRequests", getPendingRequests);
 router.post("/request/:productId", requestProduct);
 router.post("/paymentDone/:productId", paymentDone);
 router.post("/notInterested/:productId", notInterested);
+router.post("/order/:orderId/dispute", disputeOrderController);
 router.put("/rent/:productId", rentProductController);
 router.put("/wishlist/add/:productId", addToWishlist);
 router.get("/wishlist", getWishlistProducts);
@@ -102,7 +108,11 @@ router.delete("/deleteProduct/:productId", deleteProduct); // Working
 
 router.delete("/rejectRequest/:productId/:buyerId/", rejectRequest);
 router.post("/acceptRequest/:productId/:buyerId", acceptRequest);
+router.post("/request/:productId/stake/:buyerId", createStakeOrderController);
+router.post("/request/:productId/verify-stake/:buyerId", verifyStakeController);
 router.patch("/revokeAccepted/:productId", revokeAcceptedRequest);
+router.put("/order/:orderId/ship", shipOrderController);
+router.post("/order/:orderId/verify-delivery", verifyDeliveryController);
 
 router.post("/makeAvailable/:productId", makeAvailableController);
 
