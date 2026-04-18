@@ -13,6 +13,7 @@ jest.mock("../../src/config/payment.config.js", () => ({
 }));
 
 import {
+  addProductService,
   acceptProductRequestService,
   createStakeOrderService,
   getSellerOrdersService,
@@ -20,24 +21,31 @@ import {
   revokeAcceptedRequestService,
   sellerCancelPaidOrderService,
   shipOrderService,
+  verifyStakeService,
 } from "../../src/services/seller.service.js";
 
 import {
   acceptProductRequestDao,
+  createProduct,
   createStakeOrderDao,
   getProductById,
   rejectProductRequestDao,
   revokeAcceptedRequestDao,
+  verifyStakeDao,
 } from "../../src/daos/products.dao.js";
 import { razorpay } from "../../src/config/payment.config.js";
 import { sellerCancelPaidOrderDao } from "../../src/daos/orders.dao.js";
 import { getSellerOrdersDao, shipOrderDao } from "../../src/daos/orders.dao.js";
+import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils.js";
+import { generateProductOllamaEmbedding } from "../../src/helpers/productEmbedding.helper.js";
+import { getBuyerById, incrementUsedPostsDao, resetUsedPostsDao } from "../../src/daos/users.dao.js";
 
 import {
   createRequestAcceptedNotification,
   createRequestRejectedNotification,
   createRequestRevokedNotification,
 } from "../../src/helpers/notification.helper.js";
+import PendingPayouts from "../../src/models/PendingPayouts.js";
 
 jest.mock("../../src/daos/products.dao.js", () => ({
   createProduct: jest.fn(),
@@ -86,6 +94,18 @@ jest.mock("../../src/helpers/notification.helper.js", () => ({
 
 jest.mock("../../src/helpers/productEmbedding.helper.js", () => ({
   generateProductOllamaEmbedding: jest.fn(),
+}));
+
+jest.mock("../../src/models/PendingPayouts.js", () => ({
+  __esModule: true,
+  default: {
+    create: jest.fn(),
+    find: jest.fn(),
+  },
+}));
+
+jest.mock("razorpay/dist/utils/razorpay-utils.js", () => ({
+  validateWebhookSignature: jest.fn(),
 }));
 
 describe("seller.service", () => {
@@ -278,6 +298,35 @@ describe("seller.service", () => {
     expect(createStakeOrderDao).toHaveBeenCalledWith("p1", "b1", 200, "order_stake_2");
   });
 
+  test("createStakeOrderService maps dao failure reason when stake order save fails", async () => {
+    getProductById.mockResolvedValue({
+      _id: "p1",
+      sellerAcceptedTo: null,
+      requests: [
+        {
+          buyer: { _id: "b1" },
+          biddingPrice: 1000,
+          sellerStakeStatus: "Pending",
+        },
+      ],
+    });
+
+    razorpay.orders.create.mockResolvedValue({
+      id: "order_stake_3",
+      amount: 20000,
+      currency: "INR",
+      receipt: "stake_receipt_3",
+      notes: { productId: "p1", buyerId: "b1", type: "seller_stake" },
+    });
+    createStakeOrderDao.mockResolvedValue({ success: false, reason: "already_sold" });
+
+    const result = await createStakeOrderService("p1", "b1");
+
+    expect(result.success).toBe(false);
+    expect(result.status).toBe(400);
+    expect(result.message).toBe("Product already sold");
+  });
+
   test("shipOrderService forwards payload to dao", async () => {
     shipOrderDao.mockResolvedValue({
       success: true,
@@ -308,5 +357,193 @@ describe("seller.service", () => {
     expect(result.success).toBe(true);
     expect(result.status).toBe(200);
     expect(result.orders).toEqual(orders);
+  });
+
+  test("getSellerOrdersService returns 500 when dao throws", async () => {
+    getSellerOrdersDao.mockRejectedValue(new Error("db down"));
+
+    const result = await getSellerOrdersService("s1");
+
+    expect(result.success).toBe(false);
+    expect(result.status).toBe(500);
+  });
+
+  test("verifyStakeService rejects invalid signature", async () => {
+    validateWebhookSignature.mockReturnValue(false);
+
+    const result = await verifyStakeService(
+      "p1",
+      "b1",
+      "order_1|pay_1",
+      "order_1",
+      "pay_1",
+      "sig_1",
+      "secret"
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.status).toBe(400);
+    expect(verifyStakeDao).not.toHaveBeenCalled();
+  });
+
+  test("verifyStakeService returns failure when verify dao fails", async () => {
+    validateWebhookSignature.mockReturnValue(true);
+    verifyStakeDao.mockResolvedValue({ success: false });
+
+    const result = await verifyStakeService(
+      "p1",
+      "b1",
+      "order_1|pay_1",
+      "order_1",
+      "pay_1",
+      "sig_1",
+      "secret"
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.message).toBe("Failed to verify stake in database");
+  });
+
+  test("verifyStakeService returns failure when accept dao fails", async () => {
+    validateWebhookSignature.mockReturnValue(true);
+    verifyStakeDao.mockResolvedValue({ success: true });
+    acceptProductRequestDao.mockResolvedValue({ success: false });
+
+    const result = await verifyStakeService(
+      "p1",
+      "b1",
+      "order_1|pay_1",
+      "order_1",
+      "pay_1",
+      "sig_1",
+      "secret"
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.message).toBe("Stake verified but failed to accept request");
+  });
+
+  test("verifyStakeService accepts and sends notification on success", async () => {
+    validateWebhookSignature.mockReturnValue(true);
+    verifyStakeDao.mockResolvedValue({ success: true });
+    acceptProductRequestDao.mockResolvedValue({
+      success: true,
+      sellerId: "s1",
+      productName: "Phone",
+    });
+
+    const result = await verifyStakeService(
+      "p1",
+      "b1",
+      "order_1|pay_1",
+      "order_1",
+      "pay_1",
+      "sig_1",
+      "secret"
+    );
+
+    expect(result.success).toBe(true);
+    expect(createRequestAcceptedNotification).toHaveBeenCalledWith("b1", "s1", "p1", "Phone");
+  });
+
+  test("addProductService rejects when monthly quota exceeded", async () => {
+    getBuyerById.mockResolvedValue({
+      _id: "s1",
+      subscription: 1,
+      usedPosts: 50,
+      windowStart: new Date(),
+    });
+
+    const req = {
+      user: { _id: "s1" },
+      body: {
+        name: "Phone",
+        price: 1000,
+        description: "desc",
+        zipCode: "500001",
+        category: "Mobiles",
+        district: "Hyd",
+        city: "Hyd",
+        state: "TS",
+        isRental: false,
+      },
+      cloudinary: {
+        productImages: [{ url: "http://img/1.jpg" }],
+      },
+    };
+
+    await expect(addProductService(req)).rejects.toThrow("You exceeded your plan's limit per month");
+  });
+
+  test("addProductService resets window when month changed and creates product", async () => {
+    getBuyerById.mockResolvedValue({
+      _id: "s1",
+      subscription: 1,
+      usedPosts: 0,
+      windowStart: new Date("2020-01-01T00:00:00.000Z"),
+    });
+    generateProductOllamaEmbedding.mockResolvedValue({ vector: [0.1, 0.2] });
+    createProduct.mockResolvedValue({ _id: "p1", name: "Phone" });
+
+    const req = {
+      user: { _id: "s1" },
+      body: {
+        name: "Phone",
+        price: 1000,
+        description: "desc",
+        zipCode: "500001",
+        category: "Mobiles",
+        district: "Hyd",
+        city: "Hyd",
+        state: "TS",
+        isRental: "true",
+      },
+      cloudinary: {
+        productImages: [{ url: "http://img/1.jpg" }],
+        invoice: { url: "http://inv/1.pdf" },
+      },
+    };
+
+    const result = await addProductService(req);
+
+    expect(resetUsedPostsDao).toHaveBeenCalledWith("s1");
+    expect(createProduct).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Phone",
+        isRental: true,
+        invoice: "http://inv/1.pdf",
+        ollama_embeddings: [0.1, 0.2],
+      })
+    );
+    expect(incrementUsedPostsDao).toHaveBeenCalledWith("s1");
+    expect(result._id).toBe("p1");
+  });
+
+  test("addProductService throws when product images are missing", async () => {
+    getBuyerById.mockResolvedValue({
+      _id: "s1",
+      subscription: 1,
+      usedPosts: 0,
+      windowStart: new Date(),
+    });
+
+    const req = {
+      user: { _id: "s1" },
+      body: {
+        name: "Phone",
+        price: 1000,
+        description: "desc",
+        zipCode: "500001",
+        category: "Mobiles",
+        district: "Hyd",
+        city: "Hyd",
+        state: "TS",
+      },
+      cloudinary: {
+        productImages: [],
+      },
+    };
+
+    await expect(addProductService(req)).rejects.toThrow("At least one product image is required");
   });
 });

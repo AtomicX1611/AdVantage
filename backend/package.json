@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "nodemon app.js",
     "test": "jest --runInBand",
+    "test:unit": "jest tests/unit --runInBand",
+    "test:integration": "jest tests/integration --runInBand",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage --runInBand",
     "test:report": "jest --coverage --ci --runInBand"
