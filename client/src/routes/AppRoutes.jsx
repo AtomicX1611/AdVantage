@@ -20,6 +20,7 @@ import AddProductForm from "../pages/AddProductForm.jsx";
 import SearchPage from "../pages/SearchPage.jsx";
 import ViewRequest from "../pages/ViewRequest.jsx";
 import PendingTxsPage from "../pages/PendingTxsPage.jsx";
+import BuyerWalletPage from "../pages/BuyerWalletPage.jsx";
 import ManagerDashboard from '../pages/ManagerDashboard.jsx';
 import SellerDashboardLayout from "../pages/SellerDashboard.jsx";
 
@@ -136,6 +137,7 @@ const AppRoutes = () => {
           <Route path="yourProducts" element={<ProtectedRoute element={<YourOrders />} allowedRoles={['user']} />} />
           <Route path="product-requests" element={<ProtectedRoute element={<ViewRequest />} allowedRoles={['user']} />} />
           <Route path="pending-transactions" element={<ProtectedRoute element={<PendingTxsPage />} allowedRoles={['user']} />} />
+          <Route path="wallet" element={<ProtectedRoute element={<BuyerWalletPage />} allowedRoles={['user']} />} />
           <Route path="pending-payment/:id" element={<h1>New page pipeline to be decided yet</h1>} />
         </Route>
 

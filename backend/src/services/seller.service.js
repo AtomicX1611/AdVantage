@@ -62,11 +62,13 @@ import { createImmediateSellerPayout, createSellerFundAccount } from "./payout.s
 
 const roundAmount = (value) => Number((value || 0).toFixed(2));
 
-const SELLER_PAYOUT_TYPES = [
+const WITHDRAWABLE_PAYOUT_TYPES = [
     "Seller_120_Percent",
     "Seller_20_Refund",
     "Seller_BuyerPool_Share",
     "Seller_Stake_Release",
+    "Buyer_100_Refund",
+    "Buyer_Partial_Refund",
 ];
 
 const maskAccountNumber = (raw) => {
@@ -80,10 +82,12 @@ const payoutTitleMap = {
     Seller_20_Refund: "Seller Stake Refund",
     Seller_BuyerPool_Share: "Seller Share from Buyer Pool",
     Seller_Stake_Release: "Seller Stake Release",
+    Buyer_100_Refund: "Buyer Refund",
+    Buyer_Partial_Refund: "Buyer Partial Refund",
 };
 
 const getPayoutStatusMeta = (payout) => {
-    const isSellerPayableType = SELLER_PAYOUT_TYPES.includes(payout.payoutType);
+    const isWithdrawableType = WITHDRAWABLE_PAYOUT_TYPES.includes(payout.payoutType);
 
     if (payout.status === "Processed" && payout.withdrawalRequestId) {
         return { displayStatus: "Withdrawn", statusClass: "success", isRealizedIncome: true };
@@ -91,7 +95,7 @@ const getPayoutStatusMeta = (payout) => {
     if (payout.status === "Processed") {
         return { displayStatus: "Available to Withdraw", statusClass: "success", isRealizedIncome: true };
     }
-    if (payout.status === "Pending" && isSellerPayableType && !payout.withdrawalRequestId) {
+    if (payout.status === "Pending" && isWithdrawableType && !payout.withdrawalRequestId) {
         return { displayStatus: "Ready to Withdraw", statusClass: "success", isRealizedIncome: true };
     }
     if (payout.withdrawalRequestId && payout.status === "Pending") {
@@ -758,7 +762,7 @@ export const withdrawFinalizedBalanceService = async (sellerId, transferMode) =>
         let withdrawablePayouts = [];
 
         await session.withTransaction(async () => {
-            withdrawablePayouts = await getWithdrawablePayoutsDao(sellerId, SELLER_PAYOUT_TYPES, session);
+            withdrawablePayouts = await getWithdrawablePayoutsDao(sellerId, WITHDRAWABLE_PAYOUT_TYPES, session);
             const eligibleAmount = withdrawablePayouts.reduce((sum, payout) => sum + Number(payout.amount || 0), 0);
 
             if (eligibleAmount <= 0) {
@@ -986,7 +990,7 @@ export const analyticsService = async (sellerId) => {
 
             if (payout.status === "Processed") {
                 settledEarnings += amount;
-                if (!payout.withdrawalRequestId && SELLER_PAYOUT_TYPES.includes(payout.payoutType)) {
+                if (!payout.withdrawalRequestId && WITHDRAWABLE_PAYOUT_TYPES.includes(payout.payoutType)) {
                     finalizedAvailableBalance += amount;
                 }
                 if (category && categoryRevenueSettled[category] !== undefined) {
@@ -996,7 +1000,7 @@ export const analyticsService = async (sellerId) => {
             }
 
             if (payout.status === "Pending") {
-                if (!SELLER_PAYOUT_TYPES.includes(payout.payoutType) || payout.withdrawalRequestId) {
+                if (!WITHDRAWABLE_PAYOUT_TYPES.includes(payout.payoutType) || payout.withdrawalRequestId) {
                     pendingEarnings += amount;
                 }
                 if (category && categoryRevenuePending[category] !== undefined) {
@@ -1222,15 +1226,15 @@ export const getTransactionsService = async (userId) => {
         });
 
         const settledEarnings = payoutLedger
-            .filter((item) => SELLER_PAYOUT_TYPES.includes(item.eventType) && item.statusClass === "success")
+            .filter((item) => WITHDRAWABLE_PAYOUT_TYPES.includes(item.eventType) && item.statusClass === "success")
             .reduce((sum, item) => sum + item.amount, 0);
 
         const pendingEarnings = payoutLedger
-            .filter((item) => SELLER_PAYOUT_TYPES.includes(item.eventType) && item.statusClass === "pending")
+            .filter((item) => WITHDRAWABLE_PAYOUT_TYPES.includes(item.eventType) && item.statusClass === "pending")
             .reduce((sum, item) => sum + item.amount, 0);
 
         const availableToWithdraw = sellerPayouts
-            .filter((payout) => ["Pending", "Processed"].includes(payout.status) && !payout.withdrawalRequestId && SELLER_PAYOUT_TYPES.includes(payout.payoutType))
+            .filter((payout) => ["Pending", "Processed"].includes(payout.status) && !payout.withdrawalRequestId && WITHDRAWABLE_PAYOUT_TYPES.includes(payout.payoutType))
             .reduce((sum, payout) => sum + Number(payout.amount || 0), 0);
 
         const withdrawnToDate = withdrawals
