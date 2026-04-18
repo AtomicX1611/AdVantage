@@ -28,6 +28,8 @@ import {
     createOrder,
     verifyPayment,
     disputeOrderController,
+    getBuyerOrdersController,
+    buyerMarkDeliveredController,
 } from "../controllers/buyer.controller.js";
 import {
     addProduct,
@@ -43,6 +45,8 @@ import {
     verifyStakeController,
     shipOrderController,
     verifyDeliveryController,
+    getSellerOrdersController,
+    sellerCancelPaidOrderController,
     analyticsController,
     getTransactionsController,
 } from "../controllers/seller.controller.js";
@@ -74,7 +78,12 @@ router.get("/pendingRequests", getPendingRequests);
 router.post("/request/:productId", requestProduct);
 router.post("/paymentDone/:productId", paymentDone);
 router.post("/notInterested/:productId", notInterested);
-router.post("/order/:orderId/dispute", disputeOrderController);
+router.post(
+    "/order/:orderId/dispute",
+    upload.fields([{ name: "proofs", maxCount: 6 }]),
+    uploadFilesToCloudinary,
+    disputeOrderController
+);
 router.put("/rent/:productId", rentProductController);
 router.put("/wishlist/add/:productId", addToWishlist);
 router.get("/wishlist", getWishlistProducts);
@@ -113,6 +122,10 @@ router.post("/request/:productId/verify-stake/:buyerId", verifyStakeController);
 router.patch("/revokeAccepted/:productId", revokeAcceptedRequest);
 router.put("/order/:orderId/ship", shipOrderController);
 router.post("/order/:orderId/verify-delivery", verifyDeliveryController);
+router.patch("/order/:orderId/seller-cancel", sellerCancelPaidOrderController);
+router.get("/seller/orders", getSellerOrdersController);
+router.get("/buyer/orders", getBuyerOrdersController);
+router.post("/order/:orderId/mark-delivered", buyerMarkDeliveredController);
 
 router.post("/makeAvailable/:productId", makeAvailableController);
 

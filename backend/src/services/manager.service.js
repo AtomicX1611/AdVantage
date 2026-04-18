@@ -10,8 +10,57 @@ import {
     resolveComplaintDao,
     getComplaintByIdDao,
 } from "../daos/complaints.dao.js";
-import { getOrderByProductAndBuyerDao } from "../daos/orders.dao.js";
+import { getOrderByIdMongoDao, getOrderByProductAndBuyerDao } from "../daos/orders.dao.js";
 import PendingPayouts from "../models/PendingPayouts.js";
+
+const roundAmount = (value) => Number(value.toFixed(2));
+
+const getStakeFromProductRequest = (order) => {
+    if (!order?.productId?.requests) {
+        return { request: null, stakeAmount: 0 };
+    }
+
+    const request = order.productId.requests.find(
+        (req) => req.buyer.toString() === order.buyerId.toString()
+    );
+
+    return {
+        request,
+        stakeAmount: Number(request?.sellerStakeAmount || 0),
+    };
+};
+
+const getBuyerRefundAmount = (actionType, buyerPaidAmount, buyerRefundAmount, buyerRefundPercent) => {
+    if (actionType === "reject_dispute") {
+        return 0;
+    }
+
+    if (actionType === "refund_buyer") {
+        return buyerPaidAmount;
+    }
+
+    if (actionType !== "custom_split") {
+        return null;
+    }
+
+    if (buyerRefundAmount !== undefined && buyerRefundAmount !== null && buyerRefundAmount !== "") {
+        const parsedAmount = Number(buyerRefundAmount);
+        if (!Number.isFinite(parsedAmount)) {
+            return null;
+        }
+        return roundAmount(parsedAmount);
+    }
+
+    if (buyerRefundPercent !== undefined && buyerRefundPercent !== null && buyerRefundPercent !== "") {
+        const parsedPercent = Number(buyerRefundPercent);
+        if (!Number.isFinite(parsedPercent)) {
+            return null;
+        }
+        return roundAmount((buyerPaidAmount * parsedPercent) / 100);
+    }
+
+    return null;
+};
 
 export const verifyProduct = async (productId, managerId, managerCategory) => {
     // First check the product belongs to manager's category
@@ -86,7 +135,7 @@ export const resolveComplaintService = async (complaintId, managerId, managerCat
     }
 };
 
-export const resolveEscrowComplaintService = async (complaintId, managerId, managerCategory, decision, resolution) => {
+export const resolveEscrowComplaintService = async (complaintId, managerId, managerCategory, payload) => {
     try {
         const complaint = await getComplaintByIdDao(complaintId);
         if (!complaint) {
@@ -97,59 +146,133 @@ export const resolveEscrowComplaintService = async (complaintId, managerId, mana
             return { success: false, status: 403, message: "You can only resolve complaints in your assigned category" };
         }
 
-        const order = await getOrderByProductAndBuyerDao(complaint.productId._id, complaint.complainant);
+        let order = null;
+        if (complaint.orderId) {
+            const orderLookup = await getOrderByIdMongoDao(complaint.orderId._id || complaint.orderId);
+            if (orderLookup.success) {
+                order = orderLookup.order;
+            }
+        }
+
+        if (!order) {
+            order = await getOrderByProductAndBuyerDao(complaint.productId._id, complaint.complainant);
+        }
+
         if (!order) {
             return { success: false, status: 404, message: "Associated order not found" };
         }
 
-        let stakeAmount = 0;
-        if (order.productId && order.productId.requests) {
-            const req = order.productId.requests.find(r => r.buyer.toString() === order.buyerId.toString());
-            if (req && req.sellerStakeStatus === 'Locked') {
-                stakeAmount = req.sellerStakeAmount;
-                req.sellerStakeStatus = 'Refunded'; // Mark as refunded whether it goes to seller or we slash/refund
-                await order.productId.save();
-            }
+        if (order.deliveryStatus !== "Disputed") {
+            return { success: false, status: 400, message: "Only disputed orders can be settled by manager" };
         }
 
-        if (decision === "Buyer_Win") {
-            // Buyer gets 100% back
+        const {
+            actionType,
+            resolution,
+            buyerRefundAmount,
+            buyerRefundPercent,
+            sellerStakeReleaseAmount,
+        } = payload;
+
+        if (!["reject_dispute", "refund_buyer", "custom_split"].includes(actionType)) {
+            return {
+                success: false,
+                status: 400,
+                message: "Invalid actionType. Use 'reject_dispute', 'refund_buyer', or 'custom_split'.",
+            };
+        }
+
+        const buyerPaidAmount = roundAmount(order.amount / 100);
+        const computedBuyerRefund = getBuyerRefundAmount(
+            actionType,
+            buyerPaidAmount,
+            buyerRefundAmount,
+            buyerRefundPercent
+        );
+
+        if (computedBuyerRefund === null || computedBuyerRefund < 0 || computedBuyerRefund > buyerPaidAmount) {
+            return {
+                success: false,
+                status: 400,
+                message: "Invalid buyer refund. It must be between 0 and total buyer-paid amount.",
+            };
+        }
+
+        const sellerBuyerPoolAmount = roundAmount(buyerPaidAmount - computedBuyerRefund);
+
+        const { request, stakeAmount } = getStakeFromProductRequest(order);
+        const totalStake = roundAmount(stakeAmount);
+        const parsedStakeRelease = Number(sellerStakeReleaseAmount ?? 0);
+        const normalizedStakeRelease = Number.isFinite(parsedStakeRelease) ? roundAmount(parsedStakeRelease) : NaN;
+
+        if (!Number.isFinite(normalizedStakeRelease) || normalizedStakeRelease < 0 || normalizedStakeRelease > totalStake) {
+            return {
+                success: false,
+                status: 400,
+                message: `Invalid seller stake release amount. It must be between 0 and ${totalStake}.`,
+            };
+        }
+
+        const sellerStakeHeldAmount = roundAmount(totalStake - normalizedStakeRelease);
+
+        if (computedBuyerRefund > 0) {
             await PendingPayouts.create({
                 recipientId: order.buyerId,
+                orderId: order._id,
                 productId: order.productId._id,
-                amount: order.amount,
-                payoutType: "Buyer_100_Refund",
-                reason: `Manager resolved dispute in favor of buyer. Resolution: ${resolution}`,
+                amount: computedBuyerRefund,
+                payoutType: computedBuyerRefund === buyerPaidAmount ? "Buyer_100_Refund" : "Buyer_Partial_Refund",
+                reason: `Manager settlement (${actionType}) for dispute. Resolution: ${resolution || ""}`,
             });
+        }
 
-            // Seller gets 20% stake back (or it could be slashed, but based on requirements, we just refund)
-            if (stakeAmount > 0) {
-                await PendingPayouts.create({
-                    recipientId: order.productId.seller,
-                    productId: order.productId._id,
-                    amount: stakeAmount,
-                    payoutType: "Seller_20_Refund",
-                    reason: `Dispute resolved in favor of buyer, stake refunded.`,
-                });
-            }
-        } else if (decision === "Seller_Win") {
-            // Seller gets 100% price + 20% stake
-            const payoutAmount = order.amount + stakeAmount;
+        if (sellerBuyerPoolAmount > 0) {
             await PendingPayouts.create({
                 recipientId: order.productId.seller,
+                orderId: order._id,
                 productId: order.productId._id,
-                amount: payoutAmount,
-                payoutType: "Seller_120_Percent",
-                reason: `Manager resolved dispute in favor of seller. Resolution: ${resolution}`,
+                amount: sellerBuyerPoolAmount,
+                payoutType: "Seller_BuyerPool_Share",
+                reason: `Manager settlement (${actionType}) seller share from buyer-paid pool. Resolution: ${resolution || ""}`,
             });
-        } else {
-            return { success: false, status: 400, message: "Invalid decision. Use 'Buyer_Win' or 'Seller_Win'." };
+        }
+
+        if (normalizedStakeRelease > 0) {
+            await PendingPayouts.create({
+                recipientId: order.productId.seller,
+                orderId: order._id,
+                productId: order.productId._id,
+                amount: normalizedStakeRelease,
+                payoutType: "Seller_Stake_Release",
+                reason: `Manager settlement (${actionType}) released seller stake amount. Resolution: ${resolution || ""}`,
+            });
+        }
+
+        if (request) {
+            request.sellerStakeStatus = sellerStakeHeldAmount > 0 ? "Slashed" : "Refunded";
+            await order.productId.save();
         }
 
         order.deliveryStatus = "Completed";
+        order.timerTriggered48Hour = true;
         await order.save();
 
-        const updated = await resolveComplaintDao(complaintId, managerId, "resolved", resolution);
+        const updated = await resolveComplaintDao(
+            complaintId,
+            managerId,
+            "resolved",
+            resolution,
+            {
+                settlement: {
+                    decisionType: actionType,
+                    buyerRefundAmount: computedBuyerRefund,
+                    sellerBuyerPoolAmount,
+                    sellerStakeReleaseAmount: normalizedStakeRelease,
+                    sellerStakeHeldAmount,
+                },
+            }
+        );
+
         return {
             success: true,
             status: 200,

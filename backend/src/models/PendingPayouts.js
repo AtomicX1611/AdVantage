@@ -27,7 +27,14 @@ const pendingPayoutsSchema = new mongoose.Schema({
     payoutType: {
         type: String,
         required: true,
-        enum: ["Seller_120_Percent", "Buyer_100_Refund", "Seller_20_Refund"],
+        enum: [
+            "Seller_120_Percent",
+            "Buyer_100_Refund",
+            "Seller_20_Refund",
+            "Buyer_Partial_Refund",
+            "Seller_BuyerPool_Share",
+            "Seller_Stake_Release",
+        ],
     },
     status: {
         type: String,

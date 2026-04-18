@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const complaintSchema = new mongoose.Schema({
+    orderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Orders",
+        default: null,
+    },
     productId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Products",
@@ -46,6 +51,49 @@ const complaintSchema = new mongoose.Schema({
         default: null,
         maxlength: 2000,
     },
+    attachments: [
+        {
+            url: {
+                type: String,
+                required: true,
+            },
+            publicId: {
+                type: String,
+                default: null,
+            },
+            fileType: {
+                type: String,
+                default: null,
+            },
+            fileName: {
+                type: String,
+                default: null,
+            },
+        },
+    ],
+    settlement: {
+        decisionType: {
+            type: String,
+            enum: ["reject_dispute", "refund_buyer", "custom_split"],
+            default: null,
+        },
+        buyerRefundAmount: {
+            type: Number,
+            default: 0,
+        },
+        sellerBuyerPoolAmount: {
+            type: Number,
+            default: 0,
+        },
+        sellerStakeReleaseAmount: {
+            type: Number,
+            default: 0,
+        },
+        sellerStakeHeldAmount: {
+            type: Number,
+            default: 0,
+        },
+    },
     createdAt: {
         type: Date,
         default: Date.now,
@@ -62,6 +110,7 @@ complaintSchema.pre("save", function (next) {
 });
 
 complaintSchema.index({ productId: 1 });
+complaintSchema.index({ orderId: 1 });
 complaintSchema.index({ complainant: 1 });
 complaintSchema.index({ assignedManager: 1 });
 complaintSchema.index({ status: 1 });

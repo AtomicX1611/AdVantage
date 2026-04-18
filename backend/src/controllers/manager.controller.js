@@ -102,18 +102,36 @@ export const resolveComplaintController = async (req, res, next) => {
 export const resolveEscrowComplaintController = async (req, res, next) => {
     try {
         const { complaintId } = req.params;
-        const { decision, resolution } = req.body;
+        const {
+            actionType,
+            resolution,
+            buyerRefundAmount,
+            buyerRefundPercent,
+            sellerStakeReleaseAmount,
+            decision,
+        } = req.body;
         const managerId = req.user._id;
         const managerCategory = req.user.category;
 
-        if (!complaintId || !decision) {
+        let mappedActionType = actionType;
+        if (!mappedActionType && decision) {
+            mappedActionType = decision === "Buyer_Win" ? "refund_buyer" : (decision === "Seller_Win" ? "reject_dispute" : undefined);
+        }
+
+        if (!complaintId || !mappedActionType) {
             return res.status(400).json({
                 success: false,
-                message: "Complaint ID and decision ('Buyer_Win' or 'Seller_Win') are required"
+                message: "Complaint ID and actionType are required"
             });
         }
 
-        const result = await resolveEscrowComplaintService(complaintId, managerId, managerCategory, decision, resolution);
+        const result = await resolveEscrowComplaintService(complaintId, managerId, managerCategory, {
+            actionType: mappedActionType,
+            resolution,
+            buyerRefundAmount,
+            buyerRefundPercent,
+            sellerStakeReleaseAmount,
+        });
         return res.status(result.success ? 200 : (result.status || 400)).json(result);
     } catch (error) {
         next(error);

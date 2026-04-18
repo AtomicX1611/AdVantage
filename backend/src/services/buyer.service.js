@@ -23,6 +23,8 @@ import {
     getOrderByIdDao,
     updateOrderStatusDao,
     disputeOrderDao,
+    getBuyerOrdersDao,
+    buyerMarkDeliveredDao,
 } from "../daos/orders.dao.js";
 import { paymentDoneHelper,updateSellerSubscriptionHelper } from "../helpers/user.helper.js";
 import { createNewRequestNotification } from "../helpers/notification.helper.js";
@@ -240,18 +242,23 @@ export const createOrderService = async (buyerId, productId, subscription) => {
 
         // Determine subscription price
         const options = {
-            amount: subscriptionPrices[subscription] * 100, // Convert amount to paise
+            amount: Math.round(subscriptionPrices[subscription] * 100), // Convert amount to paise
             currency: "INR",
             receipt: `receipt_${Date.now()}`,
             notes: { "subscription": subscription.toString(), "sellerId": buyerId.toString() },
         };
-        const order = await razorpay.orders.create(options);
-        const result = await createOrderDao(buyerId, null, subscription, order.id, order.amount, order.currency, order.receipt, order.notes);
-        return {
-            success: true,
-            message: "Subscription Order created successfully",
-            order: result.order
-        };
+        try {
+            const order = await razorpay.orders.create(options);
+            const result = await createOrderDao(buyerId, null, subscription, order.id, order.amount, order.currency, order.receipt, order.notes);
+            return {
+                success: true,
+                message: "Subscription Order created successfully",
+                order: result.order
+            };
+        } catch (error) {
+            console.error("Razorpay Error:", error);
+            return { success: false, status: 500, message: "Failed to create Razorpay subscription order: " + (error.description || error.message || "Unknown Error") };
+        }
     }
     const holdProductResponse = await holdPoductWhilePaymentDao(buyerId, productId);
     if (!holdProductResponse.success) {
@@ -264,18 +271,23 @@ export const createOrderService = async (buyerId, productId, subscription) => {
         return { success: false, ...messages[holdProductResponse.reason] };
     }
     const options = {
-        amount: holdProductResponse.price * 100, // Convert amount to paise
+        amount: Math.round(holdProductResponse.price * 100), // Convert amount to paise
         currency: "INR",
         receipt: `receipt_${Date.now()}`,
         notes: { "productId": productId.toString(), "buyerId": buyerId.toString() },
     };
 
-    const order = await razorpay.orders.create(options);
-    order.buyerId = buyerId;
-    order.productId = productId;
-    const result = await createOrderDao(buyerId, productId, null, order.id, order.amount, order.currency, order.receipt,order.notes);
+    try {
+        const order = await razorpay.orders.create(options);
+        order.buyerId = buyerId;
+        order.productId = productId;
+        const result = await createOrderDao(buyerId, productId, null, order.id, order.amount, order.currency, order.receipt,order.notes);
 
-    return { success: true, message: "Order created successfully", order: result.order };
+        return { success: true, message: "Order created successfully", order: result.order };
+    } catch (error) {
+        console.error("Razorpay Error:", error);
+        return { success: false, status: 500, message: "Failed to create Razorpay order: " + (error.description || error.message || "Unknown Error") };
+    }
 };
 
 export const verifyPaymentService = async (body, razorpay_order_id, razorpay_payment_id, razorpay_signature, secret) => {
@@ -412,23 +424,53 @@ export const getYouProfileService = async (buyerId) => {
     }
 }
 
-export const disputeOrderService = async (orderId, buyerId, subject, description) => {
+export const disputeOrderService = async (orderId, buyerId, subject, description, attachments = []) => {
     const result = await disputeOrderDao(orderId, buyerId);
     if (!result.success) {
         return { success: false, status: 400, message: result.message };
     }
 
     const complaint = new Complaints({
+        orderId: result.order._id,
         productId: result.order.productId._id || result.order.productId,
         complainant: buyerId,
         respondent: result.order.productId.seller,
         type: "product",
         subject: subject,
         description: description,
+        attachments: attachments.map((attachment) => ({
+            url: attachment.url,
+            publicId: attachment.public_id || null,
+            fileType: attachment.fileType || null,
+            fileName: attachment.fileName || null,
+        })),
         status: "pending"
     });
 
     await complaint.save();
 
     return { success: true, status: 200, message: "Dispute created successfully" };
+};
+
+export const getBuyerOrdersService = async (buyerId) => {
+    try {
+        const orders = await getBuyerOrdersDao(buyerId);
+        return { success: true, status: 200, orders };
+    } catch (error) {
+        console.log(error);
+        return { success: false, status: 500, message: "Error fetching buyer orders" };
+    }
+};
+
+export const buyerMarkDeliveredService = async (orderId, buyerId) => {
+    try {
+        const result = await buyerMarkDeliveredDao(orderId, buyerId);
+        if (!result.success) {
+            return { success: false, status: 400, message: result.message };
+        }
+        return { success: true, status: 200, message: "Order marked as received and completed", order: result.order };
+    } catch (error) {
+        console.log(error);
+        return { success: false, status: 500, message: "Error confirming order receipt" };
+    }
 };

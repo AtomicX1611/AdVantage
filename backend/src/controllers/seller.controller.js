@@ -6,6 +6,8 @@ import {
     verifyStakeService,
     shipOrderService,
     verifyDeliveryService,
+    getSellerOrdersService,
+    sellerCancelPaidOrderService,
     // updateSellerProfileService,
     // updateSellerPasswordService,
     updateSellerSubscriptionService,
@@ -150,7 +152,7 @@ export const createStakeOrderController = async (req, res, next) => {
     try {
         const { productId, buyerId } = req.params;
         const response = await createStakeOrderService(productId, buyerId);
-        
+
         if (!response.success) {
             return res.status(response.status || 400).json({ success: false, message: response.message });
         }
@@ -165,7 +167,7 @@ export const verifyStakeController = async (req, res, next) => {
         const { productId, buyerId } = req.params;
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
-        if(!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
             return res.status(400).json({ status: 'error', message: 'Missing required fields' });
         }
 
@@ -192,14 +194,18 @@ export const verifyStakeController = async (req, res, next) => {
 export const shipOrderController = async (req, res, next) => {
     try {
         const { orderId } = req.params;
-        const { awbCode, courierName } = req.body;
+        const { awbCode, courierName, expectedDeliveryDate, trackingUrl, notes } = req.body;
         const sellerId = req.user._id;
 
         if (!awbCode || !courierName) {
             return res.status(400).json({ success: false, message: "Missing awbCode or courierName" });
         }
 
-        const response = await shipOrderService(orderId, sellerId, awbCode, courierName);
+        const response = await shipOrderService(orderId, sellerId, awbCode, courierName, {
+            expectedDeliveryDate,
+            trackingUrl,
+            notes,
+        });
         if (!response.success) {
             return res.status(response.status || 400).json({ success: false, message: response.message });
         }
@@ -364,10 +370,9 @@ export const makeAvailableController = async (req, res, next) => {
     }
 }
 
-export const analyticsController = async(req, res, next) => {
+export const analyticsController = async (req, res, next) => {
     try {
         const userId = req.user._id;
-        console.log("entered");
 
         if (!userId) return res.status(404).json({
             success: false,
@@ -375,35 +380,63 @@ export const analyticsController = async(req, res, next) => {
         })
 
         const response = await analyticsService(userId);
-        console.log("response: ",response);
-        
+
         return res.status(response.status).json({
             message: response.message,
             success: response.success,
-            data:response.data
+            data: response.data
         });
     } catch (error) {
         next(error);
     }
 }
 
-export const getTransactionsController = async (req,res,next) =>{
+export const getTransactionsController = async (req, res, next) => {
     try {
         const userId = req.user._id;
-        
-         if (!userId) return res.status(404).json({
+
+        if (!userId) return res.status(404).json({
             success: false,
             message: "userId not found"
         })
 
         const response = await getTransactionsService(userId);
-        
+
         return res.status(response.status).json({
             success: response.success,
-            received:response.received,
-            paidTo:response.paidTo
+            paymentLedger: response.paymentLedger || [],
+            payoutLedger: response.payoutLedger || [],
+            summary: response.summary || {
+                grossBuyerPayments: 0,
+                settledEarnings: 0,
+                pendingEarnings: 0,
+            },
+            received: response.received,
+            paidTo: response.paidTo
         });
     } catch (error) {
         next(error);
     }
 }
+
+export const getSellerOrdersController = async (req, res, next) => {
+    try {
+        const sellerId = req.user._id;
+        const response = await getSellerOrdersService(sellerId);
+        return res.status(response.status || 200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const sellerCancelPaidOrderController = async (req, res, next) => {
+    try {
+        const { orderId } = req.params;
+        const sellerId = req.user._id;
+
+        const response = await sellerCancelPaidOrderService(orderId, sellerId);
+        return res.status(response.status || 200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};

@@ -121,6 +121,7 @@ export const uploadFilesToCloudinary = async (req, res, next) => {
       productImages: [],
       profilePic: null,
       invoice: null,
+      proofs: [],
     };
 
     // HANDLE single()
@@ -174,6 +175,20 @@ export const uploadFilesToCloudinary = async (req, res, next) => {
           url: result.secure_url,
           public_id: result.public_id,
         };
+      }
+
+      if (req.files.proofs) {
+        const proofUploads = req.files.proofs.map(file =>
+          uploadSingle(file, `complaints/${folderId}`)
+        );
+
+        const proofResults = await Promise.all(proofUploads);
+        req.cloudinary.proofs = proofResults.map((r, index) => ({
+          url: r.secure_url,
+          public_id: r.public_id,
+          fileType: req.files.proofs[index].mimetype || null,
+          fileName: req.files.proofs[index].originalname || null,
+        }));
       }
     }
 

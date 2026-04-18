@@ -3,9 +3,13 @@ import styles from '../../styles/SellerTransactionPage.module.css';
 
 const SellerTransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
+  const [summary, setSummary] = useState({
+    grossBuyerPayments: 0,
+    settledEarnings: 0,
+    pendingEarnings: 0,
+  });
   const [filter, setFilter] = useState('all');
 
-  // 1. Fetch the data
   useEffect(() => {
     async function fetchTxn() {
       try {
@@ -15,55 +19,27 @@ const SellerTransactionHistory = () => {
           credentials: 'include'
         });
 
-        let data = await response.json();
-        console.log("1. API data received:", data);
+        const data = await response.json();
 
-        // Some endpoints may not use `success` field consistently
-        // so proceed to normalize whatever transaction arrays are present.
-        // This also ensures we set state even when `success` is missing.
-        // Normalize only when we have arrays (or empty arrays) to avoid
-        // leaving the component stuck with the initial empty state.
-        // Continue regardless of `data.success` value.
-        
-        // fallbacks
-        const receivedArr = data.received || data.receipts || [];
-        const paidArr = data.paidTo || data.paid || [];
+        const paymentLedger = data.paymentLedger || [];
+        const payoutLedger = data.payoutLedger || [];
 
-        // Log what arrays we'll normalize
-        console.log('receivedArr length:', (receivedArr || []).length, 'paidArr length:', (paidArr || []).length);
+        const combined = [...paymentLedger, ...payoutLedger]
+          .map((txn) => ({
+            ...txn,
+            type: txn.ledgerType === 'payout'
+              ? 'payout'
+              : (txn.eventType === 'subscription' ? 'subscription' : 'payment'),
+            signedAmount: txn.amountSign === '-' ? -Math.abs(txn.amount || 0) : Math.abs(txn.amount || 0),
+          }))
+          .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        // Normalize and set state below
-        
-        if (receivedArr || paidArr) {
-          // Normalize Received (Incomes)
-          const received = (receivedArr || []).map(item => ({
-            id: item._id,
-            title: item.paymentType === 'purchase' ? 'Item Sold' : 'Item Rented',
-            date: item.date,
-            amount: item.price,
-            type: item.paymentType === 'purchase' ? 'sale' : 'rent',
-            status: 'success',
-            buyer: item.from?.username || 'Gamer'
-          }));
-
-          // Normalize PaidTo (Expenses)
-          const paid = (paidArr || []).map(item => ({
-            id: item._id,
-            title: 'Platform Subscription',
-            date: item.date,
-            amount: -item.price,
-            type: 'subscription',
-            status: 'success',
-            buyer: 'Platform'
-          }));
-
-          const allTransactions = [...received, ...paid];
-
-          console.log('2. Normalized transactions ready to set:', allTransactions);
-
-          // Use a fresh array reference to guarantee React updates
-          setTransactions([...allTransactions]);
-        }
+        setTransactions(combined);
+        setSummary(data.summary || {
+          grossBuyerPayments: 0,
+          settledEarnings: 0,
+          pendingEarnings: 0,
+        });
       } catch (error) {
         console.error("Fetch Error:", error);
       }
@@ -71,11 +47,6 @@ const SellerTransactionHistory = () => {
     fetchTxn();
   }, []);
 
-  useEffect(() => {
-    console.log("2. Transactions state officially updated:", transactions);
-  }, [transactions]);
-
-  // Filter Logic
   const filteredTransactions = transactions.filter((txn) => {
     if (filter === 'all') return true;
     return txn.type === filter;
@@ -83,28 +54,67 @@ const SellerTransactionHistory = () => {
 
   const getIcon = (type) => {
     switch (type) {
-      case 'sale': return <span className={`${styles.iconWrapper} ${styles.iconSale}`}>💰</span>;
-      case 'rent': return <span className={`${styles.iconWrapper} ${styles.iconRent}`}>⏱️</span>;
+      case 'payment': return <span className={`${styles.iconWrapper} ${styles.iconRent}`}>💳</span>;
+      case 'payout': return <span className={`${styles.iconWrapper} ${styles.iconSale}`}>💰</span>;
       case 'subscription': return <span className={`${styles.iconWrapper} ${styles.iconSub}`}>💳</span>;
       default: return <span className={styles.iconWrapper}>📄</span>;
     }
+  };
+
+  const getStatusClass = (statusClass) => {
+    if (statusClass === 'failed') return styles.statusFailed;
+    if (statusClass === 'pending') return styles.statusPending;
+    return styles.statusSuccess;
+  };
+
+  const renderMetaText = (txn) => {
+    if (txn.type === 'payout') {
+      return txn.reason || 'Settlement ledger entry';
+    }
+
+    if (txn.type === 'subscription') {
+      return `Paid to ${txn.counterparty || 'Platform'}`;
+    }
+
+    return `${txn.counterparty ? `From: ${txn.counterparty}` : 'Buyer Payment Event'}${txn.orderDeliveryStatus ? ` • Order: ${txn.orderDeliveryStatus}` : ''}`;
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2>Transaction History</h2>
-        <p>View your earnings and activity.</p>
+        <p>Payments and settlements are shown separately so realized earnings stay accurate.</p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+        <div className={styles.transactionCard} style={{ padding: '14px' }}>
+          <div>
+            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Buyer Payments (Events)</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1e293b' }}>Rs. {Number(summary.grossBuyerPayments || 0).toFixed(2)}</div>
+          </div>
+        </div>
+        <div className={styles.transactionCard} style={{ padding: '14px' }}>
+          <div>
+            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Settled Earnings</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#059669' }}>Rs. {Number(summary.settledEarnings || 0).toFixed(2)}</div>
+          </div>
+        </div>
+        <div className={styles.transactionCard} style={{ padding: '14px' }}>
+          <div>
+            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Pending Settlement</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#d97706' }}>Rs. {Number(summary.pendingEarnings || 0).toFixed(2)}</div>
+          </div>
+        </div>
       </div>
 
       <div className={styles.filterContainer}>
-        {['all', 'sale', 'rent', 'subscription'].map((type) => (
+        {['all', 'payment', 'payout', 'subscription'].map((type) => (
           <button
             key={type}
             className={`${styles.filterBtn} ${filter === type ? styles.activeFilter : ''}`}
             onClick={() => setFilter(type)}
           >
-            {type.charAt(0).toUpperCase() + type.slice(1)}s
+            {type === 'all' ? 'All' : type.charAt(0).toUpperCase() + type.slice(1)}
           </button>
         ))}
       </div>
@@ -120,17 +130,17 @@ const SellerTransactionHistory = () => {
                   <p>
                     {new Date(txn.date).toLocaleDateString()} 
                     {' • '} 
-                    {txn.type === 'subscription' ? 'Paid to Platform' : `From: ${txn.buyer}`}
+                    {renderMetaText(txn)}
                   </p>
                 </div>
               </div>
 
               <div className={styles.cardRight}>
-                <span className={`${styles.amount} ${txn.amount > 0 ? styles.amountPositive : styles.amountNegative}`}>
-                  {txn.amount > 0 ? '+' : ''} Rs.{Math.abs(txn.amount).toFixed(2)}
+                <span className={`${styles.amount} ${txn.signedAmount > 0 ? styles.amountPositive : styles.amountNegative}`}>
+                  {txn.signedAmount > 0 ? '+' : ''} Rs.{Math.abs(txn.signedAmount).toFixed(2)}
                 </span>
-                <span className={`${styles.statusBadge} ${styles.statusSuccess}`}>
-                  Success
+                <span className={`${styles.statusBadge} ${getStatusClass(txn.statusClass)}`}>
+                  {txn.displayStatus || 'Recorded'}
                 </span>
               </div>
             </div>

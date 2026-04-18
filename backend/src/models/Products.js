@@ -98,6 +98,10 @@ const productsSchema = new mongoose.Schema({
             sellerStakeAmount: {
                 type: Number,
             },
+            sellerStakeCreatedAt: {
+                type: Date,
+                default: null,
+            },
             sellerStakeStatus: {
                 type: String,
                 enum: ['Pending', 'Locked', 'Refunded', 'Slashed'],

@@ -1,11 +1,43 @@
 import Products from "../models/Products.js";
-import { updateEarnings } from "./users.dao.js";
+import Order from "../models/Orders.js";
+
+const getPaymentHoldExpiryMinutes = () => {
+    const parsed = Number.parseInt(process.env.PAYMENT_HOLD_EXPIRY_MINUTES || "20", 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 20;
+};
+
+const getBuyerRequest = (product, buyerId) => {
+    return product.requests.find(req => req.buyer.toString() === buyerId.toString());
+};
+
+const canReplaceExistingPaymentHold = async (productId, holdExpiryMinutes) => {
+    const latestCreatedOrder = await Order.findOne({
+        productId,
+        status: "created",
+        paymentProcessed: false,
+    }).sort({ createdAt: -1 });
+
+    if (!latestCreatedOrder) {
+        return true;
+    }
+
+    const holdAgeMs = Date.now() - new Date(latestCreatedOrder.createdAt).getTime();
+    const isExpired = holdAgeMs > holdExpiryMinutes * 60 * 1000;
+
+    if (!isExpired) {
+        return false;
+    }
+
+    latestCreatedOrder.status = "cancelled";
+    await latestCreatedOrder.save();
+    return true;
+};
 
 export const getProductById = async (productId) => {
     // console.log(productId);
 
     const product = await Products.findById(productId)
-        .select("-ollama_embeddings") 
+        .select("-ollama_embeddings")
         .populate({
             path: "requests.buyer",
             select: "username",
@@ -34,7 +66,7 @@ export const addProductRequestDao = async (productId, buyerId, biddingPrice, shi
         return { success: false, reason: "self_request" };
     }
 
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
 
@@ -67,14 +99,13 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
         return { success: false, reason: "not_found" };
     }
 
-    if (product.soldTo && product.soldTo.buyer) { // i think there is a mistake in the logic
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
 
     if (product.sellerAcceptedTo) {
         return { success: false, reason: "already_accepted" };
     }
-    console.log("requsst: ", product.requests);
     const isRequested = product.requests.some(
         req => req.buyer.toString() === buyerId.toString()
     );
@@ -100,7 +131,7 @@ export const createStakeOrderDao = async (productId, buyerId, stakeAmount, razor
     const product = await Products.findById(productId);
     if (!product) return { success: false, reason: "not_found" };
 
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
 
@@ -109,10 +140,31 @@ export const createStakeOrderDao = async (productId, buyerId, stakeAmount, razor
         return { success: false, reason: "no_request" };
     }
 
+    const stakeStatus = product.requests[requestIndex].sellerStakeStatus;
+    const existingStakeId = product.requests[requestIndex].sellerStakeId;
+    const existingStakeCreatedAt = product.requests[requestIndex].sellerStakeCreatedAt;
+    const stakeExpiryMinutes = Number.parseInt(process.env.STAKE_ORDER_EXPIRY_MINUTES || "30", 10);
+    const isStakeExpired = existingStakeCreatedAt
+        ? (Date.now() - new Date(existingStakeCreatedAt).getTime()) > stakeExpiryMinutes * 60 * 1000
+        : false;
+
+    if (stakeStatus === 'Locked') {
+        return { success: false, reason: "already_staked" };
+    }
+
+    if (stakeStatus === 'Pending' && existingStakeId && !isStakeExpired) {
+        return { success: false, reason: "stake_pending" };
+    }
+
+    if (product.sellerAcceptedTo && product.sellerAcceptedTo.toString() === buyerId.toString()) {
+        return { success: false, reason: "already_accepted" };
+    }
+
     product.requests[requestIndex].sellerStakeId = razorpayOrderId;
     product.requests[requestIndex].sellerStakeAmount = stakeAmount;
     product.requests[requestIndex].sellerStakeStatus = 'Pending';
-    
+    product.requests[requestIndex].sellerStakeCreatedAt = new Date();
+
     await product.save();
 
     return { success: true };
@@ -143,13 +195,13 @@ export const revokeAcceptedRequestDao = async (productId) => {
     if (!product) {
         return { success: false, reason: "not_found" };
     }
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
     if (!product.sellerAcceptedTo) {
         return { success: false, reason: "no_accepted_request" };
     }
-    if(product.paymentInProgress){
+    if (product.paymentInProgress) {
         return { success: false, reason: "payment_in_progress" };
     }
 
@@ -160,8 +212,19 @@ export const revokeAcceptedRequestDao = async (productId) => {
     if (hisRequest && hisRequest.sellerStakeStatus === 'Locked') {
         refundStakeAmount = hisRequest.sellerStakeAmount;
     }
+    // make the requests seller status back to pending and remove sellerAcceptedTo from product
+    product.requests = product.requests.map(req => {
+        if (req.buyer.toString() === acceptedBuyerId.toString()) {
+            return {
+                ...req,
+                sellerStakeStatus: 'Pending',
+                sellerStakeId: null,
+            };
+        }
+        return req;
+    });
 
-    product.requests = product.requests.filter(req => req.buyer.toString() !== acceptedBuyerId.toString());
+    // product.requests = product.requests.filter(req => req.buyer.toString() !== acceptedBuyerId.toString());
     product.sellerAcceptedTo = null;
     await product.save();
 
@@ -175,6 +238,7 @@ export const revokeAcceptedRequestDao = async (productId) => {
 };
 
 export const holdPoductWhilePaymentDao = async (buyerId, productId) => {
+    const holdExpiryMinutes = getPaymentHoldExpiryMinutes();
     const product = await Products.findById(productId);
 
     if (!product) {
@@ -183,21 +247,27 @@ export const holdPoductWhilePaymentDao = async (buyerId, productId) => {
     if (!product.sellerAcceptedTo || product.sellerAcceptedTo.toString() !== buyerId.toString()) {
         return { success: false, reason: "not_accepted_buyer" };
     }
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
-    const hisRequest = product.requests.find(req => req.buyer.toString() === buyerId.toString());
+    const hisRequest = getBuyerRequest(product, buyerId);
     if (!hisRequest) {
         return { success: false, reason: "not_found" };
     }
     if (hisRequest.sellerStakeStatus !== 'Locked') {
         return { success: false, reason: "stake_not_locked" };
     }
-    if(product.paymentInProgress) {
-        return { success: false, reason: "payment_in_progress" };
+
+    if (product.paymentInProgress) {
+        const canReplaceHold = await canReplaceExistingPaymentHold(product._id, holdExpiryMinutes);
+        if (!canReplaceHold) {
+            return { success: false, reason: "payment_in_progress" };
+        }
     }
+    product.paymentInProgress = false;
     product.paymentInProgress = true;
     await product.save();
+
     return {
         success: true,
         price: hisRequest.biddingPrice,
@@ -217,7 +287,7 @@ export const paymentDoneDao = async (buyerId, productId) => {
     if (!product.sellerAcceptedTo || product.sellerAcceptedTo.toString() !== buyerId.toString()) {
         return { success: false, reason: "not_accepted_buyer" };
     }
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
     const hisRequest = product.requests.find(req => req.buyer.toString() === buyerId.toString());
@@ -232,28 +302,10 @@ export const paymentDoneDao = async (buyerId, productId) => {
         product.price = hisRequest.biddingPrice;
     }
 
-    // adding product.price for both rental and sale items
+    // Earnings must not be credited at payment time.
+    // Credit/release happens only after buyer marks received OR 48h passes after seller delivery verification.
 
-    const sellerId = product.seller;
-    let amount = 0;
-
-    if (product.isRental) {
-        const from = new Date(hisRequest.from);
-        const to = new Date(hisRequest.to);
-
-        const millisecondsPerDay = 1000 * 60 * 60 * 24;
-        const days = Math.ceil((to - from) / millisecondsPerDay);
-
-        amount = hisRequest.biddingPrice * days;
-    }
-    else {
-        amount = hisRequest.biddingPrice;
-    }
-
-    // Ali change cheyyava according to comment
-    updateEarnings(sellerId, amount);// Creating inconsitency better to have a hook in user model to update earnings whenever a product is sold
-
-    product.requests = [];
+    // product.requests = [];
     product.soldTo = buyerId;
     product.paymentInProgress = false;
     await product.save();
@@ -272,10 +324,10 @@ export const notInterestedDao = async (buyerId, productId) => {
     if (!product) {
         return { success: false, reason: "not_found" };
     }
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
-    
+
     let refundStakeAmount = 0;
     const hisRequest = product.requests.find(req => req.buyer.toString() === buyerId.toString());
     if (hisRequest && hisRequest.sellerStakeStatus === 'Locked') {
@@ -609,8 +661,8 @@ export const vectorSearchProducts = async ({
     ];
 
     let results = await Products.aggregate(pipeline);
-    results=results.filter((result) => result.score > 0.75);
-    results=results.map((result) => {
+    results = results.filter((result) => result.score > 0.75);
+    results = results.map((result) => {
         delete result.ollama_embeddings;
         delete result.requests;
         delete result.soldTo;

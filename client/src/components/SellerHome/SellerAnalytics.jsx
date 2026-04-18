@@ -25,10 +25,10 @@ ChartJS.register(
 
 const SellerAnalytics = () => {
   const [Analytics, setAnalytics] = useState(null);
+  const [revenueMode, setRevenueMode] = useState('settled');
 
   useEffect(() => {
     async function LoadAnalytics() {
-      console.log("loading..analytics");
       try {
         let response = await fetch('http://localhost:3000/user/selling-analytics', {
           method: 'GET',
@@ -84,10 +84,11 @@ const SellerAnalytics = () => {
     ],
   };
 
-  // --- CHART 3 DATA: Category Revenue (NEW) ---
-  // Note: Backend should return an object like: { "Books": 500, "Electronics": 1200 }
-  // If backend isn't ready, we default to empty objects
-  const categoryData = Analytics?.categoryRevenue || {};
+  const settledSummary = Analytics?.settlementSummary || {};
+
+  const categoryData = revenueMode === 'pending'
+    ? (Analytics?.categoryRevenuePending || {})
+    : (Analytics?.categoryRevenueSettled || {});
 
   const categoryChartData = {
     labels: Object.keys(categoryData).length > 0
@@ -99,10 +100,9 @@ const SellerAnalytics = () => {
 
     datasets: [
       {
-        label: 'Revenue (Rs.)',
+        label: revenueMode === 'pending' ? 'Pending Revenue (Rs.)' : 'Settled Revenue (Rs.)',
         data: Object.keys(categoryData).length > 0
           ? Object.values(categoryData)
-          // ADD OPTIONAL CHAINING HERE 👇
           : [
               Analytics?.revPerCat?.["Clothes"] || 0,
               Analytics?.revPerCat?.["Mobiles"] || 0,
@@ -156,31 +156,31 @@ const SellerAnalytics = () => {
       <div className={styles.grid} style={{ marginBottom: '40px' }}>
         <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #10b981' }}>
           <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Total Earnings</h3>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Settled Earnings</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              Rs. {Analytics?.earnings || 0}
+              Rs. {settledSummary?.settledEarnings || Analytics?.earnings || 0}
             </p>
-            <span style={{ fontSize: '0.85rem', color: '#10b981' }}>Your earnings</span>
+            <span style={{ fontSize: '0.85rem', color: '#10b981' }}>Processed payouts only</span>
           </div>
         </div>
 
         <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #3b82f6' }}>
           <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Items Sold</h3>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Pending Payouts</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              {Analytics?.itemsSold || 0}
+              Rs. {settledSummary?.pendingEarnings || 0}
             </p>
-            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Lifetime sales</span>
+            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Queued, not realized yet</span>
           </div>
         </div>
 
         <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #f59e0b' }}>
           <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Active Rentals</h3>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Dispute/Hold Amount</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              {Analytics?.activeRentals || 0}
+              Rs. {settledSummary?.disputedHoldAmount || 0}
             </p>
-            <span style={{ fontSize: '0.85rem', color: '#f59e0b' }}>Currently with users</span>
+            <span style={{ fontSize: '0.85rem', color: '#f59e0b' }}>Under dispute hold</span>
           </div>
         </div>
 
@@ -216,9 +216,45 @@ const SellerAnalytics = () => {
 
       {/* --- SECTION 3: REVENUE BY CATEGORY (NEW) --- */}
       <div className={styles.card} style={{ width: '100%', height: '500px', padding: '20px' }}>
-        <h3 style={{ marginBottom: '20px' }}>Revenue by Category</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <h3 style={{ marginBottom: '8px' }}>Revenue by Category</h3>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={() => setRevenueMode('settled')}
+              style={{
+                border: '1px solid #d1d5db',
+                background: revenueMode === 'settled' ? '#1e293b' : '#fff',
+                color: revenueMode === 'settled' ? '#fff' : '#1f2937',
+                borderRadius: '8px',
+                padding: '6px 10px',
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+              }}
+            >
+              Settled
+            </button>
+            <button
+              type="button"
+              onClick={() => setRevenueMode('pending')}
+              style={{
+                border: '1px solid #d1d5db',
+                background: revenueMode === 'pending' ? '#1e293b' : '#fff',
+                color: revenueMode === 'pending' ? '#fff' : '#1f2937',
+                borderRadius: '8px',
+                padding: '6px 10px',
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+              }}
+            >
+              Pending
+            </button>
+          </div>
+        </div>
         <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '15px' }}>
-          Earnings breakdown across different product categories
+          {revenueMode === 'pending'
+            ? 'Pending payout breakdown by category (not settled yet)'
+            : 'Settled earnings breakdown by category'}
         </p>
         <div style={{ height: '400px', position: 'relative' }}>
           {/* We reuse the Bar component but pass indexAxis: 'y' in options */}

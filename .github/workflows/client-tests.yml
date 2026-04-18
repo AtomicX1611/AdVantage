@@ -36,6 +36,8 @@ jobs:
         run: npm run lint
 
       - name: Run tests with coverage
+        env:
+          VITE_RAZORPAY_KEY_ID: rzp_test_dummykey
         run: npm run test:coverage
 
       - name: Build client
