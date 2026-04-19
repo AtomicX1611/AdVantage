@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../../styles/SellerTransactionPage.module.css';
+import API_CONFIG from '../../config/api.config';
+
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 const SellerTransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);

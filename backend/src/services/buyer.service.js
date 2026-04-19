@@ -26,7 +26,7 @@ import {
     getBuyerOrdersDao,
     buyerMarkDeliveredDao,
 } from "../daos/orders.dao.js";
-import { paymentDoneHelper,updateSellerSubscriptionHelper } from "../helpers/user.helper.js";
+import { paymentDoneHelper, updateSellerSubscriptionHelper } from "../helpers/user.helper.js";
 import { createNewRequestNotification } from "../helpers/notification.helper.js";
 import {
     getUserNotificationsHelper,
@@ -38,6 +38,8 @@ import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils.js"
 import mongoose from "mongoose";
 import PendingPayouts from "../models/PendingPayouts.js";
 import Complaints from "../models/Complaints.js";
+
+import redisConnection from "../config/Redis.config.js";
 
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
 
@@ -208,7 +210,7 @@ export const requestProductService = async (productId, buyerId, biddingPrice, sh
 };
 
 export const createOrderService = async (buyerId, productId, subscription) => {
-    if(subscription!== false){
+    if (subscription !== false) {
         const subscriptionPrices = {
             1: 100,
             2: 500

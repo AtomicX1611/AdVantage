@@ -6,6 +6,9 @@ import { logout } from '../redux/authSlice';
 import VerifyCard from '../components/Manager/VerifyCard.jsx';
 import ComplaintList from '../components/Manager/ComplaintList.jsx';
 import styles from '../styles/manager.module.css';
+import API_CONFIG from '../config/api.config';
+
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
@@ -19,7 +22,7 @@ const ManagerDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const res = await fetch('http://localhost:3000/manager/d', {
+      const res = await fetch(`${BACKEND}/manager/d`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -48,7 +51,7 @@ const ManagerDashboard = () => {
 
   const fetchComplaints = async () => {
     try {
-      const res = await fetch('http://localhost:3000/manager/complaints', {
+      const res = await fetch(`${BACKEND}/manager/complaints`, {
         method: 'GET',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -64,7 +67,7 @@ const ManagerDashboard = () => {
 
   const handleVerify = async (pid) => {
     try {
-      const res = await fetch("http://localhost:3000/manager/verify", {
+      const res = await fetch(`${BACKEND}/manager/verify`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -91,7 +94,7 @@ const ManagerDashboard = () => {
 
   const handleResolveComplaint = async (complaintId, status, resolution) => {
     try {
-      const res = await fetch(`http://localhost:3000/manager/complaints/${complaintId}`, {
+      const res = await fetch(`${BACKEND}/manager/complaints/${complaintId}`, {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -145,7 +148,7 @@ const ManagerDashboard = () => {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch('http://localhost:3000/auth/logout', {
+      const res = await fetch(`${BACKEND}/auth/logout`, {
         method: 'DELETE',
         credentials: 'include',
       });

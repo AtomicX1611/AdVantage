@@ -6,13 +6,13 @@ import {
   getAllAdmins,
   countAdmins,
 } from "../daos/admins.dao.js";
-import { getAllManagers, countManagers, removeManagerById, getManagerVerifiedCounts, createManager,findManagerByEmail } from "../daos/managers.dao.js";
+import { getAllManagers, countManagers, removeManagerById, getManagerVerifiedCounts, createManager, findManagerByEmail } from "../daos/managers.dao.js";
 import { getAllUsers, countUsers, countActiveUsers } from "../daos/users.dao.js";
 import { getAllProducts, countAllProducts, getProductsByCategory, countVerifiedProducts, countUnverifiedProducts } from "../daos/products.dao.js";
-import { 
-  getAllPayments, 
-  countPayments, 
-  getPaymentStatsByType, 
+import {
+  getAllPayments,
+  countPayments,
+  getPaymentStatsByType,
   getRecentPayments,
   getRevenueByCategory,
   getRevenueByState,
@@ -23,6 +23,8 @@ import {
   getTopStates,
   getRentalVsPurchaseStats
 } from "../daos/payment.dao.js";
+
+import redisConnection from "../config/Redis.config.js";
 // import { getAllContacts, countContacts } from "../daos/contacts.dao.js";
 // import { getAllMessages, countMessages } from "../daos/messages.dao.js";
 
@@ -82,6 +84,14 @@ export const removeUser = async (userId) => {
       return result;
     }
 
+    const cachedKey = "adminAllData";
+    try {
+      await redisConnection.del(cachedKey);
+      console.log("Admin data cache invalidated after removing user");
+    } catch (redisError) {
+      console.error("Redis DEL error for admin cache: ", redisError);
+    }
+
     return {
       success: true,
       message: "User and associated products removed successfully",
@@ -106,6 +116,16 @@ export const addManagerService = async (email, password, category) => {
     }
 
     const manager = await createManager({ email, password, category });
+
+    const cachedKey = "adminAllData";
+    try {
+      await redisConnection.del(cachedKey);
+      console.log("Admin data cache invalidated after adding manager");
+    } catch (redisError) {
+      console.error("Redis DEL error for admin cache: ", redisError);
+    }
+
+
     return {
       success: true,
       message: "Manager added successfully",
@@ -126,6 +146,14 @@ export const removeManager = async (managerId) => {
 
     if (!result.success) {
       return result;
+    }
+
+    const cachedKey = "adminAllData";
+    try {
+      await redisConnection.del(cachedKey);
+      console.log("Admin data cache invalidated after removing manager");
+    } catch (redisError) {
+      console.error("Redis DEL error for admin cache: ", redisError);
     }
 
     return {
@@ -180,6 +208,26 @@ export const removeManager = async (managerId) => {
 // };
 
 export const getAllDataService = async () => {
+  const cacheKey = "adminAllData";
+
+  try {
+    const cachedData = await redisConnection.get(cacheKey);
+
+    if (cachedData) {
+      console.log("Admin data fetched from cache");
+      const parsedData = JSON.parse(cachedData);
+
+      return {
+        success: true,
+        data: parsedData.data,
+        counts: parsedData.counts,
+      }
+    }
+
+  } catch (redisError) {
+    console.error("Redis GET error for admin: ", redisError);
+  }
+
   try {
     const [
       admins,
@@ -215,43 +263,74 @@ export const getAllDataService = async () => {
       // countMessages()
     ]);
 
+    const data = {
+      admins,
+      managers: managers.map(m => ({
+        ...m,
+        productsVerified: managerVerifiedCounts[m._id.toString()] || 0,
+        createdAt: m._id.getTimestamp ? m._id.getTimestamp() : new Date(parseInt(m._id.toString().substring(0, 8), 16) * 1000),
+      })),
+      users,
+      products,
+      payments,
+      // contacts,
+      // messages
+    }
+
+    const counts = {
+      admins: adminCount,
+      managers: managerCount,
+      users: userCount,
+      products: productCount,
+      payments: paymentCount,
+      // contacts: contactCount,
+      // messages: messageCount,
+      total: adminCount + managerCount + userCount + productCount + paymentCount
+    }
+
+    try {
+      await redisConnection.set(cacheKey, JSON.stringify({ data, counts: counts }), 'EX', 60 * 2); // Cache for 2 minutes
+      console.log("Admin data cached in Redis");
+    } catch (redisError) {
+      console.error("Redis SET error for admin: ", redisError);
+    }
+
     return {
       success: true,
-      data: {
-        admins,
-        managers: managers.map(m => ({
-          ...m,
-          productsVerified: managerVerifiedCounts[m._id.toString()] || 0,
-          createdAt: m._id.getTimestamp ? m._id.getTimestamp() : new Date(parseInt(m._id.toString().substring(0, 8), 16) * 1000),
-        })),
-        users,
-        products,
-        payments,
-        // contacts,
-        // messages
-      },
-      counts: {
-        admins: adminCount,
-        managers: managerCount,
-        users: userCount,
-        products: productCount,
-        payments: paymentCount,
-        // contacts: contactCount,
-        // messages: messageCount,
-        total: adminCount + managerCount + userCount + productCount + paymentCount
-      }
+      data: data,
+      counts: counts
     };
 
   } catch (error) {
     console.error("Error in getAllDataService:", error);
     return {
       success: false,
-      message: "Error fetching all data from database",
-      error: error.message
-    };
-  }
-};
+      // contacts: contactCount,
+      // messages: messageCount,
+      total: adminCount + managerCount + userCount + productCount + paymentCount
+    }
+  };
+}
+
+
 export const getAdminMetricsService = async () => {
+  const cacheKey = "adminMetrics";
+    try {
+      const cachedData = await redisConnection.get(cacheKey);
+
+      if (cachedData) {
+        console.log("Admin metrics fetched from cache");
+        const parsedData = JSON.parse(cachedData);
+        return {
+          success: true,
+          metrics: parsedData
+        }
+      }
+    } catch (redisError) {
+      console.error("Redis GET error for admin metrics: ", redisError);
+    }
+
+
   try {
     const [
       categoryDistribution,
@@ -276,11 +355,8 @@ export const getAdminMetricsService = async () => {
     ]);
 
     const totalRevenue = revenueByType.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
-
-    return {
-      success: true,
-      metrics: {
-        categoryDistribution,
+    const metricsData = {
+      categoryDistribution,
         revenueByType,
         recentActivity: recentPaymentsList.map(p => ({
           _id: p._id,
@@ -296,8 +372,19 @@ export const getAdminMetricsService = async () => {
         unverifiedProducts: unverifiedProductCount,
         totalProducts: totalProductCount,
         totalPayments: totalPaymentCount,
-        totalRevenue,
-      }
+        totalRevenue
+    }
+
+    try {
+      await redisConnection.set(cacheKey, JSON.stringify(metricsData), 'EX', 60 * 2); // Cache for 2 minutes
+      console.log("Admin metrics cached in Redis");
+    } catch (redisError) {
+      console.error("Redis SET error for admin metrics: ", redisError);
+    }
+
+    return {
+      success: true,
+      metrics: metricsData
     };
   } catch (error) {
     console.error("Error in getAdminMetricsService:", error);
@@ -307,6 +394,21 @@ export const getAdminMetricsService = async () => {
 
 // Payment Analytics Service
 export const getPaymentAnalyticsService = async () => {
+  const cacheKey = "adminPaymentAnalytics";
+    try {
+      const cachedData = await redisConnection.get(cacheKey);
+      if (cachedData) {
+        console.log("Admin payment analytics fetched from cache");
+        const parsedData = JSON.parse(cachedData);
+        return {
+          success: true,
+          analytics: parsedData
+        }
+      }
+    } catch (redisError) {
+      console.error("Redis GET error for admin payment analytics: ", redisError);
+    }
+
   try {
     const [
       revenueByCategory,
@@ -339,9 +441,7 @@ export const getPaymentAnalyticsService = async () => {
       count: m.count
     }));
 
-    return {
-      success: true,
-      analytics: {
+    const analyticsData = {
         revenueByCategory: revenueByCategory.map(c => ({
           category: c._id || 'Uncategorized',
           revenue: c.totalRevenue,
@@ -387,7 +487,19 @@ export const getPaymentAnalyticsService = async () => {
           district: p.productDistrict || null,
           isRental: p.isRental || false
         }))
-      }
+      };
+
+    try {
+      await redisConnection.set(cacheKey, JSON.stringify(analyticsData), 'EX', 60 * 2); // Cache for 2 minutes
+      console.log("Admin payment analytics cached in Redis");
+    } catch (redisError) {
+      console.error("Redis SET error for admin payment analytics: ", redisError);
+    }
+
+    
+    return {
+      success: true,
+      analytics: analyticsData
     };
   } catch (error) {
     console.error("Error in getPaymentAnalyticsService:", error);
