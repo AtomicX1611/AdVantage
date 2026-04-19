@@ -17,7 +17,6 @@ const AddProductForm = () => {
     district: "",
     city: "",
     zipCode: "",
-    isRental: false,
     price: "",
   });
 
@@ -47,12 +46,10 @@ const AddProductForm = () => {
       alert("Name cannot be empty");
       return;
     }
-    if (true) {
-      let ch = formData.name.charAt(0);
-      if (!isNaN(ch)) {
-        alert("Product name cannot start with a number");
-        return;
-      }
+    let ch = formData.name.charAt(0);
+    if (!isNaN(ch)) {
+      alert("Product name cannot start with a number");
+      return;
     }
     if (formData.description.trim().length <= 20) {
       alert("Description should be atleast 20 characters long");
@@ -106,7 +103,8 @@ const AddProductForm = () => {
     Object.keys(formData).forEach((key) => {
       formDataToSend.append(key, formData[key]);
     });
-    console.log(Array.from(productImages));
+    console.log("images: ",Array.from(productImages));
+
     Array.from(productImages).forEach((file) => {
       formDataToSend.append("productImages", file);
     });
@@ -115,6 +113,8 @@ const AddProductForm = () => {
       formDataToSend.append("invoice", invoiceFile);
     }
 
+    console.log("sending request ...");
+
     const request = await fetch(`${import.meta.env.VITE_BACKEND_URL}/user/addProduct`, {
       method: "POST",
       credentials: "include",
@@ -122,9 +122,12 @@ const AddProductForm = () => {
     });
 
     const response = await request.json();
+    console.log("response: ",response);
+
     if (!response.success) {
       alert(response.message || response.error);
     } else {
+      alert("Product added successfully!");
       window.location.href = "/seller/";
     }
   };

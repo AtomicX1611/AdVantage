@@ -36,7 +36,7 @@ const orderSchema = new mongoose.Schema({
     status: {
         type: String,
         default: "created",
-        enum: ["created", "paid", "failed"]
+        enum: ["created", "paid", "failed", "cancelled"]
     },
     paymentId: {
         type: String,
@@ -53,6 +53,38 @@ const orderSchema = new mongoose.Schema({
     notes: {
         type: Object,
         required: true,
+    },
+    awbCode: {
+        type: String,
+    },
+    courierName: {
+        type: String,
+    },
+    deliveryDetails: {
+        expectedDeliveryDate: {
+            type: Date,
+            default: null,
+        },
+        trackingUrl: {
+            type: String,
+            default: null,
+        },
+        notes: {
+            type: String,
+            default: null,
+        },
+    },
+    deliveryStatus: {
+        type: String,
+        default: "Pending",
+        enum: ["Pending", "Shipped", "Delivered", "Disputed", "Completed", "Cancelled"],
+    },
+    deliveredAt: {
+        type: Date,
+    },
+    timerTriggered48Hour: {
+        type: Boolean,
+        default: false,
     },
 }, {
     timestamps: true

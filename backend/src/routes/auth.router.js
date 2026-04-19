@@ -7,7 +7,7 @@ import {
     managerLogin,
     getMyInfo,
     userLogout,
-    googelSignIn,
+    googleSignIn,
     verifyEmailController
 } from "../controllers/auth.controller.js";
 import {
@@ -17,7 +17,7 @@ import {
 
 export const router = express.Router();
 
-router.post('/google', googelSignIn);
+router.post('/google', googleSignIn);
 router.post('/signup', buyerSignup);
 router.post('/verify-email', verifyEmailController);
 router.post('/login', buyerLogin);

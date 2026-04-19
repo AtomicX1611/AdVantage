@@ -9,7 +9,6 @@ const dummyRequests = [
     productPhoto: 'https://sm.pcmag.com/pcmag_au/photo/m/msi-titan-/msi-titan-18-hx_r2s9.jpg',
     productName: 'Laptop',
     requesterName: 'John Doe',
-    isRental: false,
     priceBid: 500,
   },
   {
@@ -17,16 +16,13 @@ const dummyRequests = [
     productPhoto: 'https://via.placeholder.com/150',
     productName: 'Bicycle',
     requesterName: 'Jane Smith',
-    isRental: true,
-    fromDate: '2023-10-01',
-    toDate: '2023-10-07',
+    priceBid: 1200,
   },
   {
     id: 3,
     productPhoto: 'https://via.placeholder.com/150',
     productName: 'Camera',
     requesterName: 'Alice Johnson',
-    isRental: false,
     priceBid: 300,
   },
   {
@@ -34,9 +30,7 @@ const dummyRequests = [
     productPhoto: 'https://via.placeholder.com/150',
     productName: 'Tent',
     requesterName: 'Bob Brown',
-    isRental: true,
-    fromDate: '2023-11-15',
-    toDate: '2023-11-20',
+    priceBid: 950,
   },
 ];
 
@@ -51,10 +45,7 @@ const ViewRequest = () => {
             productPhoto={request.productPhoto}
             productName={request.productName}
             requesterName={request.requesterName}
-            isRental={request.isRental}
             priceBid={request.priceBid}
-            fromDate={request.fromDate}
-            toDate={request.toDate}
           />
         ))}
       </div>

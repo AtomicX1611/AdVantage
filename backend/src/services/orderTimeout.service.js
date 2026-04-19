@@ -1,5 +1,6 @@
 import Order from "../models/Orders.js";
-import { releaseProductPaymentHoldDao } from "../daos/products.dao.js";
+import { releaseProductPaymentHoldDao, getProductById } from "../daos/products.dao.js";
+import { invalidateProductCaches } from "../config/cache.config.js";
 
 const ORDER_PAYMENT_TIMEOUT_MS = Number(process.env.ORDER_PAYMENT_TIMEOUT_MS || 15 * 60 * 1000);
 const ORDER_GC_INTERVAL_MS = Number(process.env.ORDER_GC_INTERVAL_MS || 60 * 1000);
@@ -27,6 +28,14 @@ export const expireStaleCreatedOrders = async () => {
 
         if (updatedOrder.productId) {
             await releaseProductPaymentHoldDao(updatedOrder.productId, updatedOrder.buyerId);
+
+            // Payment hold released — product state changed
+            try {
+                const product = await getProductById(updatedOrder.productId);
+                if (product) {
+                    await invalidateProductCaches(updatedOrder.productId, product.seller._id || product.seller);
+                }
+            } catch (_) { /* best-effort in background worker */ }
         }
     }
 };

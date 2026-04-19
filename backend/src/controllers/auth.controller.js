@@ -257,7 +257,7 @@ export const getMyInfo = async (req, res, next) => {
 };
 
 
-export const googelSignIn = async (req, res, next) => {
+export const googleSignIn = async (req, res, next) => {
     try {
         const { idToken } = req.body;
 
@@ -292,6 +292,9 @@ export const googelSignIn = async (req, res, next) => {
         next(error);
     }
 };
+
+// Backward-compatible alias for older imports.
+export const googelSignIn = googleSignIn;
 
 export const userLogout = async (req, res, next) => {
     try {

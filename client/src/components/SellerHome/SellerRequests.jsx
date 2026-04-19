@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from '../../styles/sellerdashboard.module.css';
-import { API_CONFIG } from '../../config/api.config';
+import API_CONFIG from '../../config/api.config';
 import { resolveImageUrl } from '../../utils/imageUrl';
 
-const backendURL = API_CONFIG.BACKEND_URL;
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
+import { loadRazorpayScript } from '../../utils/razorpay';
 
 const SellerRequests = () => {
   const location = useLocation();
@@ -12,9 +13,8 @@ const SellerRequests = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [myAccount, setMyAccount] = useState("");
   const [pendingProductId, setPendingProductId] = useState(null);
-  const backendURL = "http://localhost:3000";
+  const backendURL = API_CONFIG.BACKEND_URL;
 
   // Check if we navigated here with a specific product ID (from notification)
   useEffect(() => {
@@ -28,7 +28,7 @@ const SellerRequests = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await fetch(`${backendURL}/user/products`, {
+        const response = await fetch(`${BACKEND}/user/products`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -68,7 +68,7 @@ const SellerRequests = () => {
     };
 
     fetchRequests();
-  }, [pendingProductId]);
+  }, [backendURL, pendingProductId]);
 
   // useEffect(() => {
   //     async function fetchContacts() {
@@ -104,29 +104,72 @@ const SellerRequests = () => {
   const handleAccept = async (productId, buyerId) => {
     setError(null);
     try {
-      const response = await fetch(`${backendURL}/user/acceptRequest/${productId}/${buyerId}`, {
+      // 1. Initiate Stake Order (20%)
+      const stakeResponse = await fetch(`${backendURL}/user/request/${productId}/stake/${buyerId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: "include",
-        body: JSON.stringify({ productId })
+        credentials: 'include'
       });
-
-      const data = await response.json();
-      console.log("data in accept: ", data);
-
-      if (data.success) {
-        setProductsWithRequests((prevProducts) =>
-          prevProducts.filter(p => p._id !== productId)
-        );
-
-        setSelectedProduct(null);
-        alert("Request Accepted! Item moved to Accepted-Awaiting Payment tab.");
-      } else {
-        setError(data.message || "Failed to accept request.");
+      const stakeData = await stakeResponse.json();
+      console.log(stakeData);
+      if (!stakeData.success) {
+        setError(stakeData.message || "Failed to create stake order.");
+        return;
       }
+
+      const options = {
+        key: API_CONFIG.RAZORPAY_KEY_ID,
+        amount: stakeData.order.amount,
+        currency: "INR",
+        name: "AdVantage Escrow",
+        description: "20% Stake to accept request",
+        order_id: stakeData.order.id,
+        handler: async function (response) {
+          try {
+            const verifyResponse = await fetch(`${backendURL}/user/request/${productId}/verify-stake/${buyerId}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            });
+
+            const verifyData = await verifyResponse.json();
+            if (verifyData.success) {
+              setProductsWithRequests((prevProducts) =>
+                prevProducts.filter(p => p._id !== productId)
+              );
+              setSelectedProduct(null);
+              alert("Request Accepted! 20% Stake Locked. Item moved to Accepted-Awaiting Payment tab.");
+            } else {
+              setError(verifyData.message || "Failed to verify stake payment.");
+            }
+          } catch (error) {
+            console.error("Stake Verification Error:", error);
+            setError("Error verifying stake payment.");
+          }
+        },
+        theme: { color: "#1a5276" }
+      };
+
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        alert("Razorpay SDK failed to load. Are you online?");
+        return;
+      }
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        alert("Stake payment failed. Request not accepted.");
+        console.error(response.error);
+      });
+      rzp.open();
     } catch (err) {
       console.error(err);
-      setError("Network error while accepting request.");
+      setError("Network error while accepting request and staking.");
     }
   };
 
@@ -134,7 +177,7 @@ const SellerRequests = () => {
   setError(null);
 
   try {
-    const response = await fetch(`${backendURL}/user/rejectRequest/${productId}/${buyerId}`, {
+    const response = await fetch(`${BACKEND}/user/rejectRequest/${productId}/${buyerId}`, {
       method: 'DELETE',
       credentials: "include",
     });
@@ -211,6 +254,9 @@ const SellerRequests = () => {
             const buyerName = req.buyer?.username || "Interested Buyer";
             const buyerId = req.buyer?._id || req._id;
             const biddingPrice = req.biddingPrice;
+            const isAlreadyAccepted =
+              req.sellerStakeStatus === 'Locked' ||
+              (selectedProduct.sellerAcceptedTo && selectedProduct.sellerAcceptedTo.toString() === (req.buyer?._id || '').toString());
             console.log("Request buyer: ", buyerName, buyerId);
             return (
               <div key={req._id || index} className={styles.requestRow}>
@@ -225,14 +271,7 @@ const SellerRequests = () => {
 
                   <div>
                     <strong>{buyerName}</strong>
-
-                    {selectedProduct.isRental && req.from && req.to ? (
-                      <p style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '4px' }}>
-                        Requested: {new Date(req.from).toLocaleDateString()} - {new Date(req.to).toLocaleDateString()}
-                      </p>
-                    ) : (
-                      <p style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '4px' }}>Wants to buy this item</p>
-                    )}
+                    <p style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '4px' }}>Wants to buy this item</p>
 
                     {biddingPrice && (
                       <p style={{ fontSize: '0.9rem', color: '#059669', fontWeight: 'bold', marginTop: '5px' }}>
@@ -245,9 +284,11 @@ const SellerRequests = () => {
                 <div className={styles.requestActions}>
                   <button
                     className={styles.btnAccept}
+                    disabled={isAlreadyAccepted}
+                    style={isAlreadyAccepted ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
                     onClick={() => handleAccept(selectedProduct._id, req.buyer._id)}
                   >
-                    Accept
+                    {isAlreadyAccepted ? 'Already Accepted' : 'Accept'}
                   </button>
                   <button
                     className={styles.btnReject}
@@ -294,7 +335,7 @@ const SellerRequests = () => {
               <div className={styles.cardDetails}>
                 <h3>{item.name}</h3>
                 <p className={styles.cardPrice}>
-                  {item.isRental ? `₹${item.price}/day` : `₹${item.price}`}
+                  {`₹${item.price}`}
                 </p>
 
                 <div className={styles.cardActions}>

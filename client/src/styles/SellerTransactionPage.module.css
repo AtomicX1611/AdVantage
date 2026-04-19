@@ -23,6 +23,95 @@
   font-size: 0.95rem;
 }
 
+.actionBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.accountStatus {
+  flex: 1;
+  min-width: 220px;
+  font-size: 0.85rem;
+  color: #334155;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.primaryActionBtn {
+  border: 1px solid #0f172a;
+  background: #0f172a;
+  color: #fff;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.primaryActionBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.withdrawActionBtn {
+  border: 1px solid #0e7490;
+  background: #0e7490;
+  color: #fff;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.withdrawActionBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.actionMessage {
+  margin: 0 0 12px 0;
+  color: #1e293b;
+  font-size: 0.9rem;
+}
+
+.payoutForm {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 18px;
+}
+
+.payoutForm h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.formRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.formRow label {
+  color: #334155;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.formRow input,
+.formRow select {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+}
+
 /* Filter Tabs */
 .filterContainer {
   display: flex;

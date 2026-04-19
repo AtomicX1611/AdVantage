@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  cache:
+    image: redis:alpine
+    container_name: advantage-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+  backend:
+    build: ./backend
+    container_name: advantage-backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env 
+    environment:
+      - REDIS_URL=redis://cache:6379
+    depends_on:
+      - cache
+
+  client:
+    build: ./client
+    container_name: advantage-client
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./client/.env
+    depends_on:
+      - backend

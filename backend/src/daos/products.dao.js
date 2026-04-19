@@ -1,20 +1,52 @@
 import Products from "../models/Products.js";
-import { updateEarnings } from "./users.dao.js";
+import Order from "../models/Orders.js";
+
+const getPaymentHoldExpiryMinutes = () => {
+    const parsed = Number.parseInt(process.env.PAYMENT_HOLD_EXPIRY_MINUTES || "20", 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 20;
+};
+
+const getBuyerRequest = (product, buyerId) => {
+    return product.requests.find(req => req.buyer.toString() === buyerId.toString());
+};
+
+const canReplaceExistingPaymentHold = async (productId, holdExpiryMinutes) => {
+    const latestCreatedOrder = await Order.findOne({
+        productId,
+        status: "created",
+        paymentProcessed: false,
+    }).sort({ createdAt: -1 });
+
+    if (!latestCreatedOrder) {
+        return true;
+    }
+
+    const holdAgeMs = Date.now() - new Date(latestCreatedOrder.createdAt).getTime();
+    const isExpired = holdAgeMs > holdExpiryMinutes * 60 * 1000;
+
+    if (!isExpired) {
+        return false;
+    }
+
+    latestCreatedOrder.status = "cancelled";
+    await latestCreatedOrder.save();
+    return true;
+};
 
 export const getProductById = async (productId) => {
     // console.log(productId);
 
     const product = await Products.findById(productId)
-        .select("-ollama_embeddings") 
+        .select("-hf_embeddings")
         .populate({
             path: "requests.buyer",
             select: "username",
         })
         .populate({
             path: "seller",
-            select: "username",
+            select: "username _id",
         });
-    // delete product.ollama_embeddings;
+    // delete product.hf_embeddings;
     // console.log(product);
     return product;
 };
@@ -23,7 +55,7 @@ export const createProduct = async (productData) => {
     return await Products.create(productData);
 };
 
-export const addProductRequestDao = async (productId, buyerId, biddingPrice) => {
+export const addProductRequestDao = async (productId, buyerId, biddingPrice, shippingAddress) => {
     const product = await Products.findById(productId);
 
     if (!product) {
@@ -34,7 +66,7 @@ export const addProductRequestDao = async (productId, buyerId, biddingPrice) => 
         return { success: false, reason: "self_request" };
     }
 
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
 
@@ -50,7 +82,7 @@ export const addProductRequestDao = async (productId, buyerId, biddingPrice) => 
         return { success: false, reason: "already_requested" };
     }
 
-    product.requests.push({ buyer: buyerId, biddingPrice: biddingPrice });
+    product.requests.push({ buyer: buyerId, biddingPrice: biddingPrice, shippingAddress: shippingAddress });
     await product.save();
 
     return {
@@ -67,14 +99,13 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
         return { success: false, reason: "not_found" };
     }
 
-    if (product.soldTo && product.soldTo.buyer) { // i think there is a mistake in the logic
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
 
     if (product.sellerAcceptedTo) {
         return { success: false, reason: "already_accepted" };
     }
-    console.log("requsst: ", product.requests);
     const isRequested = product.requests.some(
         req => req.buyer.toString() === buyerId.toString()
     );
@@ -96,23 +127,104 @@ export const acceptProductRequestDao = async (productId, buyerId) => {
     };
 };
 
+export const createStakeOrderDao = async (productId, buyerId, stakeAmount, razorpayOrderId) => {
+    const product = await Products.findById(productId);
+    if (!product) return { success: false, reason: "not_found" };
+
+    if (product.soldTo) {
+        return { success: false, reason: "already_sold" };
+    }
+
+    const requestIndex = product.requests.findIndex(req => req.buyer.toString() === buyerId.toString());
+    if (requestIndex === -1) {
+        return { success: false, reason: "no_request" };
+    }
+
+    const stakeStatus = product.requests[requestIndex].sellerStakeStatus;
+    const existingStakeId = product.requests[requestIndex].sellerStakeId;
+    const existingStakeCreatedAt = product.requests[requestIndex].sellerStakeCreatedAt;
+    const stakeExpiryMinutes = Number.parseInt(process.env.STAKE_ORDER_EXPIRY_MINUTES || "30", 10);
+    const isStakeExpired = existingStakeCreatedAt
+        ? (Date.now() - new Date(existingStakeCreatedAt).getTime()) > stakeExpiryMinutes * 60 * 1000
+        : false;
+
+    if (stakeStatus === 'Locked') {
+        return { success: false, reason: "already_staked" };
+    }
+
+    if (stakeStatus === 'Pending' && existingStakeId && !isStakeExpired) {
+        return { success: false, reason: "stake_pending" };
+    }
+
+    if (product.sellerAcceptedTo && product.sellerAcceptedTo.toString() === buyerId.toString()) {
+        return { success: false, reason: "already_accepted" };
+    }
+
+    product.requests[requestIndex].sellerStakeId = razorpayOrderId;
+    product.requests[requestIndex].sellerStakeAmount = stakeAmount;
+    product.requests[requestIndex].sellerStakeStatus = 'Pending';
+    product.requests[requestIndex].sellerStakeCreatedAt = new Date();
+
+    await product.save();
+
+    return { success: true };
+};
+
+export const verifyStakeDao = async (productId, buyerId, razorpayPaymentId) => {
+    const product = await Products.findById(productId);
+    if (!product) return { success: false, reason: "not_found" };
+
+    const requestIndex = product.requests.findIndex(req => req.buyer.toString() === buyerId.toString());
+    if (requestIndex === -1) {
+        return { success: false, reason: "no_request" };
+    }
+
+    if (product.requests[requestIndex].sellerStakeStatus !== 'Pending') {
+        return { success: false, reason: "already_verified" };
+    }
+
+    product.requests[requestIndex].sellerStakeStatus = 'Locked';
+    await product.save();
+
+    return { success: true, sellerId: product.seller, productName: product.name };
+};
+
 export const revokeAcceptedRequestDao = async (productId) => {
     const product = await Products.findById(productId);
 
     if (!product) {
         return { success: false, reason: "not_found" };
     }
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
     if (!product.sellerAcceptedTo) {
         return { success: false, reason: "no_accepted_request" };
     }
-    if(product.paymentInProgress){
+    if (product.paymentInProgress) {
         return { success: false, reason: "payment_in_progress" };
     }
 
     const acceptedBuyerId = product.sellerAcceptedTo;
+
+    const hisRequest = product.requests.find(req => req.buyer.toString() === acceptedBuyerId.toString());
+    let refundStakeAmount = 0;
+    if (hisRequest && hisRequest.sellerStakeStatus === 'Locked') {
+        refundStakeAmount = hisRequest.sellerStakeAmount;
+    }
+    // make the requests seller status back to pending and remove sellerAcceptedTo from product
+    product.requests = product.requests.map(req => {
+        if (req.buyer.toString() === acceptedBuyerId.toString()) {
+            return {
+                ...req,
+                sellerStakeStatus: 'Pending',
+                sellerStakeId: null,
+            };
+        }
+        return req;
+    });
+
+    // product.requests = product.requests.filter(req => req.buyer.toString() !== acceptedBuyerId.toString());
     product.sellerAcceptedTo = null;
     await product.save();
 
@@ -121,10 +233,12 @@ export const revokeAcceptedRequestDao = async (productId) => {
         buyerId: acceptedBuyerId,
         sellerId: product.seller,
         productName: product.name,
+        refundStakeAmount: refundStakeAmount
     };
 };
 
 export const holdPoductWhilePaymentDao = async (buyerId, productId) => {
+    const holdExpiryMinutes = getPaymentHoldExpiryMinutes();
     const product = await Products.findById(productId);
 
     if (!product) {
@@ -133,18 +247,27 @@ export const holdPoductWhilePaymentDao = async (buyerId, productId) => {
     if (!product.sellerAcceptedTo || product.sellerAcceptedTo.toString() !== buyerId.toString()) {
         return { success: false, reason: "not_accepted_buyer" };
     }
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
-    const hisRequest = product.requests.find(req => req.buyer.toString() === buyerId.toString());
+    const hisRequest = getBuyerRequest(product, buyerId);
     if (!hisRequest) {
-        return { success: false, reason: "not_found" }; // check this
+        return { success: false, reason: "not_found" };
     }
-    if(product.paymentInProgress) {
-        return { success: false, reason: "payment_in_progress" };
+    if (hisRequest.sellerStakeStatus !== 'Locked') {
+        return { success: false, reason: "stake_not_locked" };
     }
+
+    if (product.paymentInProgress) {
+        const canReplaceHold = await canReplaceExistingPaymentHold(product._id, holdExpiryMinutes);
+        if (!canReplaceHold) {
+            return { success: false, reason: "payment_in_progress" };
+        }
+    }
+    product.paymentInProgress = false;
     product.paymentInProgress = true;
     await product.save();
+
     return {
         success: true,
         price: hisRequest.biddingPrice,
@@ -164,7 +287,7 @@ export const paymentDoneDao = async (buyerId, productId) => {
     if (!product.sellerAcceptedTo || product.sellerAcceptedTo.toString() !== buyerId.toString()) {
         return { success: false, reason: "not_accepted_buyer" };
     }
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
     const hisRequest = product.requests.find(req => req.buyer.toString() === buyerId.toString());
@@ -175,32 +298,12 @@ export const paymentDoneDao = async (buyerId, productId) => {
         return { success: false, reason: "payment_not_in_progress" };
     }
 
-    if (!product.isRental) {
-        product.price = hisRequest.biddingPrice;
-    }
+    product.price = hisRequest.biddingPrice;
 
-    // adding product.price for both rental and sale items
+    // Earnings must not be credited at payment time.
+    // Credit/release happens only after buyer marks received OR 48h passes after seller delivery verification.
 
-    const sellerId = product.seller;
-    let amount = 0;
-
-    if (product.isRental) {
-        const from = new Date(hisRequest.from);
-        const to = new Date(hisRequest.to);
-
-        const millisecondsPerDay = 1000 * 60 * 60 * 24;
-        const days = Math.ceil((to - from) / millisecondsPerDay);
-
-        amount = hisRequest.biddingPrice * days;
-    }
-    else {
-        amount = hisRequest.biddingPrice;
-    }
-
-    // Ali change cheyyava according to comment
-    updateEarnings(sellerId, amount);// Creating inconsitency better to have a hook in user model to update earnings whenever a product is sold
-
-    product.requests = [];
+    // product.requests = [];
     product.soldTo = buyerId;
     product.paymentInProgress = false;
     await product.save();
@@ -219,9 +322,16 @@ export const notInterestedDao = async (buyerId, productId) => {
     if (!product) {
         return { success: false, reason: "not_found" };
     }
-    if (product.soldTo && product.soldTo.buyer) {
+    if (product.soldTo) {
         return { success: false, reason: "already_sold" };
     }
+
+    let refundStakeAmount = 0;
+    const hisRequest = product.requests.find(req => req.buyer.toString() === buyerId.toString());
+    if (hisRequest && hisRequest.sellerStakeStatus === 'Locked') {
+        refundStakeAmount = hisRequest.sellerStakeAmount;
+    }
+
     if (product.sellerAcceptedTo && product.sellerAcceptedTo.toString() === buyerId.toString()) {
         product.sellerAcceptedTo = null;
     }
@@ -229,7 +339,7 @@ export const notInterestedDao = async (buyerId, productId) => {
         req => req.buyer.toString() !== buyerId.toString()
     );
     await product.save();
-    return { success: true };
+    return { success: true, refundStakeAmount: refundStakeAmount, sellerId: product.seller };
 };
 
 export const rejectProductRequestDao = async (productId, buyerId) => {
@@ -241,12 +351,18 @@ export const rejectProductRequestDao = async (productId, buyerId) => {
         return { success: false, reason: "not_found" };
     }
 
-    const isRequested = product.requests.some(
+    const isRequested = product.requests.find(
         req => req.buyer.toString() === buyerId.toString()
     );
 
     if (!isRequested) {
         return { success: false, reason: "no_request" };
+    }
+
+    // Security check: Prevent rejection if the seller has already accepted and staked.
+    // They must use the "Revoke Request" API instead.
+    if (product.sellerAcceptedTo && product.sellerAcceptedTo.toString() === buyerId.toString() || isRequested.sellerStakeStatus === 'Locked') {
+        return { success: false, reason: "already_accepted" };
     }
 
     product.requests = product.requests.filter(
@@ -333,7 +449,7 @@ export const getProductsSellerAccepted = async (buyerId) => {
 
 export const getFreshProductsDao = async () => {
     let products = await Products.find({ soldTo: null })
-        .select("-ollama_embeddings -requests -description -soldTo -invoice")
+        .select("-hf_embeddings -requests -description -soldTo -invoice")
         .sort({ postingDate: -1 })
         .limit(20)
         .populate("seller", "username subscription");
@@ -364,7 +480,7 @@ export const getFeaturedProductsDao = async () => {
         { $limit: 20 },
         {
             $project: {
-                ollama_embeddings: 0,
+                hf_embeddings: 0,
                 requests: 0,
                 description: 0,
                 soldTo: 0,
@@ -376,91 +492,13 @@ export const getFeaturedProductsDao = async () => {
 };
 
 export const findProducts = async (filters) => {
-    let products = await Products.find(filters).select("-ollama_embeddings -requests -description -soldTo -invoice").lean();
+    let products = await Products.find(filters).select("-hf_embeddings -requests -description -soldTo -invoice").lean();
     return products;
 };
 
 export const countProductsDao = async (filters) => {
     const count = await Products.countDocuments(filters);
     return count;
-};
-
-export const rentDao = async (buyerId, productId, from, to, biddingPrice) => {
-    try {
-        let prod = await Products.findById(productId);
-        if (!prod) {
-            return {
-                success: false,
-                message: "Product not found",
-                status: 404
-            }
-        }
-        // prevent seller from creating rent request on own product
-        if (prod.seller && prod.seller.toString() === buyerId.toString()) {
-            return {
-                success: false,
-                message: "You cannot request your own product",
-                status: 400
-            }
-        }
-        if (prod.soldTo) {
-            return {
-                success: false,
-                message: "Already taken",
-                status: 400
-            }
-        }
-        const alreadyRequested = prod.requests.some(
-            (req) => req.buyer.toString() === buyerId.toString()
-        );
-
-        if (alreadyRequested) {
-            return {
-                success: false,
-                message: "You have already requested this product",
-                status: 400,
-            };
-        }
-        console.log("required data: ", buyerId, from, to, biddingPrice)
-        prod.requests.push({
-            buyer: buyerId,
-            from: from,
-            to: to,
-            biddingPrice: biddingPrice
-        });
-        await prod.save();
-        return {
-            success: true,
-            message: "Rent request added",
-            status: 200
-        }
-    } catch (error) {
-        console.log(error);
-        return {
-            success: false,
-            message: "Database error",
-            status: 500
-        }
-    }
-}
-
-export const makeAvailableDao = async (sellerId, productId) => {
-    try {
-        const product = await Products.findOneAndUpdate(
-            { _id: productId, seller: sellerId, isRental: true },
-            { $set: { soldTo: null, sellerAcceptedTo: null } },
-            { new: true }
-        );
-
-        if (!product) {
-            return { success: false, message: "Product not found or not eligible" };
-        }
-
-        return { success: true, product };
-    } catch (error) {
-        console.error("Error in makeAvailableDao:", error);
-        throw new Error("Database error while making product available again");
-    }
 };
 
 export const deleteProductDao = async (productId) => {
@@ -519,6 +557,11 @@ export const vectorSearchProducts = async ({
     numCandidates = 150,
     limit = 30,
 }) => {
+    const scoreThresholdRaw = Number.parseFloat(process.env.VECTOR_SEARCH_SCORE_THRESHOLD || "0.7");
+    const scoreThreshold = Number.isFinite(scoreThresholdRaw)
+        ? Math.min(Math.max(scoreThresholdRaw, 0), 1)
+        : 0.7;
+
     const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 100) : 30;
     const safeCandidates = Number.isFinite(numCandidates) && numCandidates > 0
         ? Math.max(numCandidates, safeLimit)
@@ -528,10 +571,10 @@ export const vectorSearchProducts = async ({
         {
             $vectorSearch: {
                 index: 'productSearchIndex',
-                path: 'ollama_embeddings',
+                path: 'hf_embeddings',
                 queryVector,
                 numCandidates: safeCandidates,
-                limit: 100,
+                limit: safeLimit,
                 filter: filters,
             },
         },
@@ -543,9 +586,9 @@ export const vectorSearchProducts = async ({
     ];
 
     let results = await Products.aggregate(pipeline);
-    results=results.filter((result) => result.score > 0.75);
-    results=results.map((result) => {
-        delete result.ollama_embeddings;
+    results = results.filter((result) => result.score >= scoreThreshold);
+    results = results.map((result) => {
+        delete result.hf_embeddings;
         delete result.requests;
         delete result.soldTo;
         delete result.invoice;

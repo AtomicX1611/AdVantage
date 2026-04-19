@@ -5,11 +5,13 @@ import ImageGallery from "../components/ImageGallery";
 import ProductInfo from "../components/ProductInfo";
 import ActionButtons from "../components/ActionButtons";
 import SellerOptions from "../components/SellerOptions";
-import RentForm from "../components/RentForm";
 import BidModal from "../components/BidModal";
 import Notification from "../components/NotificationCard";
 import ComplaintModal from "../components/ComplaintModal";
 import styles from "../styles/productdetails.module.css";
+import API_CONFIG from "../config/api.config";
+
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 const ProductDetailPage = () => {
   
@@ -17,9 +19,8 @@ const ProductDetailPage = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showRentForm, setShowRentForm] = useState(false);
   const [showBidModal, setShowBidModal] = useState(false);
-  const [notification, setNotification] = useState("");
+  const [notification] = useState("");
   const [showNotif, setShowNotif] = useState(false);
   const [showComplaintModal, setShowComplaintModal] = useState(false);
   const navigate = useNavigate();
@@ -28,9 +29,7 @@ const ProductDetailPage = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:3000/anyone/products/${pid}`
-        );
+        const res = await fetch(`${BACKEND}/anyone/products/${pid}`);
 
         const data = await res.json();
         if (!data.success) {
@@ -52,7 +51,7 @@ const ProductDetailPage = () => {
 
   const handleAddToWishlist = async () => {
     try {
-      const url = `http://localhost:3000/user/wishlist/add/${pid}`;
+      const url = `${BACKEND}/user/wishlist/add/${pid}`;
       const response = await fetch(url, {
         method: 'PUT',
         credentials: 'include',
@@ -74,17 +73,12 @@ const ProductDetailPage = () => {
     }
   };
 
-  const handleRentNow = () => {
-    console.log("clicked..");
-    setShowRentForm(true);
-  };
-
   const handleBuyNow = () => {
     console.log("clicked..")
     setShowBidModal(true);
   };
 
-  const handleSubmitBid = async (bidAmount) => {
+  const handleSubmitBid = async (bidAmount, shippingAddress) => {
     try {
       // require auth
       if (!isAuth) {
@@ -100,7 +94,7 @@ const ProductDetailPage = () => {
         return;
       }
       // keep bid amount > product.price for safety
-       const response = await fetch(`http://localhost:3000/user/request/${pid}`, {
+      const response = await fetch(`${BACKEND}/user/request/${pid}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -108,6 +102,7 @@ const ProductDetailPage = () => {
         credentials: "include",
         body: JSON.stringify({
           biddingPrice: parseInt(bidAmount),
+          shippingAddress: shippingAddress,
         }),
       });
 
@@ -127,59 +122,6 @@ const ProductDetailPage = () => {
     } catch (error) {
       console.error("Error submitting bid:", error);
       alert("An error occurred while submitting your bid");
-    }
-  };
-
-  const handleSubmitRent = async (fromDate, toDate, pricePerDay) => {
-    try {
-      // require auth
-      if (!isAuth) {
-        alert("Please sign in to submit a rent request");
-        navigate('/login');
-        return;
-      }
-      // prevent owner from requesting own product
-      const sellerId = product?.seller?._id || product?.seller;
-      const currentUserId = user?._id || user?.id;
-      if (sellerId && currentUserId && sellerId.toString() === currentUserId.toString()) {
-        alert("You cannot request your own product");
-        return;
-      }
-      // Calculate number of days
-      const from = new Date(fromDate);
-      const to = new Date(toDate);
-      const diffTime = Math.abs(to - from);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      const totalPrice = diffDays * pricePerDay;
-
-      // TODO: Replace with actual API call
-      const response = await fetch(`http://localhost:3000/user/rent/${pid}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          from:fromDate,
-          to:toDate,
-          biddingPrice:pricePerDay,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          alert("Please sign in to submit a rent request");
-          navigate('/login');
-          return;
-        }
-        alert(data.message || "Failed to submit rent request");
-        return;
-      }
-      alert(`Rent request submitted:\nFrom: ${fromDate}\nTo: ${toDate}\nPrice per day: ₹${pricePerDay}\nTotal: ₹${totalPrice} (${diffDays} days)`);
-      setShowRentForm(false);
-    } catch (error) {
-      console.error("Error submitting rent request:", error);
-      alert("An error occurred while submitting your rent request");
     }
   };
 
@@ -223,7 +165,6 @@ const ProductDetailPage = () => {
             <ProductInfo product={product} />
 
             <ActionButtons
-              isRental={product.isRental}
               soldTo={product.soldTo}
               sellerId={product.seller}
               isOwner={
@@ -233,7 +174,6 @@ const ProductDetailPage = () => {
               }
               isAuth={isAuth}
               onAddToWishlist={handleAddToWishlist}
-              onRentNow={handleRentNow}
               onBuyNow={handleBuyNow}
               onComplain={() => {
                 if (!isAuth) {
@@ -253,14 +193,6 @@ const ProductDetailPage = () => {
           <h2 className={styles.item_desc}>Description</h2>
           <h3 className={styles.item_title}>{product.description}</h3>
         </div>
-
-        {showRentForm && (
-          <RentForm
-            onClose={() => setShowRentForm(false)}
-            onSubmit={handleSubmitRent}
-            productPrice={product.price}
-          />
-        )}
 
         {showBidModal && (
           <BidModal

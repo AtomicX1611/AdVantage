@@ -1,25 +1,52 @@
 import React, { useState } from 'react';
 import styles from '../../styles/manager.module.css';
 
-const ComplaintList = ({ complaints, onResolve }) => {
+const ComplaintList = ({ complaints, onResolve, onResolveEscrow }) => {
   const [expandedId, setExpandedId] = useState(null);
   const [resolutionText, setResolutionText] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('resolved');
+  const [buyerRefundPercent, setBuyerRefundPercent] = useState('30');
+  const [buyerRefundAmount, setBuyerRefundAmount] = useState('');
+  const [sellerStakeReleaseAmount, setSellerStakeReleaseAmount] = useState('0');
 
   const handleToggle = (id) => {
     setExpandedId(expandedId === id ? null : id);
     setResolutionText('');
     setSelectedStatus('resolved');
+    setBuyerRefundPercent('30');
+    setBuyerRefundAmount('');
+    setSellerStakeReleaseAmount('0');
   };
 
-  const handleResolve = (complaintId) => {
-    if (!selectedStatus) {
-      alert('Please select a status');
-      return;
+  const handleResolve = (complaintId, type, actionType = null) => {
+    if (type === 'product') {
+      const payload = {
+        actionType,
+        resolution: resolutionText,
+        sellerStakeReleaseAmount,
+      };
+
+      if (actionType === 'custom_split') {
+        if (buyerRefundAmount) {
+          payload.buyerRefundAmount = buyerRefundAmount;
+        } else {
+          payload.buyerRefundPercent = buyerRefundPercent;
+        }
+      }
+
+      onResolveEscrow(complaintId, payload);
+    } else {
+      if (!selectedStatus) {
+        alert('Please select a status');
+        return;
+      }
+      onResolve(complaintId, selectedStatus, resolutionText);
     }
-    onResolve(complaintId, selectedStatus, resolutionText);
     setExpandedId(null);
     setResolutionText('');
+    setBuyerRefundPercent('30');
+    setBuyerRefundAmount('');
+    setSellerStakeReleaseAmount('0');
   };
 
   const getStatusBadge = (status) => {
@@ -100,10 +127,10 @@ const ComplaintList = ({ complaints, onResolve }) => {
               </h4>
               <p style={{ margin: 0, fontSize: '0.85rem', color: '#666' }}>
                 <strong>Product:</strong> {complaint.productId?.name || 'Unknown'} &nbsp;|&nbsp;
-                <strong>By:</strong> {complaint.complainant?.username || 'Unknown'} &nbsp;|&nbsp;
+                <strong>By:</strong> {complaint.complainant?.username || 'Unknown'} ({complaint.complainant?.email || 'No email'}) &nbsp;|&nbsp;
                 <strong>Type:</strong> {complaint.type === 'product' ? 'Product Related' : 'General'} &nbsp;|&nbsp;
                 {complaint.respondent && (
-                  <><strong>Against:</strong> {complaint.respondent?.username || 'N/A'} &nbsp;|&nbsp;</>
+                  <><strong>Against:</strong> {complaint.respondent?.username || 'N/A'} ({complaint.respondent?.email || 'No email'}) &nbsp;|&nbsp;</>
                 )}
                 <strong>Date:</strong> {new Date(complaint.createdAt).toLocaleDateString('en-IN')}
               </p>
@@ -122,6 +149,40 @@ const ComplaintList = ({ complaints, onResolve }) => {
                 <strong>Description:</strong><br />
                 {complaint.description}
               </p>
+
+              {complaint.orderId && (
+                <p style={{ fontSize: '0.9rem', color: '#444', marginBottom: '0.75rem' }}>
+                  <strong>Order Context:</strong><br />
+                  Amount: INR {typeof complaint.orderId.amount === 'number' ? (complaint.orderId.amount / 100).toFixed(2) : 'NA'} | Delivery: {complaint.orderId.deliveryStatus || 'NA'}
+                </p>
+              )}
+
+              {complaint.attachments && complaint.attachments.length > 0 && (
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <strong>Proof Attachments:</strong>
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.4rem' }}>
+                    {complaint.attachments.map((attachment, index) => (
+                      <a
+                        key={attachment.url || index}
+                        href={attachment.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          padding: '0.35rem 0.7rem',
+                          border: '1px solid #d0d7de',
+                          borderRadius: '8px',
+                          fontSize: '0.85rem',
+                          color: '#1565c0',
+                          textDecoration: 'none',
+                          background: '#f8fafc',
+                        }}
+                      >
+                        Proof {index + 1}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {complaint.resolution && (
                 <p style={{ fontSize: '0.9rem', color: '#2e7d32', marginBottom: '0.75rem' }}>
@@ -153,40 +214,130 @@ const ComplaintList = ({ complaints, onResolve }) => {
                       }}
                     />
                   </div>
-                  <div>
-                    <label style={{ fontSize: '0.85rem', fontWeight: 500, display: 'block', marginBottom: '0.3rem' }}>
-                      Status
-                    </label>
-                    <select
-                      value={selectedStatus}
-                      onChange={(e) => setSelectedStatus(e.target.value)}
+                  {complaint.type === 'product' ? (
+                    <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                      <div>
+                        <label style={{ fontSize: '0.85rem', fontWeight: 500, display: 'block', marginBottom: '0.3rem' }}>
+                          Buyer Refund % (custom split)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={buyerRefundPercent}
+                          onChange={(e) => setBuyerRefundPercent(e.target.value)}
+                          style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.9rem', width: '160px' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.85rem', fontWeight: 500, display: 'block', marginBottom: '0.3rem' }}>
+                          Buyer Refund Amount (optional)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={buyerRefundAmount}
+                          onChange={(e) => setBuyerRefundAmount(e.target.value)}
+                          style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.9rem', width: '180px' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.85rem', fontWeight: 500, display: 'block', marginBottom: '0.3rem' }}>
+                          Seller Stake Release
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={sellerStakeReleaseAmount}
+                          onChange={(e) => setSellerStakeReleaseAmount(e.target.value)}
+                          style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.9rem', width: '180px' }}
+                        />
+                      </div>
+
+                      <button
+                        onClick={() => handleResolve(complaint._id, complaint.type, 'reject_dispute')}
+                        style={{
+                          padding: '0.55rem 1rem',
+                          background: '#455a64',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                          fontSize: '0.85rem',
+                        }}
+                      >
+                        Reject Dispute
+                      </button>
+                      <button
+                        onClick={() => handleResolve(complaint._id, complaint.type, 'refund_buyer')}
+                        style={{
+                          padding: '0.55rem 1rem',
+                          background: '#2e7d32',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                          fontSize: '0.85rem',
+                        }}
+                      >
+                        Send Buyer Money
+                      </button>
+                      <button
+                        onClick={() => handleResolve(complaint._id, complaint.type, 'custom_split')}
+                        style={{
+                          padding: '0.55rem 1rem',
+                          background: '#1565c0',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                          fontSize: '0.85rem',
+                        }}
+                      >
+                        Send Seller Split + Stake
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <label style={{ fontSize: '0.85rem', fontWeight: 500, display: 'block', marginBottom: '0.3rem' }}>
+                        Status
+                      </label>
+                      <select
+                        value={selectedStatus}
+                        onChange={(e) => setSelectedStatus(e.target.value)}
+                        style={{
+                          padding: '0.5rem',
+                          borderRadius: '6px',
+                          border: '1px solid #ddd',
+                          fontSize: '0.9rem',
+                        }}
+                      >
+                        <option value="in_review">In Review</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="dismissed">Dismissed</option>
+                      </select>
+                    </div>
+                  )}
+                  {complaint.type !== 'product' && (
+                    <button
+                      onClick={() => handleResolve(complaint._id, complaint.type)}
                       style={{
-                        padding: '0.5rem',
+                        padding: '0.55rem 1.25rem',
+                        background: '#1565c0',
+                        color: '#fff',
+                        border: 'none',
                         borderRadius: '6px',
-                        border: '1px solid #ddd',
+                        cursor: 'pointer',
+                        fontWeight: 600,
                         fontSize: '0.9rem',
                       }}
                     >
-                      <option value="in_review">In Review</option>
-                      <option value="resolved">Resolved</option>
-                      <option value="dismissed">Dismissed</option>
-                    </select>
-                  </div>
-                  <button
-                    onClick={() => handleResolve(complaint._id)}
-                    style={{
-                      padding: '0.55rem 1.25rem',
-                      background: '#1565c0',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontWeight: 600,
-                      fontSize: '0.9rem',
-                    }}
-                  >
-                    Update
-                  </button>
+                      Update
+                    </button>
+                  )}
                 </div>
               )}
             </div>

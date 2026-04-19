@@ -4,9 +4,9 @@ export const CHATBOT_CONFIG = {
 
 	THREAD_GC_INTERVAL_MS: Number(process.env.CHAT_THREAD_GC_INTERVAL_MS || 60 * 1000),
 
-	OLLAMA_MODEL: process.env.OLLAMA_MODEL || "llama3.1:8b",
-	OLLAMA_EMBEDDING_MODEL:
-		process.env.OLLAMA_EMBEDDING_MODEL || "qwen3-embedding:latest",
-	OLLAMA_BASE_URL: process.env.OLLAMABASEURL || "http://localhost:11434",
-	OLLAMA_TEMPERATURE: 0.5,
+	HF_ROUTER_BASE_URL: process.env.HF_ROUTER_BASE_URL || "https://router.huggingface.co/v1",
+	HF_MODEL: process.env.HF_MODEL || "Qwen/Qwen2.5-7B-Instruct",
+	HF_EMBEDDING_MODEL:
+		process.env.HF_EMBEDDING_MODEL || "sentence-transformers/all-MiniLM-L6-v2",
+	HF_EMBEDDING_DIMENSION: Number(process.env.HF_EMBEDDING_DIMENSION || 384),
 };

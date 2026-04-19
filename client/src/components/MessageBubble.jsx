@@ -1,6 +1,4 @@
 import React from "react";
-import { useContext } from "react";
-import { CurrentUserContext } from "../context/CurrentUserContextProvider.jsx";
 import styles from "../styles/buyerchat.module.css";
 
 const MessageBubble = ({ msg, currentUser }) => {

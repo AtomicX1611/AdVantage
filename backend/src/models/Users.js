@@ -46,6 +46,15 @@ const buyersSchema = new mongoose.Schema({
     earnings : {
         type:Number,
         default:0
+    },
+    defaultPayoutAccountId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "SellerPayoutAccount",
+        default: null,
+    },
+    payoutConfiguredAt: {
+        type: Date,
+        default: null,
     }
 });
 

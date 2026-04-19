@@ -86,11 +86,26 @@ const productsSchema = new mongoose.Schema({
                 type: mongoose.Schema.Types.Number,
                 required: true,
             },
-            from:{
-                type: mongoose.Schema.Types.Date,
+            shippingAddress: {
+                addressLine: { type: String },
+                city: { type: String },
+                state: { type: String },
+                pinCode: { type: String, required: true },
             },
-            to:{
-                type: mongoose.Schema.Types.Date,
+            sellerStakeId: {
+                type: String,
+            },
+            sellerStakeAmount: {
+                type: Number,
+            },
+            sellerStakeCreatedAt: {
+                type: Date,
+                default: null,
+            },
+            sellerStakeStatus: {
+                type: String,
+                enum: ['Pending', 'Locked', 'Refunded', 'Slashed'],
+                default: 'Pending',
             },
         }
     ],
@@ -105,15 +120,11 @@ const productsSchema = new mongoose.Schema({
         default: null,
         // required: true,
     },
-    isRental: {
-        type: Boolean,
-        required: true
-    },
     paymentInProgress: {
         type: Boolean,
         default: false,
     },
-    ollama_embeddings: {
+    hf_embeddings: {
         type: [Number],
         default: [],
     },

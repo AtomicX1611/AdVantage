@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../redux/authSlice';
@@ -15,6 +15,10 @@ const AuthLogin = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+
+  const googleClientId = useMemo(() => {
+    return import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  }, []);
 
   // Validation functions
   const validateEmail = (value) => {
@@ -114,6 +118,89 @@ const AuthLogin = () => {
     }
   };
 
+  const handleGoogleResponse = useCallback(async (response) => {
+    if (!response?.credential) {
+      setMessage('Google login failed: Missing credential');
+      return;
+    }
+
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      const resp = await fetch(`${API_CONFIG.BACKEND_URL}/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ idToken: response.credential }),
+      });
+
+      const data = await resp.json();
+
+      if (data && data.success) {
+        dispatch(loginSuccess({
+          email: data.email,
+          id: data.buyerId,
+          role: 'user',
+        }));
+        navigate('/');
+      } else {
+        setMessage(data.message || 'Google login failed');
+      }
+    } catch (error) {
+      console.error('Error during Google login:', error);
+      setMessage('Network error - Please try again');
+    } finally {
+      setLoading(false);
+    }
+  }, [dispatch, navigate]);
+
+  useEffect(() => {
+    if (role !== 'user') {
+      return;
+    }
+
+    if (!googleClientId) {
+      return;
+    }
+
+    const initializeGoogle = () => {
+      const googleApi = window.google;
+      if (!googleApi?.accounts?.id) {
+        return false;
+      }
+
+      googleApi.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleResponse,
+      });
+
+      const googleButtonContainer = document.getElementById('googleSignInButton');
+      if (!googleButtonContainer) {
+        return false;
+      }
+
+      googleButtonContainer.innerHTML = '';
+      googleApi.accounts.id.renderButton(googleButtonContainer, {
+        theme: 'outline',
+        size: 'large',
+        width: 380,
+      });
+
+      return true;
+    };
+
+    if (!initializeGoogle()) {
+      const intervalId = setInterval(() => {
+        if (initializeGoogle()) {
+          clearInterval(intervalId);
+        }
+      }, 100);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [googleClientId, handleGoogleResponse, role]);
+
   return (
     <div className={styles.container}>
       <div className={styles.loginCard}>
@@ -176,6 +263,13 @@ const AuthLogin = () => {
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
+
+          {role === 'user' && (
+            <>
+              <div className={styles.divider}>or continue with Google</div>
+              <div id="googleSignInButton" className={styles.googleButtonContainer}></div>
+            </>
+          )}
         </form>
         
         {message && (

@@ -6,3 +6,7 @@ error.log
 access.log.*
 error.log.*
 /logs
+/coverage
+
+**/coverage/
+**/coverage/**
