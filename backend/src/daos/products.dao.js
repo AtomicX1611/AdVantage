@@ -44,7 +44,7 @@ export const getProductById = async (productId) => {
         })
         .populate({
             path: "seller",
-            select: "username",
+            select: "username _id",
         });
     // delete product.ollama_embeddings;
     // console.log(product);

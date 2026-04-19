@@ -149,6 +149,7 @@ describe("seller.service", () => {
   });
 
   test("revokeAcceptedRequestService sends notification on success", async () => {
+    getProductById.mockResolvedValue({ _id: "p1", seller: { _id: "s1" } });
     revokeAcceptedRequestDao.mockResolvedValue({
       success: true,
       sellerId: "s1",

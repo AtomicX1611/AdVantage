@@ -1,6 +1,7 @@
 module.exports = {
   testEnvironment: "node",
   roots: ["<rootDir>/tests"],
+  setupFilesAfterEnv: ["<rootDir>/tests/setup.js"],
   testTimeout: 180000,
   moduleFileExtensions: ["js", "json"],
   transform: {

@@ -12,6 +12,7 @@ import {
   holdPoductWhilePaymentDao,
   notInterestedDao,
   releaseProductPaymentHoldDao,
+  getProductById,
 } from "../../src/daos/products.dao.js";
 import {
   createOrderDao,
@@ -48,6 +49,7 @@ jest.mock("../../src/daos/products.dao.js", () => ({
   releaseProductPaymentHoldDao: jest.fn(),
   notInterestedDao: jest.fn(),
   getProductsSellerAccepted: jest.fn(),
+  getProductById: jest.fn(),
 }));
 
 jest.mock("../../src/models/PendingPayouts.js", () => ({
@@ -114,6 +116,7 @@ describe("buyer.service", () => {
   });
 
   test("verifyPaymentService releases hold when signature invalid", async () => {
+    getProductById.mockResolvedValue({ _id: "p1", seller: { _id: "s1" } });
     validateWebhookSignature.mockReturnValue(false);
     getOrderByIdDao.mockResolvedValue({
       success: true,
@@ -146,6 +149,7 @@ describe("buyer.service", () => {
   });
 
   test("notInterestedService creates seller 20% refund payout when stake exists", async () => {
+    getProductById.mockResolvedValue({ _id: "product_1", seller: { _id: "seller_1" } });
     notInterestedDao.mockResolvedValue({
       success: true,
       refundStakeAmount: 200,
@@ -165,6 +169,7 @@ describe("buyer.service", () => {
   });
 
   test("notInterestedService skips payout when no locked stake", async () => {
+    getProductById.mockResolvedValue({ _id: "product_1", seller: { _id: "seller_1" } });
     notInterestedDao.mockResolvedValue({
       success: true,
       refundStakeAmount: 0,
