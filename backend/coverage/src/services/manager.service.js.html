@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">79.04% </span>
+                <span class="strong">80% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>83/105</span>
+                <span class='fraction'>88/110</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">63.95% </span>
+                <span class="strong">64.13% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>55/86</span>
+                <span class='fraction'>59/92</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">78.84% </span>
+                <span class="strong">79.81% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>82/104</span>
+                <span class='fraction'>87/109</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -348,7 +348,21 @@
 <a name='L283'></a><a href='#L283'>283</a>
 <a name='L284'></a><a href='#L284'>284</a>
 <a name='L285'></a><a href='#L285'>285</a>
-<a name='L286'></a><a href='#L286'>286</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L286'></a><a href='#L286'>286</a>
+<a name='L287'></a><a href='#L287'>287</a>
+<a name='L288'></a><a href='#L288'>288</a>
+<a name='L289'></a><a href='#L289'>289</a>
+<a name='L290'></a><a href='#L290'>290</a>
+<a name='L291'></a><a href='#L291'>291</a>
+<a name='L292'></a><a href='#L292'>292</a>
+<a name='L293'></a><a href='#L293'>293</a>
+<a name='L294'></a><a href='#L294'>294</a>
+<a name='L295'></a><a href='#L295'>295</a>
+<a name='L296'></a><a href='#L296'>296</a>
+<a name='L297'></a><a href='#L297'>297</a>
+<a name='L298'></a><a href='#L298'>298</a>
+<a name='L299'></a><a href='#L299'>299</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -427,6 +441,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -486,6 +505,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
@@ -632,6 +652,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { 
     verifyProductDao,
@@ -647,6 +673,7 @@ import {
 } from "../daos/complaints.dao.js";
 import { getOrderByIdMongoDao, getOrderByProductAndBuyerDao } from "../daos/orders.dao.js";
 import PendingPayouts from "../models/PendingPayouts.js";
+import { invalidateProductCaches, invalidateAdminCaches } from "../config/cache.config.js";
 &nbsp;
 const roundAmount = (value) =&gt; Number(value.toFixed(2));
 &nbsp;
@@ -712,6 +739,11 @@ export const verifyProduct = async (productId, managerId, managerCategory) =&gt;
     }
 &nbsp;
     let response = await verifyProductDao(productId);
+&nbsp;
+    // Product is now verified — it may now appear on homepage / detail pages
+    await invalidateProductCaches(productId, product.seller._id || <span class="branch-1 cbranch-no" title="branch not covered" >product.seller)</span>;
+    await invalidateAdminCaches();
+&nbsp;
     await createProductVerifiedNotification(
         response.sellerId,
         managerId,
@@ -771,8 +803,9 @@ export const resolveComplaintService = async (complaintId, managerId, managerCat
 };
 &nbsp;
 export const resolveEscrowComplaintService = async (complaintId, managerId, managerCategory, payload) =&gt; {
+    let complaint;
     try {
-        const complaint = await getComplaintByIdDao(complaintId);
+        complaint = await getComplaintByIdDao(complaintId);
         if (!complaint) {
             return { success: false, status: 404, message: "Complaint not found" };
         }
@@ -917,6 +950,12 @@ export const resolveEscrowComplaintService = async (complaintId, managerId, mana
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >        console.error("Error in resolveEscrowComplaintService:", error);</span>
 <span class="cstat-no" title="statement not covered" >        return { success: false, message: "Error resolving escrow complaint" };</span>
+    } finally {
+        // Product stake status or order status changed — always invalidate
+        if (complaint?.productId) {
+            const prod = complaint.productId;
+            await invalidateProductCaches(prod._id || <span class="branch-1 cbranch-no" title="branch not covered" >prod,</span> prod.seller);
+        }
     }
 };</pre></td></tr></table></pre>
 
@@ -925,7 +964,7 @@ export const resolveEscrowComplaintService = async (complaintId, managerId, mana
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-18T18:51:48.346Z
+                at 2026-04-19T18:08:27.297Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

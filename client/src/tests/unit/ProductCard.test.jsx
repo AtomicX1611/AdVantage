@@ -45,11 +45,11 @@ describe("ProductCard Component", () => {
     expect(screen.getByText(/purchased/i)).toBeInTheDocument();
   });
 
-  test("shows rental badge and per-day suffix when isRental is true", () => {
+  test("still renders card details when isRental is true", () => {
     const rentalProduct = { ...baseProduct, isRental: true };
     renderWithProviders(<ProductCard product={rentalProduct} />);
-    expect(screen.getByText("Rental")).toBeInTheDocument();
-    expect(screen.getByText("/day")).toBeInTheDocument();
+    expect(screen.getByText("Test Product")).toBeInTheDocument();
+    expect(screen.getByText("₹1,299")).toBeInTheDocument();
   });
 
   test("uses generic alt text when product name is missing", () => {

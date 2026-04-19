@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API_CONFIG from "../config/api.config";
 import styles from "../styles/SellerTransactionPage.module.css";
@@ -30,7 +30,7 @@ const BuyerWalletPage = () => {
   });
   const navigate = useNavigate();
 
-  const fetchPayoutAccount = async () => {
+  const fetchPayoutAccount = useCallback(async () => {
     try {
       const response = await fetch(`${backendURL}/user/payout-account`, {
         method: "GET",
@@ -45,9 +45,9 @@ const BuyerWalletPage = () => {
     } catch (error) {
       console.error("Payout account fetch failed", error);
     }
-  };
+  }, [backendURL]);
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       const response = await fetch(`${backendURL}/user/getMyTransactions`, {
         method: "GET",
@@ -89,12 +89,12 @@ const BuyerWalletPage = () => {
     } catch (error) {
       console.error("Fetch Error:", error);
     }
-  };
+  }, [backendURL]);
 
   useEffect(() => {
     fetchTransactions();
     fetchPayoutAccount();
-  }, []);
+  }, [fetchTransactions, fetchPayoutAccount]);
 
   const handleSetupPayoutAccount = async (event) => {
     event.preventDefault();

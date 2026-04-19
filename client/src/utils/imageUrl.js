@@ -4,7 +4,7 @@ let LOCALHOST_PREFIX_REGEX;
 try {
   const parsed = new URL(BACKEND_URL);
   LOCALHOST_PREFIX_REGEX = new RegExp(`^${parsed.origin.replace(/[-\\/\\^$*+?.()|[\\]{}]/g, "\\\\$&")}\\/?`, 'i');
-} catch (e) {
+} catch {
   LOCALHOST_PREFIX_REGEX = new RegExp(`^${String(BACKEND_URL).replace(/[-\\/\\^$*+?.()|[\\]{}]/g, "\\\\$&")}\\/?`, 'i');
 }
 

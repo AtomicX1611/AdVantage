@@ -3,8 +3,7 @@ import io from "socket.io-client";
 import ChatSidebar from "../components/ChatSidebar";
 import ChatBox from "../components/ChatBox";
 import styles from "../styles/buyerchat.module.css";
-import { useContext } from "react";
-import { CurrentUserContext } from "../context/CurrentUserContextProvider.jsx";
+import { useCallback } from "react";
 import API_CONFIG from "../config/api.config";
 
 const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
@@ -27,7 +26,7 @@ const ChatPage = () => {
   const [messages, setMessages] = useState([]);
 
   
-  async function fetchConversation(otherId) {
+  const fetchConversation = useCallback(async (otherId) => {
     try {
       const res = await fetch(`${backendURL}chat/messages/${otherId}`, {
         method: "GET",
@@ -42,7 +41,7 @@ const ChatPage = () => {
     } catch (err) {
       console.error("Error fetching messages:", err);
     }
-  }
+  }, [backendURL]);
   
   useEffect(() => {
     async function fetchContacts() {
@@ -97,7 +96,7 @@ const ChatPage = () => {
     } else {
       console.log("No sender selected, skipping conversation fetch.");
     }
-  }, [selectedSender]);
+  }, [selectedSender, fetchConversation]);
 
   useEffect(() => {
     if (!socket) return;

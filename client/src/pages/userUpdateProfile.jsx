@@ -44,7 +44,7 @@ const UserUpdateProfile = () => {
     } finally {
       setLoading(false);
     }
-  }, [backendURL]);
+  }, [BACKEND]);
 
   // Fetch existing user data
   useEffect(() => {
