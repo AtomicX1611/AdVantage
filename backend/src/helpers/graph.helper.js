@@ -1,4 +1,4 @@
-import { ChatOllama } from "@langchain/ollama";
+import { HuggingFaceInference } from "@langchain/community/llms/hf";
 import {
     StateGraph,
     MessagesAnnotation,
@@ -58,9 +58,11 @@ export const productSearchTool = tool(
 );
 
 export const initializeModel = () => {
-    return new ChatOllama({
-        model: CHATBOT_CONFIG.OLLAMA_MODEL,
-        temperature: CHATBOT_CONFIG.OLLAMA_TEMPERATURE,
+    return new HuggingFaceInference({
+        apiKey: process.env.HUGGINGFACEHUB_API_KEY,
+        model: CHATBOT_CONFIG.HF_MODEL,
+        temperature: 0.5,
+        maxTokens: 512,
     }).bindTools([productSearchTool]);
 };
 
@@ -78,7 +80,7 @@ export const createCallModelNode = (model) => {
         ];
 
         const response = await model.invoke(messages);
-        
+
         // Return only the new response to be appended to the state
         return { messages: [response] };
     };
@@ -123,7 +125,7 @@ export const toolNode = async (state) => {
 const routeAfterModel = (state) => {
     // Failsafe to prevent infinite loops between tool and model
     if (state.messages.length > 20) return END;
-    
+
     const lastMessage = state.messages[state.messages.length - 1];
 
     // If the model decided it needs external data, route to the tools

@@ -1,9 +1,9 @@
-import { OllamaEmbeddings } from "@langchain/ollama";
+import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf";
 import { CHATBOT_CONFIG } from "../config/chatbot.config.js";
 
-const embeddingsClient = new OllamaEmbeddings({
-    model: CHATBOT_CONFIG.OLLAMA_EMBEDDING_MODEL,
-    baseUrl: CHATBOT_CONFIG.OLLAMA_BASE_URL,
+const embeddingsClient = new HuggingFaceInferenceEmbeddings({
+    apiKey: process.env.HUGGINGFACEHUB_API_KEY,
+    model: CHATBOT_CONFIG.HF_EMBEDDING_MODEL,
 });
 
 const formatValue = (value, fallback = "not provided") => {
@@ -32,7 +32,7 @@ export const createProductStaticSentence = (productData = {}) => {
     return `${formatValue(productData.name)}. Category: ${formatValue(productData.category)}. ${formatValue(productData.description)}`;
 };
 
-export const generateProductOllamaEmbedding = async (productData = {}) => {
+export const generateProductHFEmbedding = async (productData = {}) => {
     const sentence = createProductStaticSentence(productData);
     const vector = await embeddingsClient.embedQuery(sentence);
 

@@ -107,10 +107,10 @@ const productsSchema = new mongoose.Schema({
                 enum: ['Pending', 'Locked', 'Refunded', 'Slashed'],
                 default: 'Pending',
             },
-            from:{
+            from: {
                 type: mongoose.Schema.Types.Date,
             },
-            to:{
+            to: {
                 type: mongoose.Schema.Types.Date,
             },
         }
@@ -134,7 +134,7 @@ const productsSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    ollama_embeddings: {
+    hf_embeddings: {
         type: [Number],
         default: [],
     },

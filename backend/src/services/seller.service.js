@@ -44,7 +44,7 @@ import {
     createRequestRejectedNotification,
     createRequestRevokedNotification,
 } from "../helpers/notification.helper.js";
-import { generateProductOllamaEmbedding } from "../helpers/productEmbedding.helper.js";
+import { generateProductHFEmbedding } from "../helpers/productEmbedding.helper.js";
 import PendingPayouts from "../models/PendingPayouts.js";
 import {
     createPayoutAccountDao,
@@ -268,12 +268,12 @@ export const addProductService = async (req) => {
     };
 
     try {
-        const { vector } = await generateProductOllamaEmbedding(productData);
+        const { vector } = await generateProductHFEmbedding(productData);
         if (Array.isArray(vector) && vector.length > 0) {
-            productData.ollama_embeddings = vector;
+            productData.hf_embeddings = vector;
         }
     } catch (error) {
-        console.error("Failed to generate Ollama embedding for addProduct:", error?.message || error);
+        console.error("Failed to generate HF embedding for addProduct:", error?.message || error);
     }
 
     // console.log("product data: ", productData);
@@ -281,7 +281,7 @@ export const addProductService = async (req) => {
     await incrementUsedPostsDao(req.user._id);
 
     await invalidateProductCaches(null, sellerId);
-    
+
     return newProduct;
 };
 
@@ -617,7 +617,7 @@ export const revokeAcceptedRequestService = async (productId) => {
 
     await invalidateProductCaches(productId, product.seller._id);
 
-    
+
     if (!result.success) {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
@@ -963,7 +963,7 @@ export const makeAvailableService = async (sellerId, productId) => {
 
         await invalidateProductCaches(productId, sellerId);
 
-        
+
         if (!result.success) {
             return {
                 status: 400,

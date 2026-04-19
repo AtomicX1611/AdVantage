@@ -37,7 +37,7 @@ export const getProductById = async (productId) => {
     // console.log(productId);
 
     const product = await Products.findById(productId)
-        .select("-ollama_embeddings")
+        .select("-hf_embeddings")
         .populate({
             path: "requests.buyer",
             select: "username",
@@ -46,7 +46,7 @@ export const getProductById = async (productId) => {
             path: "seller",
             select: "username _id",
         });
-    // delete product.ollama_embeddings;
+    // delete product.hf_embeddings;
     // console.log(product);
     return product;
 };
@@ -451,7 +451,7 @@ export const getProductsSellerAccepted = async (buyerId) => {
 
 export const getFreshProductsDao = async () => {
     let products = await Products.find({ soldTo: null })
-        .select("-ollama_embeddings -requests -description -soldTo -invoice")
+        .select("-hf_embeddings -requests -description -soldTo -invoice")
         .sort({ postingDate: -1 })
         .limit(20)
         .populate("seller", "username subscription");
@@ -482,7 +482,7 @@ export const getFeaturedProductsDao = async () => {
         { $limit: 20 },
         {
             $project: {
-                ollama_embeddings: 0,
+                hf_embeddings: 0,
                 requests: 0,
                 description: 0,
                 soldTo: 0,
@@ -494,7 +494,7 @@ export const getFeaturedProductsDao = async () => {
 };
 
 export const findProducts = async (filters) => {
-    let products = await Products.find(filters).select("-ollama_embeddings -requests -description -soldTo -invoice").lean();
+    let products = await Products.find(filters).select("-hf_embeddings -requests -description -soldTo -invoice").lean();
     return products;
 };
 
@@ -646,7 +646,7 @@ export const vectorSearchProducts = async ({
         {
             $vectorSearch: {
                 index: 'productSearchIndex',
-                path: 'ollama_embeddings',
+                path: 'hf_embeddings',
                 queryVector,
                 numCandidates: safeCandidates,
                 limit: 100,
@@ -663,7 +663,7 @@ export const vectorSearchProducts = async ({
     let results = await Products.aggregate(pipeline);
     results = results.filter((result) => result.score > 0.75);
     results = results.map((result) => {
-        delete result.ollama_embeddings;
+        delete result.hf_embeddings;
         delete result.requests;
         delete result.soldTo;
         delete result.invoice;
