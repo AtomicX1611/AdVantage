@@ -7,10 +7,50 @@ import {
 } from "../daos/products.dao.js";
 import { generateSearchQueryEmbedding } from "../helpers/productEmbedding.helper.js";
 
+import  redisClient  from "../config/Redis.config.js";
+
 
 export const getFeaturedFreshProductsService = async () => {
-    const featuredProducts = await getFeaturedProductsDao();
-    const freshProducts = await getFreshProductsDao();
+    const cacheKey = "featuredFreshProducts";
+
+    try {
+        const cachedData = await redisClient.get(cacheKey);
+
+        if (cachedData) {
+            console.log(' Cache Hit! Serving homepage products from Redis.');
+            const parsedData = JSON.parse(cachedData);
+
+            return {
+                success: true,
+                featuredProducts: parsedData.featuredProducts,
+                freshProducts: parsedData.freshProducts,
+            };
+        }
+    } catch (error) {
+        console.error('Redis GET Error:', redisError);
+    }
+
+    console.log(' Cache MISS... Querying MongoDB...');
+
+    const [featuredProducts, freshProducts] = await Promise.all([
+        getFeaturedProductsDao(),
+        getFreshProductsDao()
+    ]);
+
+    const responseData = {
+        featuredProducts,
+        freshProducts,
+    };
+
+    try {
+        if (featuredProducts.length > 0 || freshProducts.length > 0) {
+            await redisClient.set(cacheKey, JSON.stringify(responseData), 'EX', 60 * 60);
+            console.log(' Homepage products cached in Redis.');
+        }
+    } catch (redisError) {
+        console.error('Redis SET Error:', redisError);
+    }
+
     return {
         success: true,
         featuredProducts,
@@ -19,14 +59,40 @@ export const getFeaturedFreshProductsService = async () => {
 }
 
 export const getProductDetailsService = async (productId) => {
+    const cacheKey = `productDetails:${productId}`;
+
+    try {
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            console.log(` Cache Hit! Serving product ${productId} details from Redis.`);
+            return {
+                success: true,
+                status: 200,
+                product: JSON.parse(cachedData),
+                message: "Product details retrieved successfully",
+            };
+        }
+    } catch (redisError) {
+        console.error('Redis GET Error:', redisError);
+    }
+
+    console.log('Cache Miss.... Querying DB...');
+
     const product = await getProductById(productId);
-    // console.log(product);
+
     if (!product) {
         return {
             success: false,
             message: "Product not found",
             status: 404
         };
+    }
+
+    try {
+        await redisClient.set(cacheKey, JSON.stringify(product), 'EX', 60 * 60);
+        console.log(` Product ${productId} details cached in Redis.`);
+    } catch (redisError) {
+        console.error('Redis SET Error:', redisError);
     }
     return {
         success: true,

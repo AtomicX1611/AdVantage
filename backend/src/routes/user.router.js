@@ -75,8 +75,13 @@ router.post("/verify-payment", verifyPayment);
 router.post("/notInterested/:productId", notInterested);
 router.put("/rent/:productId", rentProductController);
 
+/*
+    ======== Wishlist Routes ========
+ */
+router.get("/wishlist", getWishlistProducts); 
 router.put("/wishlist/add/:productId", addToWishlist);
-router.get("/wishlist", getWishlistProducts); // Working
+router.delete("/wishlist/remove/:productId", removeFromWishlist);
+
 router.get("/pendingRequests", getPendingRequests);
 
 router.post("/request/:productId", requestProduct);
@@ -89,10 +94,10 @@ router.post(
     disputeOrderController
 );
 router.put("/rent/:productId", rentProductController);
-router.put("/wishlist/add/:productId", addToWishlist);
-router.get("/wishlist", getWishlistProducts);
-router.get("/pendingRequests", getPendingRequests);
-router.delete("/wishlist/remove/:productId", removeFromWishlist);
+// router.put("/wishlist/add/:productId", addToWishlist);
+// router.get("/wishlist", getWishlistProducts);
+// router.get("/pendingRequests", getPendingRequests);
+
 router.patch("/update/password", updateBuyerPassword); // Working
 router.put("/update/profile", upload.single("profilePic"), uploadFilesToCloudinary, updateBuyerProfile); // Working
 
@@ -109,14 +114,17 @@ router.post("/notifications/mark-all-read", markAllNotificationsAsRead);
 router.delete("/notifications/:notificationId", deleteNotification);
 
 // buyer as a seller
-router.get("/products", findSellerProducts);
 router.get("/subscriptionStatus", findSellerSubscription);
 router.put("/update/subscription", updateSellerSubscription);
+
+/*
+     ====== Seller Product Management Routes (Fetch , Add , Remove)======
+ */
+router.get("/products", findSellerProducts);
 router.post("/addProduct", upload.fields([
     { name: "productImages", maxCount: 10 },
     { name: "invoice", maxCount: 1 }
 ]), uploadFilesToCloudinary, addProduct); // Working
-
 router.delete("/deleteProduct/:productId", deleteProduct); // Working
 
 router.delete("/rejectRequest/:productId/:buyerId/", rejectRequest);

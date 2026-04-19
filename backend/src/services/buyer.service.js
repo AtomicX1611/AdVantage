@@ -26,7 +26,7 @@ import {
     getBuyerOrdersDao,
     buyerMarkDeliveredDao,
 } from "../daos/orders.dao.js";
-import { paymentDoneHelper,updateSellerSubscriptionHelper } from "../helpers/user.helper.js";
+import { paymentDoneHelper, updateSellerSubscriptionHelper } from "../helpers/user.helper.js";
 import { createNewRequestNotification } from "../helpers/notification.helper.js";
 import {
     getUserNotificationsHelper,
@@ -38,6 +38,8 @@ import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils.js"
 import mongoose from "mongoose";
 import PendingPayouts from "../models/PendingPayouts.js";
 import Complaints from "../models/Complaints.js";
+
+import redisConnection from "../config/Redis.config.js";
 
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
 
@@ -208,7 +210,7 @@ export const requestProductService = async (productId, buyerId, biddingPrice, sh
 };
 
 export const createOrderService = async (buyerId, productId, subscription) => {
-    if(subscription!== false){
+    if (subscription !== false) {
         const subscriptionPrices = {
             1: 100,
             2: 500
@@ -277,17 +279,12 @@ export const createOrderService = async (buyerId, productId, subscription) => {
         notes: { "productId": productId.toString(), "buyerId": buyerId.toString() },
     };
 
-    try {
-        const order = await razorpay.orders.create(options);
-        order.buyerId = buyerId;
-        order.productId = productId;
-        const result = await createOrderDao(buyerId, productId, null, order.id, order.amount, order.currency, order.receipt,order.notes);
+    const order = await razorpay.orders.create(options);
+    order.buyerId = buyerId;
+    order.productId = productId;
+    const result = await createOrderDao(buyerId, productId, null, order.id, order.amount, order.currency, order.receipt, order.notes);
 
-        return { success: true, message: "Order created successfully", order: result.order };
-    } catch (error) {
-        console.error("Razorpay Error:", error);
-        return { success: false, status: 500, message: "Failed to create Razorpay order: " + (error.description || error.message || "Unknown Error") };
-    }
+    return { success: true, message: "Order created successfully", order: result.order };
 };
 
 export const verifyPaymentService = async (body, razorpay_order_id, razorpay_payment_id, razorpay_signature, secret) => {

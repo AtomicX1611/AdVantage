@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../../styles/SellerTransactionPage.module.css';
+import API_CONFIG from '../../config/api.config';
+
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 const SellerTransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
@@ -37,6 +40,67 @@ const SellerTransactionHistory = () => {
       const data = await response.json();
       if (data?.success) {
         setPayoutAccount(data.payoutAccount || null);
+  // 1. Fetch the data
+  useEffect(() => {
+    async function fetchTxn() {
+      try {
+        let response = await fetch(`${BACKEND}/user/getMyTransactions`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
+        });
+
+        let data = await response.json();
+        console.log("1. API data received:", data);
+
+        // Some endpoints may not use `success` field consistently
+        // so proceed to normalize whatever transaction arrays are present.
+        // This also ensures we set state even when `success` is missing.
+        // Normalize only when we have arrays (or empty arrays) to avoid
+        // leaving the component stuck with the initial empty state.
+        // Continue regardless of `data.success` value.
+        
+        // fallbacks
+        const receivedArr = data.received || data.receipts || [];
+        const paidArr = data.paidTo || data.paid || [];
+
+        // Log what arrays we'll normalize
+        console.log('receivedArr length:', (receivedArr || []).length, 'paidArr length:', (paidArr || []).length);
+
+        // Normalize and set state below
+        
+        if (receivedArr || paidArr) {
+          // Normalize Received (Incomes)
+          const received = (receivedArr || []).map(item => ({
+            id: item._id,
+            title: item.paymentType === 'purchase' ? 'Item Sold' : 'Item Rented',
+            date: item.date,
+            amount: item.price,
+            type: item.paymentType === 'purchase' ? 'sale' : 'rent',
+            status: 'success',
+            buyer: item.from?.username || 'Gamer'
+          }));
+
+          // Normalize PaidTo (Expenses)
+          const paid = (paidArr || []).map(item => ({
+            id: item._id,
+            title: 'Platform Subscription',
+            date: item.date,
+            amount: -item.price,
+            type: 'subscription',
+            status: 'success',
+            buyer: 'Platform'
+          }));
+
+          const allTransactions = [...received, ...paid];
+
+          console.log('2. Normalized transactions ready to set:', allTransactions);
+
+          // Use a fresh array reference to guarantee React updates
+          setTransactions([...allTransactions]);
+        }
+      } catch (error) {
+        console.error("Fetch Error:", error);
       }
     } catch (error) {
       console.error('Payout account fetch failed', error);

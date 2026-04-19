@@ -26,7 +26,6 @@ export const getFeaturedFreshProducts = async (req, res, next) => {
 
 export const getProductDetails = async (req,res,next) => {
     try {
-        // console.log("At first coming");
         const { productId } = req.params;
         if(!productId){
             return res.status(400).json("Need product Id");

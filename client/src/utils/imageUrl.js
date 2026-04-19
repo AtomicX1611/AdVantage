@@ -1,4 +1,12 @@
-const LOCALHOST_PREFIX_REGEX = /^https?:\/\/localhost:3000\/?/i;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+
+let LOCALHOST_PREFIX_REGEX;
+try {
+  const parsed = new URL(BACKEND_URL);
+  LOCALHOST_PREFIX_REGEX = new RegExp(`^${parsed.origin.replace(/[-\\/\\^$*+?.()|[\\]{}]/g, "\\\\$&")}\\/?`, 'i');
+} catch (e) {
+  LOCALHOST_PREFIX_REGEX = new RegExp(`^${String(BACKEND_URL).replace(/[-\\/\\^$*+?.()|[\\]{}]/g, "\\\\$&")}\\/?`, 'i');
+}
 
 export const resolveImageUrl = (imagePath, fallback = "/Assets/placeholder.png") => {
   if (!imagePath) {
