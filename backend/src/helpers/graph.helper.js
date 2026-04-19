@@ -1,4 +1,4 @@
-import { HuggingFaceInference } from "@langchain/community/llms/hf";
+import { ChatOpenAI } from "@langchain/openai";
 import {
     StateGraph,
     MessagesAnnotation,
@@ -6,7 +6,7 @@ import {
     END,
     MemorySaver,
 } from "@langchain/langgraph";
-import { SystemMessage } from "@langchain/core/messages";
+import { SystemMessage, ToolMessage } from "@langchain/core/messages";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
 
@@ -58,12 +58,17 @@ export const productSearchTool = tool(
 );
 
 export const initializeModel = () => {
-    return new HuggingFaceInference({
+    const model = new ChatOpenAI({
         apiKey: process.env.HUGGINGFACEHUB_API_KEY,
+        configuration: {
+            baseURL: CHATBOT_CONFIG.HF_ROUTER_BASE_URL,
+        },
         model: CHATBOT_CONFIG.HF_MODEL,
         temperature: 0.5,
         maxTokens: 512,
-    }).bindTools([productSearchTool]);
+    });
+
+    return model.bindTools([productSearchTool]);
 };
 
 // ==========================================
@@ -102,20 +107,18 @@ export const toolNode = async (state) => {
             const tool = toolsMap[toolCall.name];
 
             if (!tool) {
-                return {
-                    role: "tool",
+                return new ToolMessage({
                     content: `Error: Tool ${toolCall.name} not found in agent configuration.`,
                     tool_call_id: toolCall.id,
-                };
+                });
             }
 
             const result = await tool.invoke(toolCall.args);
 
-            return {
-                role: "tool",
+            return new ToolMessage({
                 content: result,
                 tool_call_id: toolCall.id,
-            };
+            });
         })
     );
 

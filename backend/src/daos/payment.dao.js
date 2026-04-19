@@ -371,8 +371,7 @@ export const getPaymentsWithProductDetails = async (limit = 50) => {
                 productCategory: { $arrayElemAt: ['$product.category', 0] },
                 productState: { $arrayElemAt: ['$product.state', 0] },
                 productCity: { $arrayElemAt: ['$product.city', 0] },
-                productDistrict: { $arrayElemAt: ['$product.district', 0] },
-                isRental: { $arrayElemAt: ['$product.isRental', 0] }
+                productDistrict: { $arrayElemAt: ['$product.district', 0] }
             }
         }
     ]);
@@ -447,36 +446,6 @@ export const getTopStates = async (limit = 10) => {
         },
         {
             $limit: limit
-        }
-    ]);
-};
-
-// Get rental vs purchase comparison
-export const getRentalVsPurchaseStats = async () => {
-    return await Payment.aggregate([
-        {
-            $match: {
-                relatedEntityType: 'Products',
-                relatedEntityId: { $ne: null }
-            }
-        },
-        {
-            $lookup: {
-                from: 'products',
-                localField: 'relatedEntityId',
-                foreignField: '_id',
-                as: 'product'
-            }
-        },
-        {
-            $unwind: '$product'
-        },
-        {
-            $group: {
-                _id: '$product.isRental',
-                count: { $sum: 1 },
-                totalRevenue: { $sum: '$price' }
-            }
         }
     ]);
 };

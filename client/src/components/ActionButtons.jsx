@@ -5,7 +5,7 @@ import API_CONFIG from "../config/api.config";
 
 const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
-const ActionButtons = ({ isRental, soldTo, onAddToWishlist, onRentNow, onBuyNow, onComplain, sellerId, isOwner, isAuth }) => {
+const ActionButtons = ({ soldTo, onAddToWishlist, onBuyNow, onComplain, sellerId, isOwner, isAuth }) => {
   const navigate = useNavigate();
   async function handleChat() {
     if (!isAuth) {
@@ -46,14 +46,8 @@ const ActionButtons = ({ isRental, soldTo, onAddToWishlist, onRentNow, onBuyNow,
         </button>
       )}
 
-      {!isOwner && !soldTo && !isRental && (
+      {!isOwner && !soldTo && (
         <button className={styles.btn} onClick={onBuyNow}>Buy Now</button>
-      )}
-
-      {!isOwner && !soldTo && isRental && (
-        <button className={styles.btn} onClick={onRentNow}>
-          Rent Now
-        </button>
       )}
 
       <button

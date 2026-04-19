@@ -298,9 +298,7 @@ export const paymentDoneDao = async (buyerId, productId) => {
         return { success: false, reason: "payment_not_in_progress" };
     }
 
-    if (!product.isRental) {
-        product.price = hisRequest.biddingPrice;
-    }
+    product.price = hisRequest.biddingPrice;
 
     // Earnings must not be credited at payment time.
     // Credit/release happens only after buyer marks received OR 48h passes after seller delivery verification.
@@ -503,84 +501,6 @@ export const countProductsDao = async (filters) => {
     return count;
 };
 
-export const rentDao = async (buyerId, productId, from, to, biddingPrice) => {
-    try {
-        let prod = await Products.findById(productId);
-        if (!prod) {
-            return {
-                success: false,
-                message: "Product not found",
-                status: 404
-            }
-        }
-        // prevent seller from creating rent request on own product
-        if (prod.seller && prod.seller.toString() === buyerId.toString()) {
-            return {
-                success: false,
-                message: "You cannot request your own product",
-                status: 400
-            }
-        }
-        if (prod.soldTo) {
-            return {
-                success: false,
-                message: "Already taken",
-                status: 400
-            }
-        }
-        const alreadyRequested = prod.requests.some(
-            (req) => req.buyer.toString() === buyerId.toString()
-        );
-
-        if (alreadyRequested) {
-            return {
-                success: false,
-                message: "You have already requested this product",
-                status: 400,
-            };
-        }
-        console.log("required data: ", buyerId, from, to, biddingPrice)
-        prod.requests.push({
-            buyer: buyerId,
-            from: from,
-            to: to,
-            biddingPrice: biddingPrice
-        });
-        await prod.save();
-        return {
-            success: true,
-            message: "Rent request added",
-            status: 200
-        }
-    } catch (error) {
-        console.log(error);
-        return {
-            success: false,
-            message: "Database error",
-            status: 500
-        }
-    }
-}
-
-export const makeAvailableDao = async (sellerId, productId) => {
-    try {
-        const product = await Products.findOneAndUpdate(
-            { _id: productId, seller: sellerId, isRental: true },
-            { $set: { soldTo: null, sellerAcceptedTo: null } },
-            { new: true }
-        );
-
-        if (!product) {
-            return { success: false, message: "Product not found or not eligible" };
-        }
-
-        return { success: true, product };
-    } catch (error) {
-        console.error("Error in makeAvailableDao:", error);
-        throw new Error("Database error while making product available again");
-    }
-};
-
 export const deleteProductDao = async (productId) => {
     return await Products.findByIdAndDelete(productId);
 };
@@ -637,6 +557,11 @@ export const vectorSearchProducts = async ({
     numCandidates = 150,
     limit = 30,
 }) => {
+    const scoreThresholdRaw = Number.parseFloat(process.env.VECTOR_SEARCH_SCORE_THRESHOLD || "0.7");
+    const scoreThreshold = Number.isFinite(scoreThresholdRaw)
+        ? Math.min(Math.max(scoreThresholdRaw, 0), 1)
+        : 0.7;
+
     const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 100) : 30;
     const safeCandidates = Number.isFinite(numCandidates) && numCandidates > 0
         ? Math.max(numCandidates, safeLimit)
@@ -649,7 +574,7 @@ export const vectorSearchProducts = async ({
                 path: 'hf_embeddings',
                 queryVector,
                 numCandidates: safeCandidates,
-                limit: 100,
+                limit: safeLimit,
                 filter: filters,
             },
         },
@@ -661,7 +586,7 @@ export const vectorSearchProducts = async ({
     ];
 
     let results = await Products.aggregate(pipeline);
-    results = results.filter((result) => result.score > 0.75);
+    results = results.filter((result) => result.score >= scoreThreshold);
     results = results.map((result) => {
         delete result.hf_embeddings;
         delete result.requests;

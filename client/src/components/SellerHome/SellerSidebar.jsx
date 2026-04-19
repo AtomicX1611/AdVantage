@@ -13,12 +13,10 @@ const SellerSidebar = ({ isOpen }) => {
         Analytics Overview
       </NavLink>
       <NavLink to="for-sale" className={getLinkClass}>Items For Sale</NavLink>
-      <NavLink to="for-rent" className={getLinkClass}>Items For Rent</NavLink>
       <NavLink to="requests" className={getLinkClass}>Buyer Requests</NavLink>
       <NavLink to="accepted-pending" className={getLinkClass}>Accepted - Awaiting Payment</NavLink>
       <NavLink to="orders" className={getLinkClass}>Manage Orders</NavLink>
       <NavLink to="sold" className={getLinkClass}>Sold Items</NavLink>
-      <NavLink to="rented-out" className={getLinkClass}>Currently Rented Out</NavLink>
       <NavLink to="transaction-history" className={getLinkClass}>Transaction History</NavLink>
     </aside>
   );

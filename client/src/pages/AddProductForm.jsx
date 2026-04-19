@@ -17,7 +17,6 @@ const AddProductForm = () => {
     district: "",
     city: "",
     zipCode: "",
-    isRental: false,
     price: "",
   });
 

@@ -138,7 +138,7 @@ const AcceptedProducts = () => {
                   <h3>{product.name}</h3>
                   
                   <p className={styles.cardPrice}>
-                    ₹{product.price}{product.isRental ? '/day' : ''}
+                    ₹{product.price}
                   </p>
                   
                   {acceptedRequest && acceptedRequest.biddingPrice && (
@@ -157,13 +157,6 @@ const AcceptedProducts = () => {
                       <p style={{ marginTop: '4px' }}>
                         <strong>Location:</strong> {product.city}, {product.state}
                       </p>
-                      
-                      {product.isRental && acceptedRequest.from && acceptedRequest.to && (
-                        <p style={{ marginTop: '8px', color: '#1a1a2e' }}>
-                          <strong>Rental Period:</strong><br/>
-                          {new Date(acceptedRequest.from).toLocaleDateString()} - {new Date(acceptedRequest.to).toLocaleDateString()}
-                        </p>
-                      )}
                     </div>
                   )}
 

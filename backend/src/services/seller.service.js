@@ -4,7 +4,6 @@ import {
     deleteProductDao,
     acceptProductRequestDao,
     rejectProductRequestDao,
-    makeAvailableDao,
     // findProducts,
     // countProductsDao,
     revokeAcceptedRequestDao,
@@ -228,8 +227,7 @@ export const addProductService = async (req) => {
         category,
         district,
         city,
-        state,
-        isRental
+        state
     } = req.body;
     // console.log(req.body);
 
@@ -249,8 +247,6 @@ export const addProductService = async (req) => {
     const images = req.cloudinary.productImages.map(img => img.url);
     const invoicePath = req.cloudinary.invoice?.url || null;
 
-    const isRental1 = (isRental == 'true' || isRental == true) ? true : false;
-
     const productData = {
         name,
         price,
@@ -262,7 +258,6 @@ export const addProductService = async (req) => {
         state,
         seller: req.user._id,
         images,
-        isRental: isRental1,
         invoice: invoicePath,
         soldTo: null,
     };
@@ -957,36 +952,6 @@ export const withdrawFinalizedBalanceService = async (sellerId, transferMode) =>
     }
 };
 
-export const makeAvailableService = async (sellerId, productId) => {
-    try {
-        const result = await makeAvailableDao(sellerId, productId);
-
-        await invalidateProductCaches(productId, sellerId);
-
-
-        if (!result.success) {
-            return {
-                status: 400,
-                success: false,
-                message: result.message || "Could not make product available again"
-            };
-        }
-
-        return {
-            status: 200,
-            success: true,
-            message: "Product marked as available again",
-            product: result.product
-        };
-    } catch (error) {
-        console.error("Error in makeAvailableService:", error);
-        return {
-            success: false,
-            message: "Internal server error while updating availability"
-        };
-    }
-};
-
 export const getSellerOrdersService = async (sellerId) => {
     try {
         const orders = await getSellerOrdersDao(sellerId);
@@ -1041,11 +1006,9 @@ export const analyticsService = async (sellerId) => {
         }
         const products = userProducts.products;
         let itemsSold = 0;
-        let activeRentals = 0;
         let pendingRequest = 0;
 
         let itemsForSale = 0;
-        let itemsToRent = 0;
 
         const baseCategoryMap = {
             "Clothes": 0,
@@ -1065,20 +1028,10 @@ export const analyticsService = async (sellerId) => {
         products.forEach(prod => {
             pendingRequest += prod.requests?.length || 0;
 
-            if (prod.isRental) {
-                if (prod.soldTo != null) {
-                    activeRentals++;
-                } else {
-                    itemsToRent++;
-                }
-            }
-            else {
-                if (prod.soldTo != null) {
-                    itemsSold++;
-                }
-                else {
-                    itemsForSale++;
-                }
+            if (prod.soldTo != null) {
+                itemsSold++;
+            } else {
+                itemsForSale++;
             }
         });
 
@@ -1169,8 +1122,6 @@ export const analyticsService = async (sellerId) => {
                 pendingRequest,
                 itemsForSale,
                 itemsSold,
-                itemsToRent,
-                activeRentals,
                 revPerCat: legacyRevenueBySale,
                 categoryRevenueSettled,
                 categoryRevenuePending,

@@ -252,7 +252,7 @@ const ManagerDashboard = () => {
                     sellerName={item.seller?.username || 'Unknown Seller'}
                     postingDate={new Date(item.postingDate).toISOString().split('T')[0]}
                     category={item.category}
-                    type={item.isRental ? 'Rental' : 'Sale'}
+                    type={'Sale'}
                     price={item.price}
                     onVerify={() => handleVerify(item._id)}
                     onViewDetails={() => handleViewDetails(item._id)}

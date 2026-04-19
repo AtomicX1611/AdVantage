@@ -19,8 +19,7 @@ import {
   getMonthlyRevenue,
   getPaymentsWithProductDetails,
   getTopCategories,
-  getTopStates,
-  getRentalVsPurchaseStats
+  getTopStates
 } from "../daos/payment.dao.js";
 
 import { cacheGet, cacheSet, invalidateAdminCaches, invalidateProductCaches, cacheDel, KEYS, TTL } from "../config/cache.config.js";
@@ -299,8 +298,7 @@ export const getPaymentAnalyticsService = async () => {
       monthlyRevenue,
       paymentsWithDetails,
       topCategories,
-      topStates,
-      rentalVsPurchase
+      topStates
     ] = await Promise.all([
       getRevenueByCategory(),
       getRevenueByState(),
@@ -308,13 +306,8 @@ export const getPaymentAnalyticsService = async () => {
       getMonthlyRevenue(12),
       getPaymentsWithProductDetails(100),
       getTopCategories(10),
-      getTopStates(10),
-      getRentalVsPurchaseStats()
+      getTopStates(10)
     ]);
-
-    // Transform rental vs purchase data
-    const rentalStats = rentalVsPurchase.find(r => r._id === true) || { count: 0, totalRevenue: 0 };
-    const purchaseStats = rentalVsPurchase.find(r => r._id === false) || { count: 0, totalRevenue: 0 };
 
     // Transform monthly revenue for chart
     const monthlyRevenueFormatted = monthlyRevenue.map(m => ({
@@ -351,10 +344,6 @@ export const getPaymentAnalyticsService = async () => {
         salesCount: s.salesCount,
         revenue: s.totalRevenue
       })),
-      rentalVsPurchase: {
-        rental: { count: rentalStats.count, revenue: rentalStats.totalRevenue },
-        purchase: { count: purchaseStats.count, revenue: purchaseStats.totalRevenue }
-      },
       detailedPayments: paymentsWithDetails.map(p => ({
         _id: p._id,
         from: p.fromUser || p.fromEmail || 'Unknown',
@@ -366,8 +355,7 @@ export const getPaymentAnalyticsService = async () => {
         category: p.productCategory || null,
         state: p.productState || null,
         city: p.productCity || null,
-        district: p.productDistrict || null,
-        isRental: p.isRental || false
+        district: p.productDistrict || null
       }))
     };
 

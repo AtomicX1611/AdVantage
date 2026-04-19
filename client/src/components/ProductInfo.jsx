@@ -7,8 +7,7 @@ const ProductInfo = ({ product }) => {
       <div className={styles.item_header}>
         <h2 className={styles.item_headertitle}>{product.name}</h2>
         <h2 className={styles.item_price}>
-          ₹{product.price}
-          {product.isRental ? "/- per day" : "/-"}
+          ₹{product.price}/-
         </h2>
       </div>
 

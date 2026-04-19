@@ -155,9 +155,7 @@ const AppRoutes = () => {
             <Route index element={<SellerAnalytics />} />
             <Route element={<Navigate to="for-sale" replace />} />
             <Route path="for-sale" element={<SellerItems filterType="sale" />} />
-            <Route path="for-rent" element={<SellerItems filterType="rent" />} />
             <Route path="sold" element={<SellerItems filterType="sold" />} />
-            <Route path="rented-out" element={<SellerItems filterType="rented" />} />
             <Route path="requests" element={<SellerRequests />} />
             <Route path="accepted-pending" element={<AcceptedProducts />} />
             <Route path="orders" element={<SellerOrders />} />
