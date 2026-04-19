@@ -1,7 +1,7 @@
 let BACKEND_URL_VALUE = 'http://localhost:3000';
 
 // Try to get from environment variables first (Jest will use process.env)
-const processEnv = typeof process !== 'undefined' ? process.env : undefined;
+const processEnv = globalThis.process?.env;
 
 if (processEnv?.VITE_BACKEND_URL) {
   BACKEND_URL_VALUE = processEnv.VITE_BACKEND_URL;
@@ -11,12 +11,8 @@ if (processEnv?.VITE_BACKEND_URL) {
 
 // For Vite builds at runtime, this will be replaced by import.meta.env
 // but we avoid using it directly here to prevent Babel parsing errors
-try {
-  // This block is for Vite, where import.meta will be available at module execution
-  BACKEND_URL_VALUE = globalThis.__VITE_BACKEND_URL__ || BACKEND_URL_VALUE;
-} catch (e) {
-  // Silently fail if in Jest environment
-}
+// This block is for Vite, where import.meta will be available at module execution
+BACKEND_URL_VALUE = globalThis.__VITE_BACKEND_URL__ || BACKEND_URL_VALUE;
 
 export const API_CONFIG = {
   BACKEND_URL: BACKEND_URL_VALUE,

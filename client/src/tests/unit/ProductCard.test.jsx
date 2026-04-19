@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import ProductCard from "../../components/ProductCard";
 import { renderWithProviders } from "../helpers/test-utils";
 

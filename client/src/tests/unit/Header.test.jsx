@@ -6,16 +6,13 @@
  */
 
 import React from "react";
-import { screen, fireEvent, waitFor } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Header from "../../components/Header";
 import {
   renderWithProviders,
   mockStores,
-  createMockStore,
 } from "../helpers/test-utils";
-import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "../../redux/authSlice";
 
 describe("Header Component", () => {
   describe("Unauthenticated State", () => {

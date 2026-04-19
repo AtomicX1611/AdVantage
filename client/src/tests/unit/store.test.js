@@ -6,7 +6,7 @@
  */
 
 import store from "../../redux/store";
-import { loginSuccess, logout, loginStart, loginFailure } from "../../redux/authSlice";
+import { loginSuccess, logout, loginStart } from "../../redux/authSlice";
 
 describe("Redux Store", () => {
   describe("Store Configuration", () => {

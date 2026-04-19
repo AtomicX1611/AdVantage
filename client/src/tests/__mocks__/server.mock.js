@@ -119,7 +119,7 @@ export const server = {
     // Reset handlers to defaults
   }),
   close: jest.fn(),
-  use: jest.fn((handlers) => {
+  use: jest.fn(() => {
     // Can be extended to override default handlers
   }),
 };
@@ -127,5 +127,5 @@ export const server = {
 /**
  * Handlers export for consistency with MSW API
  */
-export const handlers = [];
+export const HANDLERS = [];
 

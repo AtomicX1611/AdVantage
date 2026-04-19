@@ -248,7 +248,7 @@ export const waitForElement = async (testFn, options = {}) => {
     try {
       const element = testFn();
       if (element) return element;
-    } catch (error) {
+    } catch {
       // Continue waiting
     }
     await new Promise((resolve) => setTimeout(resolve, interval));
