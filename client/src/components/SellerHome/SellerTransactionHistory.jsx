@@ -31,7 +31,7 @@ const SellerTransactionHistory = () => {
 
   const fetchPayoutAccount = async () => {
     try {
-      const response = await fetch('http://localhost:3000/user/payout-account', {
+      const response = await fetch(`${BACKEND}/user/payout-account`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -48,7 +48,7 @@ const SellerTransactionHistory = () => {
 
   const fetchTransactions = async () => {
     try {
-      let response = await fetch('http://localhost:3000/user/getMyTransactions', {
+      let response = await fetch(`${BACKEND}/user/getMyTransactions`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -102,7 +102,7 @@ const SellerTransactionHistory = () => {
     setActionMessage('');
 
     try {
-      const response = await fetch('http://localhost:3000/user/payout-account', {
+      const response = await fetch(`${BACKEND}/user/payout-account`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -131,7 +131,7 @@ const SellerTransactionHistory = () => {
     setActionMessage('');
 
     try {
-      const response = await fetch('http://localhost:3000/user/withdraw-finalized-balance', {
+      const response = await fetch(`${BACKEND}/user/withdraw-finalized-balance`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
