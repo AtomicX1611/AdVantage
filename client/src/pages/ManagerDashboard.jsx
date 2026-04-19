@@ -119,7 +119,7 @@ const ManagerDashboard = () => {
 
   const handleResolveEscrow = async (complaintId, payload) => {
     try {
-      const res = await fetch(`http://localhost:3000/manager/complaints/${complaintId}/resolve-escrow`, {
+      const res = await fetch(`${BACKEND}/manager/complaints/${complaintId}/resolve-escrow`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
