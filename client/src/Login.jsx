@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginStart, loginSuccess, loginFailure } from "../redux/authSlice";
 import { useNavigate } from "react-router-dom";
+import API_CONFIG from "./config/api.config";
+
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,7 +19,7 @@ export default function Login() {
     dispatch(loginStart());
 
     try {
-      const res = await fetch("http://localhost:3001/auth/login", {
+      const res = await fetch(`${BACKEND}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

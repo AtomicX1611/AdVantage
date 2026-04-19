@@ -10,6 +10,9 @@ import BidModal from "../components/BidModal";
 import Notification from "../components/NotificationCard";
 import ComplaintModal from "../components/ComplaintModal";
 import styles from "../styles/productdetails.module.css";
+import API_CONFIG from "../config/api.config";
+
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 const ProductDetailPage = () => {
   
@@ -28,9 +31,7 @@ const ProductDetailPage = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:3000/anyone/products/${pid}`
-        );
+        const res = await fetch(`${BACKEND}/anyone/products/${pid}`);
 
         const data = await res.json();
         if (!data.success) {
@@ -52,7 +53,7 @@ const ProductDetailPage = () => {
 
   const handleAddToWishlist = async () => {
     try {
-      const url = `http://localhost:3000/user/wishlist/add/${pid}`;
+      const url = `${BACKEND}/user/wishlist/add/${pid}`;
       const response = await fetch(url, {
         method: 'PUT',
         credentials: 'include',
@@ -100,7 +101,7 @@ const ProductDetailPage = () => {
         return;
       }
       // keep bid amount > product.price for safety
-       const response = await fetch(`http://localhost:3000/user/request/${pid}`, {
+      const response = await fetch(`${BACKEND}/user/request/${pid}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -153,7 +154,7 @@ const ProductDetailPage = () => {
       const totalPrice = diffDays * pricePerDay;
 
       // TODO: Replace with actual API call
-      const response = await fetch(`http://localhost:3000/user/rent/${pid}`, {
+      const response = await fetch(`${BACKEND}/user/rent/${pid}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

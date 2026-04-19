@@ -1,6 +1,9 @@
 import React from "react";
 import styles from "../styles/productdetails.module.css";
 import { useNavigate } from "react-router-dom";
+import API_CONFIG from "../config/api.config";
+
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 const ActionButtons = ({ isRental, soldTo, onAddToWishlist, onRentNow, onBuyNow, onComplain, sellerId, isOwner, isAuth }) => {
   const navigate = useNavigate();
@@ -10,7 +13,7 @@ const ActionButtons = ({ isRental, soldTo, onAddToWishlist, onRentNow, onBuyNow,
       navigate('/auth/login');
       return;
     }
-    let response = await fetch(`http://localhost:3000/chat/createContact/${sellerId._id}`, {
+    let response = await fetch(`${BACKEND}/chat/createContact/${sellerId._id}`, {
       method: "POST",
       credentials: "include",
       headers: {

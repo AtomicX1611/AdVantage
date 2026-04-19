@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import API_CONFIG from '../config/api.config';
+
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -10,7 +13,7 @@ const LoginPage = () => {
     setMessage(null);
 
     try {
-      const resp = await fetch('http://localhost:3000/auth/login', {
+      const resp = await fetch(`${BACKEND}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

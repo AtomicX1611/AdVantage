@@ -5,12 +5,15 @@ import ChatBox from "../components/ChatBox";
 import styles from "../styles/buyerchat.module.css";
 import { useContext } from "react";
 import { CurrentUserContext } from "../context/CurrentUserContextProvider.jsx";
+import API_CONFIG from "../config/api.config";
+
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 const ChatPage = () => {
   // store username here
   const [myUsername, setMyusername] = useState("");
   const [myAccount, setMyAccount] = useState("");
-  const backendURL = "http://localhost:3000/";
+  const backendURL = BACKEND + "/";
   // const { currentUser2, setCurrentUser2 } = useContext(CurrentUserContext);
 
   const [socket, setSocket] = useState(null);
@@ -44,7 +47,7 @@ const ChatPage = () => {
   useEffect(() => {
     async function fetchContacts() {
       try {
-        const response = await fetch(`${backendURL}chat/contacts`, {
+          const response = await fetch(`${BACKEND}/chat/contacts`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -73,7 +76,7 @@ const ChatPage = () => {
 
     console.log("Initiating Socket connection for:", myAccount);
 
-    const newSocket = io("http://localhost:3000", {
+    const newSocket = io(BACKEND, {
       withCredentials: true,
     });
 
@@ -134,7 +137,7 @@ const ChatPage = () => {
     setMessages((prev) => [...prev, messageData]);
     socket.emit("send", messageData);
 
-    await fetch(`http://localhost:3000/chat/message/${selectedSender._id}`, {
+    await fetch(`${BACKEND}/chat/message/${selectedSender._id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

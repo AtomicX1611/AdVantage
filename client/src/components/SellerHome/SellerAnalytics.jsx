@@ -11,6 +11,9 @@ import {
 } from 'chart.js';
 import { Doughnut, Bar } from 'react-chartjs-2';
 import styles from '../../styles/sellerdashboard.module.css';
+import API_CONFIG from '../../config/api.config';
+
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 // Register ChartJS components
 ChartJS.register(
@@ -30,7 +33,7 @@ const SellerAnalytics = () => {
     async function LoadAnalytics() {
       console.log("loading..analytics");
       try {
-        let response = await fetch('http://localhost:3000/user/selling-analytics', {
+        let response = await fetch(`${BACKEND}/user/selling-analytics`, {
           method: 'GET',
           credentials: 'include',
           headers: {

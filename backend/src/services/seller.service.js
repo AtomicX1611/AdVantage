@@ -37,6 +37,9 @@ import {
 } from "../helpers/notification.helper.js";
 import { generateProductOllamaEmbedding } from "../helpers/productEmbedding.helper.js";
 
+import redisConnection from "../config/Redis.config.js";
+import cloudinary from "../config/cloudinary.config.js";
+
 export const addProductService = async (req) => {
     // Old implementation of isAllowed function which is slow
     // async function isAllowed(sellerId) {
@@ -80,6 +83,7 @@ export const addProductService = async (req) => {
     // console.log(req.body);
 
     // console.log("fkldsj");
+    const sellerId = req.user._id;
 
     const allowed = await isAllowed(req.user._id);
     if (!allowed) {
@@ -124,12 +128,21 @@ export const addProductService = async (req) => {
     // console.log("product data: ", productData);
     const newProduct = await createProduct(productData);
     await incrementUsedPostsDao(req.user._id);
+
+    const cacheKeysToClear = ['featuredFreshProducts', `sellerProducts:${sellerId}`];
+    for (const key of cacheKeysToClear) {
+        try {
+            await redisConnection.del(key);
+        }        catch (redisError) {
+            console.log(`Redis DEL error for key ${key} during addProduct: `, redisError);
+        }
+    }
+    
     return newProduct;
 };
 
 export const deleteProductService = async (sellerId, productId) => {
     try {
-        // console.log("Ali told");
         const product = await getProductById(productId);
         if (!product) {
             return {
@@ -138,8 +151,6 @@ export const deleteProductService = async (sellerId, productId) => {
                 message: "Product not found"
             };
         }
-        // console.log(" this "+sellerId.toString()+" , "+product.seller.toString());
-
 
         if (product.seller._id.toString() !== sellerId.toString()) {
             return {
@@ -149,7 +160,85 @@ export const deleteProductService = async (sellerId, productId) => {
             };
         }
 
+        // Attempt to delete associated files from Cloudinary (images + invoice)
+        const extractPublicIdFromUrl = (url) => {
+            try {
+                const parsed = new URL(url);
+                let pathname = parsed.pathname || parsed.path || ""; // e.g. /image/upload/v1234/products/...
+
+                const uploadIdx = pathname.indexOf("/upload/");
+                let afterUpload = uploadIdx !== -1 ? pathname.substring(uploadIdx + "/upload/".length) : pathname;
+
+                // Remove version prefix if present (v123456789/)
+                const versionMatch = afterUpload.match(/^v\d+\//);
+                if (versionMatch) afterUpload = afterUpload.substring(versionMatch[0].length);
+
+                // Strip leading slash if any and file extension
+                if (afterUpload.startsWith('/')) afterUpload = afterUpload.substring(1);
+                afterUpload = afterUpload.replace(/\.[^/.]+$/, "");
+
+                return afterUpload;
+            } catch (err) {
+                return null;
+            }
+        };
+
+        const deletionTasks = [];
+
+        if (Array.isArray(product.images)) {
+            for (const imgUrl of product.images) {
+                const publicId = extractPublicIdFromUrl(imgUrl);
+                if (!publicId) continue;
+                deletionTasks.push((async () => {
+                    try {
+                        const res = await cloudinary.uploader.destroy(publicId);
+                        console.log(`Cloudinary destroy result for ${publicId}:`, res);
+                    } catch (err) {
+                        console.error(`Cloudinary destroy error for ${publicId}:`, err);
+                    }
+                })());
+            }
+        }
+
+        if (product.invoice) {
+            const publicId = extractPublicIdFromUrl(product.invoice);
+            if (publicId) {
+                deletionTasks.push((async () => {
+                    try {
+                        let res = await cloudinary.uploader.destroy(publicId);
+                        // If not found as image, try raw resource type (pdfs, docs)
+                        if (res && res.result === 'not_found') {
+                            res = await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
+                        }
+                        console.log(`Cloudinary destroy result for invoice ${publicId}:`, res);
+                    } catch (err) {
+                        console.error(`Cloudinary destroy error for invoice ${publicId}:`, err);
+                    }
+                })());
+            }
+        }
+
+        try {
+            await Promise.all(deletionTasks);
+        } catch (err) {
+            console.error('Error deleting some Cloudinary resources:', err);
+        }
+
         await deleteProductDao(productId);
+
+        const cacheKeysToClear = [
+            'featuredFreshProducts', 
+            `productDetails:${productId}` ,
+            `sellerProducts:${sellerId}`
+        ];
+        for (const key of cacheKeysToClear) {
+            try {
+                await redisConnection.del(key);
+            }
+            catch (redisError) {
+                console.log(`Redis DEL error for key ${key} during deleteProduct: `, redisError);
+            }
+        }
 
         return {
             success: true,
@@ -294,7 +383,32 @@ export const rejectProductRequestService = async (productId, buyerId) => {
 // };
 
 export const sellerProdRetriveService = async (id) => {
-    return await findProductsForSeller(id);
+    const cacheKey = `sellerProducts:${id}`;
+    
+    try {
+        const cachedData = await redisConnection.get(cacheKey);
+        if (cachedData) {
+            console.log("Cache hit for seller products");
+            return {
+                success: true,
+                products: JSON.parse(cachedData)
+            };
+        }
+    } catch (redisError) {
+        console.error("Redis GET error for seller products from cache:", redisError);
+    }
+
+
+    const fetchedProducts = await findProductsForSeller(id);
+
+    try {
+        await redisConnection.set(cacheKey, JSON.stringify(fetchedProducts.products), 'EX', 10 * 60); // Cache for 10 minutes
+        console.log("Seller products cached successfully");
+    } catch (redisError) {
+        console.error("Redis SET error for caching seller products:", redisError);
+    }
+
+    return fetchedProducts;
 }
 
 export const sellerSubsRetService = async (userId) => {

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from '../../styles/sellerdashboard.module.css';
-import { API_CONFIG } from '../../config/api.config';
+import API_CONFIG from '../../config/api.config';
 import { resolveImageUrl } from '../../utils/imageUrl';
 
-const backendURL = API_CONFIG.BACKEND_URL;
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 const SellerRequests = () => {
   const location = useLocation();
@@ -14,7 +14,6 @@ const SellerRequests = () => {
   const [error, setError] = useState(null);
   const [myAccount, setMyAccount] = useState("");
   const [pendingProductId, setPendingProductId] = useState(null);
-  const backendURL = "http://localhost:3000";
 
   // Check if we navigated here with a specific product ID (from notification)
   useEffect(() => {
@@ -28,7 +27,7 @@ const SellerRequests = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await fetch(`${backendURL}/user/products`, {
+        const response = await fetch(`${BACKEND}/user/products`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -104,7 +103,7 @@ const SellerRequests = () => {
   const handleAccept = async (productId, buyerId) => {
     setError(null);
     try {
-      const response = await fetch(`${backendURL}/user/acceptRequest/${productId}/${buyerId}`, {
+      const response = await fetch(`${BACKEND}/user/acceptRequest/${productId}/${buyerId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
@@ -134,7 +133,7 @@ const SellerRequests = () => {
   setError(null);
 
   try {
-    const response = await fetch(`${backendURL}/user/rejectRequest/${productId}/${buyerId}`, {
+    const response = await fetch(`${BACKEND}/user/rejectRequest/${productId}/${buyerId}`, {
       method: 'DELETE',
       credentials: "include",
     });
