@@ -102,6 +102,8 @@ export const buyerLogin = async (req, res, next) => {
         res.cookie("token", response.token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            secure: true,
+            sameSite: "none",
         });
         return res.status(200).json({
             buyerId: response.buyer._id,
@@ -178,6 +180,8 @@ export const adminLogin = async (req, res, next) => {
         res.cookie("token", response.token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            secure: true,
+            sameSite: "none",
         });
         console.log('Returning token');
 
@@ -217,6 +221,8 @@ export const managerLogin = async (req, res, next) => {
         res.cookie("token", response.token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            secure: true,
+            sameSite: "none",
         });
 
         return res.status(200).json({
@@ -277,6 +283,8 @@ export const googleSignIn = async (req, res, next) => {
         res.cookie("token", response.token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            secure: true,
+            sameSite: "none",
         });
 
         console.log("Logged user with google: ", response.user.email);
@@ -337,6 +345,8 @@ export const verifyEmailController = async (req, res, next) => {
         res.cookie("token", response.token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            secure: true,
+            sameSite: "none",
         });
         console.log("response: ",response);
 
