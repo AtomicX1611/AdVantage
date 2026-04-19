@@ -1,10 +1,12 @@
 let BACKEND_URL_VALUE = 'http://localhost:3000';
 
 // Try to get from environment variables first (Jest will use process.env)
-if (process.env.VITE_BACKEND_URL) {
-  BACKEND_URL_VALUE = process.env.VITE_BACKEND_URL;
-} else if (process.env.REACT_APP_BACKEND_URL) {
-  BACKEND_URL_VALUE = process.env.REACT_APP_BACKEND_URL;
+const processEnv = typeof process !== 'undefined' ? process.env : undefined;
+
+if (processEnv?.VITE_BACKEND_URL) {
+  BACKEND_URL_VALUE = processEnv.VITE_BACKEND_URL;
+} else if (processEnv?.REACT_APP_BACKEND_URL) {
+  BACKEND_URL_VALUE = processEnv.REACT_APP_BACKEND_URL;
 }
 
 // For Vite builds at runtime, this will be replaced by import.meta.env
