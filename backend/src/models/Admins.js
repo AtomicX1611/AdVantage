@@ -11,4 +11,12 @@ const adminSchema = new mongoose.Schema({
     }
 });
 
-export default mongoose.model("Admins", adminSchema);
+const AdminsModel = mongoose.models.Admins || mongoose.model("Admins", adminSchema);
+
+// Backward-compat alias: Payment documents may reference refPath model name "Admin".
+// Registering this alias prevents MissingSchemaError while keeping the same collection.
+if (!mongoose.models.Admin) {
+    mongoose.model("Admin", adminSchema, AdminsModel.collection.name);
+}
+
+export default AdminsModel;
