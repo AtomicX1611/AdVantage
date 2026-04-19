@@ -17,7 +17,7 @@ import { managerRouter } from "./routes/manager.router.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import { accessLogStream } from "./config/logger.config.js";
 
-import './config/Redis.config.js';
+import './config/cache.config.js';
 
 export function createApp() {
     const app = express();

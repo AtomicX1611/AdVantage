@@ -17,7 +17,9 @@ import {
     releaseProductPaymentHoldDao,
     notInterestedDao,
     getProductsSellerAccepted,
+    getProductById
 } from "../daos/products.dao.js";
+
 import {
     createOrderDao,
     getOrderByIdDao,
@@ -26,6 +28,8 @@ import {
     getBuyerOrdersDao,
     buyerMarkDeliveredDao,
 } from "../daos/orders.dao.js";
+
+
 import { paymentDoneHelper, updateSellerSubscriptionHelper } from "../helpers/user.helper.js";
 import { createNewRequestNotification } from "../helpers/notification.helper.js";
 import {
@@ -39,7 +43,7 @@ import mongoose from "mongoose";
 import PendingPayouts from "../models/PendingPayouts.js";
 import Complaints from "../models/Complaints.js";
 
-import redisConnection from "../config/Redis.config.js";
+import { invalidateProductCaches, KEYS, cacheDel } from "../config/cache.config.js";
 
 export const updateBuyerProfileService = async (buyerId, updateData, file) => {
 
@@ -189,7 +193,9 @@ export const removeFromWishlistService = async (userId, productId) => {
 
 export const requestProductService = async (productId, buyerId, biddingPrice, shippingAddress) => {
     const result = await addProductRequestDao(productId, buyerId, biddingPrice, shippingAddress);
+
     console.log("result in req prod serv", result);
+
     if (!result.success) {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
@@ -199,6 +205,13 @@ export const requestProductService = async (productId, buyerId, biddingPrice, sh
         };
         return { success: false, ...messages[result.reason] };
     }
+
+    const product = await getProductById(productId);
+    const sellerId = product.seller._id;
+
+    // Invalidate seller products since requests list changed; also invalidate product detail
+    await invalidateProductCaches(productId, sellerId);
+
     await createNewRequestNotification(
         result.sellerId,
         buyerId,
@@ -263,6 +276,12 @@ export const createOrderService = async (buyerId, productId, subscription) => {
         }
     }
     const holdProductResponse = await holdPoductWhilePaymentDao(buyerId, productId);
+
+    const product = await getProductById(productId);
+
+    // Invalidate seller products cache since product hold status changed
+    await cacheDel(KEYS.sellerProducts(product.seller._id));
+
     if (!holdProductResponse.success) {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
@@ -314,6 +333,10 @@ export const verifyPaymentService = async (body, razorpay_order_id, razorpay_pay
 
         if (currentOrder.productId) {
             await releaseProductPaymentHoldDao(currentOrder.productId, currentOrder.buyerId);
+
+            const product = await getProductById(currentOrder.productId);
+            // Payment failed — seller products cache is stale (hold released)
+            await cacheDel(KEYS.sellerProducts(product.seller._id));
         }
 
         return { success: false, status: 400, message: "Invalid payment signature" };
@@ -348,6 +371,11 @@ export const paymentDoneService = async (buyerId, productId, razorpay_payment_id
 
 export const notInterestedService = async (buyerId, productId) => {
     const result = await notInterestedDao(buyerId, productId);
+
+    const product = await getProductById(productId);
+
+    // Buyer withdrew interest — invalidate seller products + product detail + homepage
+    await invalidateProductCaches(productId, product.seller._id);
 
     if (!result.success) {
         const messages = {

@@ -118,7 +118,7 @@ router.get("/subscriptionStatus", findSellerSubscription);
 router.put("/update/subscription", updateSellerSubscription);
 
 /*
-     ====== Seller Product Management Routes (Fetch , Add , Remove)======
+     ================ Seller Product Management Routes (Fetch , Add , Remove)======
  */
 router.get("/products", findSellerProducts);
 router.post("/addProduct", upload.fields([
@@ -127,11 +127,16 @@ router.post("/addProduct", upload.fields([
 ]), uploadFilesToCloudinary, addProduct); // Working
 router.delete("/deleteProduct/:productId", deleteProduct); // Working
 
+/**
+ *  ==================== Product Request Management Routes (Accept , Reject , makeAvailable, revokeAccepted) ===================
+ */
 router.delete("/rejectRequest/:productId/:buyerId/", rejectRequest);
 router.post("/acceptRequest/:productId/:buyerId", acceptRequest);
+router.patch("/revokeAccepted/:productId", revokeAcceptedRequest);
+router.post("/makeAvailable/:productId", makeAvailableController);
+
 router.post("/request/:productId/stake/:buyerId", createStakeOrderController);
 router.post("/request/:productId/verify-stake/:buyerId", verifyStakeController);
-router.patch("/revokeAccepted/:productId", revokeAcceptedRequest);
 router.put("/order/:orderId/ship", shipOrderController);
 router.post("/order/:orderId/verify-delivery", verifyDeliveryController);
 router.patch("/order/:orderId/seller-cancel", sellerCancelPaidOrderController);
@@ -139,7 +144,6 @@ router.get("/seller/orders", getSellerOrdersController);
 router.get("/buyer/orders", getBuyerOrdersController);
 router.post("/order/:orderId/mark-delivered", buyerMarkDeliveredController);
 
-router.post("/makeAvailable/:productId", makeAvailableController);
 
 /*
     "/selling-analytics" for seller dashboard

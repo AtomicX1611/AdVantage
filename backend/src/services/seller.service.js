@@ -188,7 +188,7 @@ const getPaymentEventStatusMeta = (order, hasProcessedPayout, hasPendingPayout) 
     };
 };
 
-import redisConnection from "../config/Redis.config.js";
+import { cacheGet, cacheSet, cacheDel, invalidateProductCaches, KEYS, TTL } from "../config/cache.config.js";
 import cloudinary from "../config/cloudinary.config.js";
 
 export const addProductService = async (req) => {
@@ -280,14 +280,7 @@ export const addProductService = async (req) => {
     const newProduct = await createProduct(productData);
     await incrementUsedPostsDao(req.user._id);
 
-    const cacheKeysToClear = ['featuredFreshProducts', `sellerProducts:${sellerId}`];
-    for (const key of cacheKeysToClear) {
-        try {
-            await redisConnection.del(key);
-        }        catch (redisError) {
-            console.log(`Redis DEL error for key ${key} during addProduct: `, redisError);
-        }
-    }
+    await invalidateProductCaches(null, sellerId);
     
     return newProduct;
 };
@@ -377,19 +370,7 @@ export const deleteProductService = async (sellerId, productId) => {
 
         await deleteProductDao(productId);
 
-        const cacheKeysToClear = [
-            'featuredFreshProducts', 
-            `productDetails:${productId}` ,
-            `sellerProducts:${sellerId}`
-        ];
-        for (const key of cacheKeysToClear) {
-            try {
-                await redisConnection.del(key);
-            }
-            catch (redisError) {
-                console.log(`Redis DEL error for key ${key} during deleteProduct: `, redisError);
-            }
-        }
+        await invalidateProductCaches(productId, sellerId);
 
         return {
             success: true,
@@ -460,6 +441,10 @@ export const acceptProductRequestService = async (productId, buyerId) => {
         };
         return { success: false, ...messages[result.reason] };
     }
+
+    // Product state changed (sellerAcceptedTo set) — invalidate caches
+    await invalidateProductCaches(productId, result.sellerId);
+
     await createRequestAcceptedNotification(
         buyerId,
         result.sellerId,
@@ -538,6 +523,9 @@ export const verifyStakeService = async (productId, buyerId, body, razorpay_orde
     if (!acceptResult.success) {
         return { success: false, status: 400, message: "Stake verified but failed to accept request" };
     }
+
+    // Stake verified + request accepted — product state changed
+    await invalidateProductCaches(productId, acceptResult.sellerId);
 
     await createRequestAcceptedNotification(
         buyerId,
@@ -625,6 +613,11 @@ export const verifyDeliveryService = async (orderId, sellerId) => {
 
 export const revokeAcceptedRequestService = async (productId) => {
     const result = await revokeAcceptedRequestDao(productId);
+    const product = await getProductById(productId);
+
+    await invalidateProductCaches(productId, product.seller._id);
+
+    
     if (!result.success) {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
@@ -666,6 +659,10 @@ export const rejectProductRequestService = async (productId, buyerId) => {
         };
         return { success: false, ...messages[result.reason] };
     }
+
+    // Request removed from product — invalidate caches
+    await invalidateProductCaches(productId, result.sellerId);
+
     await createRequestRejectedNotification(
         buyerId,
         result.sellerId,
@@ -701,29 +698,20 @@ export const rejectProductRequestService = async (productId, buyerId) => {
 // };
 
 export const sellerProdRetriveService = async (id) => {
-    const cacheKey = `sellerProducts:${id}`;
-    
-    try {
-        const cachedData = await redisConnection.get(cacheKey);
-        if (cachedData) {
-            console.log("Cache hit for seller products");
-            return {
-                success: true,
-                products: JSON.parse(cachedData)
-            };
-        }
-    } catch (redisError) {
-        console.error("Redis GET error for seller products from cache:", redisError);
-    }
+    const key = KEYS.sellerProducts(id);
 
+    const cached = await cacheGet(key);
+    if (cached) {
+        return {
+            success: true,
+            products: cached,
+        };
+    }
 
     const fetchedProducts = await findProductsForSeller(id);
 
-    try {
-        await redisConnection.set(cacheKey, JSON.stringify(fetchedProducts.products), 'EX', 10 * 60); // Cache for 10 minutes
-        console.log("Seller products cached successfully");
-    } catch (redisError) {
-        console.error("Redis SET error for caching seller products:", redisError);
+    if (fetchedProducts.products) {
+        await cacheSet(key, fetchedProducts.products, TTL.SELLER_PRODUCTS);
     }
 
     return fetchedProducts;
@@ -973,6 +961,9 @@ export const makeAvailableService = async (sellerId, productId) => {
     try {
         const result = await makeAvailableDao(sellerId, productId);
 
+        await invalidateProductCaches(productId, sellerId);
+
+        
         if (!result.success) {
             return {
                 status: 400,
@@ -1016,6 +1007,10 @@ export const sellerCancelPaidOrderService = async (orderId, sellerId) => {
             message: result.message || "Failed to cancel order",
         };
     }
+
+    // Order cancelled — product might become available again, invalidate caches
+    const productId = result.order?.productId;
+    await invalidateProductCaches(productId, sellerId);
 
     return {
         success: true,
