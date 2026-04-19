@@ -34,6 +34,11 @@ export function createApp() {
 
     app.use(cookieParser());
 
+    app.use((req, res, next) => {
+        console.log("Incoming Origin:", req.headers.origin);
+        next();
+    });
+
     app.use(
         cors({
             origin: [
