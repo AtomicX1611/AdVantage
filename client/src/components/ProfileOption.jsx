@@ -1,11 +1,9 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styles from "../styles/profile.module.css";
 import "boxicons/css/boxicons.min.css";
 
 const ProfileOption = ({ title, icon, link }) => {
-  const navigate = useNavigate();
-
   const handleLogout = async () => {
     // Get all cookies and delete them
     // console.log("fdskhf");

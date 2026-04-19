@@ -22,7 +22,7 @@ const ProductDetailPage = () => {
   const [error, setError] = useState("");
   const [showRentForm, setShowRentForm] = useState(false);
   const [showBidModal, setShowBidModal] = useState(false);
-  const [notification, setNotification] = useState("");
+  const [notification] = useState("");
   const [showNotif, setShowNotif] = useState(false);
   const [showComplaintModal, setShowComplaintModal] = useState(false);
   const navigate = useNavigate();
@@ -85,7 +85,7 @@ const ProductDetailPage = () => {
     setShowBidModal(true);
   };
 
-  const handleSubmitBid = async (bidAmount) => {
+  const handleSubmitBid = async (bidAmount, shippingAddress) => {
     try {
       // require auth
       if (!isAuth) {
@@ -109,6 +109,7 @@ const ProductDetailPage = () => {
         credentials: "include",
         body: JSON.stringify({
           biddingPrice: parseInt(bidAmount),
+          shippingAddress: shippingAddress,
         }),
       });
 
@@ -131,7 +132,7 @@ const ProductDetailPage = () => {
     }
   };
 
-  const handleSubmitRent = async (fromDate, toDate, pricePerDay) => {
+  const handleSubmitRent = async (fromDate, toDate, pricePerDay, shippingAddress) => {
     try {
       // require auth
       if (!isAuth) {
@@ -164,6 +165,7 @@ const ProductDetailPage = () => {
           from:fromDate,
           to:toDate,
           biddingPrice:pricePerDay,
+          shippingAddress: shippingAddress,
         }),
       });
       const data = await response.json();

@@ -47,12 +47,10 @@ const AddProductForm = () => {
       alert("Name cannot be empty");
       return;
     }
-    if (true) {
-      let ch = formData.name.charAt(0);
-      if (!isNaN(ch)) {
-        alert("Product name cannot start with a number");
-        return;
-      }
+    let ch = formData.name.charAt(0);
+    if (!isNaN(ch)) {
+      alert("Product name cannot start with a number");
+      return;
     }
     if (formData.description.trim().length <= 20) {
       alert("Description should be atleast 20 characters long");

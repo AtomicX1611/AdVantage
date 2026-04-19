@@ -4,6 +4,7 @@ import {
     dashboardController,
     getComplaintsController,
     resolveComplaintController,
+    resolveEscrowComplaintController,
  } from "../controllers/manager.controller.js";
 
 import {
@@ -22,3 +23,4 @@ managerRouter.get("/d", dashboardController);
 managerRouter.post("/verify", verifyController);
 managerRouter.get("/complaints", getComplaintsController);
 managerRouter.patch("/complaints/:complaintId", resolveComplaintController);
+managerRouter.post("/complaints/:complaintId/resolve-escrow", resolveEscrowComplaintController);

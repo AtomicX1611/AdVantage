@@ -1,5 +1,6 @@
 export const API_CONFIG = {
   BACKEND_URL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000',
+  RAZORPAY_KEY_ID: import.meta.env.VITE_RAZORPAY_KEY_ID || '',
   API_ENDPOINTS: {
     FEATURED_PRODUCTS: '/anyone/HomeRequirements',
     FRESH_PRODUCTS: '/anyone/HomeRequirements',

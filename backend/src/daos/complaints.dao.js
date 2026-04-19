@@ -9,6 +9,7 @@ export const createComplaintDao = async (complaintData) => {
 
 export const getComplaintByIdDao = async (complaintId) => {
     return await Complaints.findById(complaintId)
+    .populate("orderId", "amount status deliveryStatus deliveredAt awbCode courierName timerTriggered48Hour")
         .populate("productId", "name category seller images")
         .populate("complainant", "username email")
         .populate("respondent", "username email")
@@ -21,6 +22,7 @@ export const getComplaintsByCategoryDao = async (category) => {
     const ids = productIds.map(p => p._id);
 
     return await Complaints.find({ productId: { $in: ids } })
+        .populate("orderId", "amount status deliveryStatus deliveredAt awbCode courierName timerTriggered48Hour")
         .populate("productId", "name category seller images price")
         .populate("complainant", "username email")
         .populate("respondent", "username email")
@@ -30,6 +32,7 @@ export const getComplaintsByCategoryDao = async (category) => {
 
 export const getComplaintsByUserDao = async (userId) => {
     return await Complaints.find({ complainant: userId })
+    .populate("orderId", "amount status deliveryStatus deliveredAt")
         .populate("productId", "name category images price")
         .populate("respondent", "username email")
         .sort({ createdAt: -1 });
@@ -37,6 +40,7 @@ export const getComplaintsByUserDao = async (userId) => {
 
 export const getComplaintsOnUserDao = async (userId) => {
     return await Complaints.find({ respondent: userId })
+    .populate("orderId", "amount status deliveryStatus deliveredAt")
         .populate("productId", "name category images price")
         .populate("complainant", "username email")
         .sort({ createdAt: -1 });
@@ -44,12 +48,13 @@ export const getComplaintsOnUserDao = async (userId) => {
 
 export const getComplaintsForProductDao = async (productId) => {
     return await Complaints.find({ productId })
+    .populate("orderId", "amount status deliveryStatus deliveredAt")
         .populate("complainant", "username email")
         .populate("respondent", "username email")
         .sort({ createdAt: -1 });
 };
 
-export const resolveComplaintDao = async (complaintId, managerId, status, resolution) => {
+export const resolveComplaintDao = async (complaintId, managerId, status, resolution, additionalSetFields = {}) => {
     return await Complaints.findByIdAndUpdate(
         complaintId,
         {
@@ -58,10 +63,12 @@ export const resolveComplaintDao = async (complaintId, managerId, status, resolu
                 resolution: resolution || null,
                 assignedManager: managerId,
                 updatedAt: new Date(),
+                ...additionalSetFields,
             },
         },
         { new: true }
     )
+        .populate("orderId", "amount status deliveryStatus deliveredAt")
         .populate("productId", "name category")
         .populate("complainant", "username email")
         .populate("respondent", "username email");

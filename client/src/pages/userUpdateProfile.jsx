@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ProfileHeader from "../components/ProfileHeader";
 import styles from "../styles/updateProfile.module.css";
@@ -21,12 +21,7 @@ const UserUpdateProfile = () => {
   const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
   const updateURL = `${BACKEND}/user/update/profile`;
 
-  // Fetch existing user data
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await fetch(`${BACKEND}/user/getYourProfile`, {
         method: "GET",
@@ -49,7 +44,12 @@ const UserUpdateProfile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [backendURL]);
+
+  // Fetch existing user data
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];

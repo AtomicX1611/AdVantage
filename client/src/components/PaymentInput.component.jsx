@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import API_CONFIG from "../config/api.config";
 import { startRazorpayPayment } from "../utils/razorpay";
 
-const PaymentInputs = ({ subscription, type, price }) => {
+const PaymentInputs = ({ subscription, type }) => {
   const [activeMethod, setActiveMethod] = useState(null);
   const [cardDetails, setCardDetails] = useState({
     cardNumber: "",

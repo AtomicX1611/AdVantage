@@ -28,14 +28,14 @@ const Profile = () => {
       link: "/updateProfile",
     },
     {
+      title: "Wallet / Withdraw",
+      icon: "bxs-wallet",
+      link: "/wallet",
+    },
+    {
       title: "Logout",
       icon: "",
       link: "/logout",
-    },
-    {
-      title: "Your Seller Account",
-      icon: "",
-      link: "/seller/dashboard",
     },
   ]);
 

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import styles from "../styles/myorders.module.css";
 import { resolveImageUrl } from "../utils/imageUrl";
 
-const ProductCard = ({ product, backendURL }) => {
+const ProductCard = ({ product }) => {
   const imageUrl = product.images && product.images.length > 0 
     ? resolveImageUrl(product.images[0])
     : '/Assets/placeholder.png';

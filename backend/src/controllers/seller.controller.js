@@ -2,6 +2,12 @@ import {
     addProductService,
     acceptProductRequestService,
     rejectProductRequestService,
+    createStakeOrderService,
+    verifyStakeService,
+    shipOrderService,
+    verifyDeliveryService,
+    getSellerOrdersService,
+    sellerCancelPaidOrderService,
     // updateSellerProfileService,
     // updateSellerPasswordService,
     updateSellerSubscriptionService,
@@ -11,7 +17,10 @@ import {
     deleteProductService,
     revokeAcceptedRequestService,
     analyticsService,
-    getTransactionsService
+    getTransactionsService,
+    setupSellerPayoutAccountService,
+    getSellerPayoutAccountService,
+    withdrawFinalizedBalanceService,
 } from "../services/seller.service.js";
 
 export const addProduct = async (req, res, next) => {
@@ -137,6 +146,88 @@ export const acceptRequest = async (req, res, next) => {
             message: response.message
         });
 
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const createStakeOrderController = async (req, res, next) => {
+    try {
+        const { productId, buyerId } = req.params;
+        const response = await createStakeOrderService(productId, buyerId);
+
+        if (!response.success) {
+            return res.status(response.status || 400).json({ success: false, message: response.message });
+        }
+        return res.status(200).json({ success: true, order: response.order });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const verifyStakeController = async (req, res, next) => {
+    try {
+        const { productId, buyerId } = req.params;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            return res.status(400).json({ status: 'error', message: 'Missing required fields' });
+        }
+
+        const secret = process.env.RAZORPAYKEYSECRET;
+        const body = razorpay_order_id + '|' + razorpay_payment_id;
+
+        const response = await verifyStakeService(productId, buyerId, body, razorpay_order_id, razorpay_payment_id, razorpay_signature, secret);
+
+        if (!response.success) {
+            return res.status(response.status || 400).json({
+                success: false,
+                message: response.message
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: response.message,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const shipOrderController = async (req, res, next) => {
+    try {
+        const { orderId } = req.params;
+        const { awbCode, courierName, expectedDeliveryDate, trackingUrl, notes } = req.body;
+        const sellerId = req.user._id;
+
+        if (!awbCode || !courierName) {
+            return res.status(400).json({ success: false, message: "Missing awbCode or courierName" });
+        }
+
+        const response = await shipOrderService(orderId, sellerId, awbCode, courierName, {
+            expectedDeliveryDate,
+            trackingUrl,
+            notes,
+        });
+        if (!response.success) {
+            return res.status(response.status || 400).json({ success: false, message: response.message });
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const verifyDeliveryController = async (req, res, next) => {
+    try {
+        const { orderId } = req.params;
+        const sellerId = req.user._id;
+
+        const response = await verifyDeliveryService(orderId, sellerId);
+        if (!response.success) {
+            return res.status(response.status || 400).json({ success: false, message: response.message });
+        }
+        return res.status(200).json(response);
     } catch (error) {
         next(error);
     }
@@ -282,10 +373,9 @@ export const makeAvailableController = async (req, res, next) => {
     }
 }
 
-export const analyticsController = async(req, res, next) => {
+export const analyticsController = async (req, res, next) => {
     try {
         const userId = req.user._id;
-        console.log("entered");
 
         if (!userId) return res.status(404).json({
             success: false,
@@ -293,35 +383,98 @@ export const analyticsController = async(req, res, next) => {
         })
 
         const response = await analyticsService(userId);
-        console.log("response: ",response);
-        
+
         return res.status(response.status).json({
             message: response.message,
             success: response.success,
-            data:response.data
+            data: response.data
         });
     } catch (error) {
         next(error);
     }
 }
 
-export const getTransactionsController = async (req,res,next) =>{
+export const getTransactionsController = async (req, res, next) => {
     try {
         const userId = req.user._id;
-        
-         if (!userId) return res.status(404).json({
+
+        if (!userId) return res.status(404).json({
             success: false,
             message: "userId not found"
         })
 
         const response = await getTransactionsService(userId);
-        
+
         return res.status(response.status).json({
             success: response.success,
-            received:response.received,
-            paidTo:response.paidTo
+            paymentLedger: response.paymentLedger || [],
+            payoutLedger: response.payoutLedger || [],
+            withdrawalLedger: response.withdrawalLedger || [],
+            summary: response.summary || {
+                grossBuyerPayments: 0,
+                settledEarnings: 0,
+                pendingEarnings: 0,
+                availableToWithdraw: 0,
+                withdrawnToDate: 0,
+                inProgressWithdrawals: 0,
+                failedWithdrawals: 0,
+            },
+            received: response.received,
+            paidTo: response.paidTo
         });
     } catch (error) {
         next(error);
     }
 }
+
+export const getSellerOrdersController = async (req, res, next) => {
+    try {
+        const sellerId = req.user._id;
+        const response = await getSellerOrdersService(sellerId);
+        return res.status(response.status || 200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const sellerCancelPaidOrderController = async (req, res, next) => {
+    try {
+        const { orderId } = req.params;
+        const sellerId = req.user._id;
+
+        const response = await sellerCancelPaidOrderService(orderId, sellerId);
+        return res.status(response.status || 200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const createPayoutAccountController = async (req, res, next) => {
+    try {
+        const sellerId = req.user._id;
+        const response = await setupSellerPayoutAccountService(sellerId, req.body || {});
+        return res.status(response.status || 200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getPayoutAccountController = async (req, res, next) => {
+    try {
+        const sellerId = req.user._id;
+        const response = await getSellerPayoutAccountService(sellerId);
+        return res.status(response.status || 200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const withdrawFinalizedBalanceController = async (req, res, next) => {
+    try {
+        const sellerId = req.user._id;
+        const response = await withdrawFinalizedBalanceService(sellerId, req.body?.transferMode);
+        return res.status(response.status || 200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};

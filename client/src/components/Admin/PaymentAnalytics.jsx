@@ -31,7 +31,6 @@ export default function PaymentAnalytics({ analytics }) {
   const {
     revenueByCategory,
     revenueByState,
-    revenueByPaymentType,
     monthlyRevenue,
     topCategories,
     topStates,

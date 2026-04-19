@@ -17,6 +17,9 @@ import {
     deleteNotificationService,
     createOrderService,
     verifyPaymentService,
+    disputeOrderService,
+    getBuyerOrdersService,
+    buyerMarkDeliveredService,
 } from "../services/buyer.service.js";
 
 export const updateBuyerProfile = async (req, res, next) => {
@@ -146,12 +149,12 @@ export const requestProduct = async (req, res, next) => {
         const buyerId = req.user._id;
         const productId = req.params.productId;
         console.log(req.body);
-        const { biddingPrice } = req.body;
+        const { biddingPrice, shippingAddress } = req.body;
 
-        if (!buyerId || !productId || !biddingPrice) {
-            return res.status(404).json({ message: "Missing buyerId or productId or biddingPrice" });
+        if (!buyerId || !productId || !biddingPrice || !shippingAddress || !shippingAddress.pinCode) {
+            return res.status(404).json({ message: "Missing buyerId, productId, biddingPrice or shippingAddress with pinCode" });
         }
-        const response = await requestProductService(productId, buyerId, biddingPrice);
+        const response = await requestProductService(productId, buyerId, biddingPrice, shippingAddress);
         console.log("response in contr: ", response);
         if (!response.success) {
             return res.status(response.status || 400).json({
@@ -464,3 +467,45 @@ export const getYourProfile = async (req, res, next) => {
         next(error);
     }
 }
+
+export const disputeOrderController = async (req, res, next) => {
+    try {
+        const { orderId } = req.params;
+        const buyerId = req.user._id;
+        const { subject, description } = req.body;
+        const attachments = req.cloudinary?.proofs || [];
+
+        if (!subject || !description) {
+            return res.status(400).json({ success: false, message: "Missing subject or description" });
+        }
+
+        const response = await disputeOrderService(orderId, buyerId, subject, description, attachments);
+        if (!response.success) {
+            return res.status(response.status || 400).json({ success: false, message: response.message });
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getBuyerOrdersController = async (req, res, next) => {
+    try {
+        const buyerId = req.user._id;
+        const response = await getBuyerOrdersService(buyerId);
+        return res.status(response.status || 200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const buyerMarkDeliveredController = async (req, res, next) => {
+    try {
+        const { orderId } = req.params;
+        const buyerId = req.user._id;
+        const response = await buyerMarkDeliveredService(orderId, buyerId);
+        return res.status(response.status || 200).json(response);
+    } catch (error) {
+        next(error);
+    }
+};

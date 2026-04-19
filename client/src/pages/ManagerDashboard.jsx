@@ -117,6 +117,31 @@ const ManagerDashboard = () => {
     }
   };
 
+  const handleResolveEscrow = async (complaintId, payload) => {
+    try {
+      const res = await fetch(`http://localhost:3000/manager/complaints/${complaintId}/resolve-escrow`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Escrow Dispute resolved successfully");
+        setComplaints((prev) =>
+          prev.map((c) =>
+            c._id === complaintId ? { ...c, status: 'resolved', resolution: payload.resolution || null } : c
+          )
+        );
+      } else {
+        alert(data.message || "Failed to resolve escrow dispute");
+      }
+    } catch (err) {
+      console.error("Error resolving escrow:", err);
+      alert("Error updating escrow complaint");
+    }
+  };
+
   const handleViewDetails = (productId) => {
     navigate(`/product/${productId}`);
   };
@@ -243,6 +268,7 @@ const ManagerDashboard = () => {
           <ComplaintList
             complaints={complaints}
             onResolve={handleResolveComplaint}
+            onResolveEscrow={handleResolveEscrow}
           />
         )}
       </div>

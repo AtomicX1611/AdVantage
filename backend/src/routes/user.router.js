@@ -27,6 +27,9 @@ import {
     deleteNotification,
     createOrder,
     verifyPayment,
+    disputeOrderController,
+    getBuyerOrdersController,
+    buyerMarkDeliveredController,
 } from "../controllers/buyer.controller.js";
 import {
     addProduct,
@@ -38,9 +41,19 @@ import {
     makeAvailableController,
     deleteProduct,
     revokeAcceptedRequest,
+    createStakeOrderController,
+    verifyStakeController,
+    shipOrderController,
+    verifyDeliveryController,
+    getSellerOrdersController,
+    sellerCancelPaidOrderController,
     analyticsController,
     getTransactionsController,
+    createPayoutAccountController,
+    getPayoutAccountController,
+    withdrawFinalizedBalanceController,
 } from "../controllers/seller.controller.js";
+import { validatePayoutAccountPayload, validateWithdrawPayload } from "../middlewares/payout.middleware.js";
 import {
     fileComplaint,
     getMyComplaints,
@@ -74,6 +87,12 @@ router.get("/pendingRequests", getPendingRequests);
 router.post("/request/:productId", requestProduct);
 router.post("/paymentDone/:productId", paymentDone);
 router.post("/notInterested/:productId", notInterested);
+router.post(
+    "/order/:orderId/dispute",
+    upload.fields([{ name: "proofs", maxCount: 6 }]),
+    uploadFilesToCloudinary,
+    disputeOrderController
+);
 router.put("/rent/:productId", rentProductController);
 // router.put("/wishlist/add/:productId", addToWishlist);
 // router.get("/wishlist", getWishlistProducts);
@@ -110,7 +129,15 @@ router.delete("/deleteProduct/:productId", deleteProduct); // Working
 
 router.delete("/rejectRequest/:productId/:buyerId/", rejectRequest);
 router.post("/acceptRequest/:productId/:buyerId", acceptRequest);
+router.post("/request/:productId/stake/:buyerId", createStakeOrderController);
+router.post("/request/:productId/verify-stake/:buyerId", verifyStakeController);
 router.patch("/revokeAccepted/:productId", revokeAcceptedRequest);
+router.put("/order/:orderId/ship", shipOrderController);
+router.post("/order/:orderId/verify-delivery", verifyDeliveryController);
+router.patch("/order/:orderId/seller-cancel", sellerCancelPaidOrderController);
+router.get("/seller/orders", getSellerOrdersController);
+router.get("/buyer/orders", getBuyerOrdersController);
+router.post("/order/:orderId/mark-delivered", buyerMarkDeliveredController);
 
 router.post("/makeAvailable/:productId", makeAvailableController);
 
@@ -122,6 +149,9 @@ router.post("/makeAvailable/:productId", makeAvailableController);
 router.get("/selling-analytics", analyticsController);
 
 router.get("/getMyTransactions", getTransactionsController);
+router.post("/payout-account", validatePayoutAccountPayload, createPayoutAccountController);
+router.get("/payout-account", getPayoutAccountController);
+router.post("/withdraw-finalized-balance", validateWithdrawPayload, withdrawFinalizedBalanceController);
 // Complaint routes
 router.post("/complaint", fileComplaint);
 router.get("/complaints", getMyComplaints);
