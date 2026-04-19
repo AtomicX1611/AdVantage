@@ -39,12 +39,12 @@ const LoginPage = () => {
       <button onClick={() => navigate('/auth/login')} style={{ marginBottom: '20px', padding: '10px 20px', fontSize: '16px', cursor: 'pointer' }}>Go to Login Page</button>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Email:</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <label htmlFor="login-email">Email:</label>
+          <input id="login-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
         <div>
-          <label>Password:</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <label htmlFor="login-password">Password:</label>
+          <input id="login-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </div>
         <button type="submit">Sign Up</button>
       </form>
