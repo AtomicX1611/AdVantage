@@ -107,12 +107,6 @@ const productsSchema = new mongoose.Schema({
                 enum: ['Pending', 'Locked', 'Refunded', 'Slashed'],
                 default: 'Pending',
             },
-            from:{
-                type: mongoose.Schema.Types.Date,
-            },
-            to:{
-                type: mongoose.Schema.Types.Date,
-            },
         }
     ],
     sellerAcceptedTo: {
@@ -126,15 +120,11 @@ const productsSchema = new mongoose.Schema({
         default: null,
         // required: true,
     },
-    isRental: {
-        type: Boolean,
-        required: true
-    },
     paymentInProgress: {
         type: Boolean,
         default: false,
     },
-    ollama_embeddings: {
+    hf_embeddings: {
         type: [Number],
         default: [],
     },

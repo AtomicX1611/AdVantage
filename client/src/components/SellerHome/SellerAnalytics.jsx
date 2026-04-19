@@ -56,14 +56,14 @@ const SellerAnalytics = () => {
 
   // --- CHART 1 DATA: Inventory (Existing) ---
   const doughnutData = {
-    labels: ['Items for Sale', 'Items for Rent'],
+    labels: ['Items for Sale', 'Items Sold'],
     datasets: [
       {
         data: [
           Analytics?.itemsForSale || 0,
-          Analytics?.itemsToRent || 0
+          Analytics?.itemsSold || 0
         ],
-        backgroundColor: ['#3b82f6', '#10b981'],
+        backgroundColor: ['#3b82f6', '#0f766e'],
         borderColor: ['#ffffff', '#ffffff'],
         borderWidth: 2,
       },
@@ -78,11 +78,6 @@ const SellerAnalytics = () => {
         label: 'Items Sold',
         data: [Analytics?.itemsSold || 0],
         backgroundColor: '#3b82f6',
-      },
-      {
-        label: 'Items Rented Out',
-        data: [Analytics?.activeRentals || 0],
-        backgroundColor: '#10b981',
       },
     ],
   };

@@ -6,23 +6,9 @@ const PriceSection = ({ formData, handleChange, handleSubmit }) => {
     <div className={styles.card}>
       <h2 className={styles.cardTitle}>Pricing</h2>
 
-      <div className={styles.checkboxGroup}>
-        <input
-          type="checkbox"
-          className={styles.checkbox}
-          name="isRental"
-          id="isRental"
-          checked={formData.isRental}
-          onChange={handleChange}
-        />
-        <label htmlFor="isRental" className={styles.checkboxLabel}>
-          This is a rental product
-        </label>
-      </div>
-
       <div className={styles.inputGroup}>
         <label className={styles.label} htmlFor="price">
-          {formData.isRental ? "Price per day" : "Selling Price"}
+          Selling Price
         </label>
         <div className={styles.priceInputWrapper}>
           <input

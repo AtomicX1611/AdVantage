@@ -1,10 +1,29 @@
-import { OllamaEmbeddings } from "@langchain/ollama";
+import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf";
 import { CHATBOT_CONFIG } from "../config/chatbot.config.js";
 
-const embeddingsClient = new OllamaEmbeddings({
-    model: CHATBOT_CONFIG.OLLAMA_EMBEDDING_MODEL,
-    baseUrl: CHATBOT_CONFIG.OLLAMA_BASE_URL,
+const embeddingsClient = new HuggingFaceInferenceEmbeddings({
+    apiKey: process.env.HUGGINGFACEHUB_API_KEY,
+    model: CHATBOT_CONFIG.HF_EMBEDDING_MODEL,
 });
+
+const getExpectedEmbeddingDimension = () => {
+    const dim = Number(CHATBOT_CONFIG.HF_EMBEDDING_DIMENSION);
+    return Number.isFinite(dim) && dim > 0 ? dim : null;
+};
+
+const assertEmbeddingDimension = (vector, contextLabel) => {
+    const expected = getExpectedEmbeddingDimension();
+    if (!expected || !Array.isArray(vector)) {
+        return;
+    }
+
+    if (vector.length !== expected) {
+        throw new Error(
+            `${contextLabel} embedding dimension mismatch: expected ${expected}, got ${vector.length}. ` +
+            "Align HF_EMBEDDING_MODEL with the MongoDB vector index dimension."
+        );
+    }
+};
 
 const formatValue = (value, fallback = "not provided") => {
     if (value === undefined || value === null) {
@@ -25,16 +44,16 @@ export const createProductStaticSentence = (productData = {}) => {
 
     const imageCount = Array.isArray(productData.images) ? productData.images.length : 0;
     const invoiceText = productData.invoice ? "invoice attached" : "invoice not attached";
-    const listingType = productData.isRental ? "rental" : "sale";
     const soldStatus = productData.soldTo ? `sold to \"${formatValue(productData.soldTo)}\"` : "currently unsold";
 
-    // return `Product \"${formatValue(productData.name)}\" in category \"${formatValue(productData.category)}\" is listed for ${listingType} at price \"${formatValue(productData.price)}\", with description \"${formatValue(productData.description)}\", located at \"${location}\", listed by seller \"${formatValue(productData.seller)}\", including ${imageCount} product images and ${invoiceText}, and is ${soldStatus}.`;
+    // return `Product \"${formatValue(productData.name)}\" in category \"${formatValue(productData.category)}\" at price \"${formatValue(productData.price)}\", with description \"${formatValue(productData.description)}\", located at \"${location}\", listed by seller \"${formatValue(productData.seller)}\", including ${imageCount} product images and ${invoiceText}, and is ${soldStatus}.`;
     return `${formatValue(productData.name)}. Category: ${formatValue(productData.category)}. ${formatValue(productData.description)}`;
 };
 
-export const generateProductOllamaEmbedding = async (productData = {}) => {
+export const generateProductHFEmbedding = async (productData = {}) => {
     const sentence = createProductStaticSentence(productData);
     const vector = await embeddingsClient.embedQuery(sentence);
+    assertEmbeddingDimension(vector, "Product");
 
     return {
         sentence,
@@ -49,5 +68,7 @@ export const generateSearchQueryEmbedding = async (rawText = '') => {
     }
 
     // return embeddingsClient.embedQuery(normalizedText);
-    return embeddingsClient.embedQuery(`A product matching: ${normalizedText}`);
+    const vector = await embeddingsClient.embedQuery(`A product matching: ${normalizedText}`);
+    assertEmbeddingDimension(vector, "Search query");
+    return vector;
 };

@@ -44,7 +44,6 @@ jest.mock("../../src/config/payment.config.js", () => ({
 jest.mock("../../src/daos/products.dao.js", () => ({
   addProductRequestDao: jest.fn(),
   getYourProductsDao: jest.fn(),
-  rentDao: jest.fn(),
   holdPoductWhilePaymentDao: jest.fn(),
   releaseProductPaymentHoldDao: jest.fn(),
   notInterestedDao: jest.fn(),

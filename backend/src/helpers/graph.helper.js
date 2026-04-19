@@ -1,4 +1,4 @@
-import { ChatOllama } from "@langchain/ollama";
+import { ChatOpenAI } from "@langchain/openai";
 import {
     StateGraph,
     MessagesAnnotation,
@@ -6,7 +6,7 @@ import {
     END,
     MemorySaver,
 } from "@langchain/langgraph";
-import { SystemMessage } from "@langchain/core/messages";
+import { SystemMessage, ToolMessage } from "@langchain/core/messages";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
 
@@ -58,10 +58,17 @@ export const productSearchTool = tool(
 );
 
 export const initializeModel = () => {
-    return new ChatOllama({
-        model: CHATBOT_CONFIG.OLLAMA_MODEL,
-        temperature: CHATBOT_CONFIG.OLLAMA_TEMPERATURE,
-    }).bindTools([productSearchTool]);
+    const model = new ChatOpenAI({
+        apiKey: process.env.HUGGINGFACEHUB_API_KEY,
+        configuration: {
+            baseURL: CHATBOT_CONFIG.HF_ROUTER_BASE_URL,
+        },
+        model: CHATBOT_CONFIG.HF_MODEL,
+        temperature: 0.5,
+        maxTokens: 512,
+    });
+
+    return model.bindTools([productSearchTool]);
 };
 
 // ==========================================
@@ -78,7 +85,7 @@ export const createCallModelNode = (model) => {
         ];
 
         const response = await model.invoke(messages);
-        
+
         // Return only the new response to be appended to the state
         return { messages: [response] };
     };
@@ -100,20 +107,18 @@ export const toolNode = async (state) => {
             const tool = toolsMap[toolCall.name];
 
             if (!tool) {
-                return {
-                    role: "tool",
+                return new ToolMessage({
                     content: `Error: Tool ${toolCall.name} not found in agent configuration.`,
                     tool_call_id: toolCall.id,
-                };
+                });
             }
 
             const result = await tool.invoke(toolCall.args);
 
-            return {
-                role: "tool",
+            return new ToolMessage({
                 content: result,
                 tool_call_id: toolCall.id,
-            };
+            });
         })
     );
 
@@ -123,7 +128,7 @@ export const toolNode = async (state) => {
 const routeAfterModel = (state) => {
     // Failsafe to prevent infinite loops between tool and model
     if (state.messages.length > 20) return END;
-    
+
     const lastMessage = state.messages[state.messages.length - 1];
 
     // If the model decided it needs external data, route to the tools

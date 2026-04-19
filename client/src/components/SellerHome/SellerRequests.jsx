@@ -271,14 +271,7 @@ const SellerRequests = () => {
 
                   <div>
                     <strong>{buyerName}</strong>
-
-                    {selectedProduct.isRental && req.from && req.to ? (
-                      <p style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '4px' }}>
-                        Requested: {new Date(req.from).toLocaleDateString()} - {new Date(req.to).toLocaleDateString()}
-                      </p>
-                    ) : (
-                      <p style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '4px' }}>Wants to buy this item</p>
-                    )}
+                    <p style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '4px' }}>Wants to buy this item</p>
 
                     {biddingPrice && (
                       <p style={{ fontSize: '0.9rem', color: '#059669', fontWeight: 'bold', marginTop: '5px' }}>
@@ -342,7 +335,7 @@ const SellerRequests = () => {
               <div className={styles.cardDetails}>
                 <h3>{item.name}</h3>
                 <p className={styles.cardPrice}>
-                  {item.isRental ? `₹${item.price}/day` : `₹${item.price}`}
+                  {`₹${item.price}`}
                 </p>
 
                 <div className={styles.cardActions}>

@@ -12,8 +12,7 @@ const BODY = {
   category: "Mobiles",
   district: "sdfasgs",
   city: "dsfdsfdsf",
-  state: "Goa",
-  isRental: false
+  state: "Goa"
 };
 
 const TOTAL_REQUESTS = 10_000;

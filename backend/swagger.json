@@ -442,14 +442,6 @@
           },
           {
             "in": "query",
-            "name": "isRental",
-            "schema": {
-              "type": "boolean"
-            },
-            "description": "Filter by rental products (true/false)"
-          },
-          {
-            "in": "query",
             "name": "category",
             "schema": {
               "type": "string"
@@ -874,52 +866,6 @@
         "responses": {
           "200": {
             "description": "Marked as not interested"
-          }
-        }
-      }
-    },
-    "/user/rent/{productId}": {
-      "put": {
-        "summary": "Rent a product for a period",
-        "tags": [
-          "B2C - Buyer Operations"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "productId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "from": {
-                    "type": "string",
-                    "format": "date"
-                  },
-                  "to": {
-                    "type": "string",
-                    "format": "date"
-                  },
-                  "biddingPrice": {
-                    "type": "number"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Rent request submitted"
           }
         }
       }

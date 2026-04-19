@@ -56,17 +56,6 @@ const FilterPanel = ({ filters, onChange }) => {
         />
         <b>Verified Products Only</b>
       </label>
-
-      <label id={styles.rentedwrapper}>
-        <input
-          type="checkbox"
-          name="rentalOnly"
-          checked={filters.rentalOnly}
-          onChange={handleInput}
-          id={styles.rentedCheckbox}
-        />
-        <b>Rental Products Only</b>
-      </label>
     </div>
   );
 };

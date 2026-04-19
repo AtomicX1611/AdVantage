@@ -16,7 +16,6 @@ import {
     updateBuyerPassword,
     getWishlistProducts,
     getYourProducts,
-    rentProductController,
     getYourProfile,
     paymentDone,
     notInterested,
@@ -38,7 +37,6 @@ import {
     updateSellerSubscription,
     findSellerProducts,
     findSellerSubscription,
-    makeAvailableController,
     deleteProduct,
     revokeAcceptedRequest,
     createStakeOrderController,
@@ -73,7 +71,6 @@ router.post('/create-order', createOrder);
 router.post("/verify-payment", verifyPayment);
 // router.post("/paymentDone/:productId",paymentDone);//working
 router.post("/notInterested/:productId", notInterested);
-router.put("/rent/:productId", rentProductController);
 
 /*
     ======== Wishlist Routes ========
@@ -93,7 +90,6 @@ router.post(
     uploadFilesToCloudinary,
     disputeOrderController
 );
-router.put("/rent/:productId", rentProductController);
 // router.put("/wishlist/add/:productId", addToWishlist);
 // router.get("/wishlist", getWishlistProducts);
 // router.get("/pendingRequests", getPendingRequests);
@@ -128,12 +124,11 @@ router.post("/addProduct", upload.fields([
 router.delete("/deleteProduct/:productId", deleteProduct); // Working
 
 /**
- *  ==================== Product Request Management Routes (Accept , Reject , makeAvailable, revokeAccepted) ===================
+ *  ==================== Product Request Management Routes (Accept , Reject , revokeAccepted) ===================
  */
 router.delete("/rejectRequest/:productId/:buyerId/", rejectRequest);
 router.post("/acceptRequest/:productId/:buyerId", acceptRequest);
 router.patch("/revokeAccepted/:productId", revokeAcceptedRequest);
-router.post("/makeAvailable/:productId", makeAvailableController);
 
 router.post("/request/:productId/stake/:buyerId", createStakeOrderController);
 router.post("/request/:productId/verify-stake/:buyerId", verifyStakeController);

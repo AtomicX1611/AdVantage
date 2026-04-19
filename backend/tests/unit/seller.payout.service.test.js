@@ -20,7 +20,6 @@ jest.mock("../../src/daos/products.dao.js", () => ({
   deleteProductDao: jest.fn(),
   acceptProductRequestDao: jest.fn(),
   rejectProductRequestDao: jest.fn(),
-  makeAvailableDao: jest.fn(),
   revokeAcceptedRequestDao: jest.fn(),
   createStakeOrderDao: jest.fn(),
   verifyStakeDao: jest.fn(),
@@ -53,7 +52,7 @@ jest.mock("../../src/helpers/notification.helper.js", () => ({
 }));
 
 jest.mock("../../src/helpers/productEmbedding.helper.js", () => ({
-  generateProductOllamaEmbedding: jest.fn(),
+  generateProductHFEmbedding: jest.fn(),
 }));
 
 jest.mock("../../src/models/PendingPayouts.js", () => ({

@@ -108,20 +108,20 @@ export default function PaymentAnalytics({ analytics }) {
               <AreaChart data={monthlyRevenue}>
                 <defs>
                   <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#1976d2" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#1976d2" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#1976d2" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#1976d2" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                <YAxis tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
+                <YAxis tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
                 <Tooltip formatter={(value) => formatCurrency(value)} />
-                <Area 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#1976d2" 
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#1976d2"
                   strokeWidth={2}
-                  fill="url(#revenueGradient)" 
+                  fill="url(#revenueGradient)"
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -140,12 +140,12 @@ export default function PaymentAnalytics({ analytics }) {
               <BarChart data={topStates}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="state" tick={{ fontSize: 11, angle: -45 }} textAnchor="end" height={80} />
-                <YAxis tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
-                <Tooltip 
+                <YAxis tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
+                <Tooltip
                   formatter={(value, name) => [
-                    name === 'revenue' ? formatCurrency(value) : value, 
+                    name === 'revenue' ? formatCurrency(value) : value,
                     name === 'revenue' ? 'Revenue' : 'Sales Count'
-                  ]} 
+                  ]}
                 />
                 <Legend />
                 <Bar dataKey="revenue" fill="#1976d2" name="Revenue" radius={[4, 4, 0, 0]} />
@@ -220,21 +220,19 @@ export default function PaymentAnalytics({ analytics }) {
                     <td>{payment.from}</td>
                     <td>{payment.to}</td>
                     <td>
-                      <span className={`${styles.activityBadge} ${
-                        payment.type === 'purchase' ? styles.badgePurchase :
-                        payment.type === 'subscription' ? styles.badgeSubscription :
-                        styles.badgeOther
-                      }`}>
+                      <span className={`${styles.activityBadge} ${payment.type === 'purchase' ? styles.badgePurchase :
+                          payment.type === 'subscription' ? styles.badgeSubscription :
+                            styles.badgeOther
+                        }`}>
                         {payment.type}
-                        {payment.isRental && ' (Rental)'}
                       </span>
                     </td>
                     <td className={styles.amountCell}>{formatCurrency(payment.amount)}</td>
                     <td>{payment.product || '-'}</td>
                     <td>{payment.category || '-'}</td>
                     <td>
-                      {payment.city && payment.state 
-                        ? `${payment.city}, ${payment.state}` 
+                      {payment.city && payment.state
+                        ? `${payment.city}, ${payment.state}`
                         : payment.state || '-'}
                     </td>
                   </tr>

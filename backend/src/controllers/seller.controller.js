@@ -13,7 +13,6 @@ import {
     updateSellerSubscriptionService,
     sellerProdRetriveService,
     sellerSubsRetService,
-    makeAvailableService,
     deleteProductService,
     revokeAcceptedRequestService,
     analyticsService,
@@ -353,21 +352,6 @@ export const findSellerSubscription = async (req, res, next) => {
             success: true,
             subscription: response.subscription
         })
-    } catch (error) {
-        next(error);
-    }
-}
-
-export const makeAvailableController = async (req, res, next) => {
-    try {
-        const sellerId = req.user._id;
-        const productId = req.params.productId;
-
-        let response = await makeAvailableService(sellerId, productId);
-        return res.status(response.status).json({
-            message: response.message,
-            success: response.success,
-        });
     } catch (error) {
         next(error);
     }

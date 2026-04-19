@@ -24,7 +24,6 @@ function buildProductData(sellerId, overrides = {}) {
     state: "Telangana",
     seller: sellerId,
     images: ["http://img.com/p.jpg"],
-    isRental: false,
     ...overrides,
   };
 }

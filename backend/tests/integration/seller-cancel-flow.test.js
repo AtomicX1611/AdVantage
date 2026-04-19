@@ -56,7 +56,6 @@ describe("seller cancel paid order (integration)", () => {
       state: "Telangana",
       seller: seller._id,
       images: ["http://example.com/p2.jpg"],
-      isRental: false,
     });
 
     await addProductRequestDao(product._id, buyer._id, 1000, {

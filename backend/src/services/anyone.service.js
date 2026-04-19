@@ -80,10 +80,6 @@ export const getProductsService = async (query) => {
         ]
     };
 
-    if (query.isRental) {
-        filters.isRental = query.isRental === 'true';
-    }
-
     if (query.category) {
         filters.category = query.category;
     }
@@ -105,21 +101,44 @@ export const getProductsService = async (query) => {
     const hasName = typeof query.name === 'string' && query.name.trim().length > 0;
 
     if (hasName) {
+        const normalizedName = query.name.trim();
         const queryVector = await generateSearchQueryEmbedding(query.name);
 
         if (!Array.isArray(queryVector) || queryVector.length === 0) {
-            return [];
+            const fallbackFilters = {
+                ...filters,
+                $or: [
+                    { name: { $regex: normalizedName, $options: 'i' } },
+                    { description: { $regex: normalizedName, $options: 'i' } },
+                    { category: { $regex: normalizedName, $options: 'i' } },
+                ],
+            };
+            return findProducts(fallbackFilters);
         }
 
         const requestedLimit = Number(query.limit);
         const requestedCandidates = Number(query.numCandidates);
-        console.log(requestedCandidates);
-        return vectorSearchProducts({
+        const vectorResults = await vectorSearchProducts({
             queryVector,
             filters,
             limit: requestedLimit,
             numCandidates: requestedCandidates,
         });
+
+        if (Array.isArray(vectorResults) && vectorResults.length > 0) {
+            return vectorResults;
+        }
+
+        const fallbackFilters = {
+            ...filters,
+            $or: [
+                { name: { $regex: normalizedName, $options: 'i' } },
+                { description: { $regex: normalizedName, $options: 'i' } },
+                { category: { $regex: normalizedName, $options: 'i' } },
+            ],
+        };
+
+        return findProducts(fallbackFilters);
     }
 
     return findProducts(filters);

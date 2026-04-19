@@ -12,7 +12,6 @@ import {
 import {
     addProductRequestDao,
     getYourProductsDao,
-    rentDao,
     holdPoductWhilePaymentDao,
     releaseProductPaymentHoldDao,
     notInterestedDao,
@@ -430,10 +429,6 @@ export const getYourProductsService = async (buyerId) => {
         message: "Your products retrieved successfully",
         products: products,
     };
-}
-
-export const rentService = async (buyerId, productId, from, to, biddingPrice) => {
-    return await rentDao(buyerId, productId, from, to, biddingPrice);
 }
 
 export const getYouProfileService = async (buyerId) => {

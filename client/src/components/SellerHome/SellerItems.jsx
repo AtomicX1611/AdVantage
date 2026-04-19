@@ -18,28 +18,12 @@ const DUMMY_PRODUCTS = [
     image: 'https://placehold.co/400x300/e2e8f0/1e293b?text=Physics+Book'
   },
   {
-    id: 2,
-    name: 'TI-84 Engineering Calculator',
-    price: '$5/mo',
-    type: 'rent',
-    status: 'Active',
-    image: 'https://placehold.co/400x300/e2e8f0/1e293b?text=Calculator'
-  },
-  {
     id: 3,
     name: 'Gaming Laptop i7 GTX',
     price: '$500',
     type: 'sold',
     status: 'Completed',
     image: 'https://placehold.co/400x300/e2e8f0/1e293b?text=Laptop'
-  },
-  {
-    id: 4,
-    name: 'Canon DSLR Camera Kit',
-    price: '$15/day',
-    type: 'rented',
-    status: 'With User',
-    image: 'https://placehold.co/400x300/e2e8f0/1e293b?text=Camera'
   },
   {
     id: 5,
@@ -52,10 +36,8 @@ const DUMMY_PRODUCTS = [
 ];
 
 function productFilter(filterType, products) {
-  if (filterType === "sale") return products.filter(item => item.isRental === false && item.soldTo === null);
-  if (filterType === "rent") return products.filter(item => item.isRental === true && item.soldTo === null);
-  if (filterType === "sold") return products.filter(item => item.isRental === false && item.soldTo !== null);
-  if (filterType === "rented") return products.filter(item => item.isRental === true && item.soldTo !== null);
+  if (filterType === "sale") return products.filter(item => item.soldTo === null);
+  if (filterType === "sold") return products.filter(item => item.soldTo !== null);
 }
 
 
@@ -67,9 +49,7 @@ const SellerItems = ({ filterType }) => {
   
   const titles = {
     sale: 'Items For Sale',
-    rent: 'Items For Rent',
     sold: 'Sold History',
-    rented: 'Currently Rented Out'
   };
 
   useEffect(() => {
@@ -114,35 +94,6 @@ const SellerItems = ({ filterType }) => {
     }
   }
 
-  async function handleMakeAvailable(productId) {
-  try {
-    let response = await fetch(`${backendURL}/user/makeAvailable/${productId}`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        "Content-type": "application/json"
-      }
-    });
-
-    let data = await response.json();
-
-    if (data.success) {
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product._id === productId ? { ...product, soldTo: null } : product
-        )
-      );
-      
-      alert("Item is now back in the available listings!");
-    } else {
-      alert(data.message || "Cannot mark available");
-    }
-  } catch (error) {
-    console.error("Error making product available:", error);
-    alert("Network error. Please try again.");
-  }
-}
-
   return (
     <div>
       <h2>{titles[filterType]}</h2>
@@ -183,14 +134,6 @@ const SellerItems = ({ filterType }) => {
                       onClick={() => handleDeleteProduct(item._id)}
                     >
                       Delete
-                    </button>
-                  )}
-                  {(item.soldTo !== null && item.isRental) && (
-                    <button
-                      className={styles.btnAvl}
-                      onClick={() => handleMakeAvailable(item._id)}
-                    >
-                      Make Available
                     </button>
                   )}
                   {item.soldTo !== null && (

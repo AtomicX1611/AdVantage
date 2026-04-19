@@ -41,9 +41,9 @@ export const getPaymentsByFrom = async (userId, fromModel) => {
 
 // Get payments received by a specific user
 export const getPaymentsByTo = async (userId, toModel) => {
-    console.log("userId: ",userId);
-    console.log("toModel: ",toModel);
-    
+    console.log("userId: ", userId);
+    console.log("toModel: ", toModel);
+
     return await Payment.find({ to: userId, toModel: toModel })
         .populate('from', 'username email')
         .populate('relatedEntityId')
@@ -96,17 +96,17 @@ export const countPayments = async (filters = {}) => {
 // Get total payment amount for a user (sent)
 export const getTotalPaymentsSent = async (userId, fromModel) => {
     const result = await Payment.aggregate([
-        { 
-            $match: { 
-                from: userId, 
-                fromModel: fromModel 
-            } 
+        {
+            $match: {
+                from: userId,
+                fromModel: fromModel
+            }
         },
-        { 
-            $group: { 
-                _id: null, 
-                total: { $sum: "$price" } 
-            } 
+        {
+            $group: {
+                _id: null,
+                total: { $sum: "$price" }
+            }
         }
     ]);
     return result.length > 0 ? result[0].total : 0;
@@ -115,17 +115,17 @@ export const getTotalPaymentsSent = async (userId, fromModel) => {
 // Get total payment amount for a user (received)
 export const getTotalPaymentsReceived = async (userId, toModel) => {
     const result = await Payment.aggregate([
-        { 
-            $match: { 
-                to: userId, 
-                toModel: toModel 
-            } 
+        {
+            $match: {
+                to: userId,
+                toModel: toModel
+            }
         },
-        { 
-            $group: { 
-                _id: null, 
-                total: { $sum: "$price" } 
-            } 
+        {
+            $group: {
+                _id: null,
+                total: { $sum: "$price" }
+            }
         }
     ]);
     return result.length > 0 ? result[0].total : 0;
@@ -159,9 +159,9 @@ export const getRecentPayments = async (limit = 10) => {
 
 // Get payments by related entity
 export const getPaymentsByRelatedEntity = async (entityId, entityType) => {
-    return await Payment.find({ 
-        relatedEntityId: entityId, 
-        relatedEntityType: entityType 
+    return await Payment.find({
+        relatedEntityId: entityId,
+        relatedEntityType: entityType
     })
         .populate('from', 'username email')
         .populate('to', 'username email')
@@ -171,9 +171,9 @@ export const getPaymentsByRelatedEntity = async (entityId, entityType) => {
 
 // Get payments for a specific product
 export const getPaymentsByProduct = async (productId) => {
-    return await Payment.find({ 
-        relatedEntityId: productId, 
-        relatedEntityType: 'Products' 
+    return await Payment.find({
+        relatedEntityId: productId,
+        relatedEntityType: 'Products'
     })
         .populate('from', 'username email')
         .populate('to', 'username email')
@@ -184,18 +184,18 @@ export const getPaymentsByProduct = async (productId) => {
 // Get total revenue for a product
 export const getProductRevenue = async (productId) => {
     const result = await Payment.aggregate([
-        { 
-            $match: { 
-                relatedEntityId: productId, 
-                relatedEntityType: 'Products' 
-            } 
+        {
+            $match: {
+                relatedEntityId: productId,
+                relatedEntityType: 'Products'
+            }
         },
-        { 
-            $group: { 
-                _id: null, 
+        {
+            $group: {
+                _id: null,
                 total: { $sum: "$price" },
                 count: { $sum: 1 }
-            } 
+            }
         }
     ]);
     return result.length > 0 ? result[0] : { total: 0, count: 0 };
@@ -301,7 +301,7 @@ export const getRevenueByPaymentType = async () => {
 export const getMonthlyRevenue = async (months = 12) => {
     const startDate = new Date();
     startDate.setMonth(startDate.getMonth() - months);
-    
+
     return await Payment.aggregate([
         {
             $match: {
@@ -371,8 +371,7 @@ export const getPaymentsWithProductDetails = async (limit = 50) => {
                 productCategory: { $arrayElemAt: ['$product.category', 0] },
                 productState: { $arrayElemAt: ['$product.state', 0] },
                 productCity: { $arrayElemAt: ['$product.city', 0] },
-                productDistrict: { $arrayElemAt: ['$product.district', 0] },
-                isRental: { $arrayElemAt: ['$product.isRental', 0] }
+                productDistrict: { $arrayElemAt: ['$product.district', 0] }
             }
         }
     ]);
@@ -447,36 +446,6 @@ export const getTopStates = async (limit = 10) => {
         },
         {
             $limit: limit
-        }
-    ]);
-};
-
-// Get rental vs purchase comparison
-export const getRentalVsPurchaseStats = async () => {
-    return await Payment.aggregate([
-        {
-            $match: {
-                relatedEntityType: 'Products',
-                relatedEntityId: { $ne: null }
-            }
-        },
-        {
-            $lookup: {
-                from: 'products',
-                localField: 'relatedEntityId',
-                foreignField: '_id',
-                as: 'product'
-            }
-        },
-        {
-            $unwind: '$product'
-        },
-        {
-            $group: {
-                _id: '$product.isRental',
-                count: { $sum: 1 },
-                totalRevenue: { $sum: '$price' }
-            }
         }
     ]);
 };

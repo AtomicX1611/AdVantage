@@ -9,7 +9,7 @@ const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
         if (times > 5) return null;           // stop retrying after 5 attempts
         return Math.min(times * 200, 2000);   // 200ms, 400ms, …, 2s
     },
-    lazyConnect: false,
+    lazyConnect: process.env.NODE_ENV === 'test',
 });
 
 let isReady = false;
