@@ -51,10 +51,18 @@ const KEYS = Object.freeze({
  * Get a cached value. Returns the parsed object or null.
  */
 async function cacheGet(key) {
-    if (!isReady) return null;
+    if (!isReady) {
+        console.log(`[Cache] MISS ${key} (redis not ready)`);
+        return null;
+    }
     try {
         const raw = await redis.get(key);
-        return raw ? JSON.parse(raw) : null;
+        if (raw) {
+            console.log(`[Cache] HIT ${key}`);
+            return JSON.parse(raw);
+        }
+        console.log(`[Cache] MISS ${key}`);
+        return null;
     } catch (err) {
         console.error(`[Cache] GET ${key} failed:`, err.message);
         return null;

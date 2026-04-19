@@ -218,7 +218,7 @@ export default function PaymentAnalytics({ analytics }) {
                   <tr key={idx}>
                     <td>{new Date(payment.date).toLocaleDateString('en-IN')}</td>
                     <td>{payment.from}</td>
-                    <td>{payment.to}</td>
+                    <td>{!payment.to || String(payment.to).trim().toLowerCase() === 'unknown' ? 'admin@gmail.com' : payment.to}</td>
                     <td>
                       <span className={`${styles.activityBadge} ${payment.type === 'purchase' ? styles.badgePurchase :
                           payment.type === 'subscription' ? styles.badgeSubscription :

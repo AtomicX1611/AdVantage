@@ -13,6 +13,7 @@ import {
   getAllAdmins,
   countAdmins,
   removeUserById,
+  getUsersWithRevenue,
 } from "../../src/daos/admins.dao.js";
 import {
   createManager,
@@ -29,6 +30,7 @@ import {
   countVerifiedProducts,
   getAllProducts,
   getProductsByCategory,
+  getCategoryProductCounts,
 } from "../../src/daos/products.dao.js";
 import {
   countPayments,
@@ -52,6 +54,7 @@ jest.mock("../../src/daos/admins.dao.js", () => ({
   getBuyers: jest.fn(),
   getProducts: jest.fn(),
   removeUserById: jest.fn(),
+  getUsersWithRevenue: jest.fn(),
 }));
 
 jest.mock("../../src/daos/managers.dao.js", () => ({
@@ -75,6 +78,7 @@ jest.mock("../../src/daos/products.dao.js", () => ({
   getAllProducts: jest.fn(),
   countAllProducts: jest.fn(),
   getProductsByCategory: jest.fn(),
+  getCategoryProductCounts: jest.fn(),
   countVerifiedProducts: jest.fn(),
   countUnverifiedProducts: jest.fn(),
 }));
@@ -172,7 +176,7 @@ describe("admin.service", () => {
     expect(result.message).toBe("not found");
   });
 
-  test("getAllDataService maps data and counts", async () => {
+  test("getAllDataService maps data and counts with enriched users", async () => {
     const fakeId = {
       toString: () => "507f1f77bcf86cd799439011",
       getTimestamp: () => new Date("2024-01-01T00:00:00.000Z"),
@@ -181,7 +185,10 @@ describe("admin.service", () => {
     getAllAdmins.mockResolvedValue([{ _id: "a1" }]);
     getAllManagers.mockResolvedValue([{ _id: fakeId, email: "m@test.com", category: "Electronics" }]);
     getManagerVerifiedCounts.mockResolvedValue({ "507f1f77bcf86cd799439011": 4 });
-    getAllUsers.mockResolvedValue([{ _id: "u1" }]);
+    getUsersWithRevenue.mockResolvedValue({
+      success: true,
+      users: [{ _id: "u1", revenue: 5000, productCount: 3, soldCount: 1 }],
+    });
     getAllProducts.mockResolvedValue([{ _id: "p1" }]);
     getAllPayments.mockResolvedValue([{ _id: "pay1" }]);
     countAdmins.mockResolvedValue(1);
@@ -195,9 +202,13 @@ describe("admin.service", () => {
     expect(result.success).toBe(true);
     expect(result.data.managers[0].productsVerified).toBe(4);
     expect(result.counts.total).toBe(11);
+    // Verify enriched user data
+    expect(result.data.users[0].revenue).toBe(5000);
+    expect(result.data.users[0].productCount).toBe(3);
+    expect(result.data.users[0].soldCount).toBe(1);
   });
 
-  test("getAdminMetricsService computes total revenue", async () => {
+  test("getAdminMetricsService computes total revenue and includes category data", async () => {
     getProductsByCategory.mockResolvedValue([{ _id: "Electronics", count: 3 }]);
     getPaymentStatsByType.mockResolvedValue([
       { _id: "purchase", totalAmount: 1000 },
@@ -212,12 +223,29 @@ describe("admin.service", () => {
     countUnverifiedProducts.mockResolvedValue(1);
     countAllProducts.mockResolvedValue(3);
     countPayments.mockResolvedValue(8);
+    getCategoryProductCounts.mockResolvedValue([
+      { _id: "Electronics", total: 3, sold: 1, unsold: 2, verified: 2 },
+      { _id: "Mobiles", total: 2, sold: 0, unsold: 2, verified: 1 },
+    ]);
+    getRevenueByCategory.mockResolvedValue([
+      { _id: "Electronics", totalRevenue: 5000, count: 1 },
+    ]);
 
     const result = await getAdminMetricsService();
 
     expect(result.success).toBe(true);
     expect(result.metrics.totalRevenue).toBe(1200);
     expect(result.metrics.recentActivity).toHaveLength(1);
+    // Verify category product counts
+    expect(result.metrics.categoryProductCounts).toHaveLength(2);
+    expect(result.metrics.categoryProductCounts[0]).toEqual(
+      expect.objectContaining({ category: "Electronics", total: 3, sold: 1, unsold: 2 })
+    );
+    // Verify revenue by category
+    expect(result.metrics.revenueByCategory).toHaveLength(1);
+    expect(result.metrics.revenueByCategory[0]).toEqual(
+      expect.objectContaining({ category: "Electronics", revenue: 5000, count: 1 })
+    );
   });
 
   test("getPaymentAnalyticsService maps analytics structure", async () => {

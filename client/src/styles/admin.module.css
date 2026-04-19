@@ -512,6 +512,20 @@ x
   margin-bottom: 30px;
 }
 
+/* Charts 2x2 grid */
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+  margin-bottom: 30px;
+}
+
+@media (max-width: 900px) {
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Cards */
 .statCard,
 .chartBox,

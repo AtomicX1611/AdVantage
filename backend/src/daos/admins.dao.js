@@ -1,6 +1,7 @@
 import Admins from "../models/Admins.js";
 import buyers from "../models/Users.js";
 import products from "../models/Products.js";
+import PendingPayouts from "../models/PendingPayouts.js";
 
 export const getAdminById= async (id)=>{
     return await Admins.findById(id);
@@ -121,5 +122,73 @@ export const removeUserById = async (userId) => {
   } catch (error) {
     console.error("Error in removeSellerById DAO:", error);
     return { success: false, message: "Database error while removing seller" };
+  }
+};
+
+const WITHDRAWABLE_PAYOUT_TYPES = [
+  "Seller_120_Percent",
+  "Seller_BuyerPool_Share",
+  "Seller_Stake_Release",
+];
+
+export const getUsersWithRevenue = async () => {
+  try {
+    const [allUsers, revenueAgg, productCountAgg] = await Promise.all([
+      buyers.find().lean(),
+      PendingPayouts.aggregate([
+        {
+          $match: {
+            payoutType: { $in: WITHDRAWABLE_PAYOUT_TYPES },
+            status: { $in: ["Pending", "Processed"] },
+          },
+        },
+        {
+          $group: {
+            _id: "$recipientId",
+            revenue: { $sum: "$amount" },
+          },
+        },
+      ]),
+      products.aggregate([
+        {
+          $group: {
+            _id: "$seller",
+            productCount: { $sum: 1 },
+            soldCount: {
+              $sum: { $cond: [{ $ne: ["$soldTo", null] }, 1, 0] },
+            },
+          },
+        },
+      ]),
+    ]);
+
+    const revenueMap = new Map();
+    for (const r of revenueAgg) {
+      revenueMap.set(r._id.toString(), r.revenue);
+    }
+
+    const productMap = new Map();
+    for (const p of productCountAgg) {
+      productMap.set(p._id.toString(), {
+        productCount: p.productCount,
+        soldCount: p.soldCount,
+      });
+    }
+
+    const enrichedUsers = allUsers.map((user) => {
+      const uid = user._id.toString();
+      const prodStats = productMap.get(uid) || { productCount: 0, soldCount: 0 };
+      return {
+        ...user,
+        revenue: revenueMap.get(uid) || 0,
+        productCount: prodStats.productCount,
+        soldCount: prodStats.soldCount,
+      };
+    });
+
+    return { success: true, users: enrichedUsers };
+  } catch (error) {
+    console.error("Error in getUsersWithRevenue DAO:", error);
+    return { success: false, message: "Database error while fetching users with revenue", users: [] };
   }
 };
