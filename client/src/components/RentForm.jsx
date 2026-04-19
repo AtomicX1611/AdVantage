@@ -5,6 +5,9 @@ const RentForm = ({ onClose, onSubmit, productPrice }) => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [pricePerDay, setPricePerDay] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [pinCode, setPinCode] = useState("");
 
   const calculateDays = () => {
     if (!fromDate || !toDate) return 0;
@@ -31,7 +34,11 @@ const RentForm = ({ onClose, onSubmit, productPrice }) => {
       alert("Please enter a valid price per day");
       return;
     }
-    onSubmit(fromDate, toDate, pricePerDay);
+    if (!address || !city || !pinCode) {
+      alert("Please fill out all shipping details.");
+      return;
+    }
+    onSubmit(fromDate, toDate, pricePerDay, { address, city, pinCode });
   };
 
   return (
@@ -83,6 +90,46 @@ const RentForm = ({ onClose, onSubmit, productPrice }) => {
               min="1"
               required
             />
+          </div>
+
+          <div className={styles.inputGroup}>
+            <label htmlFor="address" className={styles.label}>Shipping Address</label>
+            <input
+              type="text"
+              id="address"
+              className={styles.input}
+              placeholder="123 Main St"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className={styles.inputGroup} style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ flex: 1 }}>
+              <label htmlFor="city" className={styles.label}>City</label>
+              <input
+                type="text"
+                id="city"
+                className={styles.input}
+                placeholder="City"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                required
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label htmlFor="pinCode" className={styles.label}>PIN Code</label>
+              <input
+                type="text"
+                id="pinCode"
+                className={styles.input}
+                placeholder="PIN Code"
+                value={pinCode}
+                onChange={(e) => setPinCode(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
           {fromDate && toDate && pricePerDay > 0 && (

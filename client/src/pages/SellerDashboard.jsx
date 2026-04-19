@@ -1,14 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Outlet } from 'react-router-dom';
 import SellerSidebar from '../components/SellerHome/SellerSidebar.jsx';
 import styles from '../styles/sellerdashboard.module.css';
 
 const SellerLayout = () => {
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!isSidebarOpen);
-  };
+  const isSidebarOpen = true;
 
   return (
     <div className={styles.container}>

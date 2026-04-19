@@ -1,17 +1,29 @@
 /* Import Poppins font from Google Fonts (add this at the very top of your CSS) */
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 * {
-  margin: 0;
-  padding: 0;
+    margin: 0; padding: 0;
 }
 
 body {
   min-height: 100vh;
   width: 100vw;
   font-family: "Poppins", sans-serif;
-  background-color: #ebe9f3;
-  /* overflow-x: hidden; */
+  background-color: #202020;
+  overflow-x: hidden;
+}
+
+
+
+main {
+    width: 100vw;
+    height: fit-content;
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 50px;
+    background-color: #ebe9f3 ;
 }
 
 main {
@@ -26,33 +38,33 @@ main {
 }
 
 .poster {
-  width: 100vw;
-  height: 60vh;
-  background: transparent;
-  /* margin-top: 2vh; */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding-left: 0vw;
-  animation: animate 1.2s ease-out;
-  background-color: rgb(0, 0, 0);
+    width: 100vw;
+    height: 60vh;
+    background: transparent;
+    /* margin-top: 2vh; */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-left: 0vw;
+    animation: animate 1.2s ease-out;
+    background-color: rgb(0, 0, 0);
 }
 
 .dial-container {
-  display: flex;
-  align-items: center;
-  color: rgb(220, 213, 213);
-  gap: 10px;
-  margin-left: 27vw;
-  margin-top: 3vh;
-  height: 10px;
+    display: flex;
+    align-items: center;
+    color: rgb(220, 213, 213);
+    gap: 10px;
+    margin-left: 27vw;
+    margin-top: 3vh;
+    height: 10px;
 }
 
 .dial-container h1 {
-  font-size: 2.5rem;
-  margin: 0;
-  padding-top: 55px;
-  padding-left: 10px;
+    font-size: 2.5rem;
+    margin: 0;
+    padding-top: 55px;
+    padding-left: 10px;
 }
 
 .dial {
@@ -92,21 +104,6 @@ main {
   transform: rotateX(240deg) translateZ(25px);
 }
 
-@keyframes rotateWords {
-  0% {
-    transform: rotateX(0deg);
-  }
-  33.33% {
-    transform: rotateX(-120deg);
-  }
-  66.66% {
-    transform: rotateX(-240deg);
-  }
-  100% {
-    transform: rotateX(-360deg);
-  }
-}
-
 /* .header-poster {
     background: url('Assets/OHHOhh.jpeg') no-repeat right/ 50%;
     min-height: 60vh;
@@ -124,24 +121,42 @@ section {
 }
 
 .featuredHeader {
-  font-size: larger;
-  font-weight: 400;
-  color: rgb(0, 0, 0);
-  margin-left: 0.7vh;
+    font-size: larger;
+    font-weight: 400;
+    color: rgb(0, 0, 0);
+    margin-left: 0.7vh;
 }
 
-.featuredHeader h2 {
+.featuredHeader h2{
   font-weight: 400;
   margin-bottom: 30px;
 }
 
 .iconsBox {
-  width: 100%;
-  height: fit-content;
-  display: flex;
-  gap: 2.5vw;
-  flex-wrap: wrap;
-  margin-top: 1vh;
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    gap: 2.5vw;
+    flex-wrap: wrap;
+    margin-top: 1vh;
+}
+
+.productName>p {
+    color: rgb(220, 213, 213);
+    width: 250px;
+
+}
+.icon {
+    height: 100px;
+    width: 100px;
+    border-radius: 8px;
+    background-color: rgb(220, 213, 213);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: icon ease;
+    animation-timeline: view();
 }
 
 .productName > p {
@@ -268,10 +283,11 @@ section {
 .logo {
   /* padding-top: 15vh;
     padding-right: 100vh; */
-  margin-left: 10vw;
-  padding-left: 2%;
-  width: 36vw;
-  scale: 1.3;
+    margin-left: 10vw;
+    padding-left: 2%;
+    width: 36vw;
+    scale: 1.3;
+    
 }
 @keyframes animate {
   0% {

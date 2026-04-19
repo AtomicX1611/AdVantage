@@ -222,6 +222,7 @@ export const managerLogin = async (req, res, next) => {
         return res.status(200).json({
             managerId: response.manager._id,
             email: response.manager.email,
+            category: response.manager.category,
             success: true,
             message: "Manager login successful",
         });
@@ -315,7 +316,7 @@ export const userLogout = async (req, res, next) => {
     Verify email controller 
 */
 
-export const verifyEmailController = async (req, res) => {
+export const verifyEmailController = async (req, res, next) => {
     try {
         const { email, code } = req.body;
 
@@ -324,14 +325,26 @@ export const verifyEmailController = async (req, res) => {
         }
 
         let response = await verifyEmailService(email, code);
+        if(!response.success) {
+            return res.status(response.status).json({
+                success: false,
+                message: response.message
+            });
+        }
+        res.cookie("token", response.token, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
         console.log("response: ",response);
 
         return res.status(response.status).json({
             success: response.success,
             message: response.message,
-            data: response.data
+            token: response.token,
+            email: response.email,
+            buyerId: response.buyerId,
         });
     } catch (error) {
-        console.log("at verify email controller", error);
+        next(error);
     }
 }

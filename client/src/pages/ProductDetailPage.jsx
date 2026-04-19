@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import ImageGallery from "../components/ImageGallery";
 import ProductInfo from "../components/ProductInfo";
 import ActionButtons from "../components/ActionButtons";
@@ -7,6 +8,7 @@ import SellerOptions from "../components/SellerOptions";
 import RentForm from "../components/RentForm";
 import BidModal from "../components/BidModal";
 import Notification from "../components/NotificationCard";
+import ComplaintModal from "../components/ComplaintModal";
 import styles from "../styles/productdetails.module.css";
 
 const ProductDetailPage = () => {
@@ -17,8 +19,11 @@ const ProductDetailPage = () => {
   const [error, setError] = useState("");
   const [showRentForm, setShowRentForm] = useState(false);
   const [showBidModal, setShowBidModal] = useState(false);
-  const [notification, setNotification] = useState("");
+  const [notification] = useState("");
   const [showNotif, setShowNotif] = useState(false);
+  const [showComplaintModal, setShowComplaintModal] = useState(false);
+  const navigate = useNavigate();
+  const { isAuth, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -79,8 +84,21 @@ const ProductDetailPage = () => {
     setShowBidModal(true);
   };
 
-  const handleSubmitBid = async (bidAmount) => {
+  const handleSubmitBid = async (bidAmount, shippingAddress) => {
     try {
+      // require auth
+      if (!isAuth) {
+        alert("Please sign in to submit a request");
+        navigate('/login');
+        return;
+      }
+      // prevent owner from requesting own product
+      const sellerId = product?.seller?._id || product?.seller;
+      const currentUserId = user?._id || user?.id;
+      if (sellerId && currentUserId && sellerId.toString() === currentUserId.toString()) {
+        alert("You cannot request your own product");
+        return;
+      }
       // keep bid amount > product.price for safety
        const response = await fetch(`http://localhost:3000/user/request/${pid}`, {
         method: "POST",
@@ -90,15 +108,21 @@ const ProductDetailPage = () => {
         credentials: "include",
         body: JSON.stringify({
           biddingPrice: parseInt(bidAmount),
+          shippingAddress: shippingAddress,
         }),
       });
 
       const data = await response.json();
-      console.log("data: ",data);
+      console.log("data: ", data);
       if (response.ok) {
         alert(`Bid of ₹${bidAmount} submitted successfully!`);
         setShowBidModal(false);
       } else {
+        if (response.status === 401 || response.status === 403) {
+          alert("Please sign in to submit a request");
+          navigate('/login');
+          return;
+        }
         alert(data.message || "Failed to submit bid");
       }
     } catch (error) {
@@ -107,8 +131,21 @@ const ProductDetailPage = () => {
     }
   };
 
-  const handleSubmitRent = async (fromDate, toDate, pricePerDay) => {
+  const handleSubmitRent = async (fromDate, toDate, pricePerDay, shippingAddress) => {
     try {
+      // require auth
+      if (!isAuth) {
+        alert("Please sign in to submit a rent request");
+        navigate('/login');
+        return;
+      }
+      // prevent owner from requesting own product
+      const sellerId = product?.seller?._id || product?.seller;
+      const currentUserId = user?._id || user?.id;
+      if (sellerId && currentUserId && sellerId.toString() === currentUserId.toString()) {
+        alert("You cannot request your own product");
+        return;
+      }
       // Calculate number of days
       const from = new Date(fromDate);
       const to = new Date(toDate);
@@ -127,10 +164,16 @@ const ProductDetailPage = () => {
           from:fromDate,
           to:toDate,
           biddingPrice:pricePerDay,
+          shippingAddress: shippingAddress,
         }),
       });
       const data = await response.json();
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          alert("Please sign in to submit a rent request");
+          navigate('/login');
+          return;
+        }
         alert(data.message || "Failed to submit rent request");
         return;
       }
@@ -185,9 +228,23 @@ const ProductDetailPage = () => {
               isRental={product.isRental}
               soldTo={product.soldTo}
               sellerId={product.seller}
+              isOwner={
+                (product?.seller?._id || product?.seller) &&
+                (user?._id || user?.id) &&
+                (product.seller._id || product.seller).toString() === (user._id || user.id).toString()
+              }
+              isAuth={isAuth}
               onAddToWishlist={handleAddToWishlist}
               onRentNow={handleRentNow}
               onBuyNow={handleBuyNow}
+              onComplain={() => {
+                if (!isAuth) {
+                  alert("Please sign in to file a complaint");
+                  navigate('/login');
+                  return;
+                }
+                setShowComplaintModal(true);
+              }}
             />
 
             {/* <SellerOptions verified={product.verified} /> */}
@@ -212,6 +269,18 @@ const ProductDetailPage = () => {
             onClose={() => setShowBidModal(false)}
             onSubmit={handleSubmitBid}
             productPrice={product.price}
+          />
+        )}
+
+        {showComplaintModal && (
+          <ComplaintModal
+            onClose={() => setShowComplaintModal(false)}
+            productId={pid}
+            productName={product.name}
+            preSelectedRespondent={
+              (product?.seller?._id || product?.seller || "").toString()
+            }
+            source="product_detail"
           />
         )}
       </div>

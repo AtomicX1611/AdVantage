@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ProfileHeader from "../components/ProfileHeader";
 import styles from "../styles/updateProfile.module.css";
 import API_CONFIG from "../config/api.config";
+import { resolveImageUrl } from "../utils/imageUrl";
 
 const UserUpdateProfile = () => {
   const [profileData, setProfileData] = useState({
@@ -20,12 +21,7 @@ const UserUpdateProfile = () => {
   const backendURL = API_CONFIG.BACKEND_URL || "http://localhost:3000/";
   const updateURL = `${backendURL}/user/update/profile`;
 
-  // Fetch existing user data
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await fetch(`${backendURL}/user/getYourProfile`, {
         method: "GET",
@@ -48,7 +44,12 @@ const UserUpdateProfile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [backendURL]);
+
+  // Fetch existing user data
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -147,7 +148,7 @@ const UserUpdateProfile = () => {
               className={styles.profileImage}
               src={
                 profileData.profilePicPath
-                  ? `${backendURL}/${profileData.profilePicPath}`
+                  ? resolveImageUrl(profileData.profilePicPath)
                   : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
               }
               alt="Profile"

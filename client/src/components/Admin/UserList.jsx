@@ -61,6 +61,7 @@ export default function UserList({ users, onUserRemoved }) {
               <th>Username</th>
               <th>Email</th>
               <th>Contact</th>
+              <th>Revenue (₹)</th>
               <th>Subscription</th>
               <th>Action</th>
             </tr>
@@ -71,6 +72,9 @@ export default function UserList({ users, onUserRemoved }) {
                 <td>{user.username || 'N/A'}</td>
                 <td>{user.email}</td>
                 <td>{user.contact || 'N/A'}</td>
+                <td>
+                  ₹{(user.earnings || 0).toLocaleString('en-IN')}
+                </td>
                 <td>
                   {user.subscription && user.subscription.length > 0 ? (
                     <span className={styles.subscriptionBadge}>

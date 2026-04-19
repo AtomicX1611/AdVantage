@@ -1,10 +1,8 @@
-import React, { useState, useEffect,useRef, use } from "react";
+import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import ChatSidebar from "../components/ChatSidebar";
 import ChatBox from "../components/ChatBox";
 import styles from "../styles/buyerchat.module.css";
-import { useContext } from "react";
-import { CurrentUserContext } from "../context/CurrentUserContextProvider.jsx";
 
 const ChatPage = () => {
   // store username here

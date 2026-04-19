@@ -1,5 +1,6 @@
 export const API_CONFIG = {
   BACKEND_URL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000',
+  RAZORPAY_KEY_ID: import.meta.env.VITE_RAZORPAY_KEY_ID || '',
   API_ENDPOINTS: {
     FEATURED_PRODUCTS: '/anyone/HomeRequirements',
     FRESH_PRODUCTS: '/anyone/HomeRequirements',
@@ -7,6 +8,9 @@ export const API_CONFIG = {
     CATEGORY_PRODUCTS: '/search/product/category',
     ADMIN_USERS: 'admin',
     ADMIN_GRAPH_DATA: 'admin/graphData',
+    ADMIN_METRICS: 'admin/metrics',
+    ADMIN_PAYMENT_ANALYTICS: 'admin/paymentAnalytics',
+    ADMIN_ADD_MANAGER: 'admin/addManager',
     WISHLIST_GET: '/user/wishlist',
     WISHLIST_ADD: '/user/wishlist/add',
     WISHLIST_REMOVE: '/user/wishlist/remove',

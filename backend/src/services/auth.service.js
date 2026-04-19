@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
-import crypto from "crypto";
+import crypto from "node:crypto";
 import nodemailer from 'nodemailer';
 
 import {
@@ -13,7 +13,7 @@ import {
     createPendingUser,
     deletePendingUser,
     findPendingUserByEmail
-} from "../daos/pendingUserDao.js";
+} from "../daos/pendingUser.dao.js";
 
 
 // import {
@@ -43,9 +43,16 @@ export const signupBuyerService = async (username, contact, email, password) => 
 
     // create a new one 
     createPendingUser(username,contact,email,password,otp);
+    console.log("Here logging");
 
     // send otp 
-    await MailService(email,otp);
+    try {
+        await MailService(email,otp);
+        console.log("await done");
+        
+    } catch (error) {
+        console.log("At mail service: ",error)
+    }
 
     return {
         status: 201,
@@ -67,6 +74,9 @@ const createTransporter = () => {
 export const MailService = async (email, otp) => {
     try {
         const transporter = createTransporter();
+        console.log("new log");
+        console.log("logging with user meail and email also",process.env.MAIL_USER);
+        console.log("email to send to:",email);
         
         await transporter.sendMail({
             from: process.env.MAIL_USER,
@@ -74,6 +84,8 @@ export const MailService = async (email, otp) => {
             subject: `Verify your account - ${new Date().toLocaleTimeString()}`,
             text: `Your OTP is ${otp}. Valid for 10 minutes.`
         });
+        console.log("Sent mail success to ",email);
+        
     } catch (error) {
         console.error('MailService error:', error);
         throw new Error('Failed to send verification email');
@@ -102,7 +114,7 @@ export const verifyEmailService = async (email,code)=> {
                     status: 200,
                     success: true,
                     message: "Email already verified",
-                    data: token,
+                    token: token,
                     email:user.email,
                     buyerId : user._id
                 }
@@ -113,7 +125,7 @@ export const verifyEmailService = async (email,code)=> {
                 status: 404,
                 success: false,
                 message: "Verification expired",
-                data: null
+                token: null
             }
         }
 
@@ -138,7 +150,7 @@ export const verifyEmailService = async (email,code)=> {
                 status: 200,
                 success: true,
                 message: "Email verified successfully",                    
-                data: token,
+                token: token,
                 email:user.email,
                 buyerId : user._id
             }
@@ -148,14 +160,15 @@ export const verifyEmailService = async (email,code)=> {
         return {
             status:400,
             success:false,
-            message:"Invalid otp"
+            message:"Invalid otp",
+            token:null,
         }
     } catch (error) {
         console.log(error);
         return {
             status:500,
             success:false,
-            message:"Server error"
+            message:"Server error",
         }
     }
 }
@@ -309,7 +322,7 @@ export const managerLoginService = async (email, password) => {
     }
 
     const token = jwt.sign(
-        { _id: manager._id, role: "manager" },
+        { _id: manager._id, role: "manager", category: manager.category },
         process.env.JWT_SECRET,
         { expiresIn: "7d" }
     );

@@ -3,35 +3,45 @@ import styles from "../../styles/Addproductform.module.css";
 
 const PriceSection = ({ formData, handleChange, handleSubmit }) => {
   return (
-    <div className={`${styles.griditem} ${styles.div4}`}>
-      <h3 className={styles.flexitem}>Is it Rental product</h3>
-      <input
-        type="checkbox"
-        className={styles.flexitem}
-        name="isRental"
-        id="isRental"
-        checked={formData.isRental}
-        onChange={handleChange}
-      />
+    <div className={styles.card}>
+      <h2 className={styles.cardTitle}>Pricing</h2>
 
-      <h3 className={styles.flexitem}>Price and Submit</h3>
-      <label className={styles.flexitem} htmlFor="price" id="labelForPrice">
-        {formData.isRental ? "Per day" : "Sell Price"}
-      </label>
+      <div className={styles.checkboxGroup}>
+        <input
+          type="checkbox"
+          className={styles.checkbox}
+          name="isRental"
+          id="isRental"
+          checked={formData.isRental}
+          onChange={handleChange}
+        />
+        <label htmlFor="isRental" className={styles.checkboxLabel}>
+          This is a rental product
+        </label>
+      </div>
 
-      <input
-        type="number"
-        name="price"
-        className={styles.flexitem}
-        placeholder="Price"
-        id="price"
-        value={formData.price}
-        onChange={handleChange}
-        required
-      />{" "}
-      Rs
+      <div className={styles.inputGroup}>
+        <label className={styles.label} htmlFor="price">
+          {formData.isRental ? "Price per day" : "Selling Price"}
+        </label>
+        <div className={styles.priceInputWrapper}>
+          <input
+            type="number"
+            name="price"
+            className={styles.input}
+            placeholder="Enter price"
+            id="price"
+            value={formData.price}
+            onChange={handleChange}
+            required
+          />
+          <span className={styles.priceSuffix}>₹</span>
+        </div>
+      </div>
 
-      <button id="submit-form" onClick={handleSubmit}>Submit</button>
+      <button type="button" className={styles.submitButton} onClick={handleSubmit}>
+        Add Product
+      </button>
     </div>
   );
 };

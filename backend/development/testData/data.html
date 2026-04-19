@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button onclick="login()">login</button>
+    <button onclick="sendData()">send Data</button>
+    <script>
+        function login(){
+            fetch('http://localhost:3000/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: "abc@gmail.com",
+                    password: "12345678"
+                })
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+        }
+        function sendData(){
+            fetch('http://localhost:3000/api/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: "OnePlus Nord 3",
+                    description: "5G smartphone with Dimensity 9000 chip and 120Hz AMOLED display.",
+                    postingDate: new Date(),
+                    zipCode: "110092",
+                    seller: '68ee39e574194f3881df4f6f',
+                    verified: false,
+                    category: "Mobiles",
+                    district: "East Delhi",
+                })
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

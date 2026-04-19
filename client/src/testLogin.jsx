@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "./redux/authSlice";
@@ -7,7 +7,7 @@ const TestLogin = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleGoogleResponse = async (response) => {
+  const handleGoogleResponse = useCallback(async (response) => {
     try {
         //
       // console.log("Google response:", response); // Avoid logging credentials in production
@@ -34,7 +34,7 @@ const TestLogin = () => {
       console.error("Error logging in:", error);
       alert("Error logging in");
     }
-  };
+  }, [dispatch, navigate]);
 
   useEffect(() => {
     /* global google */
@@ -62,7 +62,7 @@ const TestLogin = () => {
       }, 100);
       return () => clearInterval(intervalId);
     }
-  }, []);
+  }, [handleGoogleResponse]);
 
   return (
     <div style={{ display: "flex", justifyContent: "center", marginTop: "50px" }}>

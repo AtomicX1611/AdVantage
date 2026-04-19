@@ -4,7 +4,10 @@ import {
     serializeUser,
     authorize
 } from "../middlewares/protect.js";
-import { upload } from "../middlewares/upload.js";
+import {
+    upload,
+    uploadFilesToCloudinary,
+} from "../middlewares/upload.js";
 import {
     updateBuyerProfile,
     addToWishlist,
@@ -19,6 +22,14 @@ import {
     notInterested,
     getPendingRequests,
     getYourNotifications,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    deleteNotification,
+    createOrder,
+    verifyPayment,
+    disputeOrderController,
+    getBuyerOrdersController,
+    buyerMarkDeliveredController,
 } from "../controllers/buyer.controller.js";
 import {
     addProduct,
@@ -30,57 +41,113 @@ import {
     makeAvailableController,
     deleteProduct,
     revokeAcceptedRequest,
-    analyticsController
+    createStakeOrderController,
+    verifyStakeController,
+    shipOrderController,
+    verifyDeliveryController,
+    getSellerOrdersController,
+    sellerCancelPaidOrderController,
+    analyticsController,
+    getTransactionsController,
+    createPayoutAccountController,
+    getPayoutAccountController,
+    withdrawFinalizedBalanceController,
 } from "../controllers/seller.controller.js";
+import { validatePayoutAccountPayload, validateWithdrawPayload } from "../middlewares/payout.middleware.js";
+import {
+    fileComplaint,
+    getMyComplaints,
+    getProductComplaints,
+    getProductBuyers,
+} from "../controllers/complaint.controller.js";
 
 export const router = express.Router();
 
+//router level middleware
 router.use(checkToken);
 router.use(serializeUser);
 router.use(authorize("user"));
 
-router.post("/request/:productId",requestProduct);
-router.post("/paymentDone/:productId",paymentDone);//working
-router.post("/notInterested/:productId",notInterested);
-router.put("/rent/:productId",rentProductController);
+router.post("/request/:productId", requestProduct);
+router.post('/create-order', createOrder);
+router.post("/verify-payment", verifyPayment);
+// router.post("/paymentDone/:productId",paymentDone);//working
+router.post("/notInterested/:productId", notInterested);
+router.put("/rent/:productId", rentProductController);
 
-router.put("/wishlist/add/:productId", addToWishlist); 
+router.put("/wishlist/add/:productId", addToWishlist);
 router.get("/wishlist", getWishlistProducts); // Working
-router.get("/pendingRequests",getPendingRequests);
+router.get("/pendingRequests", getPendingRequests);
 
+router.post("/request/:productId", requestProduct);
+router.post("/paymentDone/:productId", paymentDone);
+router.post("/notInterested/:productId", notInterested);
+router.post(
+    "/order/:orderId/dispute",
+    upload.fields([{ name: "proofs", maxCount: 6 }]),
+    uploadFilesToCloudinary,
+    disputeOrderController
+);
+router.put("/rent/:productId", rentProductController);
+router.put("/wishlist/add/:productId", addToWishlist);
+router.get("/wishlist", getWishlistProducts);
+router.get("/pendingRequests", getPendingRequests);
 router.delete("/wishlist/remove/:productId", removeFromWishlist);
-router.patch("/update/password",updateBuyerPassword); // Working
-router.put("/update/profile", upload.single("profilePic"), updateBuyerProfile); // Working
+router.patch("/update/password", updateBuyerPassword); // Working
+router.put("/update/profile", upload.single("profilePic"), uploadFilesToCloudinary, updateBuyerProfile); // Working
 
-router.get("/yourProducts",getYourProducts); 
-router.get("/getYourProfile",getYourProfile);
+router.get("/yourProducts", getYourProducts);
+router.get("/getYourProfile", getYourProfile);
 
+router.patch("/update/password", updateBuyerPassword);
+router.put("/update/profile", upload.single("profilePic"), updateBuyerProfile);
+router.get("/yourProducts", getYourProducts);
+router.get("/getYourProfile", getYourProfile);
 router.get("/getNotifications", getYourNotifications);
+router.patch("/notifications/:notificationId/read", markNotificationAsRead);
+router.post("/notifications/mark-all-read", markAllNotificationsAsRead);
+router.delete("/notifications/:notificationId", deleteNotification);
 
 // buyer as a seller
-router.get("/products",findSellerProducts); // Working
-router.get("/subscriptionStatus",findSellerSubscription); // Working
-router.put("/update/subscription",updateSellerSubscription); // Working
-
+router.get("/products", findSellerProducts);
+router.get("/subscriptionStatus", findSellerSubscription);
+router.put("/update/subscription", updateSellerSubscription);
 router.post("/addProduct", upload.fields([
     { name: "productImages", maxCount: 10 },
     { name: "invoice", maxCount: 1 }
-]), addProduct); // Working
+]), uploadFilesToCloudinary, addProduct); // Working
 
-router.delete("/deleteProduct/:productId",deleteProduct); // Working
+router.delete("/deleteProduct/:productId", deleteProduct); // Working
 
 router.delete("/rejectRequest/:productId/:buyerId/", rejectRequest);
 router.post("/acceptRequest/:productId/:buyerId", acceptRequest);
-router.patch("/revokeAccepted/:productId",revokeAcceptedRequest);
+router.post("/request/:productId/stake/:buyerId", createStakeOrderController);
+router.post("/request/:productId/verify-stake/:buyerId", verifyStakeController);
+router.patch("/revokeAccepted/:productId", revokeAcceptedRequest);
+router.put("/order/:orderId/ship", shipOrderController);
+router.post("/order/:orderId/verify-delivery", verifyDeliveryController);
+router.patch("/order/:orderId/seller-cancel", sellerCancelPaidOrderController);
+router.get("/seller/orders", getSellerOrdersController);
+router.get("/buyer/orders", getBuyerOrdersController);
+router.post("/order/:orderId/mark-delivered", buyerMarkDeliveredController);
 
-router.post("/makeAvailable/:productId",makeAvailableController);
-
+router.post("/makeAvailable/:productId", makeAvailableController);
 
 /*
     "/selling-analytics" for seller dashboard
     method:GET
-*/ 
+*/
 
-router.get("/selling-analytics",analyticsController);
+router.get("/selling-analytics", analyticsController);
+
+router.get("/getMyTransactions", getTransactionsController);
+router.post("/payout-account", validatePayoutAccountPayload, createPayoutAccountController);
+router.get("/payout-account", getPayoutAccountController);
+router.post("/withdraw-finalized-balance", validateWithdrawPayload, withdrawFinalizedBalanceController);
+// Complaint routes
+router.post("/complaint", fileComplaint);
+router.get("/complaints", getMyComplaints);
+router.get("/complaints/product/:productId", getProductComplaints);
+router.get("/complaints/buyers/:productId", getProductBuyers);
 
 export default router;

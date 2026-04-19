@@ -54,7 +54,7 @@ const FilterPanel = ({ filters, onChange }) => {
           onChange={handleInput}
           id={styles.verifiedCheckbox}
         />
-        <b>Verified Sellers Only</b>
+        <b>Verified Products Only</b>
       </label>
 
       <label id={styles.rentedwrapper}>

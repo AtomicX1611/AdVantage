@@ -9,7 +9,7 @@ import Register from "../pages/Register";
 // import Admin from "../pages/Admin.jsx";
 import Admin from "../pages/AdminPage.jsx";
 import SubscriptionPage from "../pages/Subscription.page.jsx";
-import PaymentPage from "../pages/Payment.page.jsx";
+// import PaymentPage from "../pages/Payment.page.jsx";
 // import Login from "../pages/Login.jsx";
 import YourOrders from "../pages/YourOrders.page";
 import ChatPage from "../pages/ChatPage";
@@ -20,13 +20,18 @@ import AddProductForm from "../pages/AddProductForm.jsx";
 import SearchPage from "../pages/SearchPage.jsx";
 import ViewRequest from "../pages/ViewRequest.jsx";
 import PendingTxsPage from "../pages/PendingTxsPage.jsx";
+import BuyerWalletPage from "../pages/BuyerWalletPage.jsx";
 import ManagerDashboard from '../pages/ManagerDashboard.jsx';
 import SellerDashboardLayout from "../pages/SellerDashboard.jsx";
+
 import SellerItems from "../components/SellerHome/SellerItems";
 import SellerRequests from "../components/SellerHome/SellerRequests";
 import AcceptedProducts from "../components/SellerHome/AcceptedProducts";
+import SellerOrders from "../components/SellerHome/SellerOrders";
 import SellerAnalytics from '../components/SellerHome/SellerAnalytics.jsx'
 import SellerHeaderLayout from "../components/SellerHome/SellerHeaderLayout.jsx"
+import SellerTransactionHistory from "../components/SellerHome/SellerTransactionHistory.jsx"
+
 import LoginPage from "../components/TempLogin.jsx";
 import AuthLogin from "../pages/AuthLogin.jsx";
 import AuthSignup from "../pages/AuthSignup.jsx";
@@ -36,6 +41,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { loginSuccess,logout } from '../redux/authSlice';
 import TestLogin from "../testLogin.jsx";
+import AIChatOverlay from "../components/AIChatOverlay.jsx";
 
 
 const ProtectedRoute = ({ element, allowedRoles }) => {
@@ -64,20 +70,21 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
   return element;
 };
 
-const subsData = [
-  {
-    type: "vip",
-    subscription : 1,
-    duration: "6 Months",
-    price: "100",
-  },
-  {
-    type: "premium",
-    duration: "1 year",
-    subscription:2,
-    price: "1299",
-  }
-];
+// Legacy demo-only flow kept commented intentionally:
+// const subsData = [
+//   {
+//     type: "vip",
+//     subscription : 1,
+//     duration: "6 Months",
+//     price: "100",
+//   },
+//   {
+//     type: "premium",
+//     duration: "1 year",
+//     subscription:2,
+//     price: "1299",
+//   }
+// ];
 
 const AppRoutes = () => {
   const dispatch = useDispatch();
@@ -95,16 +102,16 @@ const AppRoutes = () => {
       const data = await res.json();
       if (!data.success) {
         dispatch(logout());
+      }else{
+        dispatch(
+          loginSuccess({
+            email: data.info.email,
+            id: data.info._id,
+            role: data.info.role,
+            profilePicPath: data.info.profilePicPath,
+          })
+        );
       }
-
-      dispatch(
-        loginSuccess({
-          email: data.info.email,
-          id: data.info._id,
-          role: data.info.role,
-          profilePicPath: data.info.profilePicPath,
-        })
-      );
     };
 
     saveUserInfoToStore();
@@ -130,6 +137,7 @@ const AppRoutes = () => {
           <Route path="yourProducts" element={<ProtectedRoute element={<YourOrders />} allowedRoles={['user']} />} />
           <Route path="product-requests" element={<ProtectedRoute element={<ViewRequest />} allowedRoles={['user']} />} />
           <Route path="pending-transactions" element={<ProtectedRoute element={<PendingTxsPage />} allowedRoles={['user']} />} />
+          <Route path="wallet" element={<ProtectedRoute element={<BuyerWalletPage />} allowedRoles={['user']} />} />
           <Route path="pending-payment/:id" element={<h1>New page pipeline to be decided yet</h1>} />
         </Route>
 
@@ -152,8 +160,11 @@ const AppRoutes = () => {
             <Route path="rented-out" element={<SellerItems filterType="rented" />} />
             <Route path="requests" element={<SellerRequests />} />
             <Route path="accepted-pending" element={<AcceptedProducts />} />
+            <Route path="orders" element={<SellerOrders />} />
+            <Route path="transaction-history" element={<SellerTransactionHistory />} />
           </Route>
 
+          {/* Legacy demo-only payment pages (pre-Razorpay direct flow):
           <Route path="subscription/vip"
             element={
               <PaymentPage
@@ -176,12 +187,14 @@ const AppRoutes = () => {
               />
             }
           />
+          */}
         </Route>
         {/* Admin and Manager Routes - role specific */}
         <Route path="/admin" element={<ProtectedRoute element={<Admin />} allowedRoles={['admin']} />} />
         <Route path="/manager" element={<ProtectedRoute element={<ManagerDashboard />} allowedRoles={['manager']} />} />
         <Route path="/error" element={<ErrorPage />} />
       </Routes>
+      <AIChatOverlay />
     </Router>
   );
 };
