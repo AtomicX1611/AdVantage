@@ -15,6 +15,7 @@ jest.mock("../../src/config/payment.config.js", () => ({
 import {
   addProductService,
   acceptProductRequestService,
+  analyticsService,
   createStakeOrderService,
   getSellerOrdersService,
   rejectProductRequestService,
@@ -28,6 +29,7 @@ import {
   acceptProductRequestDao,
   createProduct,
   createStakeOrderDao,
+  findProductsForSeller,
   getProductById,
   rejectProductRequestDao,
   revokeAcceptedRequestDao,
@@ -39,6 +41,7 @@ import { getSellerOrdersDao, shipOrderDao } from "../../src/daos/orders.dao.js";
 import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils.js";
 import { generateProductHFEmbedding } from "../../src/helpers/productEmbedding.helper.js";
 import { getBuyerById, incrementUsedPostsDao, resetUsedPostsDao } from "../../src/daos/users.dao.js";
+import { getSellerWithdrawalsDao } from "../../src/daos/payout.dao.js";
 
 import {
   createRequestAcceptedNotification,
@@ -72,6 +75,19 @@ jest.mock("../../src/daos/users.dao.js", () => ({
   findSellerSubsDao: jest.fn(),
   incrementUsedPostsDao: jest.fn(),
   resetUsedPostsDao: jest.fn(),
+}));
+
+jest.mock("../../src/daos/payout.dao.js", () => ({
+  createPayoutAccountDao: jest.fn(),
+  createSellerWithdrawalDao: jest.fn(),
+  getActivePayoutAccountBySellerDao: jest.fn(),
+  getProcessingWithdrawalBySellerDao: jest.fn(),
+  getSellerWithdrawalsDao: jest.fn(),
+  getWithdrawablePayoutsDao: jest.fn(),
+  markPayoutsAsLinkedToWithdrawalDao: jest.fn(),
+  markWithdrawalPayoutExecutionDao: jest.fn(),
+  unlinkPayoutsFromWithdrawalDao: jest.fn(),
+  updateSellerWithdrawalDao: jest.fn(),
 }));
 
 jest.mock("../../src/daos/payment.dao.js", () => ({
@@ -366,6 +382,144 @@ describe("seller.service", () => {
 
     expect(result.success).toBe(false);
     expect(result.status).toBe(500);
+  });
+
+  test("analyticsService returns 404 when seller not found", async () => {
+    getBuyerById.mockResolvedValue(null);
+
+    const result = await analyticsService("s1");
+
+    expect(result.success).toBe(false);
+    expect(result.status).toBe(404);
+    expect(result.message).toBe("Seller not found");
+  });
+
+  test("analyticsService returns 409 when products cannot be loaded", async () => {
+    getBuyerById.mockResolvedValue({ _id: "s1" });
+    findProductsForSeller.mockResolvedValue({ success: false });
+
+    const result = await analyticsService("s1");
+
+    expect(result.success).toBe(false);
+    expect(result.status).toBe(409);
+    expect(result.message).toBe("Could not load products");
+  });
+
+  test("analyticsService returns escrow metrics and legacy fields", async () => {
+    getBuyerById.mockResolvedValue({ _id: "s1" });
+    findProductsForSeller.mockResolvedValue({
+      success: true,
+      products: [
+        { soldTo: "b1", requests: [{ _id: "r1" }, { _id: "r2" }] },
+        { soldTo: null, requests: [{ _id: "r3" }] },
+        { soldTo: "b2", requests: [] },
+      ],
+    });
+
+    const payouts = [
+      {
+        amount: 1200,
+        status: "Processed",
+        payoutType: "Seller_120_Percent",
+        withdrawalRequestId: null,
+        productId: { category: "Mobiles" },
+      },
+      {
+        amount: 200,
+        status: "Pending",
+        payoutType: "Seller_20_Refund",
+        withdrawalRequestId: null,
+        productId: { category: "Mobiles" },
+      },
+      {
+        amount: 50,
+        status: "Pending",
+        payoutType: "Buyer_Partial_Refund",
+        withdrawalRequestId: null,
+        productId: { category: "Books" },
+      },
+      {
+        amount: 100,
+        status: "Pending",
+        payoutType: "Seller_120_Percent",
+        withdrawalRequestId: "w1",
+        productId: { category: "Books" },
+      },
+      {
+        amount: 80,
+        status: "Failed",
+        payoutType: "Seller_Stake_Release",
+        withdrawalRequestId: null,
+        productId: { category: "Electronics" },
+      },
+      {
+        amount: 300,
+        status: "Processed",
+        payoutType: "Seller_BuyerPool_Share",
+        withdrawalRequestId: "w2",
+        productId: { category: "Fashion" },
+      },
+    ];
+
+    PendingPayouts.find.mockReturnValue({
+      populate: jest.fn().mockReturnThis(),
+      sort: jest.fn().mockResolvedValue(payouts),
+    });
+
+    getSellerWithdrawalsDao.mockResolvedValue([
+      { status: "Failed", withdrawnAmount: 125, initiatedAt: new Date("2026-04-20T12:00:00.000Z") },
+      { status: "Processed", withdrawnAmount: 500, initiatedAt: new Date("2026-04-19T12:00:00.000Z") },
+      { status: "Processing", withdrawnAmount: 250, initiatedAt: new Date("2026-04-18T12:00:00.000Z") },
+    ]);
+
+    getSellerOrdersDao.mockResolvedValue([
+      { deliveryStatus: "Pending", amount: 100000, timerTriggered48Hour: false },
+      { deliveryStatus: "Shipped", amount: 50000, timerTriggered48Hour: false },
+      { deliveryStatus: "Delivered", amount: 80000, timerTriggered48Hour: false },
+      { deliveryStatus: "Disputed", amount: 30000, timerTriggered48Hour: false },
+      { deliveryStatus: "Completed", amount: 20000, timerTriggered48Hour: true },
+    ]);
+
+    const result = await analyticsService("s1");
+
+    expect(result.success).toBe(true);
+    expect(result.status).toBe(200);
+    expect(result.data.itemsSold).toBe(2);
+    expect(result.data.itemsForSale).toBe(1);
+    expect(result.data.pendingRequest).toBe(3);
+    expect(result.data.earnings).toBe(1500);
+    expect(result.data.settlementSummary.settledEarnings).toBe(1500);
+    expect(result.data.settlementSummary.pendingEarnings).toBe(100);
+    expect(result.data.settlementSummary.failedPayoutAmount).toBe(80);
+    expect(result.data.settlementSummary.disputedHoldAmount).toBe(300);
+    expect(result.data.settlementSummary.finalizedAvailableBalance).toBe(1200);
+    expect(result.data.settlementSummary.totalWithdrawnToDate).toBe(500);
+    expect(result.data.settlementSummary.withdrawalsInProcessing).toBe(250);
+    expect(result.data.settlementSummary.failedWithdrawalAmount).toBe(125);
+    expect(result.data.settlementSummary.lastWithdrawalStatus).toBe("Failed");
+    expect(result.data.settlementSummary.escrowHeldAmount).toBe(2600);
+    expect(result.data.settlementSummary.escrowReleasableAmount).toBe(1400);
+    expect(result.data.settlementSummary.escrowPendingReviewAmount).toBe(800);
+    expect(result.data.settlementSummary.escrowUnderDisputeAmount).toBe(300);
+    expect(result.data.settlementSummary.escrowReleasedTotal).toBe(1500);
+    expect(result.data.settlementSummary.escrowFailedBlockedAmount).toBe(505);
+    expect(result.data.settlementSummary.orderStageCounts).toEqual({
+      Pending: 1,
+      Shipped: 1,
+      Delivered: 1,
+      Disputed: 1,
+      Completed: 1,
+    });
+    expect(result.data.orderStageCounts).toEqual({
+      Pending: 1,
+      Shipped: 1,
+      Delivered: 1,
+      Disputed: 1,
+      Completed: 1,
+    });
+    expect(result.data.revPerCat.Mobiles).toBe(1200);
+    expect(result.data.categoryRevenueSettled.Fashion).toBe(300);
+    expect(result.data.categoryRevenuePending.Books).toBe(150);
   });
 
   test("verifyStakeService rejects invalid signature", async () => {

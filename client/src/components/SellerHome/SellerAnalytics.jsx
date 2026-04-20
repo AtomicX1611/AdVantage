@@ -33,7 +33,32 @@ const toNumber = (value) => {
   return Number.isFinite(n) ? n : 0;
 };
 
+const formatMoney = (value) => toNumber(value).toLocaleString('en-IN', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+const formatCount = (value) => toNumber(value).toLocaleString('en-IN');
+
 const firstDefined = (...values) => values.find((v) => v !== undefined && v !== null);
+
+const normalizeOrderStageCounts = (input) => {
+  const base = {
+    Pending: 0,
+    Shipped: 0,
+    Delivered: 0,
+    Disputed: 0,
+    Completed: 0,
+  };
+
+  if (!input || typeof input !== 'object') return base;
+
+  Object.keys(base).forEach((stage) => {
+    base[stage] = toNumber(firstDefined(input?.[stage], input?.[stage.toLowerCase()]));
+  });
+
+  return base;
+};
 
 const normalizeCategoryRevenue = (input) => {
   const result = { ...BASE_CATEGORY_MAP };
@@ -59,6 +84,14 @@ const normalizeCategoryRevenue = (input) => {
 const normalizeAnalyticsPayload = (responseData) => {
   const source = responseData?.data || responseData?.analytics || responseData || {};
   const settlementSummary = source?.settlementSummary || source?.settlement_summary || {};
+  const orderStageCounts = normalizeOrderStageCounts(
+    firstDefined(
+      source?.orderStageCounts,
+      source?.order_stage_counts,
+      settlementSummary?.orderStageCounts,
+      settlementSummary?.order_stage_counts
+    )
+  );
 
   const normalizedSettled = normalizeCategoryRevenue(
     firstDefined(
@@ -92,10 +125,18 @@ const normalizeAnalyticsPayload = (responseData) => {
       failedWithdrawalAmount: toNumber(firstDefined(settlementSummary?.failedWithdrawalAmount, settlementSummary?.failed_withdrawal_amount)),
       lastWithdrawalAt: firstDefined(settlementSummary?.lastWithdrawalAt, settlementSummary?.last_withdrawal_at, null),
       lastWithdrawalStatus: firstDefined(settlementSummary?.lastWithdrawalStatus, settlementSummary?.last_withdrawal_status, null),
+      escrowHeldAmount: toNumber(firstDefined(settlementSummary?.escrowHeldAmount, settlementSummary?.escrow_held_amount)),
+      escrowReleasableAmount: toNumber(firstDefined(settlementSummary?.escrowReleasableAmount, settlementSummary?.escrow_releasable_amount)),
+      escrowPendingReviewAmount: toNumber(firstDefined(settlementSummary?.escrowPendingReviewAmount, settlementSummary?.escrow_pending_review_amount)),
+      escrowUnderDisputeAmount: toNumber(firstDefined(settlementSummary?.escrowUnderDisputeAmount, settlementSummary?.escrow_under_dispute_amount, settlementSummary?.disputedHoldAmount, settlementSummary?.disputed_hold_amount)),
+      escrowReleasedTotal: toNumber(firstDefined(settlementSummary?.escrowReleasedTotal, settlementSummary?.escrow_released_total, settlementSummary?.settledEarnings, settlementSummary?.settled_earnings)),
+      escrowFailedBlockedAmount: toNumber(firstDefined(settlementSummary?.escrowFailedBlockedAmount, settlementSummary?.escrow_failed_blocked_amount)),
+      orderStageCounts,
     },
     revPerCat: normalizedSettled,
     categoryRevenueSettled: normalizedSettled,
     categoryRevenuePending: normalizedPending,
+    orderStageCounts,
   };
 };
 
@@ -168,6 +209,7 @@ const SellerAnalytics = () => {
   };
 
   const settledSummary = Analytics?.settlementSummary || {};
+  const stageCounts = Analytics?.orderStageCounts || settledSummary?.orderStageCounts || {};
 
   const categoryData = revenueMode === 'pending'
     ? (Analytics?.categoryRevenuePending || {})
@@ -241,7 +283,7 @@ const SellerAnalytics = () => {
           <div className={styles.cardDetails}>
             <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Settled Earnings</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              Rs. {settledSummary?.settledEarnings || Analytics?.earnings || 0}
+              Rs. {formatMoney(settledSummary?.settledEarnings || Analytics?.earnings || 0)}
             </p>
             <span style={{ fontSize: '0.85rem', color: '#10b981' }}>Processed payouts only</span>
           </div>
@@ -251,7 +293,7 @@ const SellerAnalytics = () => {
           <div className={styles.cardDetails}>
             <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Finalized Available Balance</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              Rs. {settledSummary?.finalizedAvailableBalance || 0}
+              Rs. {formatMoney(settledSummary?.finalizedAvailableBalance || 0)}
             </p>
             <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Ready for withdrawal</span>
           </div>
@@ -261,7 +303,7 @@ const SellerAnalytics = () => {
           <div className={styles.cardDetails}>
             <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Withdrawn To Date</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              Rs. {settledSummary?.totalWithdrawnToDate || 0}
+              Rs. {formatMoney(settledSummary?.totalWithdrawnToDate || 0)}
             </p>
             <span style={{ fontSize: '0.85rem', color: '#0f766e' }}>Transferred successfully</span>
           </div>
@@ -271,10 +313,93 @@ const SellerAnalytics = () => {
           <div className={styles.cardDetails}>
             <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Withdrawals In Processing</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              Rs. {settledSummary?.withdrawalsInProcessing || 0}
+              Rs. {formatMoney(settledSummary?.withdrawalsInProcessing || 0)}
             </p>
             <span style={{ fontSize: '0.85rem', color: '#ef4444' }}>Bank transfer in progress</span>
           </div>
+        </div>
+
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #0ea5e9' }}>
+          <div className={styles.cardDetails}>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Escrow Held Amount</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
+              Rs. {formatMoney(settledSummary?.escrowHeldAmount || 0)}
+            </p>
+            <span style={{ fontSize: '0.85rem', color: '#0369a1' }}>Funds still locked in active order stages</span>
+          </div>
+        </div>
+
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #16a34a' }}>
+          <div className={styles.cardDetails}>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Escrow Releasable Amount</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
+              Rs. {formatMoney(settledSummary?.escrowReleasableAmount || 0)}
+            </p>
+            <span style={{ fontSize: '0.85rem', color: '#166534' }}>Ready to move from escrow into withdrawals</span>
+          </div>
+        </div>
+
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #f59e0b' }}>
+          <div className={styles.cardDetails}>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Escrow Pending Review (48h)</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
+              Rs. {formatMoney(settledSummary?.escrowPendingReviewAmount || 0)}
+            </p>
+            <span style={{ fontSize: '0.85rem', color: '#92400e' }}>Buyer review window is active</span>
+          </div>
+        </div>
+
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #ef4444' }}>
+          <div className={styles.cardDetails}>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Escrow Under Dispute</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
+              Rs. {formatMoney(settledSummary?.escrowUnderDisputeAmount || settledSummary?.disputedHoldAmount || 0)}
+            </p>
+            <span style={{ fontSize: '0.85rem', color: '#b91c1c' }}>Blocked until dispute resolution</span>
+          </div>
+        </div>
+
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #14b8a6' }}>
+          <div className={styles.cardDetails}>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Escrow Released Total</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
+              Rs. {formatMoney(settledSummary?.escrowReleasedTotal || settledSummary?.settledEarnings || 0)}
+            </p>
+            <span style={{ fontSize: '0.85rem', color: '#0f766e' }}>Released from escrow to seller side</span>
+          </div>
+        </div>
+
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #7c3aed' }}>
+          <div className={styles.cardDetails}>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Escrow Failed or Blocked</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
+              Rs. {formatMoney(settledSummary?.escrowFailedBlockedAmount || 0)}
+            </p>
+            <span style={{ fontSize: '0.85rem', color: '#6d28d9' }}>Failed payouts, failed withdrawals, and dispute holds</span>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.card} style={{ marginBottom: '30px', padding: '20px' }}>
+        <h3 style={{ marginBottom: '10px' }}>Order Stage Counts</h3>
+        <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '15px' }}>
+          Live escrow pipeline stages for your current orders.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+          {Object.entries(stageCounts).map(([stage, value]) => (
+            <div
+              key={stage}
+              style={{
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                padding: '12px',
+                background: '#f8fafc',
+              }}
+            >
+              <p style={{ margin: 0, color: '#475569', fontSize: '0.85rem' }}>{stage}</p>
+              <p style={{ margin: '6px 0 0', fontSize: '1.45rem', fontWeight: 700, color: '#0f172a' }}>{formatCount(value)}</p>
+            </div>
+          ))}
         </div>
       </div>
 
