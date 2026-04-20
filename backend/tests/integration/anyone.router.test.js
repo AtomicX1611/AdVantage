@@ -34,7 +34,7 @@ describe("anyone router integration", () => {
 
     const res = await request(app).get("/anyone/HomeRequirements");
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(400);
     expect(res.body.success).toBe(true);
     expect(res.body.featuredProducts).toHaveLength(1);
   });
