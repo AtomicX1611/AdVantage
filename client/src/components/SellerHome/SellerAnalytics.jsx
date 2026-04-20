@@ -200,21 +200,6 @@ const SellerAnalytics = () => {
     ],
   };
 
-  // --- CHART 2 DATA: Success Rate (Existing) ---
-  const barData = {
-    labels: ['Completed Transactions'],
-    datasets: [
-      {
-        label: 'Items Sold',
-        data: [Analytics?.itemsSold || 0],
-        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-        borderColor: '#2563eb',
-        borderWidth: 1,
-        borderRadius: 8,
-      },
-    ],
-  };
-
   const lineData = {
     labels: ['Stage 1', 'Stage 2', 'Stage 3', 'Current'],
     datasets: [
