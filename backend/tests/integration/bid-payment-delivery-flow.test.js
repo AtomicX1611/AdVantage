@@ -59,7 +59,6 @@ describe("bid-payment-delivery lifecycle (integration)", () => {
       state: "Telangana",
       seller: seller._id,
       images: ["http://example.com/p1.jpg"],
-      isRental: false,
     });
 
     const requestRes = await addProductRequestDao(product._id, buyer._id, 1000, {

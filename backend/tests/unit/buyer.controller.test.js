@@ -16,7 +16,6 @@ jest.mock("../../src/services/buyer.service.js", () => ({
   updateBuyerPasswordService: jest.fn(),
   getWishlistProductsService: jest.fn(),
   getYourProductsService: jest.fn(),
-  rentService: jest.fn(),
   getYouProfileService: jest.fn(),
   paymentDoneService: jest.fn(),
   notInterestedService: jest.fn(),

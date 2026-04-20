@@ -6,11 +6,32 @@ import {
     vectorSearchProducts,
 } from "../daos/products.dao.js";
 import { generateSearchQueryEmbedding } from "../helpers/productEmbedding.helper.js";
+import { cacheGet, cacheSet, KEYS, TTL } from "../config/cache.config.js";
 
 
 export const getFeaturedFreshProductsService = async () => {
-    const featuredProducts = await getFeaturedProductsDao();
-    const freshProducts = await getFreshProductsDao();
+    const key = KEYS.homepage();
+
+    const cached = await cacheGet(key);
+    if (cached) {
+        return {
+            success: true,
+            featuredProducts: cached.featuredProducts,
+            freshProducts: cached.freshProducts,
+        };
+    }
+
+    const [featuredProducts, freshProducts] = await Promise.all([
+        getFeaturedProductsDao(),
+        getFreshProductsDao()
+    ]);
+
+    const responseData = { featuredProducts, freshProducts };
+
+    if (featuredProducts.length > 0 || freshProducts.length > 0) {
+        await cacheSet(key, responseData, TTL.HOMEPAGE);
+    }
+
     return {
         success: true,
         featuredProducts,
@@ -19,8 +40,20 @@ export const getFeaturedFreshProductsService = async () => {
 }
 
 export const getProductDetailsService = async (productId) => {
+    const key = KEYS.productDetail(productId);
+
+    const cached = await cacheGet(key);
+    if (cached) {
+        return {
+            success: true,
+            status: 200,
+            product: cached,
+            message: "Product details retrieved successfully",
+        };
+    }
+
     const product = await getProductById(productId);
-    // console.log(product);
+
     if (!product) {
         return {
             success: false,
@@ -28,6 +61,9 @@ export const getProductDetailsService = async (productId) => {
             status: 404
         };
     }
+
+    await cacheSet(key, product, TTL.PRODUCT_DETAIL);
+
     return {
         success: true,
         message: "Product retrieved successfully",
@@ -43,10 +79,6 @@ export const getProductsService = async (query) => {
             { soldTo: null }
         ]
     };
-
-    if (query.isRental) {
-        filters.isRental = query.isRental === 'true';
-    }
 
     if (query.category) {
         filters.category = query.category;
@@ -69,21 +101,44 @@ export const getProductsService = async (query) => {
     const hasName = typeof query.name === 'string' && query.name.trim().length > 0;
 
     if (hasName) {
+        const normalizedName = query.name.trim();
         const queryVector = await generateSearchQueryEmbedding(query.name);
 
         if (!Array.isArray(queryVector) || queryVector.length === 0) {
-            return [];
+            const fallbackFilters = {
+                ...filters,
+                $or: [
+                    { name: { $regex: normalizedName, $options: 'i' } },
+                    { description: { $regex: normalizedName, $options: 'i' } },
+                    { category: { $regex: normalizedName, $options: 'i' } },
+                ],
+            };
+            return findProducts(fallbackFilters);
         }
 
         const requestedLimit = Number(query.limit);
         const requestedCandidates = Number(query.numCandidates);
-        console.log(requestedCandidates);
-        return vectorSearchProducts({
+        const vectorResults = await vectorSearchProducts({
             queryVector,
             filters,
             limit: requestedLimit,
             numCandidates: requestedCandidates,
         });
+
+        if (Array.isArray(vectorResults) && vectorResults.length > 0) {
+            return vectorResults;
+        }
+
+        const fallbackFilters = {
+            ...filters,
+            $or: [
+                { name: { $regex: normalizedName, $options: 'i' } },
+                { description: { $regex: normalizedName, $options: 'i' } },
+                { category: { $regex: normalizedName, $options: 'i' } },
+            ],
+        };
+
+        return findProducts(fallbackFilters);
     }
 
     return findProducts(filters);

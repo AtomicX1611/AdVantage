@@ -3,6 +3,7 @@ import { paymentDoneDao } from "../daos/products.dao.js";
 import { createProductSoldNotification } from "../helpers/notification.helper.js";
 import { getBuyerById } from "../daos/users.dao.js";
 import { getAllAdmins } from "../daos/admins.dao.js";
+import { invalidateProductCaches, invalidateAdminCaches } from "../config/cache.config.js";
 
 export const paymentDoneHelper = async (buyerId, productId, razorpay_payment_id) => {
     const result = await paymentDoneDao(buyerId, productId);
@@ -30,6 +31,11 @@ export const paymentDoneHelper = async (buyerId, productId, razorpay_payment_id)
     };
 
     const payment = await createPayment(paymentData);
+
+    // Product is SOLD — invalidate everything related
+    await invalidateProductCaches(productId, result.sellerId);
+    await invalidateAdminCaches();
+
     await createProductSoldNotification(
         result.sellerId,
         buyerId,

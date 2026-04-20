@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from '../../styles/sellerdashboard.module.css';
-import { API_CONFIG } from '../../config/api.config';
+import API_CONFIG from '../../config/api.config';
 import { resolveImageUrl } from '../../utils/imageUrl';
+
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 import { loadRazorpayScript } from '../../utils/razorpay';
 
 const SellerRequests = () => {
@@ -26,7 +28,7 @@ const SellerRequests = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await fetch(`${backendURL}/user/products`, {
+        const response = await fetch(`${BACKEND}/user/products`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -175,7 +177,7 @@ const SellerRequests = () => {
   setError(null);
 
   try {
-    const response = await fetch(`${backendURL}/user/rejectRequest/${productId}/${buyerId}`, {
+    const response = await fetch(`${BACKEND}/user/rejectRequest/${productId}/${buyerId}`, {
       method: 'DELETE',
       credentials: "include",
     });
@@ -269,14 +271,7 @@ const SellerRequests = () => {
 
                   <div>
                     <strong>{buyerName}</strong>
-
-                    {selectedProduct.isRental && req.from && req.to ? (
-                      <p style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '4px' }}>
-                        Requested: {new Date(req.from).toLocaleDateString()} - {new Date(req.to).toLocaleDateString()}
-                      </p>
-                    ) : (
-                      <p style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '4px' }}>Wants to buy this item</p>
-                    )}
+                    <p style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '4px' }}>Wants to buy this item</p>
 
                     {biddingPrice && (
                       <p style={{ fontSize: '0.9rem', color: '#059669', fontWeight: 'bold', marginTop: '5px' }}>
@@ -340,7 +335,7 @@ const SellerRequests = () => {
               <div className={styles.cardDetails}>
                 <h3>{item.name}</h3>
                 <p className={styles.cardPrice}>
-                  {item.isRental ? `₹${item.price}/day` : `₹${item.price}`}
+                  {`₹${item.price}`}
                 </p>
 
                 <div className={styles.cardActions}>

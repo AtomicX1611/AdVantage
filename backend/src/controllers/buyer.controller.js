@@ -6,7 +6,6 @@ import {
     updateBuyerPasswordService,
     getWishlistProductsService,
     getYourProductsService,
-    rentService,
     getYouProfileService,
     paymentDoneService,
     notInterestedService,
@@ -124,10 +123,9 @@ export const removeFromWishlist = async (req, res, next) => {
 
 export const getWishlistProducts = async (req, res, next) => {
     try {
-        // console.log("fdskjf");
         const userId = req.user._id;
         const response = await getWishlistProductsService(userId);
-        // console.log(response);
+
         if (!response.success) {
             return res.status(response.status).json({
                 success: false,
@@ -435,25 +433,6 @@ export const getYourProducts = async (req, res, next) => {
             products: response.products,
         });
     } catch (error) {
-        next(error);
-    }
-}
-
-export const rentProductController = async (req, res, next) => {
-    try {
-        const buyerId = req.user._id;
-        const productId = req.params.productId;
-        const { from, to, biddingPrice } = req.body;
-
-        if (!buyerId || !productId || !from || !to || !biddingPrice) {
-            return res.status(404).json({ message: "Missing buyerId or productId or from or to or biddingPrice" });
-        }
-
-        let respose = await rentService(buyerId, productId, from, to, biddingPrice);
-
-        return res.status(respose.status).json({ success: respose.success, message: respose.message });
-    } catch (error) {
-        console.log(error);
         next(error);
     }
 }

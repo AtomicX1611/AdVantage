@@ -8,7 +8,6 @@ const PendingTransactionCard = ({ item, onPay, onNotInterested }) => {
 		: "/Assets/placeholder.png";
 
 	const sellerName = item?.seller?.username || "Unknown Seller";
-	const isRental = item?.isRental ?? false;
 	const category = item?.category || "N/A";
 	const location = [item?.city, item?.district, item?.state]
 		.filter(Boolean)
@@ -25,9 +24,6 @@ const PendingTransactionCard = ({ item, onPay, onNotInterested }) => {
 					src={imageSrc} 
 					alt={item?.name || "Product"} 
 				/>
-				{isRental && (
-					<span className={styles.rentalBadge}>For Rent</span>
-				)}
 				<span className={styles.pendingBadge}>⏳ Pending</span>
 			</div>
 			
@@ -55,9 +51,7 @@ const PendingTransactionCard = ({ item, onPay, onNotInterested }) => {
 				<div className={styles.priceSection}>
 					<div className={styles.priceInfo}>
 						<h3 className={styles.price}>₹{item?.price?.toLocaleString()}</h3>
-						<span className={styles.priceLabel}>
-							{isRental ? "Per Day" : "Sale Price"}
-						</span>
+						<span className={styles.priceLabel}>Sale Price</span>
 					</div>
 					{biddingPrice && (
 						<div className={styles.bidPrice}>

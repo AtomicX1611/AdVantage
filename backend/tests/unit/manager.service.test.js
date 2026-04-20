@@ -73,7 +73,7 @@ describe("manager.service", () => {
   });
 
   test("verifyProduct verifies and emits notification", async () => {
-    getProductById.mockResolvedValue({ _id: "p1", category: "Electronics" });
+    getProductById.mockResolvedValue({ _id: "p1", category: "Electronics", seller: { _id: "s1" } });
     verifyProductDao.mockResolvedValue({ success: true, sellerId: "s1", productName: "Phone" });
 
     const result = await verifyProduct("p1", "m1", "Electronics");

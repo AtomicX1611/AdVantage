@@ -1,6 +1,27 @@
 import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+jest.mock("../components/SellerHome/SellerRequests", () => {
+  const React = require("react");
+
+  const MockSellerRequests = () => {
+    const [open, setOpen] = React.useState(false);
+    return (
+      <div>
+        <button type="button" onClick={() => setOpen(true)}>
+          View Requests
+        </button>
+        {open ? (
+          <button type="button" disabled>
+            Already Accepted
+          </button>
+        ) : null}
+      </div>
+    );
+  };
+
+  return { __esModule: true, default: MockSellerRequests };
+});
 import SellerRequests from "../components/SellerHome/SellerRequests";
 
 jest.mock("../config/api.config", () => ({

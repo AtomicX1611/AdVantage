@@ -37,16 +37,16 @@ export const getProductById = async (productId) => {
     // console.log(productId);
 
     const product = await Products.findById(productId)
-        .select("-ollama_embeddings")
+        .select("-hf_embeddings")
         .populate({
             path: "requests.buyer",
             select: "username",
         })
         .populate({
             path: "seller",
-            select: "username",
+            select: "username _id",
         });
-    // delete product.ollama_embeddings;
+    // delete product.hf_embeddings;
     // console.log(product);
     return product;
 };
@@ -298,9 +298,7 @@ export const paymentDoneDao = async (buyerId, productId) => {
         return { success: false, reason: "payment_not_in_progress" };
     }
 
-    if (!product.isRental) {
-        product.price = hisRequest.biddingPrice;
-    }
+    product.price = hisRequest.biddingPrice;
 
     // Earnings must not be credited at payment time.
     // Credit/release happens only after buyer marks received OR 48h passes after seller delivery verification.
@@ -451,7 +449,7 @@ export const getProductsSellerAccepted = async (buyerId) => {
 
 export const getFreshProductsDao = async () => {
     let products = await Products.find({ soldTo: null })
-        .select("-ollama_embeddings -requests -description -soldTo -invoice")
+        .select("-hf_embeddings -requests -description -soldTo -invoice")
         .sort({ postingDate: -1 })
         .limit(20)
         .populate("seller", "username subscription");
@@ -482,7 +480,7 @@ export const getFeaturedProductsDao = async () => {
         { $limit: 20 },
         {
             $project: {
-                ollama_embeddings: 0,
+                hf_embeddings: 0,
                 requests: 0,
                 description: 0,
                 soldTo: 0,
@@ -494,91 +492,13 @@ export const getFeaturedProductsDao = async () => {
 };
 
 export const findProducts = async (filters) => {
-    let products = await Products.find(filters).select("-ollama_embeddings -requests -description -soldTo -invoice").lean();
+    let products = await Products.find(filters).select("-hf_embeddings -requests -description -soldTo -invoice").lean();
     return products;
 };
 
 export const countProductsDao = async (filters) => {
     const count = await Products.countDocuments(filters);
     return count;
-};
-
-export const rentDao = async (buyerId, productId, from, to, biddingPrice) => {
-    try {
-        let prod = await Products.findById(productId);
-        if (!prod) {
-            return {
-                success: false,
-                message: "Product not found",
-                status: 404
-            }
-        }
-        // prevent seller from creating rent request on own product
-        if (prod.seller && prod.seller.toString() === buyerId.toString()) {
-            return {
-                success: false,
-                message: "You cannot request your own product",
-                status: 400
-            }
-        }
-        if (prod.soldTo) {
-            return {
-                success: false,
-                message: "Already taken",
-                status: 400
-            }
-        }
-        const alreadyRequested = prod.requests.some(
-            (req) => req.buyer.toString() === buyerId.toString()
-        );
-
-        if (alreadyRequested) {
-            return {
-                success: false,
-                message: "You have already requested this product",
-                status: 400,
-            };
-        }
-        console.log("required data: ", buyerId, from, to, biddingPrice)
-        prod.requests.push({
-            buyer: buyerId,
-            from: from,
-            to: to,
-            biddingPrice: biddingPrice
-        });
-        await prod.save();
-        return {
-            success: true,
-            message: "Rent request added",
-            status: 200
-        }
-    } catch (error) {
-        console.log(error);
-        return {
-            success: false,
-            message: "Database error",
-            status: 500
-        }
-    }
-}
-
-export const makeAvailableDao = async (sellerId, productId) => {
-    try {
-        const product = await Products.findOneAndUpdate(
-            { _id: productId, seller: sellerId, isRental: true },
-            { $set: { soldTo: null, sellerAcceptedTo: null } },
-            { new: true }
-        );
-
-        if (!product) {
-            return { success: false, message: "Product not found or not eligible" };
-        }
-
-        return { success: true, product };
-    } catch (error) {
-        console.error("Error in makeAvailableDao:", error);
-        throw new Error("Database error while making product available again");
-    }
 };
 
 export const deleteProductDao = async (productId) => {
@@ -637,6 +557,11 @@ export const vectorSearchProducts = async ({
     numCandidates = 150,
     limit = 30,
 }) => {
+    const scoreThresholdRaw = Number.parseFloat(process.env.VECTOR_SEARCH_SCORE_THRESHOLD || "0.7");
+    const scoreThreshold = Number.isFinite(scoreThresholdRaw)
+        ? Math.min(Math.max(scoreThresholdRaw, 0), 1)
+        : 0.7;
+
     const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 100) : 30;
     const safeCandidates = Number.isFinite(numCandidates) && numCandidates > 0
         ? Math.max(numCandidates, safeLimit)
@@ -646,10 +571,10 @@ export const vectorSearchProducts = async ({
         {
             $vectorSearch: {
                 index: 'productSearchIndex',
-                path: 'ollama_embeddings',
+                path: 'hf_embeddings',
                 queryVector,
                 numCandidates: safeCandidates,
-                limit: 100,
+                limit: safeLimit,
                 filter: filters,
             },
         },
@@ -661,9 +586,9 @@ export const vectorSearchProducts = async ({
     ];
 
     let results = await Products.aggregate(pipeline);
-    results = results.filter((result) => result.score > 0.75);
+    results = results.filter((result) => result.score >= scoreThreshold);
     results = results.map((result) => {
-        delete result.ollama_embeddings;
+        delete result.hf_embeddings;
         delete result.requests;
         delete result.soldTo;
         delete result.invoice;

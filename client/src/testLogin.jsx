@@ -2,6 +2,7 @@ import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "./redux/authSlice";
+import API_CONFIG from "./config/api.config";
 
 const TestLogin = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ const TestLogin = () => {
     try {
         //
       // console.log("Google response:", response); // Avoid logging credentials in production
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/google`, {
+      const res = await fetch(`${API_CONFIG.BACKEND_URL}/auth/google`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -24,7 +25,11 @@ const TestLogin = () => {
       console.log("Backend response:", data);
 
       if (res.ok) {
-        dispatch(loginSuccess(data));
+        dispatch(loginSuccess({
+          email: data.email,
+          id: data.buyerId,
+          role: "user",
+        }));
         navigate("/");
       } else {
         console.error("Login failed:", data.message);

@@ -1,5 +1,5 @@
 // src/pages/MyOrders.jsx
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import OrderHeader from "../components/OrderHeader.component";
 import DisputeFormModal from "../components/DisputeFormModal";
@@ -14,11 +14,7 @@ const MyOrders = () => {
   const [disputeOrderId, setDisputeOrderId] = useState(null);
   const [disputeSubmitting, setDisputeSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [backendURL]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`${backendURL}/user/buyer/orders`, {
@@ -39,7 +35,11 @@ const MyOrders = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [backendURL]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const handleMarkDelivered = async (orderId) => {
     if (!window.confirm("Confirm that you have received a genuine product?")) return;

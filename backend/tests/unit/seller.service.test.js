@@ -37,7 +37,7 @@ import { razorpay } from "../../src/config/payment.config.js";
 import { sellerCancelPaidOrderDao } from "../../src/daos/orders.dao.js";
 import { getSellerOrdersDao, shipOrderDao } from "../../src/daos/orders.dao.js";
 import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils.js";
-import { generateProductOllamaEmbedding } from "../../src/helpers/productEmbedding.helper.js";
+import { generateProductHFEmbedding } from "../../src/helpers/productEmbedding.helper.js";
 import { getBuyerById, incrementUsedPostsDao, resetUsedPostsDao } from "../../src/daos/users.dao.js";
 
 import {
@@ -53,7 +53,6 @@ jest.mock("../../src/daos/products.dao.js", () => ({
   deleteProductDao: jest.fn(),
   acceptProductRequestDao: jest.fn(),
   rejectProductRequestDao: jest.fn(),
-  makeAvailableDao: jest.fn(),
   revokeAcceptedRequestDao: jest.fn(),
   createStakeOrderDao: jest.fn(),
   verifyStakeDao: jest.fn(),
@@ -93,7 +92,7 @@ jest.mock("../../src/helpers/notification.helper.js", () => ({
 }));
 
 jest.mock("../../src/helpers/productEmbedding.helper.js", () => ({
-  generateProductOllamaEmbedding: jest.fn(),
+  generateProductHFEmbedding: jest.fn(),
 }));
 
 jest.mock("../../src/models/PendingPayouts.js", () => ({
@@ -149,6 +148,7 @@ describe("seller.service", () => {
   });
 
   test("revokeAcceptedRequestService sends notification on success", async () => {
+    getProductById.mockResolvedValue({ _id: "p1", seller: { _id: "s1" } });
     revokeAcceptedRequestDao.mockResolvedValue({
       success: true,
       sellerId: "s1",
@@ -465,7 +465,6 @@ describe("seller.service", () => {
         district: "Hyd",
         city: "Hyd",
         state: "TS",
-        isRental: false,
       },
       cloudinary: {
         productImages: [{ url: "http://img/1.jpg" }],
@@ -482,7 +481,7 @@ describe("seller.service", () => {
       usedPosts: 0,
       windowStart: new Date("2020-01-01T00:00:00.000Z"),
     });
-    generateProductOllamaEmbedding.mockResolvedValue({ vector: [0.1, 0.2] });
+    generateProductHFEmbedding.mockResolvedValue({ sentence: "Phone. Category: Mobiles. desc", vector: [0.1, 0.2] });
     createProduct.mockResolvedValue({ _id: "p1", name: "Phone" });
 
     const req = {
@@ -496,7 +495,6 @@ describe("seller.service", () => {
         district: "Hyd",
         city: "Hyd",
         state: "TS",
-        isRental: "true",
       },
       cloudinary: {
         productImages: [{ url: "http://img/1.jpg" }],
@@ -510,9 +508,8 @@ describe("seller.service", () => {
     expect(createProduct).toHaveBeenCalledWith(
       expect.objectContaining({
         name: "Phone",
-        isRental: true,
         invoice: "http://inv/1.pdf",
-        ollama_embeddings: [0.1, 0.2],
+        hf_embeddings: [0.1, 0.2],
       })
     );
     expect(incrementUsedPostsDao).toHaveBeenCalledWith("s1");

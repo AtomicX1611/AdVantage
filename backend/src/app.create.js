@@ -17,6 +17,8 @@ import { managerRouter } from "./routes/manager.router.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import { accessLogStream } from "./config/logger.config.js";
 
+import './config/cache.config.js';
+
 export function createApp() {
     const app = express();
 
@@ -32,12 +34,15 @@ export function createApp() {
 
     app.use(cookieParser());
 
+    app.use((req, res, next) => {
+        console.log("Incoming Origin:", req.headers.origin);
+        next();
+    });
+
     app.use(
         cors({
             origin: [
-                "http://localhost:5173",
-                "http://127.0.0.1:3001",
-                "http://localhost:3001",
+                process.env.CLIENT_URL || "http://localhost:5173",
             ],
             credentials: true,
         })

@@ -11,6 +11,9 @@ import {
 } from 'chart.js';
 import { Doughnut, Bar } from 'react-chartjs-2';
 import styles from '../../styles/sellerdashboard.module.css';
+import API_CONFIG from '../../config/api.config';
+
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 // Register ChartJS components
 ChartJS.register(
@@ -30,7 +33,7 @@ const SellerAnalytics = () => {
   useEffect(() => {
     async function LoadAnalytics() {
       try {
-        let response = await fetch('http://localhost:3000/user/selling-analytics', {
+        let response = await fetch(`${BACKEND}/user/selling-analytics`, {
           method: 'GET',
           credentials: 'include',
           headers: {
@@ -53,14 +56,14 @@ const SellerAnalytics = () => {
 
   // --- CHART 1 DATA: Inventory (Existing) ---
   const doughnutData = {
-    labels: ['Items for Sale', 'Items for Rent'],
+    labels: ['Items for Sale', 'Items Sold'],
     datasets: [
       {
         data: [
           Analytics?.itemsForSale || 0,
-          Analytics?.itemsToRent || 0
+          Analytics?.itemsSold || 0
         ],
-        backgroundColor: ['#3b82f6', '#10b981'],
+        backgroundColor: ['#3b82f6', '#0f766e'],
         borderColor: ['#ffffff', '#ffffff'],
         borderWidth: 2,
       },
@@ -75,11 +78,6 @@ const SellerAnalytics = () => {
         label: 'Items Sold',
         data: [Analytics?.itemsSold || 0],
         backgroundColor: '#3b82f6',
-      },
-      {
-        label: 'Items Rented Out',
-        data: [Analytics?.activeRentals || 0],
-        backgroundColor: '#10b981',
       },
     ],
   };

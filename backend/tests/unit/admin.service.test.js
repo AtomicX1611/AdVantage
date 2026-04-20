@@ -37,7 +37,6 @@ import {
   getPaymentStatsByType,
   getPaymentsWithProductDetails,
   getRecentPayments,
-  getRentalVsPurchaseStats,
   getRevenueByCategory,
   getRevenueByPaymentType,
   getRevenueByState,
@@ -92,7 +91,6 @@ jest.mock("../../src/daos/payment.dao.js", () => ({
   getPaymentsWithProductDetails: jest.fn(),
   getTopCategories: jest.fn(),
   getTopStates: jest.fn(),
-  getRentalVsPurchaseStats: jest.fn(),
 }));
 
 describe("admin.service", () => {
@@ -240,15 +238,10 @@ describe("admin.service", () => {
         productState: "Telangana",
         productCity: "Hyderabad",
         productDistrict: "Hyderabad",
-        isRental: false,
       },
     ]);
     getTopCategories.mockResolvedValue([{ _id: "Mobiles", salesCount: 2, totalRevenue: 5000, avgPrice: 2500 }]);
     getTopStates.mockResolvedValue([{ _id: "Telangana", salesCount: 2, totalRevenue: 5000 }]);
-    getRentalVsPurchaseStats.mockResolvedValue([
-      { _id: true, count: 1, totalRevenue: 1000 },
-      { _id: false, count: 2, totalRevenue: 4000 },
-    ]);
 
     const result = await getPaymentAnalyticsService();
 
@@ -256,6 +249,8 @@ describe("admin.service", () => {
     expect(result.analytics.revenueByCategory[0]).toEqual(
       expect.objectContaining({ category: "Mobiles", revenue: 5000 })
     );
-    expect(result.analytics.rentalVsPurchase.purchase.revenue).toBe(4000);
+    expect(result.analytics.detailedPayments[0]).toEqual(
+      expect.objectContaining({ product: "Phone", category: "Mobiles", state: "Telangana" })
+    );
   });
 });

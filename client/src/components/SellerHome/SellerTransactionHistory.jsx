@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../../styles/SellerTransactionPage.module.css';
+import API_CONFIG from '../../config/api.config';
+
+const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 const SellerTransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
@@ -28,7 +31,7 @@ const SellerTransactionHistory = () => {
 
   const fetchPayoutAccount = async () => {
     try {
-      const response = await fetch('http://localhost:3000/user/payout-account', {
+      const response = await fetch(`${BACKEND}/user/payout-account`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -45,7 +48,7 @@ const SellerTransactionHistory = () => {
 
   const fetchTransactions = async () => {
     try {
-      let response = await fetch('http://localhost:3000/user/getMyTransactions', {
+      let response = await fetch(`${BACKEND}/user/getMyTransactions`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -99,7 +102,7 @@ const SellerTransactionHistory = () => {
     setActionMessage('');
 
     try {
-      const response = await fetch('http://localhost:3000/user/payout-account', {
+      const response = await fetch(`${BACKEND}/user/payout-account`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -128,7 +131,7 @@ const SellerTransactionHistory = () => {
     setActionMessage('');
 
     try {
-      const response = await fetch('http://localhost:3000/user/withdraw-finalized-balance', {
+      const response = await fetch(`${BACKEND}/user/withdraw-finalized-balance`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

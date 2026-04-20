@@ -4,7 +4,6 @@ import {
     deleteProductDao,
     acceptProductRequestDao,
     rejectProductRequestDao,
-    makeAvailableDao,
     // findProducts,
     // countProductsDao,
     revokeAcceptedRequestDao,
@@ -44,7 +43,7 @@ import {
     createRequestRejectedNotification,
     createRequestRevokedNotification,
 } from "../helpers/notification.helper.js";
-import { generateProductOllamaEmbedding } from "../helpers/productEmbedding.helper.js";
+import { generateProductHFEmbedding } from "../helpers/productEmbedding.helper.js";
 import PendingPayouts from "../models/PendingPayouts.js";
 import {
     createPayoutAccountDao,
@@ -188,6 +187,9 @@ const getPaymentEventStatusMeta = (order, hasProcessedPayout, hasPendingPayout) 
     };
 };
 
+import { cacheGet, cacheSet, cacheDel, invalidateProductCaches, KEYS, TTL } from "../config/cache.config.js";
+import cloudinary from "../config/cloudinary.config.js";
+
 export const addProductService = async (req) => {
     // Old implementation of isAllowed function which is slow
     // async function isAllowed(sellerId) {
@@ -225,12 +227,12 @@ export const addProductService = async (req) => {
         category,
         district,
         city,
-        state,
-        isRental
+        state
     } = req.body;
     // console.log(req.body);
 
     // console.log("fkldsj");
+    const sellerId = req.user._id;
 
     const allowed = await isAllowed(req.user._id);
     if (!allowed) {
@@ -245,8 +247,6 @@ export const addProductService = async (req) => {
     const images = req.cloudinary.productImages.map(img => img.url);
     const invoicePath = req.cloudinary.invoice?.url || null;
 
-    const isRental1 = (isRental == 'true' || isRental == true) ? true : false;
-
     const productData = {
         name,
         price,
@@ -258,29 +258,30 @@ export const addProductService = async (req) => {
         state,
         seller: req.user._id,
         images,
-        isRental: isRental1,
         invoice: invoicePath,
         soldTo: null,
     };
 
     try {
-        const { vector } = await generateProductOllamaEmbedding(productData);
+        const { vector } = await generateProductHFEmbedding(productData);
         if (Array.isArray(vector) && vector.length > 0) {
-            productData.ollama_embeddings = vector;
+            productData.hf_embeddings = vector;
         }
     } catch (error) {
-        console.error("Failed to generate Ollama embedding for addProduct:", error?.message || error);
+        console.error("Failed to generate HF embedding for addProduct:", error?.message || error);
     }
 
     // console.log("product data: ", productData);
     const newProduct = await createProduct(productData);
     await incrementUsedPostsDao(req.user._id);
+
+    await invalidateProductCaches(null, sellerId);
+
     return newProduct;
 };
 
 export const deleteProductService = async (sellerId, productId) => {
     try {
-        // console.log("Ali told");
         const product = await getProductById(productId);
         if (!product) {
             return {
@@ -289,8 +290,6 @@ export const deleteProductService = async (sellerId, productId) => {
                 message: "Product not found"
             };
         }
-        // console.log(" this "+sellerId.toString()+" , "+product.seller.toString());
-
 
         if (product.seller._id.toString() !== sellerId.toString()) {
             return {
@@ -300,7 +299,73 @@ export const deleteProductService = async (sellerId, productId) => {
             };
         }
 
+        // Attempt to delete associated files from Cloudinary (images + invoice)
+        const extractPublicIdFromUrl = (url) => {
+            try {
+                const parsed = new URL(url);
+                let pathname = parsed.pathname || parsed.path || ""; // e.g. /image/upload/v1234/products/...
+
+                const uploadIdx = pathname.indexOf("/upload/");
+                let afterUpload = uploadIdx !== -1 ? pathname.substring(uploadIdx + "/upload/".length) : pathname;
+
+                // Remove version prefix if present (v123456789/)
+                const versionMatch = afterUpload.match(/^v\d+\//);
+                if (versionMatch) afterUpload = afterUpload.substring(versionMatch[0].length);
+
+                // Strip leading slash if any and file extension
+                if (afterUpload.startsWith('/')) afterUpload = afterUpload.substring(1);
+                afterUpload = afterUpload.replace(/\.[^/.]+$/, "");
+
+                return afterUpload;
+            } catch (err) {
+                return null;
+            }
+        };
+
+        const deletionTasks = [];
+
+        if (Array.isArray(product.images)) {
+            for (const imgUrl of product.images) {
+                const publicId = extractPublicIdFromUrl(imgUrl);
+                if (!publicId) continue;
+                deletionTasks.push((async () => {
+                    try {
+                        const res = await cloudinary.uploader.destroy(publicId);
+                        console.log(`Cloudinary destroy result for ${publicId}:`, res);
+                    } catch (err) {
+                        console.error(`Cloudinary destroy error for ${publicId}:`, err);
+                    }
+                })());
+            }
+        }
+
+        if (product.invoice) {
+            const publicId = extractPublicIdFromUrl(product.invoice);
+            if (publicId) {
+                deletionTasks.push((async () => {
+                    try {
+                        let res = await cloudinary.uploader.destroy(publicId);
+                        // If not found as image, try raw resource type (pdfs, docs)
+                        if (res && res.result === 'not_found') {
+                            res = await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
+                        }
+                        console.log(`Cloudinary destroy result for invoice ${publicId}:`, res);
+                    } catch (err) {
+                        console.error(`Cloudinary destroy error for invoice ${publicId}:`, err);
+                    }
+                })());
+            }
+        }
+
+        try {
+            await Promise.all(deletionTasks);
+        } catch (err) {
+            console.error('Error deleting some Cloudinary resources:', err);
+        }
+
         await deleteProductDao(productId);
+
+        await invalidateProductCaches(productId, sellerId);
 
         return {
             success: true,
@@ -371,6 +436,10 @@ export const acceptProductRequestService = async (productId, buyerId) => {
         };
         return { success: false, ...messages[result.reason] };
     }
+
+    // Product state changed (sellerAcceptedTo set) — invalidate caches
+    await invalidateProductCaches(productId, result.sellerId);
+
     await createRequestAcceptedNotification(
         buyerId,
         result.sellerId,
@@ -449,6 +518,9 @@ export const verifyStakeService = async (productId, buyerId, body, razorpay_orde
     if (!acceptResult.success) {
         return { success: false, status: 400, message: "Stake verified but failed to accept request" };
     }
+
+    // Stake verified + request accepted — product state changed
+    await invalidateProductCaches(productId, acceptResult.sellerId);
 
     await createRequestAcceptedNotification(
         buyerId,
@@ -536,6 +608,11 @@ export const verifyDeliveryService = async (orderId, sellerId) => {
 
 export const revokeAcceptedRequestService = async (productId) => {
     const result = await revokeAcceptedRequestDao(productId);
+    const product = await getProductById(productId);
+
+    await invalidateProductCaches(productId, product.seller._id);
+
+
     if (!result.success) {
         const messages = {
             not_found: { status: 404, message: "Product not found" },
@@ -577,6 +654,10 @@ export const rejectProductRequestService = async (productId, buyerId) => {
         };
         return { success: false, ...messages[result.reason] };
     }
+
+    // Request removed from product — invalidate caches
+    await invalidateProductCaches(productId, result.sellerId);
+
     await createRequestRejectedNotification(
         buyerId,
         result.sellerId,
@@ -612,7 +693,23 @@ export const rejectProductRequestService = async (productId, buyerId) => {
 // };
 
 export const sellerProdRetriveService = async (id) => {
-    return await findProductsForSeller(id);
+    const key = KEYS.sellerProducts(id);
+
+    const cached = await cacheGet(key);
+    if (cached) {
+        return {
+            success: true,
+            products: cached,
+        };
+    }
+
+    const fetchedProducts = await findProductsForSeller(id);
+
+    if (fetchedProducts.products) {
+        await cacheSet(key, fetchedProducts.products, TTL.SELLER_PRODUCTS);
+    }
+
+    return fetchedProducts;
 }
 
 export const sellerSubsRetService = async (userId) => {
@@ -855,33 +952,6 @@ export const withdrawFinalizedBalanceService = async (sellerId, transferMode) =>
     }
 };
 
-export const makeAvailableService = async (sellerId, productId) => {
-    try {
-        const result = await makeAvailableDao(sellerId, productId);
-
-        if (!result.success) {
-            return {
-                status: 400,
-                success: false,
-                message: result.message || "Could not make product available again"
-            };
-        }
-
-        return {
-            status: 200,
-            success: true,
-            message: "Product marked as available again",
-            product: result.product
-        };
-    } catch (error) {
-        console.error("Error in makeAvailableService:", error);
-        return {
-            success: false,
-            message: "Internal server error while updating availability"
-        };
-    }
-};
-
 export const getSellerOrdersService = async (sellerId) => {
     try {
         const orders = await getSellerOrdersDao(sellerId);
@@ -902,6 +972,10 @@ export const sellerCancelPaidOrderService = async (orderId, sellerId) => {
             message: result.message || "Failed to cancel order",
         };
     }
+
+    // Order cancelled — product might become available again, invalidate caches
+    const productId = result.order?.productId;
+    await invalidateProductCaches(productId, sellerId);
 
     return {
         success: true,
@@ -932,11 +1006,9 @@ export const analyticsService = async (sellerId) => {
         }
         const products = userProducts.products;
         let itemsSold = 0;
-        let activeRentals = 0;
         let pendingRequest = 0;
 
         let itemsForSale = 0;
-        let itemsToRent = 0;
 
         const baseCategoryMap = {
             "Clothes": 0,
@@ -956,20 +1028,10 @@ export const analyticsService = async (sellerId) => {
         products.forEach(prod => {
             pendingRequest += prod.requests?.length || 0;
 
-            if (prod.isRental) {
-                if (prod.soldTo != null) {
-                    activeRentals++;
-                } else {
-                    itemsToRent++;
-                }
-            }
-            else {
-                if (prod.soldTo != null) {
-                    itemsSold++;
-                }
-                else {
-                    itemsForSale++;
-                }
+            if (prod.soldTo != null) {
+                itemsSold++;
+            } else {
+                itemsForSale++;
             }
         });
 
@@ -1060,8 +1122,6 @@ export const analyticsService = async (sellerId) => {
                 pendingRequest,
                 itemsForSale,
                 itemsSold,
-                itemsToRent,
-                activeRentals,
                 revPerCat: legacyRevenueBySale,
                 categoryRevenueSettled,
                 categoryRevenuePending,

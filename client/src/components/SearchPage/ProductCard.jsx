@@ -12,9 +12,6 @@ const ProductCard = ({ product }) => {
     <Link to={`/product/${product._id}`} style={{ textDecoration: 'none' }}>
       <div className={styles.products}>
         <div className={styles.imageWrapper}>
-          {product.isRental && (
-            <span className={styles.rentalBadge}>For Rent</span>
-          )}
           {product.verified && (
             <span className={styles.verifiedBadge}>
               ✓ Verified
@@ -30,7 +27,6 @@ const ProductCard = ({ product }) => {
           <h4 className={styles.productName}>{product.name}</h4>
           <div className={styles.productPrice}>
             ₹{product.price?.toLocaleString()}
-            {product.isRental && <span>/day</span>}
           </div>
         </div>
       </div>

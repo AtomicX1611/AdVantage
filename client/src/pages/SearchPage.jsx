@@ -18,7 +18,6 @@ const SearchPage = () => {
     min: "",
     max: "",
     verifiedOnly: false,
-    rentalOnly: false,
   });
 
   useEffect(() => {
@@ -33,7 +32,6 @@ const SearchPage = () => {
         if (filters.min) queryParams.append('minPrice', filters.min);
         if (filters.max) queryParams.append('maxPrice', filters.max);
         if (filters.verifiedOnly) queryParams.append('verified', 'true');
-        if (filters.rentalOnly) queryParams.append('isRental', 'true');
         
         const url = `${backendURL}/anyone/products/filtered?${queryParams.toString()}`;
         console.log('Fetching from:', url);
@@ -63,10 +61,6 @@ const SearchPage = () => {
     setFilters(newFilters);
   };
 
-  const filteredProducts = filters.rentalOnly
-    ? products.filter((p) => p.isRental)
-    : products;
-
   // Build the header title
   const getHeaderTitle = () => {
     if (searchQuery && categoryParam) {
@@ -94,7 +88,7 @@ const SearchPage = () => {
               <span className={styles.loadingText}>Finding products for you...</span>
             </div>
           ) : (
-            <ProductGrid backendURL={backendURL} products={filteredProducts} />
+            <ProductGrid backendURL={backendURL} products={products} />
           )}
         </div>
       </main>

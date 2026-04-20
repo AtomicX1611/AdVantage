@@ -137,7 +137,7 @@ const Home = () => {
           <div className={styles.dialContainer}>
             <h1>A one stop place to</h1>
             <div className={styles.dial}>
-              <Typewriter words={["BUY", "SELL", "RENT"]} />
+              <Typewriter words={["BUY", "SELL"]} />
             </div>
           </div>
         </div>

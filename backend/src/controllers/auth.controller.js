@@ -10,6 +10,7 @@ import {
     verifyEmailService
 } from "../services/auth.service.js";
 
+const isProd= process.env.NODE_ENV === "production";
 
 export const buyerSignup = async (req, res, next) => {
     try {
@@ -102,6 +103,8 @@ export const buyerLogin = async (req, res, next) => {
         res.cookie("token", response.token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            secure: isProd,
+            sameSite: "none",
         });
         return res.status(200).json({
             buyerId: response.buyer._id,
@@ -178,6 +181,8 @@ export const adminLogin = async (req, res, next) => {
         res.cookie("token", response.token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            secure: isProd,
+            sameSite: "none",
         });
         console.log('Returning token');
 
@@ -217,6 +222,8 @@ export const managerLogin = async (req, res, next) => {
         res.cookie("token", response.token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            secure: isProd,
+            sameSite: "none",
         });
 
         return res.status(200).json({
@@ -257,7 +264,7 @@ export const getMyInfo = async (req, res, next) => {
 };
 
 
-export const googelSignIn = async (req, res, next) => {
+export const googleSignIn = async (req, res, next) => {
     try {
         const { idToken } = req.body;
 
@@ -277,6 +284,8 @@ export const googelSignIn = async (req, res, next) => {
         res.cookie("token", response.token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            secure: isProd,
+            sameSite: "none",
         });
 
         console.log("Logged user with google: ", response.user.email);
@@ -292,6 +301,9 @@ export const googelSignIn = async (req, res, next) => {
         next(error);
     }
 };
+
+// Backward-compatible alias for older imports.
+export const googelSignIn = googleSignIn;
 
 export const userLogout = async (req, res, next) => {
     try {
@@ -334,6 +346,8 @@ export const verifyEmailController = async (req, res, next) => {
         res.cookie("token", response.token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            secure: isProd,
+            sameSite: "none",
         });
         console.log("response: ",response);
 

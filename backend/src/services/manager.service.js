@@ -12,6 +12,7 @@ import {
 } from "../daos/complaints.dao.js";
 import { getOrderByIdMongoDao, getOrderByProductAndBuyerDao } from "../daos/orders.dao.js";
 import PendingPayouts from "../models/PendingPayouts.js";
+import { invalidateProductCaches, invalidateAdminCaches } from "../config/cache.config.js";
 
 const roundAmount = (value) => Number(value.toFixed(2));
 
@@ -77,6 +78,11 @@ export const verifyProduct = async (productId, managerId, managerCategory) => {
     }
 
     let response = await verifyProductDao(productId);
+
+    // Product is now verified — it may now appear on homepage / detail pages
+    await invalidateProductCaches(productId, product.seller._id || product.seller);
+    await invalidateAdminCaches();
+
     await createProductVerifiedNotification(
         response.sellerId,
         managerId,
@@ -136,8 +142,9 @@ export const resolveComplaintService = async (complaintId, managerId, managerCat
 };
 
 export const resolveEscrowComplaintService = async (complaintId, managerId, managerCategory, payload) => {
+    let complaint;
     try {
-        const complaint = await getComplaintByIdDao(complaintId);
+        complaint = await getComplaintByIdDao(complaintId);
         if (!complaint) {
             return { success: false, status: 404, message: "Complaint not found" };
         }
@@ -282,5 +289,11 @@ export const resolveEscrowComplaintService = async (complaintId, managerId, mana
     } catch (error) {
         console.error("Error in resolveEscrowComplaintService:", error);
         return { success: false, message: "Error resolving escrow complaint" };
+    } finally {
+        // Product stake status or order status changed — always invalidate
+        if (complaint?.productId) {
+            const prod = complaint.productId;
+            await invalidateProductCaches(prod._id || prod, prod.seller);
+        }
     }
 };

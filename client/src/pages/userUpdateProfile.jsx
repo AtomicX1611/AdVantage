@@ -18,12 +18,12 @@ const UserUpdateProfile = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
-  const backendURL = API_CONFIG.BACKEND_URL || "http://localhost:3000/";
-  const updateURL = `${backendURL}/user/update/profile`;
+  const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
+  const updateURL = `${BACKEND}/user/update/profile`;
 
   const fetchProfile = useCallback(async () => {
     try {
-      const response = await fetch(`${backendURL}/user/getYourProfile`, {
+      const response = await fetch(`${BACKEND}/user/getYourProfile`, {
         method: "GET",
         credentials: "include",
       });
@@ -44,7 +44,7 @@ const UserUpdateProfile = () => {
     } finally {
       setLoading(false);
     }
-  }, [backendURL]);
+  }, [BACKEND]);
 
   // Fetch existing user data
   useEffect(() => {
