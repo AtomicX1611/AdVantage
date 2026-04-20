@@ -543,6 +543,21 @@ export const getProductsByCategory = async () => {
     ]);
 };
 
+export const getCategoryProductCounts = async () => {
+    return await Products.aggregate([
+        {
+            $group: {
+                _id: "$category",
+                total: { $sum: 1 },
+                sold: { $sum: { $cond: [{ $ne: ["$soldTo", null] }, 1, 0] } },
+                unsold: { $sum: { $cond: [{ $eq: ["$soldTo", null] }, 1, 0] } },
+                verified: { $sum: { $cond: ["$verified", 1, 0] } },
+            },
+        },
+        { $sort: { total: -1 } },
+    ]);
+};
+
 export const countVerifiedProducts = async () => {
     return await Products.countDocuments({ verified: true });
 };

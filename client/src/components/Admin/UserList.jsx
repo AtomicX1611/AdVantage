@@ -79,6 +79,7 @@ export default function UserList({ users, onUserRemoved }) {
               <th>Username</th>
               <th>Email</th>
               <th>Contact</th>
+              <th>Products</th>
               <th>Revenue (₹)</th>
               <th>Subscription</th>
               <th>Action</th>
@@ -90,8 +91,9 @@ export default function UserList({ users, onUserRemoved }) {
                 <td>{user.username || 'N/A'}</td>
                 <td>{user.email}</td>
                 <td>{user.contact || 'N/A'}</td>
+                <td>{user.productCount || 0}</td>
                 <td>
-                  ₹{(user.earnings || 0).toLocaleString('en-IN')}
+                  ₹{(user.revenue || 0).toLocaleString('en-IN')}
                 </td>
                 <td>
                   {getSubscriptionLabel(user.subscription) ? (

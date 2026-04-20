@@ -53,6 +53,8 @@ export default function AdminPage() {
   const [allUsers, setAllUsers] = useState([]);
   const [paymentAnalytics, setPaymentAnalytics] = useState(null);
   const [allManagers, setAllManagers] = useState([]);
+  const [categoryProductCounts, setCategoryProductCounts] = useState([]);
+  const [categoryRevenue, setCategoryRevenue] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -126,6 +128,8 @@ export default function AdminPage() {
         ]);
 
         setRecentActivity(m.recentActivity || []);
+        setCategoryProductCounts(m.categoryProductCounts || []);
+        setCategoryRevenue(m.revenueByCategory || []);
       }
     } catch (err) {
       console.error("Error fetching metrics:", err);
@@ -303,7 +307,11 @@ export default function AdminPage() {
             {activeTab === 'overview' && (
               <div className={styles.tabContent}>
                 <StatsRow stats={stats} />
-                <ChartsRow pieData={pieData} />
+                <ChartsRow
+                  pieData={pieData}
+                  categoryProductCounts={categoryProductCounts}
+                  revenueByCategory={categoryRevenue}
+                />
                 <AdminRecentActivity activity={recentActivity} />
               </div>
             )}

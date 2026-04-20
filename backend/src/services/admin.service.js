@@ -4,10 +4,11 @@ import {
   removeUserById,
   getAllAdmins,
   countAdmins,
+  getUsersWithRevenue,
 } from "../daos/admins.dao.js";
 import { getAllManagers, countManagers, removeManagerById, getManagerVerifiedCounts, createManager, findManagerByEmail } from "../daos/managers.dao.js";
 import { getAllUsers, countUsers, countActiveUsers } from "../daos/users.dao.js";
-import { getAllProducts, countAllProducts, getProductsByCategory, countVerifiedProducts, countUnverifiedProducts } from "../daos/products.dao.js";
+import { getAllProducts, countAllProducts, getProductsByCategory, getCategoryProductCounts, countVerifiedProducts, countUnverifiedProducts } from "../daos/products.dao.js";
 import {
   getAllPayments,
   countPayments,
@@ -162,7 +163,7 @@ export const getAllDataService = async () => {
       getAllAdmins(),
       getAllManagers(),
       getManagerVerifiedCounts(),
-      getAllUsers(),
+      getUsersWithRevenue(),
       getAllProducts(),
       getAllPayments(),
       countAdmins(),
@@ -172,6 +173,8 @@ export const getAllDataService = async () => {
       countPayments(),
     ]);
 
+    const usersData = users.success !== false ? (users.users || users) : [];
+
     const data = {
       admins,
       managers: managers.map(m => ({
@@ -179,7 +182,7 @@ export const getAllDataService = async () => {
         productsVerified: managerVerifiedCounts[m._id.toString()] || 0,
         createdAt: m._id.getTimestamp ? m._id.getTimestamp() : new Date(parseInt(m._id.toString().substring(0, 8), 16) * 1000),
       })),
-      users,
+      users: usersData,
       products,
       payments,
     }
@@ -233,6 +236,8 @@ export const getAdminMetricsService = async () => {
       unverifiedProductCount,
       totalProductCount,
       totalPaymentCount,
+      categoryProductCounts,
+      revenueByCategory,
     ] = await Promise.all([
       getProductsByCategory(),
       getPaymentStatsByType(),
@@ -243,6 +248,8 @@ export const getAdminMetricsService = async () => {
       countUnverifiedProducts(),
       countAllProducts(),
       countPayments(),
+      getCategoryProductCounts(),
+      getRevenueByCategory(),
     ]);
 
     const totalRevenue = revenueByType.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
@@ -263,7 +270,19 @@ export const getAdminMetricsService = async () => {
       unverifiedProducts: unverifiedProductCount,
       totalProducts: totalProductCount,
       totalPayments: totalPaymentCount,
-      totalRevenue
+      totalRevenue,
+      categoryProductCounts: categoryProductCounts.map(c => ({
+        category: c._id || 'Uncategorized',
+        total: c.total,
+        sold: c.sold,
+        unsold: c.unsold,
+        verified: c.verified,
+      })),
+      revenueByCategory: revenueByCategory.map(c => ({
+        category: c._id || 'Uncategorized',
+        revenue: c.totalRevenue,
+        count: c.count,
+      })),
     }
 
     await cacheSet(key, metricsData, TTL.ADMIN_METRICS);
