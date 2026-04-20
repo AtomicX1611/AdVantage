@@ -5,6 +5,24 @@ import API_CONFIG from "../../config/api.config";
 export default function UserList({ users, onUserRemoved }) {
   const [loading, setLoading] = useState({});
 
+  const getSubscriptionLabel = (subscription) => {
+    if (Array.isArray(subscription) && subscription.length > 0) {
+      const first = subscription[0];
+      if (typeof first === 'string' && first.trim()) return first;
+      if (first && typeof first === 'object' && first.type) return first.type;
+    }
+
+    if (subscription && typeof subscription === 'object' && subscription.type) {
+      return subscription.type;
+    }
+
+    const level = Number(subscription);
+    if (Number.isNaN(level) || level <= 0) return null;
+    if (level === 1) return 'VIP';
+    if (level === 2) return 'Premium';
+    return `Plan ${level}`;
+  };
+
   const handleTakeDown = async (userId, username) => {
     if (!window.confirm(`Are you sure you want to remove user "${username}"?`)) {
       return;
@@ -76,9 +94,9 @@ export default function UserList({ users, onUserRemoved }) {
                   ₹{(user.earnings || 0).toLocaleString('en-IN')}
                 </td>
                 <td>
-                  {user.subscription && user.subscription.length > 0 ? (
+                  {getSubscriptionLabel(user.subscription) ? (
                     <span className={styles.subscriptionBadge}>
-                      {user.subscription[0].type}
+                      {getSubscriptionLabel(user.subscription)}
                     </span>
                   ) : (
                     <span className={styles.noSubscription}>None</span>

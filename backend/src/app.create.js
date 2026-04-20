@@ -28,7 +28,7 @@ export function createApp() {
         app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     }
 
-    app.use(morgan("combined", { stream: accessLogStream }));
+    app.use(morgan("combined :response-time ms", { stream: accessLogStream }));
     app.use(morgan("dev"));
     app.use(helmet());
 
