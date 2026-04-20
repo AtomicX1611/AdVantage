@@ -15,6 +15,90 @@ import API_CONFIG from '../../config/api.config';
 
 const BACKEND = (API_CONFIG.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
+const BASE_CATEGORY_MAP = {
+  Clothes: 0,
+  Mobiles: 0,
+  Laptops: 0,
+  Electronics: 0,
+  Books: 0,
+  Furniture: 0,
+  Automobiles: 0,
+  Sports: 0,
+  Fashion: 0,
+  'Musical Instruments': 0,
+};
+
+const toNumber = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const firstDefined = (...values) => values.find((v) => v !== undefined && v !== null);
+
+const normalizeCategoryRevenue = (input) => {
+  const result = { ...BASE_CATEGORY_MAP };
+
+  if (Array.isArray(input)) {
+    input.forEach((entry) => {
+      const category = entry?.category || entry?._id;
+      if (!category) return;
+      result[category] = toNumber(firstDefined(entry?.revenue, entry?.amount, entry?.totalRevenue));
+    });
+    return result;
+  }
+
+  if (input && typeof input === 'object') {
+    Object.entries(input).forEach(([category, value]) => {
+      result[category] = toNumber(value);
+    });
+  }
+
+  return result;
+};
+
+const normalizeAnalyticsPayload = (responseData) => {
+  const source = responseData?.data || responseData?.analytics || responseData || {};
+  const settlementSummary = source?.settlementSummary || source?.settlement_summary || {};
+
+  const normalizedSettled = normalizeCategoryRevenue(
+    firstDefined(
+      source?.categoryRevenueSettled,
+      source?.category_revenue_settled,
+      source?.revPerCat,
+      source?.revenueByCategory
+    )
+  );
+
+  const normalizedPending = normalizeCategoryRevenue(
+    firstDefined(
+      source?.categoryRevenuePending,
+      source?.category_revenue_pending
+    )
+  );
+
+  return {
+    earnings: toNumber(firstDefined(source?.earnings, source?.totalEarnings, settlementSummary?.settledEarnings)),
+    pendingRequest: toNumber(firstDefined(source?.pendingRequest, source?.pendingRequests)),
+    itemsForSale: toNumber(firstDefined(source?.itemsForSale, source?.items_for_sale, source?.forSaleItems)),
+    itemsSold: toNumber(firstDefined(source?.itemsSold, source?.items_sold, source?.soldItems)),
+    settlementSummary: {
+      settledEarnings: toNumber(firstDefined(settlementSummary?.settledEarnings, settlementSummary?.settled_earnings, source?.earnings)),
+      pendingEarnings: toNumber(firstDefined(settlementSummary?.pendingEarnings, settlementSummary?.pending_earnings)),
+      failedPayoutAmount: toNumber(firstDefined(settlementSummary?.failedPayoutAmount, settlementSummary?.failed_payout_amount)),
+      disputedHoldAmount: toNumber(firstDefined(settlementSummary?.disputedHoldAmount, settlementSummary?.disputed_hold_amount)),
+      finalizedAvailableBalance: toNumber(firstDefined(settlementSummary?.finalizedAvailableBalance, settlementSummary?.finalized_available_balance)),
+      totalWithdrawnToDate: toNumber(firstDefined(settlementSummary?.totalWithdrawnToDate, settlementSummary?.total_withdrawn_to_date)),
+      withdrawalsInProcessing: toNumber(firstDefined(settlementSummary?.withdrawalsInProcessing, settlementSummary?.withdrawals_in_processing)),
+      failedWithdrawalAmount: toNumber(firstDefined(settlementSummary?.failedWithdrawalAmount, settlementSummary?.failed_withdrawal_amount)),
+      lastWithdrawalAt: firstDefined(settlementSummary?.lastWithdrawalAt, settlementSummary?.last_withdrawal_at, null),
+      lastWithdrawalStatus: firstDefined(settlementSummary?.lastWithdrawalStatus, settlementSummary?.last_withdrawal_status, null),
+    },
+    revPerCat: normalizedSettled,
+    categoryRevenueSettled: normalizedSettled,
+    categoryRevenuePending: normalizedPending,
+  };
+};
+
 // Register ChartJS components
 ChartJS.register(
   ArcElement,
@@ -42,8 +126,9 @@ const SellerAnalytics = () => {
         });
 
         let responseData = await response.json();
-        if (responseData.success) {
-          setAnalytics(responseData.data);
+        const normalized = normalizeAnalyticsPayload(responseData);
+        if (responseData.success !== false) {
+          setAnalytics(normalized);
           return;
         }
         // alert("Failed to load Analytics"); // Optional: suppress alert on load
