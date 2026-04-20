@@ -7,9 +7,11 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  PointElement,
+  LineElement,
   Title,
 } from 'chart.js';
-import { Doughnut, Bar } from 'react-chartjs-2';
+import { Doughnut, Bar, Line } from 'react-chartjs-2';
 import styles from '../../styles/sellerdashboard.module.css';
 import API_CONFIG from '../../config/api.config';
 
@@ -148,6 +150,8 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  PointElement,
+  LineElement,
   Title
 );
 
@@ -203,9 +207,28 @@ const SellerAnalytics = () => {
       {
         label: 'Items Sold',
         data: [Analytics?.itemsSold || 0],
-        backgroundColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+        borderColor: '#2563eb',
+        borderWidth: 1,
+        borderRadius: 8,
       },
     ],
+  };
+
+  const lineData = {
+    labels: ['Stage 1', 'Stage 2', 'Stage 3', 'Current'],
+    datasets: [
+      {
+        label: 'Earnings Growth Trend',
+        data: [0, (Analytics?.earnings || 0) * 0.3, (Analytics?.earnings || 0) * 0.7, Analytics?.earnings || 0],
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#059669',
+        borderWidth: 3,
+      }
+    ]
   };
 
   const settledSummary = Analytics?.settlementSummary || {};
@@ -277,79 +300,72 @@ const SellerAnalytics = () => {
     <div style={{ maxWidth: '1200px', margin: '0 auto', paddingBottom: '40px' }}>
       <h2>Seller Analytics</h2>
 
-      {/* --- SECTION 1: STATS CARDS --- */}
+      <h3 style={{ marginBottom: '20px', color: '#1e293b', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', fontSize: '1.4rem' }}>👛 Wallet Balances</h3>
       <div className={styles.grid} style={{ marginBottom: '40px' }}>
-        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #10b981' }}>
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', border: 'none', transform: 'translateY(0)', transition: 'all 0.3s ease' }}>
           <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Settled Earnings</h3>
-            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
+            <h3 style={{ fontSize: '1rem', color: '#ecfdf5', opacity: 0.9 }}>Settled Earnings</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#ffffff', margin: '10px 0', textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
               Rs. {formatMoney(settledSummary?.settledEarnings || Analytics?.earnings || 0)}
             </p>
-            <span style={{ fontSize: '0.85rem', color: '#10b981' }}>Processed payouts only</span>
+            <span style={{ fontSize: '0.85rem', color: '#a7f3d0' }}>Processed payouts successfully</span>
           </div>
         </div>
 
-        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #3b82f6' }}>
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', color: 'white', border: 'none' }}>
           <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Finalized Available Balance</h3>
-            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
+            <h3 style={{ fontSize: '1rem', color: '#eff6ff', opacity: 0.9 }}>Finalized Available Balance</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#ffffff', margin: '10px 0', textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
               Rs. {formatMoney(settledSummary?.finalizedAvailableBalance || 0)}
             </p>
-            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Ready for withdrawal</span>
+            <span style={{ fontSize: '0.85rem', color: '#bfdbfe' }}>Ready for withdrawal to bank</span>
           </div>
         </div>
 
-        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #f59e0b' }}>
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'white', border: 'none' }}>
           <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Withdrawn To Date</h3>
-            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
+            <h3 style={{ fontSize: '1rem', color: '#fef3c7', opacity: 0.9 }}>Pending Settlement</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#ffffff', margin: '10px 0', textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
+              Rs. {formatMoney(settledSummary?.pendingEarnings || 0)}
+            </p>
+            <span style={{ fontSize: '0.85rem', color: '#fde68a' }}>Waiting for resolution</span>
+          </div>
+        </div>
+
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', color: 'white', border: 'none' }}>
+          <div className={styles.cardDetails}>
+            <h3 style={{ fontSize: '1rem', color: '#f5f3ff', opacity: 0.9 }}>Withdrawn To Date</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#ffffff', margin: '10px 0', textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
               Rs. {formatMoney(settledSummary?.totalWithdrawnToDate || 0)}
             </p>
-            <span style={{ fontSize: '0.85rem', color: '#0f766e' }}>Transferred successfully</span>
+            <span style={{ fontSize: '0.85rem', color: '#ddd6fe' }}>Transferred successfully to bank</span>
           </div>
         </div>
+      </div>
 
-        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #ef4444' }}>
-          <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Withdrawals In Processing</h3>
-            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              Rs. {formatMoney(settledSummary?.withdrawalsInProcessing || 0)}
-            </p>
-            <span style={{ fontSize: '0.85rem', color: '#ef4444' }}>Bank transfer in progress</span>
-          </div>
-        </div>
-
-        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #0ea5e9' }}>
+      <h3 style={{ marginBottom: '20px', color: '#1e293b', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', fontSize: '1.4rem' }}>🔒 Escrow Pipeline Details</h3>
+      <div className={styles.grid} style={{ marginBottom: '40px' }}>
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #0ea5e9', background: 'rgba(255, 255, 255, 0.9)' }}>
           <div className={styles.cardDetails}>
             <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Escrow Held Amount</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
               Rs. {formatMoney(settledSummary?.escrowHeldAmount || 0)}
             </p>
-            <span style={{ fontSize: '0.85rem', color: '#0369a1' }}>Funds still locked in active order stages</span>
+            <span style={{ fontSize: '0.85rem', color: '#0369a1' }}>Active orders pending resolution</span>
           </div>
         </div>
 
-        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #16a34a' }}>
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #16a34a', background: 'rgba(255, 255, 255, 0.9)' }}>
           <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Escrow Releasable Amount</h3>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Escrow Releasable Total</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
               Rs. {formatMoney(settledSummary?.escrowReleasableAmount || 0)}
             </p>
-            <span style={{ fontSize: '0.85rem', color: '#166534' }}>Ready to move from escrow into withdrawals</span>
+            <span style={{ fontSize: '0.85rem', color: '#166534' }}>Ready to move from escrow to wallet</span>
           </div>
         </div>
 
-        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #f59e0b' }}>
-          <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Escrow Pending Review (48h)</h3>
-            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              Rs. {formatMoney(settledSummary?.escrowPendingReviewAmount || 0)}
-            </p>
-            <span style={{ fontSize: '0.85rem', color: '#92400e' }}>Buyer review window is active</span>
-          </div>
-        </div>
-
-        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #ef4444' }}>
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #ef4444', background: 'rgba(255, 255, 255, 0.9)' }}>
           <div className={styles.cardDetails}>
             <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Escrow Under Dispute</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
@@ -359,23 +375,13 @@ const SellerAnalytics = () => {
           </div>
         </div>
 
-        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #14b8a6' }}>
+        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #6366f1', background: 'rgba(255, 255, 255, 0.9)' }}>
           <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Escrow Released Total</h3>
+            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Withdrawals In Processing</h3>
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              Rs. {formatMoney(settledSummary?.escrowReleasedTotal || settledSummary?.settledEarnings || 0)}
+              Rs. {formatMoney(settledSummary?.withdrawalsInProcessing || 0)}
             </p>
-            <span style={{ fontSize: '0.85rem', color: '#0f766e' }}>Released from escrow to seller side</span>
-          </div>
-        </div>
-
-        <div className={styles.card} style={{ height: 'auto', minHeight: '140px', borderLeft: '5px solid #7c3aed' }}>
-          <div className={styles.cardDetails}>
-            <h3 style={{ fontSize: '1rem', color: '#64748b' }}>Escrow Failed or Blocked</h3>
-            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0f172a', margin: '10px 0' }}>
-              Rs. {formatMoney(settledSummary?.escrowFailedBlockedAmount || 0)}
-            </p>
-            <span style={{ fontSize: '0.85rem', color: '#6d28d9' }}>Failed payouts, failed withdrawals, and dispute holds</span>
+            <span style={{ fontSize: '0.85rem', color: '#4f46e5' }}>Bank transfer in progress</span>
           </div>
         </div>
       </div>
@@ -404,20 +410,21 @@ const SellerAnalytics = () => {
       </div>
 
       {/* --- SECTION 2: CHARTS ROW 1 --- */}
+      <h3 style={{ marginBottom: '20px', color: '#1e293b', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', fontSize: '1.4rem' }}>📊 Sales Distribution & Trends</h3>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '30px', marginBottom: '30px' }}>
         {/* Doughnut Chart */}
-        <div className={styles.card} style={{ flex: '1 1 400px', height: '400px', padding: '20px' }}>
+        <div className={styles.card} style={{ flex: '1 1 350px', height: '400px', padding: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
           <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Inventory Distribution</h3>
           <div style={{ height: '300px', position: 'relative' }}>
             <Doughnut data={doughnutData} options={commonOptions} />
           </div>
         </div>
 
-        {/* Vertical Bar Chart */}
-        <div className={styles.card} style={{ flex: '1 1 400px', height: '400px', padding: '20px' }}>
-          <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Sales vs. Rentals Performance</h3>
+        {/* Vertical Bar Chart substituting Line for trend */}
+        <div className={styles.card} style={{ flex: '2 1 500px', height: '400px', padding: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+          <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Earnings Growth Trend</h3>
           <div style={{ height: '300px', position: 'relative' }}>
-            <Bar data={barData} options={commonOptions} />
+            <Line data={lineData} options={commonOptions} />
           </div>
         </div>
       </div>

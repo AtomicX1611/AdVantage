@@ -1014,27 +1014,10 @@ export const analyticsService = async (sellerId) => {
         const products = userProducts.products;
         let itemsSold = 0;
         let pendingRequest = 0;
-
         let itemsForSale = 0;
-
-        const baseCategoryMap = {
-            "Clothes": 0,
-            "Mobiles": 0,
-            "Laptops": 0,
-            "Electronics": 0,
-            "Books": 0,
-            "Furniture": 0,
-            "Automobiles": 0,
-            "Sports": 0,
-            "Fashion": 0,
-            "Musical Instruments": 0
-        };
-        const categoryRevenueSettled = { ...baseCategoryMap };
-        const categoryRevenuePending = { ...baseCategoryMap };
 
         products.forEach(prod => {
             pendingRequest += prod.requests?.length || 0;
-
             if (prod.soldTo != null) {
                 itemsSold++;
             } else {
@@ -1042,16 +1025,32 @@ export const analyticsService = async (sellerId) => {
             }
         });
 
+        const txResponse = await getTransactionsService(sellerId);
+        const summary = txResponse?.summary || {};
+        
+        const settledEarnings = summary.settledEarnings || 0;
+        const pendingEarnings = summary.pendingEarnings || 0;
+        const finalizedAvailableBalance = summary.availableToWithdraw || 0;
+        const totalWithdrawnToDate = summary.withdrawnToDate || 0;
+        const withdrawalsInProcessing = summary.inProgressWithdrawals || 0;
+        const failedWithdrawalAmount = summary.failedWithdrawals || 0;
+
+        const baseCategoryMap = {
+            "Clothes": 0, "Mobiles": 0, "Laptops": 0, "Electronics": 0,
+            "Books": 0, "Furniture": 0, "Automobiles": 0, "Sports": 0,
+            "Fashion": 0, "Musical Instruments": 0
+        };
+        const categoryRevenueSettled = { ...baseCategoryMap };
+        const categoryRevenuePending = { ...baseCategoryMap };
+
         const sellerPayouts = await PendingPayouts.find({ recipientId: sellerId })
             .populate("productId", "category")
             .sort({ createdAt: -1 });
 
         const withdrawals = await getSellerWithdrawalsDao(sellerId);
+        const latestWithdrawal = withdrawals[0] || null;
 
-        let settledEarnings = 0;
-        let pendingEarnings = 0;
         let failedPayoutAmount = 0;
-        let finalizedAvailableBalance = 0;
         let escrowReleasableAmount = 0;
         let escrowReleasedTotal = 0;
         let escrowFailedPayoutAmount = 0;
@@ -1062,61 +1061,31 @@ export const analyticsService = async (sellerId) => {
             const isWithdrawableType = WITHDRAWABLE_PAYOUT_TYPES.includes(payout.payoutType);
             const isSellerEscrowType = SELLER_ESCROW_PAYOUT_TYPES.includes(payout.payoutType);
 
-            if ((payout.status === "Pending" || payout.status === "Processed") && isSellerEscrowType && !payout.withdrawalRequestId) {
-                escrowReleasableAmount += amount;
+            // True finalized/released if Processing OR (Pending + no withdraw req)
+            const isFinalized = payout.status === "Processed" || (payout.status === "Pending" && isWithdrawableType && !payout.withdrawalRequestId);
+
+            if (isFinalized && isSellerEscrowType) {
+                escrowReleasedTotal += amount;
+                escrowReleasableAmount += (!payout.withdrawalRequestId ? amount : 0);
             }
 
-            if (payout.status === "Processed") {
-                settledEarnings += amount;
-                if (!payout.withdrawalRequestId && isWithdrawableType) {
-                    finalizedAvailableBalance += amount;
-                }
-                if (isSellerEscrowType) {
-                    escrowReleasedTotal += amount;
-                }
+            if (isFinalized) {
                 if (category && categoryRevenueSettled[category] !== undefined) {
                     categoryRevenueSettled[category] += amount;
                 }
-                return;
-            }
-
-            if (payout.status === "Pending") {
-                if (!isWithdrawableType || payout.withdrawalRequestId) {
-                    pendingEarnings += amount;
-                }
+            } else if (payout.status === "Pending") {
                 if (category && categoryRevenuePending[category] !== undefined) {
                     categoryRevenuePending[category] += amount;
                 }
-                return;
-            }
-
-            failedPayoutAmount += amount;
-            if (isSellerEscrowType) {
-                escrowFailedPayoutAmount += amount;
+            } else if (payout.status === "Failed") {
+                failedPayoutAmount += amount;
+                if (isSellerEscrowType) escrowFailedPayoutAmount += amount;
             }
         });
 
-        const totalWithdrawnToDate = withdrawals
-            .filter((item) => item.status === "Processed")
-            .reduce((sum, item) => sum + Number(item.withdrawnAmount || 0), 0);
-
-        const withdrawalsInProcessing = withdrawals
-            .filter((item) => item.status === "Initiated" || item.status === "Processing")
-            .reduce((sum, item) => sum + Number(item.withdrawnAmount || 0), 0);
-
-        const failedWithdrawalAmount = withdrawals
-            .filter((item) => item.status === "Failed")
-            .reduce((sum, item) => sum + Number(item.withdrawnAmount || 0), 0);
-
-        const latestWithdrawal = withdrawals[0] || null;
-
         const sellerOrders = await getSellerOrdersDao(sellerId);
         const orderStageCounts = {
-            Pending: 0,
-            Shipped: 0,
-            Delivered: 0,
-            Disputed: 0,
-            Completed: 0,
+            Pending: 0, Shipped: 0, Delivered: 0, Disputed: 0, Completed: 0,
         };
 
         let escrowHeldAmount = 0;
@@ -1131,14 +1100,13 @@ export const analyticsService = async (sellerId) => {
                 orderStageCounts[stage] += 1;
             }
 
+            // In new pipeline, we shouldn't classify "Delivered" and "Completed" natively the same if payouts are handled.
             if (stage === "Pending" || stage === "Shipped" || stage === "Delivered" || stage === "Disputed") {
                 escrowHeldAmount += normalizedAmount;
             }
-
             if (stage === "Delivered" && !order.timerTriggered48Hour) {
                 escrowPendingReviewAmount += normalizedAmount;
             }
-
             if (stage === "Disputed") {
                 escrowUnderDisputeAmount += normalizedAmount;
             }

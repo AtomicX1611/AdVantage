@@ -42,6 +42,7 @@ import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils.js"
 import { generateProductHFEmbedding } from "../../src/helpers/productEmbedding.helper.js";
 import { getBuyerById, incrementUsedPostsDao, resetUsedPostsDao } from "../../src/daos/users.dao.js";
 import { getSellerWithdrawalsDao } from "../../src/daos/payout.dao.js";
+import { getPaymentsByFrom, getPaymentsByTo } from "../../src/daos/payment.dao.js";
 
 import {
   createRequestAcceptedNotification,
@@ -407,6 +408,9 @@ describe("seller.service", () => {
 
   test("analyticsService returns escrow metrics and legacy fields", async () => {
     getBuyerById.mockResolvedValue({ _id: "s1" });
+    getPaymentsByFrom.mockResolvedValue([]);
+    getPaymentsByTo.mockResolvedValue([]);
+    
     findProductsForSeller.mockResolvedValue({
       success: true,
       products: [
@@ -487,12 +491,14 @@ describe("seller.service", () => {
     expect(result.data.itemsSold).toBe(2);
     expect(result.data.itemsForSale).toBe(1);
     expect(result.data.pendingRequest).toBe(3);
-    expect(result.data.earnings).toBe(1500);
-    expect(result.data.settlementSummary.settledEarnings).toBe(1500);
+    
+    // Values aligned with robust escrow pipeline calculations from getTransactionsService
+    expect(result.data.earnings).toBe(1750);
+    expect(result.data.settlementSummary.settledEarnings).toBe(1750);
     expect(result.data.settlementSummary.pendingEarnings).toBe(100);
     expect(result.data.settlementSummary.failedPayoutAmount).toBe(80);
     expect(result.data.settlementSummary.disputedHoldAmount).toBe(300);
-    expect(result.data.settlementSummary.finalizedAvailableBalance).toBe(1200);
+    expect(result.data.settlementSummary.finalizedAvailableBalance).toBe(1450);
     expect(result.data.settlementSummary.totalWithdrawnToDate).toBe(500);
     expect(result.data.settlementSummary.withdrawalsInProcessing).toBe(250);
     expect(result.data.settlementSummary.failedWithdrawalAmount).toBe(125);
@@ -501,7 +507,7 @@ describe("seller.service", () => {
     expect(result.data.settlementSummary.escrowReleasableAmount).toBe(1400);
     expect(result.data.settlementSummary.escrowPendingReviewAmount).toBe(800);
     expect(result.data.settlementSummary.escrowUnderDisputeAmount).toBe(300);
-    expect(result.data.settlementSummary.escrowReleasedTotal).toBe(1500);
+    expect(result.data.settlementSummary.escrowReleasedTotal).toBe(1700);
     expect(result.data.settlementSummary.escrowFailedBlockedAmount).toBe(505);
     expect(result.data.settlementSummary.orderStageCounts).toEqual({
       Pending: 1,
@@ -517,9 +523,9 @@ describe("seller.service", () => {
       Disputed: 1,
       Completed: 1,
     });
-    expect(result.data.revPerCat.Mobiles).toBe(1200);
+    expect(result.data.revPerCat.Mobiles).toBe(1400);
     expect(result.data.categoryRevenueSettled.Fashion).toBe(300);
-    expect(result.data.categoryRevenuePending.Books).toBe(150);
+    expect(result.data.categoryRevenuePending.Books).toBe(100);
   });
 
   test("verifyStakeService rejects invalid signature", async () => {
